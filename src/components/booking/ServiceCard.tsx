@@ -3,12 +3,14 @@ import { formatCurrency, formatDuration } from "@/src/lib/booking-format";
 
 type ServiceCardProps = {
   service: PublicService;
+  highlighted?: boolean;
   selected: boolean;
   onSelect: (service: PublicService) => void;
 };
 
 export function ServiceCard({
   service,
+  highlighted = false,
   selected,
   onSelect,
 }: ServiceCardProps) {
@@ -30,7 +32,14 @@ export function ServiceCard({
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="font-semibold text-foreground">{service.name}</p>
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="font-semibold text-foreground">{service.name}</p>
+              {highlighted ? (
+                <span className="rounded-full bg-brand-soft px-2 py-0.5 text-[11px] font-semibold text-brand">
+                  Recommended
+                </span>
+              ) : null}
+            </div>
             {service.description ? (
               <p className="mt-1 line-clamp-2 text-sm leading-5 text-muted">
                 {service.description}

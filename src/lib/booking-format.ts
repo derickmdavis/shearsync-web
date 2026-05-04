@@ -1,8 +1,9 @@
 import type {
-  AvailabilitySummary,
+  PublicAvailabilityResponse,
   PublicBookingConfirmation,
   PublicService,
   PublicSlot,
+  RawAvailabilityRow,
   PublicStylist,
 } from "@/src/lib/api";
 
@@ -70,7 +71,13 @@ export function formatTimezoneLabel(timezone?: string | null) {
   return `Times shown in ${timezone}`;
 }
 
-export function extractAvailabilityDates(availability?: AvailabilitySummary) {
+export function extractAvailabilityDates(
+  availability?: PublicAvailabilityResponse,
+) {
+  if (Array.isArray(availability)) {
+    return [];
+  }
+
   const dates =
     availability?.available_dates ??
     availability?.dates ??
@@ -78,6 +85,59 @@ export function extractAvailabilityDates(availability?: AvailabilitySummary) {
     [];
 
   return dates.filter(Boolean);
+}
+
+export function extractAvailabilityRows(
+  availability?: PublicAvailabilityResponse,
+) {
+  if (!Array.isArray(availability)) {
+    return [] as RawAvailabilityRow[];
+  }
+
+  return availability.filter((row) => row.is_active);
+}
+
+export function buildAvailabilityDateOptions(
+  rows: RawAvailabilityRow[],
+  {
+    startDate = getTodayDateValue(),
+    count = 21,
+    scanDays = 84,
+  }: {
+    startDate?: string;
+    count?: number;
+    scanDays?: number;
+  } = {},
+) {
+  const activeDays = new Set(
+    rows.filter((row) => row.is_active).map((row) => row.day_of_week),
+  );
+
+  if (!activeDays.size) {
+    return [];
+  }
+
+  const dates: string[] = [];
+
+  for (let offset = 0; offset < scanDays && dates.length < count; offset += 1) {
+    const date = addDaysToDate(startDate, offset);
+
+    if (activeDays.has(new Date(`${date}T12:00:00`).getDay())) {
+      dates.push(date);
+    }
+  }
+
+  return dates;
+}
+
+export function extractAvailabilityTimezone(
+  availability?: PublicAvailabilityResponse,
+) {
+  if (!availability || Array.isArray(availability)) {
+    return null;
+  }
+
+  return availability.timezone ?? null;
 }
 
 export function buildFallbackDateOptions(count = 7) {
@@ -103,7 +163,8 @@ export function addDaysToDate(date: string, days: number) {
 
 export function startOfWeek(date: string) {
   const targetDate = parseDateValue(date);
-  targetDate.setDate(targetDate.getDate() - targetDate.getDay());
+  const dayOffset = (targetDate.getDay() + 6) % 7;
+  targetDate.setDate(targetDate.getDate() - dayOffset);
   return formatDateValue(targetDate);
 }
 
@@ -121,6 +182,36 @@ export function formatDateChip(date: string, timeZone?: string | null) {
     day: "numeric",
     timeZone: timeZone ?? undefined,
   }).format(targetDate);
+}
+
+export function formatShortWeekday(date: string, timeZone?: string | null) {
+  const targetDate = new Date(`${date}T12:00:00`);
+
+  return new Intl.DateTimeFormat("en-US", {
+    weekday: "short",
+    timeZone: timeZone ?? undefined,
+  }).format(targetDate);
+}
+
+export function formatMonthDay(date: string, timeZone?: string | null) {
+  const targetDate = new Date(`${date}T12:00:00`);
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    timeZone: timeZone ?? undefined,
+  }).format(targetDate);
+}
+
+export function formatRelativeDateLabel(date: string, timeZone?: string | null) {
+  const today = getTodayDateValue();
+  const monthDay = formatMonthDay(date, timeZone);
+
+  if (date === today) {
+    return `Today, ${monthDay}`;
+  }
+
+  return `${formatShortWeekday(date, timeZone)}, ${monthDay}`;
 }
 
 export function formatMonthLabel(date: string, timeZone?: string | null) {

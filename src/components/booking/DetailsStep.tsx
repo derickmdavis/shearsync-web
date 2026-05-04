@@ -24,10 +24,12 @@ type DetailsStepProps = {
   services: PublicService[];
   intake?: PublicBookingIntakeData | null;
   intakeLoading: boolean;
+  servicesLoading: boolean;
   selectedServices: PublicService[];
   serviceError?: string | null;
   canBeginServiceSelection: boolean;
   showServicePicker: boolean;
+  recommendedServiceId?: string | null;
   onChange: (field: keyof DetailsState, value: string) => void;
   onToggleService: (service: PublicService) => void;
   onContinue: () => void;
@@ -39,16 +41,20 @@ export function DetailsStep({
   services,
   intake,
   intakeLoading,
+  servicesLoading,
   selectedServices,
   serviceError,
   canBeginServiceSelection,
   showServicePicker,
+  recommendedServiceId,
   onChange,
   onToggleService,
   onContinue,
 }: DetailsStepProps) {
   const disableSubmit =
-    intakeLoading || (!showServicePicker && !canBeginServiceSelection);
+    intakeLoading ||
+    servicesLoading ||
+    (!showServicePicker && !canBeginServiceSelection);
   const totalDuration = sumServiceDurations(selectedServices);
   const totalPrice = sumServicePrices(selectedServices);
 
@@ -140,13 +146,16 @@ export function DetailsStep({
           </div>
 
           <div className="border-t border-border px-5 py-5">
-            {services.length ? (
+            {servicesLoading ? (
+              <EmptyState message="Refreshing the services you can book right now..." />
+            ) : services.length ? (
               <>
                 <div className="space-y-3">
                   {services.map((service) => (
                     <ServiceCard
                       key={service.id}
                       service={service}
+                      highlighted={service.id === recommendedServiceId}
                       selected={selectedServices.some(
                         (selectedService) => selectedService.id === service.id,
                       )}
@@ -184,7 +193,13 @@ export function DetailsStep({
         disabled={disableSubmit}
         className="mt-8 flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-brand px-5 text-base font-semibold text-white shadow-[0_18px_32px_rgba(109,79,242,0.26)] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-55"
       >
-        {intakeLoading ? "Checking..." : showServicePicker ? "Continue" : "Select Services"}
+        {intakeLoading
+          ? "Checking..."
+          : servicesLoading
+            ? "Loading services..."
+            : showServicePicker
+              ? "Continue"
+              : "Select Services"}
         <ArrowIcon />
       </button>
     </form>
@@ -200,7 +215,7 @@ function IntakeMessage({
 }) {
   const title =
     intake.matchStatus === "matched"
-      ? `Welcome back, ${intake.client.firstName || "there"}`
+      ? `Welcome back, ${intake.client?.firstName || "there"}`
       : intake.matchStatus === "ambiguous"
         ? "We need one more check"
         : "New client booking";

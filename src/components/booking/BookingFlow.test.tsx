@@ -1,0 +1,404 @@
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { BookingFlow } from "@/src/components/booking/BookingFlow";
+import type {
+  PublicBookingIntakeData,
+  PublicService,
+  PublicStylist,
+  RawAvailabilityRow,
+} from "@/src/lib/api";
+import * as bookingApi from "@/src/lib/api";
+
+const bookingApiMocks = vi.hoisted(() => ({
+  createPublicBooking: vi.fn(),
+  createPublicBookingIntake: vi.fn(),
+  getPublicAvailability: vi.fn(),
+  getPublicServices: vi.fn(),
+  getPublicSlots: vi.fn(),
+}));
+
+vi.mock("@/src/lib/api", async () => {
+  const actual = await vi.importActual<typeof import("@/src/lib/api")>(
+    "@/src/lib/api",
+  );
+
+  return {
+    ...actual,
+    ...bookingApiMocks,
+  };
+});
+
+const baseStylist: PublicStylist = {
+  id: "stylist-1",
+  slug: "maya-johnson",
+  display_name: "Maya Johnson",
+  bio: "Lived-in color specialist",
+  cover_photo_url: null,
+  booking_enabled: true,
+  business_name: "Maya Johnson Hair",
+  phone_number: "555-0101",
+  timezone: "America/Denver",
+};
+
+function createService(
+  id: string,
+  name: string,
+  durationMinutes = 60,
+): PublicService {
+  return {
+    id,
+    name,
+    duration_minutes: durationMinutes,
+    price: 95,
+    is_active: true,
+  };
+}
+
+function createIntake(
+  overrides: Partial<PublicBookingIntakeData> = {},
+): PublicBookingIntakeData {
+  return {
+    matchStatus: "matched",
+    clientFound: true,
+    isExistingClient: true,
+    bookingContextToken: "token-1",
+    bookingEnabled: true,
+    client: {
+      id: "client-1",
+      firstName: "Jane",
+      lastName: "Smith",
+      email: "jane@example.com",
+      phoneMasked: "***-***-0103",
+    },
+    submittedContact: {
+      fullName: "Jane Smith",
+      phoneNormalized: "+17205550103",
+      email: "jane@example.com",
+    },
+    recommendedService: null,
+    bookingBehavior: {
+      requiresApproval: false,
+      restrictedToNewClientRules: false,
+      canUseReturningClientRules: true,
+      message: "Welcome back — you can book directly.",
+    },
+    ...overrides,
+  };
+}
+
+function createAvailabilityRow(
+  audience: RawAvailabilityRow["client_audience"],
+): RawAvailabilityRow {
+  return {
+    id: `availability-${audience}`,
+    user_id: "user-1",
+    day_of_week: 1,
+    start_time: "09:00:00",
+    end_time: "17:00:00",
+    is_active: true,
+    client_audience: audience,
+  };
+}
+
+function setupMockReferences() {
+  return {
+    createPublicBookingIntake: vi.mocked(bookingApi.createPublicBookingIntake),
+    getPublicServices: vi.mocked(bookingApi.getPublicServices),
+    getPublicAvailability: vi.mocked(bookingApi.getPublicAvailability),
+    getPublicSlots: vi.mocked(bookingApi.getPublicSlots),
+  };
+}
+
+function fillContactDetails({
+  fullName = "Jane Smith",
+  phone = "(720) 555-0103",
+  email = "jane@example.com",
+}: Partial<{
+  fullName: string;
+  phone: string;
+  email: string;
+}> = {}) {
+  fireEvent.change(screen.getByPlaceholderText("Enter your full name"), {
+    target: { value: fullName },
+  });
+  fireEvent.change(screen.getByPlaceholderText("(555) 123-4567"), {
+    target: { value: phone },
+  });
+  fireEvent.change(screen.getByPlaceholderText("you@email.com"), {
+    target: { value: email },
+  });
+}
+
+async function openServicesStep() {
+  fillContactDetails();
+  fireEvent.click(screen.getByRole("button", { name: "Select Services" }));
+  await screen.findByText("Select your services");
+}
+
+describe("BookingFlow", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("stops immediately when profile booking is disabled", () => {
+    const {
+      createPublicBookingIntake,
+      getPublicAvailability,
+      getPublicServices,
+      getPublicSlots,
+    } = setupMockReferences();
+
+    render(
+      <BookingFlow
+        slug="maya-johnson"
+        stylist={{ ...baseStylist, booking_enabled: false }}
+      />,
+    );
+
+    expect(
+      screen.getByText("Online booking is currently unavailable."),
+    ).toBeTruthy();
+    expect(createPublicBookingIntake).not.toHaveBeenCalled();
+    expect(getPublicServices).not.toHaveBeenCalled();
+    expect(getPublicAvailability).not.toHaveBeenCalled();
+    expect(getPublicSlots).not.toHaveBeenCalled();
+  });
+
+  it("stops when intake reports booking disabled", async () => {
+    const { createPublicBookingIntake, getPublicServices } = setupMockReferences();
+
+    createPublicBookingIntake.mockResolvedValue(
+      createIntake({ bookingEnabled: false }),
+    );
+
+    render(<BookingFlow slug="maya-johnson" stylist={baseStylist} />);
+
+    fillContactDetails();
+    fireEvent.click(screen.getByRole("button", { name: "Select Services" }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("Online booking is currently unavailable."),
+      ).toBeTruthy();
+    });
+    expect(getPublicServices).not.toHaveBeenCalled();
+    expect(
+      screen.queryByText("No services are currently available for online booking."),
+    ).toBeNull();
+  });
+
+  it("reruns intake and reloads token-dependent services when contact details change", async () => {
+    const { createPublicBookingIntake, getPublicServices } = setupMockReferences();
+
+    createPublicBookingIntake
+      .mockResolvedValueOnce(createIntake({ bookingContextToken: "token-1" }))
+      .mockResolvedValueOnce(createIntake({ bookingContextToken: "token-2" }));
+    getPublicServices
+      .mockResolvedValueOnce([createService("service-1", "Haircut")])
+      .mockResolvedValueOnce([createService("service-2", "Blowout")]);
+
+    render(<BookingFlow slug="maya-johnson" stylist={baseStylist} />);
+
+    await openServicesStep();
+    expect(screen.getByText("Haircut")).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: /Haircut/i }));
+    fireEvent.change(screen.getByPlaceholderText("(555) 123-4567"), {
+      target: { value: "(720) 555-0104" },
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByText("Select your services")).toBeNull();
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Select Services" }));
+
+    await screen.findByText("Blowout");
+
+    expect(createPublicBookingIntake).toHaveBeenCalledTimes(2);
+    expect(getPublicServices).toHaveBeenNthCalledWith(
+      1,
+      "maya-johnson",
+      "token-1",
+    );
+    expect(getPublicServices).toHaveBeenNthCalledWith(
+      2,
+      "maya-johnson",
+      "token-2",
+    );
+    expect(screen.queryByText("Haircut")).toBeNull();
+  });
+
+  it("refreshes intake and retries when the booking context expires", async () => {
+    const {
+      createPublicBookingIntake,
+      getPublicAvailability,
+      getPublicServices,
+      getPublicSlots,
+    } = setupMockReferences();
+
+    createPublicBookingIntake
+      .mockResolvedValueOnce(createIntake({ bookingContextToken: "token-1" }))
+      .mockResolvedValueOnce(createIntake({ bookingContextToken: "token-2" }));
+    getPublicServices.mockResolvedValue([createService("service-1", "Haircut")]);
+    getPublicAvailability.mockImplementation(async (_slug, token) => [
+      createAvailabilityRow(token === "token-2" ? "returning" : "all"),
+    ]);
+
+    let expiredOnce = false;
+    getPublicSlots.mockImplementation(async (_slug, _serviceIds, date, token) => {
+      if (token === "token-1" && !expiredOnce) {
+        expiredOnce = true;
+        throw new bookingApi.ApiError(
+          "Booking context is invalid or expired",
+          400,
+        );
+      }
+
+      return {
+        date,
+        timezone: "America/Denver",
+        service: {
+          id: "service-1",
+          name: "Haircut",
+          duration_minutes: 60,
+          price: 95,
+        },
+        slots: [
+          {
+            start: "2026-05-04T09:00:00-06:00",
+            end: "2026-05-04T10:00:00-06:00",
+          },
+        ],
+      };
+    });
+
+    render(<BookingFlow slug="maya-johnson" stylist={baseStylist} />);
+
+    await openServicesStep();
+    fireEvent.click(screen.getByRole("button", { name: /Haircut/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+
+    await screen.findByText("Choose a date & time");
+    await screen.findByRole("button", { name: /9:00/i });
+
+    expect(createPublicBookingIntake).toHaveBeenCalledTimes(2);
+    expect(getPublicServices).toHaveBeenCalledWith("maya-johnson", "token-2");
+    expect(getPublicAvailability).toHaveBeenCalledWith(
+      "maya-johnson",
+      "token-2",
+    );
+  });
+
+  it("renders only backend-filtered services for new clients", async () => {
+    const { createPublicBookingIntake, getPublicServices } = setupMockReferences();
+
+    createPublicBookingIntake.mockResolvedValue(
+      createIntake({
+        bookingContextToken: "token-new",
+        matchStatus: "not_found",
+        clientFound: false,
+        isExistingClient: false,
+        recommendedService: {
+          serviceId: "service-hidden",
+          serviceName: "Color Correction",
+          reason: "default_service",
+        },
+        bookingBehavior: {
+          requiresApproval: false,
+          restrictedToNewClientRules: true,
+          canUseReturningClientRules: false,
+          message: "New client booking rules apply.",
+        },
+      }),
+    );
+    getPublicServices.mockResolvedValue([createService("service-1", "Haircut")]);
+
+    render(<BookingFlow slug="maya-johnson" stylist={baseStylist} />);
+
+    await openServicesStep();
+
+    expect(screen.getByText("Haircut")).toBeTruthy();
+    expect(
+      screen.queryByRole("button", { name: /Color Correction/i }),
+    ).toBeNull();
+  });
+
+  it.each([
+    {
+      audience: "new" as const,
+      intake: createIntake({
+        bookingContextToken: "token-new",
+        matchStatus: "not_found",
+        clientFound: false,
+        isExistingClient: false,
+        bookingBehavior: {
+          requiresApproval: false,
+          restrictedToNewClientRules: true,
+          canUseReturningClientRules: false,
+          message: "New client booking rules apply.",
+        },
+      }),
+      slotLabel: /10:00/i,
+      slotStart: "2026-05-04T10:00:00-06:00",
+      slotEnd: "2026-05-04T11:00:00-06:00",
+    },
+    {
+      audience: "returning" as const,
+      intake: createIntake({
+        bookingContextToken: "token-returning",
+        isExistingClient: true,
+      }),
+      slotLabel: /2:00/i,
+      slotStart: "2026-05-04T14:00:00-06:00",
+      slotEnd: "2026-05-04T15:00:00-06:00",
+    },
+  ])(
+    "renders backend-filtered availability and slots for $audience clients",
+    async ({ audience, intake, slotLabel, slotEnd, slotStart }) => {
+      const {
+        createPublicBookingIntake,
+        getPublicAvailability,
+        getPublicServices,
+        getPublicSlots,
+      } = setupMockReferences();
+
+      createPublicBookingIntake.mockResolvedValue(intake);
+      getPublicServices.mockResolvedValue([createService("service-1", "Haircut")]);
+      getPublicAvailability.mockResolvedValue([createAvailabilityRow(audience)]);
+      getPublicSlots.mockImplementation(async (_slug, _serviceIds, date, token) => ({
+        date,
+        timezone: "America/Denver",
+        service: {
+          id: "service-1",
+          name: "Haircut",
+          duration_minutes: 60,
+          price: 95,
+        },
+        slots: token === intake.bookingContextToken
+          ? [{ start: slotStart, end: slotEnd }]
+          : [],
+      }));
+
+      render(<BookingFlow slug="maya-johnson" stylist={baseStylist} />);
+
+      await openServicesStep();
+      fireEvent.click(screen.getByRole("button", { name: /Haircut/i }));
+      fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+
+      await screen.findByText("Choose a date & time");
+      await screen.findByRole("button", { name: slotLabel });
+
+      expect(getPublicAvailability).toHaveBeenCalledWith(
+        "maya-johnson",
+        intake.bookingContextToken,
+      );
+      expect(getPublicSlots).toHaveBeenCalledWith(
+        "maya-johnson",
+        ["service-1"],
+        expect.any(String),
+        intake.bookingContextToken,
+      );
+    },
+  );
+});

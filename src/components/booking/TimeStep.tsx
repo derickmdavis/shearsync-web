@@ -1,22 +1,26 @@
+import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
 import type { PublicSlot } from "@/src/lib/api";
 import {
   addDaysToDate,
   buildWeekDateOptions,
-  formatDateChip,
   formatMonthLabel,
-  formatTimezoneLabel,
+  formatMonthDay,
+  formatShortWeekday,
+  formatTime,
   getTodayDateValue,
   startOfWeek,
 } from "@/src/lib/booking-format";
-import { TimeSlotGrid } from "@/src/components/booking/TimeSlotGrid";
+
+type AvailabilityDayPreview = {
+  date: string;
+  slots: PublicSlot[];
+};
 
 type TimeStepProps = {
-  dates: string[];
-  disabledDates?: string[];
   selectedDate?: string;
   selectedSlot?: PublicSlot | null;
-  slots: PublicSlot[];
+  upcomingDays: AvailabilityDayPreview[];
   loading: boolean;
   error?: string | null;
   timezone?: string | null;
@@ -27,11 +31,9 @@ type TimeStepProps = {
 };
 
 export function TimeStep({
-  dates,
-  disabledDates = [],
   selectedDate,
   selectedSlot,
-  slots,
+  upcomingDays,
   loading,
   error,
   timezone,
@@ -40,16 +42,39 @@ export function TimeStep({
   onBack,
   onContinue,
 }: TimeStepProps) {
-  const disabledDateSet = new Set(disabledDates);
   const today = useMemo(() => getTodayDateValue(), []);
-  const minimumWeekStart = useMemo(() => startOfWeek(today), [today]);
-  const [visibleWeekStart, setVisibleWeekStart] = useState(() =>
-    startOfWeek(selectedDate || dates[0] || today),
+  const [expandedDays, setExpandedDays] = useState<Record<string, boolean>>({});
+
+  const nextAvailableDay = upcomingDays[0] ?? null;
+  const [calendarWeekStart, setCalendarWeekStart] = useState(() =>
+    startOfWeek(selectedDate || nextAvailableDay?.date || today),
   );
-  const visibleDates = useMemo(
-    () => buildWeekDateOptions(visibleWeekStart),
-    [visibleWeekStart],
+  const calendarDates = useMemo(
+    () => buildWeekDateOptions(calendarWeekStart),
+    [calendarWeekStart],
   );
+  const visibleUpcomingDays = useMemo(() => {
+    const defaultDays = upcomingDays.slice(0, 3);
+    const selectedDay = selectedDate
+      ? upcomingDays.find((day) => day.date === selectedDate)
+      : null;
+
+    if (
+      selectedDay &&
+      !defaultDays.some((day) => day.date === selectedDay.date)
+    ) {
+      return [...defaultDays, selectedDay];
+    }
+
+    return defaultDays;
+  }, [selectedDate, upcomingDays]);
+
+  const showEmptyState = !loading && !error && upcomingDays.length === 0;
+
+  function handleSlotSelection(date: string, slot: PublicSlot) {
+    onDateSelect(date);
+    onSlotSelect(slot);
+  }
 
   return (
     <div>
@@ -58,130 +83,189 @@ export function TimeStep({
           Choose a date &amp; time
         </h2>
         <p className="mt-2 text-sm text-muted">
-          Browse weeks or jump to any future day to check availability.
+          Browse upcoming availability or jump to a different date.
         </p>
       </div>
 
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="text-base font-semibold text-foreground">
-            {formatMonthLabel(visibleWeekStart, timezone)}
-          </p>
-          <p className="mt-1 text-xs font-medium text-muted">
-            {formatTimezoneLabel(timezone)}
-          </p>
-        </div>
+      <div className="mt-7">
+        {loading && !nextAvailableDay ? <LoadingState /> : null}
 
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setVisibleWeekStart(addDaysToDate(visibleWeekStart, -7))}
-            disabled={visibleWeekStart <= minimumWeekStart}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white text-foreground transition-colors hover:border-brand/35 disabled:cursor-not-allowed disabled:opacity-40"
-            aria-label="Show previous week"
-          >
-            <ArrowIcon direction="left" />
-          </button>
-          <button
-            type="button"
-            onClick={() => setVisibleWeekStart(addDaysToDate(visibleWeekStart, 7))}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white text-foreground transition-colors hover:border-brand/35"
-            aria-label="Show next week"
-          >
-            <ArrowIcon direction="right" />
-          </button>
-        </div>
-      </div>
+        {error ? (
+          <InfoCard>
+            <p className="text-sm leading-6 text-red-500">{error}</p>
+          </InfoCard>
+        ) : null}
 
-      <div className="mt-4 flex flex-wrap items-end justify-between gap-3">
-        <label className="flex flex-col gap-2 text-sm font-medium text-foreground">
-          Jump to date
-          <input
-            type="date"
-            value={selectedDate || ""}
-            min={today}
-            onChange={(event) => {
-              const nextDate = event.target.value;
-
-              if (!nextDate || nextDate < today) {
-                return;
-              }
-
-              setVisibleWeekStart(startOfWeek(nextDate));
-              onDateSelect(nextDate);
-            }}
-            className="h-11 rounded-2xl border border-border bg-white px-4 text-sm text-foreground outline-none transition-colors focus:border-brand"
-          />
-        </label>
-      </div>
-
-      <div className="mt-4 flex gap-2 overflow-x-auto pb-2">
-        {visibleDates.map((date) => {
-          const selected = date === selectedDate;
-          const unavailable = disabledDateSet.has(date);
-          const isPastDate = date < today;
-          const disabled = !selected && (unavailable || isPastDate);
-          const [weekdayLabel, dayLabel] = formatDateChip(date, timezone).split(" ");
-
-          return (
+        <div className="mt-3 rounded-[16px] border border-[#E5E7EB] bg-white p-4 shadow-[0_2px_10px_rgba(17,24,39,0.035)]">
+          <div className="flex items-center justify-between gap-3">
             <button
-              key={date}
               type="button"
-              onClick={() => {
-                if (!disabled) {
-                  setVisibleWeekStart(startOfWeek(date));
-                  onDateSelect(date);
-                }
-              }}
-              disabled={disabled}
-              aria-disabled={disabled}
-              className={[
-                "min-w-16 rounded-2xl border px-3 py-3 text-center transition-all disabled:cursor-not-allowed",
-                selected
-                  ? "border-brand bg-brand text-white shadow-[0_14px_24px_rgba(109,79,242,0.18)]"
-                  : disabled
-                    ? "border-border bg-zinc-100 text-zinc-400 opacity-70"
-                    : "border-border bg-white text-foreground",
-                !selected && !disabled ? "hover:border-brand/35" : "",
-              ].join(" ")}
+              onClick={() =>
+                setCalendarWeekStart((currentWeekStart) =>
+                  addDaysToDate(currentWeekStart, -7),
+                )
+              }
+              disabled={addDaysToDate(calendarWeekStart, -7) < startOfWeek(today)}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#E5E7EB] text-[#6B7280] transition-colors hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-40"
+              aria-label="Show previous week"
             >
-              <span className="block text-[11px] font-medium opacity-90">
-                {weekdayLabel}
-              </span>
-              <span className="mt-1 block text-base font-semibold">
-                {dayLabel}
-              </span>
+              <ArrowIcon direction="left" />
             </button>
-          );
-        })}
-      </div>
 
-      <div className="mt-6 min-h-52 rounded-3xl bg-zinc-50 p-4">
-        {loading ? (
-          <div className="grid grid-cols-3 gap-3">
-            {Array.from({ length: 6 }).map((_, index) => (
-              <div
-                key={index}
-                className="h-12 animate-pulse rounded-2xl bg-white"
-              />
-            ))}
-          </div>
-        ) : error ? (
-          <p className="text-sm leading-6 text-red-500">{error}</p>
-        ) : slots.length ? (
-          <TimeSlotGrid
-            slots={slots}
-            selectedSlot={selectedSlot}
-            timeZone={timezone}
-            onSelect={onSlotSelect}
-          />
-        ) : (
-          <div className="flex h-full min-h-44 items-center justify-center text-center">
-            <p className="max-w-xs text-sm leading-6 text-muted">
-              No available times for this date.
+            <p className="text-[15px] font-bold text-[#111827]">
+              {formatMonthLabel(calendarWeekStart, timezone)}
             </p>
+
+            <button
+              type="button"
+              onClick={() =>
+                setCalendarWeekStart((currentWeekStart) =>
+                  addDaysToDate(currentWeekStart, 7),
+                )
+              }
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#E5E7EB] text-[#6B7280] transition-colors hover:bg-zinc-50"
+              aria-label="Show next week"
+            >
+              <ArrowIcon />
+            </button>
           </div>
-        )}
+
+          <div className="mt-4 grid grid-cols-7 gap-2">
+            {calendarDates.map((date) => {
+              const isSelected = date === selectedDate;
+              const isPastDate = date < today;
+
+              return (
+                <button
+                  key={date}
+                  type="button"
+                  onClick={() => {
+                    if (isPastDate) {
+                      return;
+                    }
+
+                    onDateSelect(date);
+                  }}
+                  disabled={isPastDate}
+                  className={[
+                    "rounded-[12px] border px-2 py-2 text-center transition-colors",
+                    isSelected
+                      ? "border-[#6D4DF2] bg-[#6D4DF2] text-white"
+                      : isPastDate
+                        ? "border-[#E5E7EB] bg-zinc-50 text-zinc-400"
+                        : "border-[#E5E7EB] bg-white text-[#111827] hover:border-[#6D4DF2] hover:bg-[rgba(109,77,242,0.05)]",
+                  ].join(" ")}
+                >
+                  <span className="block text-[11px] font-semibold uppercase tracking-[0.04em]">
+                    {formatShortWeekday(date, timezone)}
+                  </span>
+                  <span className="mt-1 block text-[15px] font-bold">
+                    {formatDayNumber(date, timezone)}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {!loading && !error && !showEmptyState ? (
+          <section className="mt-7">
+            <div className="mb-3">
+              <h3 className="text-[24px] leading-[30px] font-bold text-[#111827]">
+                Upcoming
+              </h3>
+            </div>
+
+            <div className="space-y-3">
+              {visibleUpcomingDays.map((day) => {
+                const isSelectedDate = day.date === selectedDate;
+                const isExpanded = expandedDays[day.date] ?? false;
+                const previewSlots = isExpanded ? day.slots : day.slots.slice(0, 3);
+                const hiddenCount = Math.max(day.slots.length - previewSlots.length, 0);
+
+                return (
+                  <div
+                    key={day.date}
+                    className={[
+                      "mb-3 rounded-[16px] border border-[#E5E7EB] bg-white p-4 shadow-[0_2px_10px_rgba(17,24,39,0.035)] transition-colors active:bg-zinc-50",
+                      isSelectedDate
+                        ? "bg-[rgba(109,77,242,0.02)]"
+                        : "",
+                    ].join(" ")}
+                  >
+                    <div className="grid items-center gap-3 [grid-template-columns:72px_minmax(0,1fr)] min-[430px]:[grid-template-columns:76px_minmax(0,1fr)]">
+                      <div>
+                        <p className="text-[15px] leading-5 font-bold text-[#111827]">
+                          {formatShortWeekday(day.date, timezone)}
+                        </p>
+                        <p className="mt-0.5 text-[15px] leading-5 font-bold text-[#111827]">
+                          {formatMonthDay(day.date, timezone)}
+                        </p>
+                      </div>
+
+                      <div className="flex min-w-0 flex-col gap-2.5">
+                        <div className="inline-flex h-[26px] self-start items-center rounded-full bg-[#F3F4F6] px-[10px] text-[12px] font-bold text-[#6B7280]">
+                          {day.slots.length}{" "}
+                          {day.slots.length === 1 ? "timeslot" : "timeslots"}
+                        </div>
+
+                        <div className="flex flex-wrap gap-[6px]">
+                          {previewSlots.map((slot) => (
+                            <TimeSlotPill
+                              key={slot.start}
+                              slot={slot}
+                              selected={selectedSlot?.start === slot.start}
+                              timeZone={timezone}
+                              onSelect={() => handleSlotSelection(day.date, slot)}
+                            />
+                          ))}
+
+                          {hiddenCount > 0 ? (
+                            <TogglePill
+                              onClick={() =>
+                                setExpandedDays((currentDays) => ({
+                                  ...currentDays,
+                                  [day.date]: true,
+                                }))
+                              }
+                            >
+                              +{hiddenCount} more
+                            </TogglePill>
+                          ) : null}
+
+                          {isExpanded && day.slots.length > 5 ? (
+                            <TogglePill
+                              onClick={() =>
+                                setExpandedDays((currentDays) => ({
+                                  ...currentDays,
+                                  [day.date]: false,
+                                }))
+                              }
+                            >
+                              Show less
+                            </TogglePill>
+                          ) : null}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        ) : null}
+
+        {showEmptyState ? (
+          <InfoCard>
+            <h3 className="text-xl font-semibold tracking-tight text-foreground">
+              No available times
+            </h3>
+            <p className="mt-2 text-sm leading-6 text-muted">
+              Choose a different date or check back later.
+            </p>
+          </InfoCard>
+        ) : null}
+
       </div>
 
       <button
@@ -206,15 +290,80 @@ export function TimeStep({
   );
 }
 
+function InfoCard({ children }: { children: ReactNode }) {
+  return (
+    <div className="rounded-[16px] border border-[#E5E7EB] bg-white p-4 shadow-[0_2px_10px_rgba(17,24,39,0.035)]">
+      {children}
+    </div>
+  );
+}
+
+type TimeSlotPillProps = {
+  slot: PublicSlot;
+  selected: boolean;
+  timeZone?: string | null;
+  onSelect: () => void;
+};
+
+function TimeSlotPill({
+  slot,
+  selected,
+  timeZone,
+  onSelect,
+}: TimeSlotPillProps) {
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      aria-pressed={selected}
+      className={[
+        "inline-flex h-8 min-w-[70px] cursor-pointer items-center justify-center whitespace-nowrap rounded-[12px] border px-[10px] text-[13px] leading-none font-semibold transition-all min-[430px]:min-w-[72px]",
+        selected
+          ? "border-[#6D4DF2] bg-[#6D4DF2] text-white"
+          : "border-[rgba(109,77,242,0.14)] bg-[rgba(109,77,242,0.08)] text-[#6D4DF2] hover:bg-[rgba(109,77,242,0.12)] active:bg-[rgba(109,77,242,0.16)]",
+      ].join(" ")}
+    >
+      {formatTime(slot.start, timeZone)}
+    </button>
+  );
+}
+
+function TogglePill({
+  children,
+  onClick,
+}: {
+  children: ReactNode;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="inline-flex h-8 items-center justify-center rounded-[10px] bg-[#F3F4F6] px-[10px] text-[13px] font-bold text-[#6B7280] transition-colors hover:bg-zinc-200 active:bg-zinc-300"
+    >
+      {children}
+    </button>
+  );
+}
+
+function LoadingState() {
+  return (
+    <div className="space-y-3">
+      {Array.from({ length: 3 }).map((_, index) => (
+        <InfoCard key={index}>
+          <div className="h-20 animate-pulse rounded-2xl bg-zinc-50" />
+        </InfoCard>
+      ))}
+    </div>
+  );
+}
+
 function ArrowIcon({ direction = "right" }: { direction?: "left" | "right" }) {
   return (
     <svg
       viewBox="0 0 20 20"
       aria-hidden="true"
-      className={[
-        "h-4 w-4",
-        direction === "left" ? "rotate-180" : "",
-      ].join(" ")}
+      className={["h-4 w-4", direction === "left" ? "rotate-180" : ""].join(" ")}
     >
       <path
         d="M4 10h12m-4-4 4 4-4 4"
@@ -226,4 +375,11 @@ function ArrowIcon({ direction = "right" }: { direction?: "left" | "right" }) {
       />
     </svg>
   );
+}
+
+function formatDayNumber(date: string, timeZone?: string | null) {
+  return new Intl.DateTimeFormat("en-US", {
+    day: "numeric",
+    timeZone: timeZone ?? undefined,
+  }).format(new Date(`${date}T12:00:00`));
 }

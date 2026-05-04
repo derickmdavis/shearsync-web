@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ApiError,
-  createPublicBookingIntake,
   createPublicBooking,
+  createPublicBookingIntake,
   getPublicAvailability,
+  getPublicServices,
   getPublicSlots,
   type PublicBookingConfirmation,
   type PublicBookingIntakeData,
@@ -14,11 +15,15 @@ import {
   type PublicStylist,
 } from "@/src/lib/api";
 import {
-  buildFallbackDateOptions,
+  buildAvailabilityDateOptions,
   buildBookingNotes,
+  buildFallbackDateOptions,
   buildSummaryName,
   extractAvailabilityDates,
+  extractAvailabilityRows,
+  extractAvailabilityTimezone,
   formatTimezoneLabel,
+  getTodayDateValue,
 } from "@/src/lib/booking-format";
 import { BookedStep } from "@/src/components/booking/BookedStep";
 import { BookingStepper } from "@/src/components/booking/BookingStepper";
@@ -29,8 +34,6 @@ import { TimeStep } from "@/src/components/booking/TimeStep";
 type BookingFlowProps = {
   slug: string;
   stylist: PublicStylist;
-  services: PublicService[];
-  servicesError?: string | null;
 };
 
 type DetailsErrors = Partial<{
@@ -50,6 +53,17 @@ type ApiErrorDetails = {
   message?: string;
 };
 
+type AvailabilityDayPreview = {
+  date: string;
+  slots: PublicSlot[];
+};
+
+type ContactValues = {
+  fullName: string;
+  email: string;
+  phone: string;
+};
+
 function isSlotConflictError(error: unknown, message: string) {
   if (!(error instanceof ApiError)) {
     return false;
@@ -58,13 +72,18 @@ function isSlotConflictError(error: unknown, message: string) {
   const normalizedMessage = message.trim().toLowerCase();
 
   return (
+    error.status === 409 ||
     normalizedMessage === "requested time is no longer available" ||
     normalizedMessage === "this time slot is already booked."
   );
 }
 
 function getApiErrorDetails(error: unknown) {
-  if (!(error instanceof ApiError) || !error.details || typeof error.details !== "object") {
+  if (
+    !(error instanceof ApiError) ||
+    !error.details ||
+    typeof error.details !== "object"
+  ) {
     return null;
   }
 
@@ -87,6 +106,36 @@ function isBookingSchemaMismatch(error: unknown) {
   );
 }
 
+function normalizeApiErrorMessage(error: ApiError) {
+  return error.message.trim().toLowerCase();
+}
+
+function isBookingDisabledError(error: unknown) {
+  return (
+    error instanceof ApiError &&
+    error.status === 400 &&
+    normalizeApiErrorMessage(error) ===
+      "online booking is not enabled for this stylist"
+  );
+}
+
+function isBookingContextExpiredError(error: unknown) {
+  return (
+    error instanceof ApiError &&
+    error.status === 400 &&
+    normalizeApiErrorMessage(error) ===
+      "booking context is invalid or expired"
+  );
+}
+
+function isSelectedServiceUnavailableError(error: unknown) {
+  return (
+    error instanceof ApiError &&
+    error.status === 400 &&
+    normalizeApiErrorMessage(error) === "selected service is not available"
+  );
+}
+
 function buildBookingServiceUnavailableMessage(stylist: PublicStylist) {
   if (stylist.phone_number?.trim()) {
     return `Online booking is temporarily unavailable. Please call ${stylist.phone_number} to finish your appointment.`;
@@ -95,20 +144,7 @@ function buildBookingServiceUnavailableMessage(stylist: PublicStylist) {
   return "Online booking is temporarily unavailable. Please contact the business to finish your appointment.";
 }
 
-export function BookingFlow({
-  slug,
-  stylist,
-  services,
-  servicesError,
-}: BookingFlowProps) {
-  const sortedServices = useMemo(
-    () =>
-      [...services].sort((left, right) =>
-        left.name.localeCompare(right.name, undefined, { sensitivity: "base" }),
-      ),
-    [services],
-  );
-
+export function BookingFlow({ slug, stylist }: BookingFlowProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -118,14 +154,21 @@ export function BookingFlow({
   const [intakeState, setIntakeState] = useState<BookingIntakeState>({
     status: "idle",
   });
-  const [serviceError, setServiceError] = useState<string | null>(
-    servicesError ?? null,
+  const [bookingDisabledByFlow, setBookingDisabledByFlow] = useState(false);
+  const [intakeRefreshing, setIntakeRefreshing] = useState(false);
+  const [services, setServices] = useState<PublicService[]>([]);
+  const [servicesLoading, setServicesLoading] = useState(false);
+  const [servicesLoadedToken, setServicesLoadedToken] = useState<string | null>(
+    null,
   );
+  const [serviceError, setServiceError] = useState<string | null>(null);
   const [selectedServices, setSelectedServices] = useState<PublicService[]>([]);
   const [dateOptions, setDateOptions] = useState<string[]>([]);
-  const [disabledDates, setDisabledDates] = useState<string[]>([]);
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [slots, setSlots] = useState<PublicSlot[]>([]);
+  const [slotPreviews, setSlotPreviews] = useState<
+    Record<string, PublicSlot[]>
+  >({});
   const [selectedSlot, setSelectedSlot] = useState<PublicSlot | null>(null);
   const [slotsLoading, setSlotsLoading] = useState(false);
   const [slotsError, setSlotsError] = useState<string | null>(null);
@@ -139,30 +182,490 @@ export function BookingFlow({
 
   const parsedName = useMemo(() => splitFullName(fullName), [fullName]);
   const intakeData = intakeState.status === "ready" ? intakeState.data : null;
+  const bookingContextToken = intakeData?.bookingContextToken ?? null;
+  const bookingDisabled =
+    !stylist.booking_enabled ||
+    bookingDisabledByFlow ||
+    intakeData?.bookingEnabled === false;
+  const servicesAreSynced =
+    Boolean(bookingContextToken) && servicesLoadedToken === bookingContextToken;
+  const sortedServices = useMemo(() => sortServices(services), [services]);
   const activeTimezone = availabilityTimezone || stylist.timezone || null;
   const pageName = buildSummaryName(stylist);
   const showServicePicker =
-    Boolean(selectedServices.length) || Boolean(intakeData?.bookingEnabled);
+    !bookingDisabled &&
+    intakeState.status === "ready" &&
+    Boolean(intakeData?.bookingEnabled);
   const canBeginServiceSelection =
     Boolean(fullName.trim()) && Boolean(phone.trim());
-  const detailsAreComplete =
-    Boolean(fullName.trim()) &&
-    Boolean(parsedName.lastName) &&
-    Boolean(phone.trim()) &&
-    (!email.trim() || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()));
-  const servicesUnlocked = Boolean(intakeData?.bookingEnabled) && detailsAreComplete;
   const selectedServiceIds = useMemo(
     () => selectedServices.map((service) => service.id),
     [selectedServices],
   );
   const primarySelectedService = selectedServices[0] ?? null;
   const canShowTimeStep = Boolean(selectedServices.length && selectedDate);
+  const upcomingAvailabilityDays = useMemo<AvailabilityDayPreview[]>(() => {
+    const today = getTodayDateValue();
+    const orderedDates = Array.from(
+      new Set([selectedDate, ...dateOptions].filter(Boolean)),
+    ).filter((date) => date >= today);
+
+    return orderedDates
+      .map((date) => ({
+        date,
+        slots:
+          slotPreviews[date] ??
+          (date === selectedDate && slots.length ? slots : []),
+      }))
+      .filter((day) => day.slots.length > 0);
+  }, [dateOptions, selectedDate, slotPreviews, slots]);
+
+  const contactValuesRef = useRef<ContactValues>({ fullName, email, phone });
+  const selectedServicesRef = useRef(selectedServices);
+  const tokenRefreshPromiseRef = useRef<Promise<PublicBookingIntakeData | null> | null>(
+    null,
+  );
+
+  useEffect(() => {
+    contactValuesRef.current = { fullName, email, phone };
+  }, [email, fullName, phone]);
+
+  useEffect(() => {
+    selectedServicesRef.current = selectedServices;
+  }, [selectedServices]);
+
+  const clearAvailabilityState = useCallback(() => {
+    setDateOptions([]);
+    setSelectedDate("");
+    setSlots([]);
+    setSlotPreviews({});
+    setSelectedSlot(null);
+    setSlotsError(null);
+    setAvailabilityTimezone(stylist.timezone ?? null);
+  }, [stylist.timezone]);
+
+  const disableBookingFlow = useCallback(() => {
+    setBookingDisabledByFlow(true);
+    setServices([]);
+    setServicesLoadedToken(null);
+    setSelectedServices([]);
+    clearAvailabilityState();
+    setCurrentStep(1);
+    setServiceError(null);
+    setConfirmError(null);
+  }, [clearAvailabilityState]);
+
+  const invalidateBookingContext = useCallback(() => {
+    setIntakeState({ status: "idle" });
+    setServices([]);
+    setServicesLoadedToken(null);
+    setSelectedServices([]);
+    clearAvailabilityState();
+    setCurrentStep(1);
+    setServiceError(null);
+    setConfirmError(null);
+  }, [clearAvailabilityState]);
+
+  const handleBookingContextRecoveryFailure = useCallback(
+    (message: string) => {
+      clearAvailabilityState();
+      setCurrentStep(1);
+      setServiceError(message);
+      setConfirmError(null);
+    },
+    [clearAvailabilityState],
+  );
+
+  const runIntake = useCallback(
+    async ({ background = false }: { background?: boolean } = {}) => {
+      const currentValues = contactValuesRef.current;
+
+      if (!detailsAreValid(currentValues)) {
+        return null;
+      }
+
+      if (background) {
+        setIntakeRefreshing(true);
+      } else {
+        setIntakeState({ status: "loading" });
+        setServiceError(null);
+      }
+
+      try {
+        const intake = await createPublicBookingIntake({
+          stylist_slug: slug,
+          full_name: currentValues.fullName.trim(),
+          phone: currentValues.phone.trim(),
+          email: currentValues.email.trim() || undefined,
+        });
+
+        setIntakeState({ status: "ready", data: intake });
+
+        if (!intake.bookingEnabled) {
+          disableBookingFlow();
+        }
+
+        return intake;
+      } catch (error) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : "We couldn't check your booking details right now.";
+
+        setIntakeState({ status: "error", message });
+        return null;
+      } finally {
+        if (background) {
+          setIntakeRefreshing(false);
+        }
+      }
+    },
+    [disableBookingFlow, slug],
+  );
+
+  const refreshBookingContext = useCallback(async () => {
+    if (tokenRefreshPromiseRef.current) {
+      return tokenRefreshPromiseRef.current;
+    }
+
+    const refreshPromise = (async () => {
+      const refreshedIntake = await runIntake({ background: true });
+
+      if (!refreshedIntake) {
+        return null;
+      }
+
+      return refreshedIntake;
+    })();
+
+    tokenRefreshPromiseRef.current = refreshPromise.finally(() => {
+      tokenRefreshPromiseRef.current = null;
+    });
+
+    return tokenRefreshPromiseRef.current;
+  }, [runIntake]);
+
+  const loadServicesForIntake = useCallback(
+    async (
+      intake: PublicBookingIntakeData,
+      { allowTokenRefresh = true }: { allowTokenRefresh?: boolean } = {},
+    ) => {
+      setServicesLoading(true);
+      setServiceError(null);
+
+      const applyServices = (
+        nextServices: PublicService[],
+        nextIntake: PublicBookingIntakeData,
+      ) => {
+        setServices(nextServices);
+        setServicesLoadedToken(nextIntake.bookingContextToken);
+
+        const currentSelectedServices = selectedServicesRef.current;
+        const nextSelectedServices = currentSelectedServices.filter((service) =>
+          nextServices.some(
+            (availableService) => availableService.id === service.id,
+          ),
+        );
+        const recommendedService =
+          nextSelectedServices.length === 0 &&
+          nextIntake.recommendedService?.serviceId
+            ? nextServices.find(
+                (service) =>
+                  service.id === nextIntake.recommendedService?.serviceId,
+              ) ?? null
+            : null;
+        const resolvedSelectedServices = recommendedService
+          ? [recommendedService]
+          : nextSelectedServices;
+        const selectionChanged =
+          currentSelectedServices.length !== resolvedSelectedServices.length ||
+          currentSelectedServices.some(
+            (service, index) => resolvedSelectedServices[index]?.id !== service.id,
+          );
+
+        setSelectedServices(resolvedSelectedServices);
+
+        if (selectionChanged) {
+          clearAvailabilityState();
+
+          if (currentSelectedServices.length > 0) {
+            setCurrentStep(1);
+            setServiceError("Your available services changed. Please choose again.");
+          }
+        }
+      };
+
+      try {
+        const nextServices = await getPublicServices(
+          slug,
+          intake.bookingContextToken,
+        );
+        applyServices(nextServices, intake);
+        return nextServices;
+      } catch (error) {
+        if (isBookingDisabledError(error)) {
+          setServices([]);
+          setServicesLoadedToken(null);
+          disableBookingFlow();
+          return null;
+        }
+
+        if (allowTokenRefresh && isBookingContextExpiredError(error)) {
+          const refreshedIntake = await refreshBookingContext();
+
+          if (!refreshedIntake) {
+            setServices([]);
+            setServicesLoadedToken(null);
+            handleBookingContextRecoveryFailure(
+              "Please confirm your contact details to refresh your booking options.",
+            );
+            return null;
+          }
+
+          if (!refreshedIntake.bookingEnabled) {
+            setServices([]);
+            setServicesLoadedToken(null);
+            disableBookingFlow();
+            return null;
+          }
+
+          try {
+            const refreshedServices = await getPublicServices(
+              slug,
+              refreshedIntake.bookingContextToken,
+            );
+            applyServices(refreshedServices, refreshedIntake);
+            return refreshedServices;
+          } catch (retryError) {
+            if (isBookingDisabledError(retryError)) {
+              setServices([]);
+              setServicesLoadedToken(null);
+              disableBookingFlow();
+              return null;
+            }
+
+            const retryMessage =
+              retryError instanceof Error
+                ? retryError.message
+                : "Unable to load services for online booking.";
+
+            setServices([]);
+            setServicesLoadedToken(null);
+            setServiceError(retryMessage);
+            return null;
+          }
+        }
+
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Unable to load services for online booking.";
+
+        setServices([]);
+        setServicesLoadedToken(null);
+        setServiceError(message);
+        return null;
+      } finally {
+        setServicesLoading(false);
+      }
+    },
+    [
+      clearAvailabilityState,
+      disableBookingFlow,
+      handleBookingContextRecoveryFailure,
+      refreshBookingContext,
+      slug,
+    ],
+  );
+
+  const handleSelectedServiceUnavailable = useCallback(
+    async (intakeOverride?: PublicBookingIntakeData | null) => {
+      const activeIntake =
+        intakeOverride ??
+        (intakeState.status === "ready" ? intakeState.data : null);
+
+      setSelectedServices([]);
+      clearAvailabilityState();
+      setCurrentStep(1);
+      setConfirmError(null);
+
+      if (activeIntake?.bookingContextToken) {
+        await loadServicesForIntake(activeIntake);
+      } else {
+        setServices([]);
+        setServicesLoadedToken(null);
+      }
+
+      setServiceError(
+        "Selected service is not available. Please choose another service.",
+      );
+    },
+    [clearAvailabilityState, intakeState, loadServicesForIntake],
+  );
+
+  const getAvailabilityForCurrentContext = useCallback(
+    async ({ allowTokenRefresh = true }: { allowTokenRefresh?: boolean } = {}) => {
+      const activeIntake = intakeState.status === "ready" ? intakeState.data : null;
+
+      if (!activeIntake?.bookingContextToken) {
+        return null;
+      }
+
+      try {
+        return await getPublicAvailability(slug, activeIntake.bookingContextToken);
+      } catch (error) {
+        if (isBookingDisabledError(error)) {
+          disableBookingFlow();
+          return null;
+        }
+
+        if (allowTokenRefresh && isBookingContextExpiredError(error)) {
+          const refreshedIntake = await refreshBookingContext();
+
+          if (!refreshedIntake) {
+            handleBookingContextRecoveryFailure(
+              "Please confirm your contact details to refresh availability.",
+            );
+            return null;
+          }
+
+          if (!refreshedIntake.bookingEnabled) {
+            disableBookingFlow();
+            return null;
+          }
+
+          const refreshedServices = await loadServicesForIntake(refreshedIntake, {
+            allowTokenRefresh: false,
+          });
+
+          if (!refreshedServices || !selectedServicesRef.current.length) {
+            handleBookingContextRecoveryFailure(
+              "Your available services changed. Please select a service again.",
+            );
+            return null;
+          }
+
+          return getPublicAvailability(slug, refreshedIntake.bookingContextToken);
+        }
+
+        throw error;
+      }
+    },
+    [
+      disableBookingFlow,
+      handleBookingContextRecoveryFailure,
+      intakeState,
+      loadServicesForIntake,
+      refreshBookingContext,
+      slug,
+    ],
+  );
+
+  const getSlotsForDate = useCallback(
+    async (
+      date: string,
+      { allowTokenRefresh = true }: { allowTokenRefresh?: boolean } = {},
+    ) => {
+      const activeIntake = intakeState.status === "ready" ? intakeState.data : null;
+      const activeSelectedServiceIds = selectedServicesRef.current.map(
+        (service) => service.id,
+      );
+
+      if (!activeIntake?.bookingContextToken || !activeSelectedServiceIds.length) {
+        return null;
+      }
+
+      try {
+        return await getPublicSlots(
+          slug,
+          activeSelectedServiceIds,
+          date,
+          activeIntake.bookingContextToken,
+        );
+      } catch (error) {
+        if (isBookingDisabledError(error)) {
+          disableBookingFlow();
+          return null;
+        }
+
+        if (isSelectedServiceUnavailableError(error)) {
+          await handleSelectedServiceUnavailable(activeIntake);
+          return null;
+        }
+
+        if (allowTokenRefresh && isBookingContextExpiredError(error)) {
+          const refreshedIntake = await refreshBookingContext();
+
+          if (!refreshedIntake) {
+            handleBookingContextRecoveryFailure(
+              "Please confirm your contact details to refresh availability.",
+            );
+            return null;
+          }
+
+          if (!refreshedIntake.bookingEnabled) {
+            disableBookingFlow();
+            return null;
+          }
+
+          const refreshedServices = await loadServicesForIntake(refreshedIntake, {
+            allowTokenRefresh: false,
+          });
+
+          if (!refreshedServices || !selectedServicesRef.current.length) {
+            handleBookingContextRecoveryFailure(
+              "Your available services changed. Please select a service again.",
+            );
+            return null;
+          }
+
+          try {
+            return await getPublicSlots(
+              slug,
+              selectedServicesRef.current.map((service) => service.id),
+              date,
+              refreshedIntake.bookingContextToken,
+            );
+          } catch (retryError) {
+            if (isBookingDisabledError(retryError)) {
+              disableBookingFlow();
+              return null;
+            }
+
+            if (isSelectedServiceUnavailableError(retryError)) {
+              await handleSelectedServiceUnavailable(refreshedIntake);
+              return null;
+            }
+
+            throw retryError;
+          }
+        }
+
+        throw error;
+      }
+    },
+    [
+      disableBookingFlow,
+      handleBookingContextRecoveryFailure,
+      handleSelectedServiceUnavailable,
+      intakeState,
+      loadServicesForIntake,
+      refreshBookingContext,
+      slug,
+    ],
+  );
 
   useEffect(() => {
     let cancelled = false;
 
     async function loadAvailability() {
-      if (!selectedServiceIds.length || !stylist.booking_enabled) {
+      if (
+        !selectedServiceIds.length ||
+        bookingDisabled ||
+        !bookingContextToken ||
+        !servicesAreSynced
+      ) {
+        setSlotPreviews({});
         return;
       }
 
@@ -170,34 +673,42 @@ export function BookingFlow({
       setSlotsError(null);
 
       try {
-        const availability = await getPublicAvailability(slug);
+        const availability = await getAvailabilityForCurrentContext();
         if (cancelled) {
           return;
         }
 
+        if (!availability) {
+          return;
+        }
+
         const dates = extractAvailabilityDates(availability);
+        const recurringDates = buildAvailabilityDateOptions(
+          extractAvailabilityRows(availability),
+        );
         const fallbackDates = buildFallbackDateOptions();
-        const nextDates =
-          availability.dates?.filter(Boolean).length
-            ? availability.dates.filter(Boolean)
-            : dates.length
+        const nextDates = Array.from(
+          new Set(
+            dates.length
               ? dates
-              : fallbackDates;
-        const availableDates = new Set(dates);
-        const candidateDates =
-          nextDates.filter((date) => availableDates.size === 0 || availableDates.has(date));
-        let nextTimezone = availability.timezone ?? stylist.timezone ?? null;
-        const baseDisabledDates = nextDates.filter(
-          (date) => availableDates.size > 0 && !availableDates.has(date),
+              : recurringDates.length
+                ? recurringDates
+                : fallbackDates,
+          ),
         );
 
+        let nextTimezone =
+          extractAvailabilityTimezone(availability) ?? stylist.timezone ?? null;
         let nextSelectedDate = nextDates[0] ?? "";
         let nextSlots: PublicSlot[] = [];
-        const probeDisabledDates = [...baseDisabledDates];
 
-        for (const date of candidateDates.length ? candidateDates : nextDates) {
-          const response = await getPublicSlots(slug, selectedServiceIds, date);
+        for (const date of nextDates) {
+          const response = await getSlotsForDate(date);
           if (cancelled) {
+            return;
+          }
+
+          if (!response) {
             return;
           }
 
@@ -208,27 +719,24 @@ export function BookingFlow({
             nextSlots = response.slots ?? [];
             break;
           }
-
-          probeDisabledDates.push(date);
         }
 
         setAvailabilityTimezone(nextTimezone);
         setDateOptions(nextDates);
-        setDisabledDates(Array.from(new Set(probeDisabledDates)));
         setSelectedDate(nextSelectedDate);
-        if (nextSlots.length > 0) {
-          setSlots(nextSlots);
-        } else {
-          setSlots([]);
-        }
+        setSlotPreviews(nextSlots.length ? { [nextSelectedDate]: nextSlots } : {});
+        setSlots(nextSlots);
       } catch (error) {
         if (cancelled) {
           return;
         }
 
-        setDateOptions(buildFallbackDateOptions());
-        setDisabledDates([]);
-        setSelectedDate((currentDate) => currentDate || buildFallbackDateOptions()[0]);
+        const fallbackDates = buildFallbackDateOptions();
+        setDateOptions(fallbackDates);
+        setSelectedDate((currentDate) => currentDate || fallbackDates[0] || "");
+        setSlotPreviews({});
+        setSlots([]);
+        setSelectedSlot(null);
         setSlotsError(
           error instanceof Error
             ? error.message
@@ -246,13 +754,27 @@ export function BookingFlow({
     return () => {
       cancelled = true;
     };
-  }, [selectedServiceIds, slug, stylist.booking_enabled, stylist.timezone]);
+  }, [
+    bookingContextToken,
+    bookingDisabled,
+    getAvailabilityForCurrentContext,
+    getSlotsForDate,
+    selectedServiceIds,
+    servicesAreSynced,
+    stylist.timezone,
+  ]);
 
   useEffect(() => {
     let cancelled = false;
 
     async function loadSlots() {
-      if (!selectedServiceIds.length || !selectedDate || !stylist.booking_enabled) {
+      if (
+        !selectedServiceIds.length ||
+        !selectedDate ||
+        bookingDisabled ||
+        !bookingContextToken ||
+        !servicesAreSynced
+      ) {
         return;
       }
 
@@ -260,26 +782,21 @@ export function BookingFlow({
       setSlotsError(null);
 
       try {
-        const response = await getPublicSlots(slug, selectedServiceIds, selectedDate);
+        const response = await getSlotsForDate(selectedDate);
         if (cancelled) {
           return;
         }
 
+        if (!response) {
+          return;
+        }
+
+        const nextSlots = response.slots ?? [];
+
         setAvailabilityTimezone(response.timezone ?? activeTimezone);
-        setSlots(response.slots ?? []);
-        setDisabledDates((currentDates) => {
-          const nextDates = new Set(currentDates);
-
-          if ((response.slots ?? []).length) {
-            nextDates.delete(selectedDate);
-          } else {
-            nextDates.add(selectedDate);
-          }
-
-          return Array.from(nextDates);
-        });
+        setSlots(nextSlots);
         setSelectedSlot((currentSlot) =>
-          response.slots.find((slot) => slot.start === currentSlot?.start) ?? null,
+          nextSlots.find((slot) => slot.start === currentSlot?.start) ?? null,
         );
       } catch (error) {
         if (cancelled) {
@@ -307,10 +824,75 @@ export function BookingFlow({
     };
   }, [
     activeTimezone,
+    bookingContextToken,
+    bookingDisabled,
+    getSlotsForDate,
     selectedDate,
     selectedServiceIds,
-    slug,
-    stylist.booking_enabled,
+    servicesAreSynced,
+  ]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadSlotPreviews() {
+      if (
+        !selectedServiceIds.length ||
+        !dateOptions.length ||
+        bookingDisabled ||
+        !bookingContextToken ||
+        !servicesAreSynced
+      ) {
+        setSlotPreviews({});
+        return;
+      }
+
+      const today = getTodayDateValue();
+      const previewDates = Array.from(
+        new Set(dateOptions.filter((date) => date >= today)),
+      ).slice(0, 21);
+
+      if (!previewDates.length) {
+        setSlotPreviews({});
+        return;
+      }
+
+      const previewEntries = await Promise.all(
+        previewDates.map(async (date) => {
+          try {
+            const response = await getSlotsForDate(date, {
+              allowTokenRefresh: false,
+            });
+
+            return [date, response?.slots ?? []] as const;
+          } catch {
+            return [date, [] as PublicSlot[]] as const;
+          }
+        }),
+      );
+
+      if (cancelled) {
+        return;
+      }
+
+      setSlotPreviews((currentPreviews) => ({
+        ...currentPreviews,
+        ...Object.fromEntries(previewEntries),
+      }));
+    }
+
+    void loadSlotPreviews();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    bookingContextToken,
+    bookingDisabled,
+    dateOptions,
+    getSlotsForDate,
+    selectedServiceIds,
+    servicesAreSynced,
   ]);
 
   function validateDetails() {
@@ -326,7 +908,7 @@ export function BookingFlow({
       nextErrors.phone = "Phone is required.";
     }
 
-    if (email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+    if (email.trim() && !isValidEmail(email.trim())) {
       nextErrors.email = "Enter a valid email address.";
     }
 
@@ -339,45 +921,38 @@ export function BookingFlow({
       return;
     }
 
-    if (!servicesUnlocked) {
-      setIntakeState({ status: "loading" });
-      setServiceError(null);
+    if (servicesLoading) {
+      return;
+    }
 
-      try {
-        const intake = await createPublicBookingIntake({
-          stylist_slug: slug,
-          full_name: fullName.trim(),
-          phone: phone.trim(),
-          email: email.trim() || undefined,
-        });
+    let nextIntake = intakeState.status === "ready" ? intakeState.data : null;
 
-        setIntakeState({ status: "ready", data: intake });
+    if (!nextIntake) {
+      nextIntake = await runIntake();
 
-        if (!intake.bookingEnabled) {
-          setServiceError("Online booking is not currently available.");
-          return;
-        }
+      if (!nextIntake) {
+        setServiceError("We couldn't check your booking details right now.");
+        return;
+      }
+    }
 
-        if (intake.recommendedService) {
-          const recommended =
-            sortedServices.find(
-              (service) => service.id === intake.recommendedService?.serviceId,
-            ) ?? null;
+    if (!nextIntake.bookingEnabled) {
+      disableBookingFlow();
+      return;
+    }
 
-          setSelectedServices((currentServices) =>
-            currentServices.length || !recommended ? currentServices : [recommended],
-          );
-        }
-      } catch (error) {
-        const message =
-          error instanceof Error
-            ? error.message
-            : "We couldn't check your booking details right now.";
+    if (!servicesAreSynced || servicesLoadedToken !== nextIntake.bookingContextToken) {
+      const loadedServices = await loadServicesForIntake(nextIntake);
 
-        setIntakeState({ status: "error", message });
-        setServiceError(message);
+      if (!loadedServices) {
+        return;
       }
 
+      return;
+    }
+
+    if (!sortedServices.length) {
+      setServiceError("No services are currently available for online booking.");
       return;
     }
 
@@ -406,8 +981,15 @@ export function BookingFlow({
     }
 
     try {
-      const response = await getPublicSlots(slug, selectedServiceIds, selectedDate);
-      setSlots(response.slots ?? []);
+      const response = await getSlotsForDate(selectedDate);
+
+      if (!response) {
+        return;
+      }
+
+      const nextSlots = response.slots ?? [];
+
+      setSlots(nextSlots);
       setSelectedSlot(null);
       setAvailabilityTimezone(response.timezone ?? activeTimezone);
     } catch {
@@ -455,24 +1037,17 @@ export function BookingFlow({
         stylist_slug: slug,
       };
 
-      console.error(
-        `Booking submit failed ${JSON.stringify(debugPayload)}`,
-      );
+      console.error(`Booking submit failed ${JSON.stringify(debugPayload)}`);
 
       if (isSlotConflictError(error, message)) {
         await refreshSlotsForSelectedDate();
-        setSlotsError(
-          "That time just became unavailable. Please choose another time.",
-        );
+        setSlotsError("That time just became unavailable. Please choose another time.");
         setConfirmError(null);
         setCurrentStep(2);
       } else if (isBookingSchemaMismatch(error)) {
         setConfirmError(buildBookingServiceUnavailableMessage(stylist));
-      } else if (
-        error instanceof ApiError &&
-        /booking is not currently available|booking disabled/i.test(message)
-      ) {
-        setConfirmError("Online booking is not currently available.");
+      } else if (isBookingDisabledError(error)) {
+        disableBookingFlow();
       } else {
         setConfirmError(message);
       }
@@ -503,15 +1078,15 @@ export function BookingFlow({
 
       return [...currentServices, service];
     });
-    setSelectedDate("");
-    setSlots([]);
-    setSelectedSlot(null);
-    setSlotsError(null);
+    clearAvailabilityState();
     setConfirmError(null);
     setServiceError(null);
   }
 
-  function handleDetailsChange(field: "fullName" | "email" | "phone", value: string) {
+  function handleDetailsChange(
+    field: "fullName" | "email" | "phone",
+    value: string,
+  ) {
     setDetailsErrors((currentErrors) => ({
       ...currentErrors,
       [field]: undefined,
@@ -520,18 +1095,18 @@ export function BookingFlow({
     if (field === "fullName") {
       setFullName(value);
     }
+
     if (field === "email") {
       setEmail(value);
     }
+
     if (field === "phone") {
       setPhone(value);
     }
 
-    if (intakeState.status !== "idle") {
-      setIntakeState({ status: "idle" });
+    if (intakeState.status !== "idle" || services.length || servicesLoadedToken) {
+      invalidateBookingContext();
     }
-
-    setServiceError(servicesError ?? null);
   }
 
   if (confirmation && selectedServices.length && selectedSlot) {
@@ -574,13 +1149,13 @@ export function BookingFlow({
         </p>
       ) : null}
 
-      {!stylist.booking_enabled ? (
+      {bookingDisabled ? (
         <div className="mt-8 rounded-3xl border border-border bg-zinc-50 p-6">
           <h2 className="text-2xl font-semibold tracking-tight text-foreground">
             {pageName}
           </h2>
           <p className="mt-3 text-sm leading-6 text-muted">
-            Online booking is not currently available.
+            Online booking is currently unavailable.
           </p>
           {stylist.phone_number ? (
             <p className="mt-4 text-sm font-medium text-foreground">
@@ -601,10 +1176,12 @@ export function BookingFlow({
               services={sortedServices}
               intake={intakeData}
               intakeLoading={intakeState.status === "loading"}
+              servicesLoading={servicesLoading || intakeRefreshing}
               selectedServices={selectedServices}
               serviceError={serviceError}
               canBeginServiceSelection={canBeginServiceSelection}
               showServicePicker={showServicePicker}
+              recommendedServiceId={intakeData?.recommendedService?.serviceId ?? null}
               onChange={handleDetailsChange}
               onToggleService={handleToggleService}
               onContinue={handleContinueFromDetails}
@@ -613,11 +1190,9 @@ export function BookingFlow({
 
           {currentStep === 2 ? (
             <TimeStep
-              dates={dateOptions}
-              disabledDates={disabledDates}
               selectedDate={selectedDate}
               selectedSlot={selectedSlot}
-              slots={slots}
+              upcomingDays={upcomingAvailabilityDays}
               loading={slotsLoading}
               error={slotsError}
               timezone={activeTimezone}
@@ -664,11 +1239,39 @@ export function BookingFlow({
   );
 }
 
+function sortServices(services: PublicService[]) {
+  return services
+    .map((service, index) => ({ service, index }))
+    .sort((left, right) => {
+      const leftSortOrder = left.service.sort_order ?? Number.MAX_SAFE_INTEGER;
+      const rightSortOrder = right.service.sort_order ?? Number.MAX_SAFE_INTEGER;
+
+      if (leftSortOrder !== rightSortOrder) {
+        return leftSortOrder - rightSortOrder;
+      }
+
+      return left.index - right.index;
+    })
+    .map(({ service }) => service);
+}
+
+function detailsAreValid(values: ContactValues) {
+  const parsedName = splitFullName(values.fullName);
+
+  return (
+    Boolean(values.fullName.trim()) &&
+    Boolean(parsedName.lastName) &&
+    Boolean(values.phone.trim()) &&
+    (!values.email.trim() || isValidEmail(values.email.trim()))
+  );
+}
+
+function isValidEmail(value: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
 function splitFullName(value: string) {
-  const parts = value
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean);
+  const parts = value.trim().split(/\s+/).filter(Boolean);
 
   if (parts.length === 0) {
     return { firstName: "", lastName: "" };

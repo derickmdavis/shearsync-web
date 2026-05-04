@@ -23,7 +23,9 @@ export class ApiError extends Error {
   }
 }
 
-export type PublicStylist = {
+export type ClientAudience = "all" | "new" | "returning";
+
+export type PublicStylistProfile = {
   id: string;
   slug: string;
   display_name: string;
@@ -34,6 +36,8 @@ export type PublicStylist = {
   phone_number?: string | null;
   timezone?: string | null;
 };
+
+export type PublicStylist = PublicStylistProfile;
 
 export type PublicService = {
   id: string;
@@ -53,6 +57,37 @@ export type AvailabilitySummary = {
   available_dates?: string[];
   next_available_dates?: string[];
 };
+
+export type RawAvailabilityRow = {
+  id: string;
+  user_id: string;
+  day_of_week: number;
+  start_time: string;
+  end_time: string;
+  is_active: boolean;
+  client_audience: ClientAudience;
+};
+
+export type AvailabilityWindow = {
+  startTime: string;
+  endTime: string;
+  clientAudience: ClientAudience;
+};
+
+export type AvailabilityDay = {
+  dayOfWeek: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  isOpen: boolean;
+  windows: AvailabilityWindow[];
+};
+
+export type AvailabilitySettingsResponse = {
+  timezone: string;
+  days: AvailabilityDay[];
+};
+
+export type PublicAvailabilityResponse =
+  | AvailabilitySummary
+  | RawAvailabilityRow[];
 
 export type PublicSlot = {
   start: string;
@@ -100,9 +135,10 @@ export type PublicBookingIntakeData = {
   matchStatus: PublicBookingIntakeMatchStatus;
   clientFound: boolean;
   isExistingClient: boolean;
+  bookingContextToken: string;
   bookingEnabled: boolean;
   candidateCount?: number;
-  client: PublicBookingIntakeClient;
+  client?: PublicBookingIntakeClient | null;
   submittedContact: {
     fullName: string;
     phoneNormalized: string;
@@ -265,15 +301,37 @@ export async function getPublicStylist(slug: string) {
   });
 }
 
-export async function getPublicServices(slug: string) {
-  return requestPublicApi<PublicService[]>(`/api/public/services/${slug}`, {
-    preferProxy: false,
-  });
+export async function getPublicServices(
+  slug: string,
+  bookingContextToken?: string | null,
+) {
+  const params = new URLSearchParams();
+
+  if (bookingContextToken?.trim()) {
+    params.set("booking_context_token", bookingContextToken);
+  }
+
+  const search = params.toString();
+
+  return requestPublicApi<PublicService[]>(
+    `/api/public/services/${slug}${search ? `?${search}` : ""}`,
+  );
 }
 
-export async function getPublicAvailability(slug: string) {
-  return requestPublicApi<AvailabilitySummary>(
-    `/api/public/availability/${slug}`,
+export async function getPublicAvailability(
+  slug: string,
+  bookingContextToken?: string | null,
+) {
+  const params = new URLSearchParams();
+
+  if (bookingContextToken?.trim()) {
+    params.set("booking_context_token", bookingContextToken);
+  }
+
+  const search = params.toString();
+
+  return requestPublicApi<PublicAvailabilityResponse>(
+    `/api/public/availability/${slug}${search ? `?${search}` : ""}`,
   );
 }
 
@@ -281,6 +339,7 @@ export async function getPublicSlots(
   slug: string,
   serviceIds: string | string[],
   date: string,
+  bookingContextToken?: string | null,
 ) {
   const normalizedServiceIds = Array.isArray(serviceIds)
     ? serviceIds.filter(Boolean)
@@ -294,6 +353,10 @@ export async function getPublicSlots(
   normalizedServiceIds.forEach((serviceId) => {
     params.append("service_ids", serviceId);
   });
+
+  if (bookingContextToken?.trim()) {
+    params.set("booking_context_token", bookingContextToken);
+  }
 
   return requestPublicApi<PublicSlotsResponse>(
     `/api/public/availability/${slug}/slots?${params.toString()}`,

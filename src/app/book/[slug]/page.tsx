@@ -1,9 +1,7 @@
 import { BookingFlow } from "@/src/components/booking/BookingFlow";
 import {
   ApiError,
-  getPublicServices,
   getPublicStylist,
-  type PublicService,
   type PublicStylist,
 } from "@/src/lib/api";
 
@@ -17,8 +15,6 @@ export default async function BookingPage(props: BookingPageProps) {
   const { slug } = await props.params;
 
   let stylist: PublicStylist | null = null;
-  let services: PublicService[] = [];
-  let servicesError: string | null = null;
 
   try {
     stylist = await getPublicStylist(slug);
@@ -58,24 +54,10 @@ export default async function BookingPage(props: BookingPageProps) {
     );
   }
 
-  try {
-    services = await getPublicServices(slug);
-  } catch (error) {
-    servicesError =
-      error instanceof Error
-        ? error.message
-        : "Unable to load services for online booking.";
-  }
-
   return (
     <main className="px-4 py-6 sm:px-6 sm:py-10">
       <div className="mx-auto w-full max-w-[430px]">
-        <BookingFlow
-          slug={slug}
-          stylist={stylist}
-          services={services}
-          servicesError={servicesError}
-        />
+        <BookingFlow slug={slug} stylist={stylist} />
       </div>
     </main>
   );
