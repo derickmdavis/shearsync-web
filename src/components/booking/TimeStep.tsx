@@ -156,10 +156,10 @@ export function TimeStep({
                         : "border-[#E5E7EB] bg-white text-[#111827] hover:border-[#6D4DF2] hover:bg-[rgba(109,77,242,0.05)]",
                   ].join(" ")}
                 >
-                  <span className="block text-[11px] font-semibold uppercase tracking-[0.04em]">
+                  <span className="block text-[10px] font-semibold uppercase tracking-[0.04em] min-[430px]:text-[11px]">
                     {formatShortWeekday(date, timezone)}
                   </span>
-                  <span className="mt-1 block text-[15px] font-bold">
+                  <span className="mt-1 block text-[14px] font-bold min-[430px]:text-[15px]">
                     {formatDayNumber(date, timezone)}
                   </span>
                 </button>
@@ -180,7 +180,7 @@ export function TimeStep({
               {visibleUpcomingDays.map((day) => {
                 const isSelectedDate = day.date === selectedDate;
                 const isExpanded = expandedDays[day.date] ?? false;
-                const previewSlots = isExpanded ? day.slots : day.slots.slice(0, 3);
+                const previewSlots = isExpanded ? day.slots : day.slots.slice(0, 5);
                 const hiddenCount = Math.max(day.slots.length - previewSlots.length, 0);
 
                 return (
@@ -193,17 +193,17 @@ export function TimeStep({
                         : "",
                     ].join(" ")}
                   >
-                    <div className="grid items-center gap-3 [grid-template-columns:72px_minmax(0,1fr)] min-[430px]:[grid-template-columns:76px_minmax(0,1fr)]">
-                      <div>
+                    <div>
+                      <div className="flex items-center gap-2">
                         <p className="text-[15px] leading-5 font-bold text-[#111827]">
                           {formatShortWeekday(day.date, timezone)}
                         </p>
-                        <p className="mt-0.5 text-[15px] leading-5 font-bold text-[#111827]">
+                        <p className="text-[15px] leading-5 font-bold text-[#111827]">
                           {formatMonthDay(day.date, timezone)}
                         </p>
                       </div>
 
-                      <div className="flex min-w-0 flex-col gap-2.5">
+                      <div className="mt-3 flex min-w-0 flex-col gap-2.5">
                         <div className="inline-flex h-[26px] self-start items-center rounded-full bg-[#F3F4F6] px-[10px] text-[12px] font-bold text-[#6B7280]">
                           {day.slots.length}{" "}
                           {day.slots.length === 1 ? "timeslot" : "timeslots"}

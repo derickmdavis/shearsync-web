@@ -51,6 +51,9 @@ export function ConfirmStep({
   const totalDuration = sumServiceDurations(services);
   const totalPrice = sumServicePrices(services);
   const serviceSummary = formatServiceNames(services);
+  const bookingPreviewMessage = bookingBehavior?.requiresApproval
+    ? "New client appointments require approval."
+    : bookingBehavior?.message;
 
   return (
     <div>
@@ -70,12 +73,11 @@ export function ConfirmStep({
               Booking preview
             </p>
             <p className="mt-1 text-sm leading-6 text-muted">
-              {bookingBehavior.message}
+              {bookingPreviewMessage}
             </p>
             {bookingBehavior.requiresApproval ? (
               <p className="mt-2 text-sm leading-6 text-muted">
-                Final approval, eligibility, and availability are re-checked when
-                you submit.
+                Please watch your email for a final confirmation.
               </p>
             ) : null}
           </div>

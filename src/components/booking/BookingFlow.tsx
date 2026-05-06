@@ -166,11 +166,12 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
   const [dateOptions, setDateOptions] = useState<string[]>([]);
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [slots, setSlots] = useState<PublicSlot[]>([]);
+  const [loadedSlotsDate, setLoadedSlotsDate] = useState<string>("");
   const [slotPreviews, setSlotPreviews] = useState<
     Record<string, PublicSlot[]>
   >({});
   const [selectedSlot, setSelectedSlot] = useState<PublicSlot | null>(null);
-  const [slotsLoading, setSlotsLoading] = useState(false);
+  const [availabilityLoading, setAvailabilityLoading] = useState(false);
   const [slotsError, setSlotsError] = useState<string | null>(null);
   const [availabilityTimezone, setAvailabilityTimezone] = useState<
     string | null
@@ -215,10 +216,14 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
         date,
         slots:
           slotPreviews[date] ??
-          (date === selectedDate && slots.length ? slots : []),
+          (date === selectedDate &&
+          loadedSlotsDate === selectedDate &&
+          slots.length
+            ? slots
+            : []),
       }))
       .filter((day) => day.slots.length > 0);
-  }, [dateOptions, selectedDate, slotPreviews, slots]);
+  }, [dateOptions, loadedSlotsDate, selectedDate, slotPreviews, slots]);
 
   const contactValuesRef = useRef<ContactValues>({ fullName, email, phone });
   const selectedServicesRef = useRef(selectedServices);
@@ -238,6 +243,7 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
     setDateOptions([]);
     setSelectedDate("");
     setSlots([]);
+    setLoadedSlotsDate("");
     setSlotPreviews({});
     setSelectedSlot(null);
     setSlotsError(null);
@@ -669,7 +675,7 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
         return;
       }
 
-      setSlotsLoading(true);
+      setAvailabilityLoading(true);
       setSlotsError(null);
 
       try {
@@ -726,6 +732,7 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
         setSelectedDate(nextSelectedDate);
         setSlotPreviews(nextSlots.length ? { [nextSelectedDate]: nextSlots } : {});
         setSlots(nextSlots);
+        setLoadedSlotsDate(nextSelectedDate);
       } catch (error) {
         if (cancelled) {
           return;
@@ -736,6 +743,7 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
         setSelectedDate((currentDate) => currentDate || fallbackDates[0] || "");
         setSlotPreviews({});
         setSlots([]);
+        setLoadedSlotsDate("");
         setSelectedSlot(null);
         setSlotsError(
           error instanceof Error
@@ -744,7 +752,7 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
         );
       } finally {
         if (!cancelled) {
-          setSlotsLoading(false);
+          setAvailabilityLoading(false);
         }
       }
     }
@@ -778,7 +786,6 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
         return;
       }
 
-      setSlotsLoading(true);
       setSlotsError(null);
 
       try {
@@ -795,6 +802,11 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
 
         setAvailabilityTimezone(response.timezone ?? activeTimezone);
         setSlots(nextSlots);
+        setLoadedSlotsDate(selectedDate);
+        setSlotPreviews((currentPreviews) => ({
+          ...currentPreviews,
+          [selectedDate]: nextSlots,
+        }));
         setSelectedSlot((currentSlot) =>
           nextSlots.find((slot) => slot.start === currentSlot?.start) ?? null,
         );
@@ -804,16 +816,13 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
         }
 
         setSlots([]);
+        setLoadedSlotsDate("");
         setSelectedSlot(null);
         setSlotsError(
           error instanceof Error
             ? error.message
             : "Unable to load time slots for this date.",
         );
-      } finally {
-        if (!cancelled) {
-          setSlotsLoading(false);
-        }
       }
     }
 
@@ -990,10 +999,16 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
       const nextSlots = response.slots ?? [];
 
       setSlots(nextSlots);
+      setLoadedSlotsDate(selectedDate);
+      setSlotPreviews((currentPreviews) => ({
+        ...currentPreviews,
+        [selectedDate]: nextSlots,
+      }));
       setSelectedSlot(null);
       setAvailabilityTimezone(response.timezone ?? activeTimezone);
     } catch {
       setSlots([]);
+      setLoadedSlotsDate("");
       setSelectedSlot(null);
     }
   }
@@ -1193,7 +1208,7 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
               selectedDate={selectedDate}
               selectedSlot={selectedSlot}
               upcomingDays={upcomingAvailabilityDays}
-              loading={slotsLoading}
+              loading={availabilityLoading}
               error={slotsError}
               timezone={activeTimezone}
               onDateSelect={(date) => {
