@@ -1,4 +1,10 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { BookingFlow } from "@/src/components/booking/BookingFlow";
 import type {
@@ -15,6 +21,7 @@ const bookingApiMocks = vi.hoisted(() => ({
   getPublicAvailability: vi.fn(),
   getPublicServices: vi.fn(),
   getPublicSlots: vi.fn(),
+  joinWaitlist: vi.fn(),
 }));
 
 vi.mock("@/src/lib/api", async () => {
@@ -106,6 +113,7 @@ function setupMockReferences() {
     getPublicServices: vi.mocked(bookingApi.getPublicServices),
     getPublicAvailability: vi.mocked(bookingApi.getPublicAvailability),
     getPublicSlots: vi.mocked(bookingApi.getPublicSlots),
+    joinWaitlist: vi.mocked(bookingApi.joinWaitlist),
   };
 }
 
@@ -401,4 +409,147 @@ describe("BookingFlow", () => {
       );
     },
   );
+
+  it("shows waitlist CTA for enabled stylists when the selected date has no slots", async () => {
+    const {
+      createPublicBookingIntake,
+      getPublicAvailability,
+      getPublicServices,
+      getPublicSlots,
+      joinWaitlist,
+    } = setupMockReferences();
+
+    createPublicBookingIntake.mockResolvedValue(createIntake());
+    getPublicServices.mockResolvedValue([createService("service-1", "Haircut")]);
+    getPublicAvailability.mockResolvedValue({
+      dates: ["2026-06-15"],
+      timezone: "America/Denver",
+    });
+    getPublicSlots.mockResolvedValue({
+      date: "2026-06-15",
+      timezone: "America/Denver",
+      service: {
+        id: "service-1",
+        name: "Haircut",
+        duration_minutes: 60,
+        price: 95,
+      },
+      slots: [],
+    });
+    joinWaitlist.mockResolvedValue({
+      id: "waitlist-1",
+      requestedDate: "2026-06-15",
+      serviceId: "service-1",
+      serviceName: "Haircut",
+      requestedTimePreference: "Morning preferred",
+      clientName: "Jane Smith",
+      clientEmail: "jane@example.com",
+      clientPhone: "+17205550103",
+      note: null,
+      status: "active",
+      source: "public_booking",
+      createdAt: "2026-05-13T12:00:00.000Z",
+    });
+
+    render(
+      <BookingFlow
+        slug="maya-johnson"
+        stylist={{
+          ...baseStylist,
+          features: { waitlistEnabled: true },
+        }}
+      />,
+    );
+
+    await openServicesStep();
+    fireEvent.click(screen.getByRole("button", { name: /Haircut/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+
+    await screen.findByText("No available times");
+    fireEvent.click(screen.getByRole("button", { name: "Join waitlist" }));
+
+    const dialog = screen.getByRole("dialog", { name: "Join the waitlist" });
+
+    expect(dialog).toBeTruthy();
+    expect(
+      (within(dialog).getByLabelText("Requested date") as HTMLInputElement).value,
+    ).toBe("2026-06-15");
+
+    fireEvent.change(within(dialog).getByLabelText("Name"), {
+      target: { value: "" },
+    });
+    fireEvent.click(within(dialog).getByRole("button", { name: "Join waitlist" }));
+    expect(await screen.findByText("Name is required.")).toBeTruthy();
+
+    fireEvent.change(within(dialog).getByLabelText("Name"), {
+      target: { value: "Jane Smith" },
+    });
+    fireEvent.change(within(dialog).getByLabelText("Email"), {
+      target: { value: "" },
+    });
+    fireEvent.change(within(dialog).getByLabelText("Phone"), {
+      target: { value: "" },
+    });
+    fireEvent.click(within(dialog).getByRole("button", { name: "Join waitlist" }));
+    expect(
+      await screen.findByText("Please provide either an email address or phone number."),
+    ).toBeTruthy();
+
+    fireEvent.change(within(dialog).getByLabelText("Email"), {
+      target: { value: "jane@example.com" },
+    });
+    fireEvent.change(within(dialog).getByLabelText("Preferred time"), {
+      target: { value: "Morning preferred" },
+    });
+    fireEvent.click(within(dialog).getByRole("button", { name: "Join waitlist" }));
+
+    await screen.findByText("You're on the waitlist");
+    expect(joinWaitlist).toHaveBeenCalledWith("maya-johnson", {
+      requestedDate: "2026-06-15",
+      serviceId: "service-1",
+      clientName: "Jane Smith",
+      clientEmail: "jane@example.com",
+      clientPhone: null,
+      requestedTimePreference: "Morning preferred",
+      note: null,
+    });
+    expect(bookingApi.createPublicBooking).not.toHaveBeenCalled();
+  });
+
+  it("hides waitlist CTA when the stylist metadata does not enable it", async () => {
+    const {
+      createPublicBookingIntake,
+      getPublicAvailability,
+      getPublicServices,
+      getPublicSlots,
+    } = setupMockReferences();
+
+    createPublicBookingIntake.mockResolvedValue(createIntake());
+    getPublicServices.mockResolvedValue([createService("service-1", "Haircut")]);
+    getPublicAvailability.mockResolvedValue({
+      dates: ["2026-06-15"],
+      timezone: "America/Denver",
+    });
+    getPublicSlots.mockResolvedValue({
+      date: "2026-06-15",
+      timezone: "America/Denver",
+      slots: [],
+    });
+
+    render(
+      <BookingFlow
+        slug="maya-johnson"
+        stylist={{ ...baseStylist, features: { waitlistEnabled: false } }}
+      />,
+    );
+
+    await openServicesStep();
+    fireEvent.click(screen.getByRole("button", { name: /Haircut/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+
+    await screen.findByText("No available times");
+    expect(
+      screen.queryByRole("button", { name: "Join waitlist" }),
+    ).toBeNull();
+  });
 });

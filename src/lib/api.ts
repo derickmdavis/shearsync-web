@@ -1,6 +1,6 @@
 export const API_BASE_URL =
-  process.env.API_BASE_URL ??
   process.env.NEXT_PUBLIC_API_BASE_URL ??
+  process.env.API_BASE_URL ??
   "http://localhost:3000";
 
 export type ApiEnvelope<T> = {
@@ -35,9 +35,125 @@ export type PublicStylistProfile = {
   business_name?: string | null;
   phone_number?: string | null;
   timezone?: string | null;
+  features?: {
+    waitlistEnabled?: boolean;
+  } | null;
 };
 
 export type PublicStylist = PublicStylistProfile;
+
+export type AccountProfile = {
+  id: string;
+  email: string;
+  full_name: string | null;
+  phone_number: string | null;
+  business_name: string | null;
+  timezone: string;
+  location_label?: string | null;
+  avatar_image_id?: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type AccountProfileUpdate = {
+  full_name?: string;
+  phone_number?: string;
+  business_name?: string;
+  location_label?: string;
+  avatar_image_id?: string;
+  timezone?: string;
+};
+
+export type AuthBootstrapResponse = {
+  auth: {
+    userId: string;
+    email?: string;
+    source: "jwt" | string;
+  };
+  auth_user: {
+    id: string;
+    email?: string;
+  };
+  profile: Record<string, unknown> | null;
+};
+
+export type StylistSettingsProfile = {
+  id: string;
+  user_id: string;
+  slug: string;
+  display_name: string;
+  bio: string | null;
+  cover_photo_url: string | null;
+  booking_enabled: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type StylistSettingsUpdate = {
+  slug?: string;
+  display_name?: string;
+  bio?: string;
+  cover_photo_url?: string;
+  booking_enabled?: boolean;
+};
+
+export type Customer = {
+  id: string;
+  user_id: string;
+  first_name: string;
+  last_name: string;
+  preferred_name: string | null;
+  phone: string | null;
+  phone_normalized: string | null;
+  email: string | null;
+  instagram: string | null;
+  birthday: string | null;
+  notes: string | null;
+  preferred_contact_method: "text" | "call" | "email" | "instagram" | null;
+  tags: string[] | null;
+  source:
+    | "referral"
+    | "instagram"
+    | "walk-in"
+    | "existing-client"
+    | "other"
+    | null;
+  reminder_consent: boolean | null;
+  total_spend: number | null;
+  last_visit_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type AccountTier = "basic" | "pro" | "premium";
+
+export type AccountPlanStatus =
+  | "trialing"
+  | "active"
+  | "past_due"
+  | "cancelled";
+
+export type AccountPlanFeatures = {
+  bookingPage: boolean;
+  crm: boolean;
+  emailReminders: boolean;
+  smsReminders: boolean;
+  customCoverPhoto: boolean;
+  customSlug: boolean;
+  googleCalendarSync: boolean;
+  weeklyBusinessRecap: boolean;
+  clientExport: boolean;
+};
+
+export type AccountPlan = {
+  tier: AccountTier;
+  status: AccountPlanStatus;
+  displayName: string;
+  smsMonthlyLimit: number;
+  smsUsedThisMonth: number;
+  smsRemainingThisMonth: number;
+  features: AccountPlanFeatures;
+};
 
 export type PublicService = {
   id: string;
@@ -66,23 +182,6 @@ export type RawAvailabilityRow = {
   end_time: string;
   is_active: boolean;
   client_audience: ClientAudience;
-};
-
-export type AvailabilityWindow = {
-  startTime: string;
-  endTime: string;
-  clientAudience: ClientAudience;
-};
-
-export type AvailabilityDay = {
-  dayOfWeek: 0 | 1 | 2 | 3 | 4 | 5 | 6;
-  isOpen: boolean;
-  windows: AvailabilityWindow[];
-};
-
-export type AvailabilitySettingsResponse = {
-  timezone: string;
-  days: AvailabilityDay[];
 };
 
 export type PublicAvailabilityResponse =
@@ -170,6 +269,31 @@ export type CreatePublicBookingBody = {
   guest_email?: string;
   guest_phone: string;
   notes?: string;
+};
+
+export type CreateWaitlistInput = {
+  requestedDate: string;
+  serviceId?: string | null;
+  requestedTimePreference?: string | null;
+  clientName: string;
+  clientEmail?: string | null;
+  clientPhone?: string | null;
+  note?: string | null;
+};
+
+export type PublicWaitlistEntry = {
+  id: string;
+  requestedDate: string;
+  serviceId?: string | null;
+  serviceName?: string | null;
+  requestedTimePreference?: string | null;
+  clientName: string;
+  clientEmail?: string | null;
+  clientPhone?: string | null;
+  note?: string | null;
+  status: string;
+  source: string;
+  createdAt: string;
 };
 
 export type PublicBookingConfirmation = {
@@ -295,6 +419,55 @@ async function requestPublicApi<T>(
   return unwrapPayload<T>(payload as ApiEnvelope<T> | T);
 }
 
+async function requestAuthenticatedApi<T>(
+  path: string,
+  accessToken: string,
+  { init }: Pick<RequestOptions, "init"> = {},
+) {
+  const headers = new Headers(init?.headers);
+
+  headers.set("Authorization", `Bearer ${accessToken}`);
+
+  if (init?.body && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
+
+  let response: Response;
+
+  try {
+    response = await fetch(`${API_BASE_URL}${path}`, {
+      ...init,
+      headers,
+      cache: "no-store",
+    });
+  } catch (error) {
+    throw new ApiError(
+      error instanceof Error
+        ? error.message
+        : "A network error occurred while contacting the account service.",
+      0,
+    );
+  }
+
+  const payload = await parseResponseBody(response);
+
+  if (!response.ok) {
+    throw new ApiError(
+      extractApiErrorMessage(payload, "Request failed."),
+      response.status,
+      payload && typeof payload === "object"
+        ? (payload as ApiEnvelope<unknown>).error?.details
+        : undefined,
+    );
+  }
+
+  return unwrapPayload<T>(payload as ApiEnvelope<T> | T);
+}
+
+export async function getAuthenticatedUser(accessToken: string) {
+  return requestAuthenticatedApi<AuthBootstrapResponse>("/me", accessToken);
+}
+
 export async function getPublicStylist(slug: string) {
   return requestPublicApi<PublicStylist>(`/api/public/stylists/${slug}`, {
     preferProxy: false,
@@ -380,5 +553,87 @@ export async function createPublicBooking(body: CreatePublicBookingBody) {
       method: "POST",
       body: JSON.stringify(body),
     },
+  });
+}
+
+export async function joinWaitlist(slug: string, input: CreateWaitlistInput) {
+  return requestPublicApi<PublicWaitlistEntry>(
+    `/api/public/stylists/${slug}/waitlist`,
+    {
+      init: {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(input),
+      },
+    },
+  );
+}
+
+export async function getAccountProfile(accessToken: string) {
+  return requestAuthenticatedApi<AccountProfile>(
+    "/api/settings/profile",
+    accessToken,
+  );
+}
+
+export async function updateAccountProfile(
+  accessToken: string,
+  body: AccountProfileUpdate,
+) {
+  return requestAuthenticatedApi<AccountProfile>(
+    "/api/settings/profile",
+    accessToken,
+    {
+      init: {
+        method: "PATCH",
+        body: JSON.stringify(body),
+      },
+    },
+  );
+}
+
+export async function getStylistSettingsProfile(accessToken: string) {
+  return requestAuthenticatedApi<StylistSettingsProfile>(
+    "/api/settings/booking",
+    accessToken,
+  );
+}
+
+export async function updateStylistSettingsProfile(
+  accessToken: string,
+  body: StylistSettingsUpdate,
+) {
+  return requestAuthenticatedApi<StylistSettingsProfile>(
+    "/api/settings/booking",
+    accessToken,
+    {
+      init: {
+        method: "PATCH",
+        body: JSON.stringify(body),
+      },
+    },
+  );
+}
+
+export async function getAccountPlan(accessToken: string) {
+  return requestAuthenticatedApi<AccountPlan>("/api/account/plan", accessToken);
+}
+
+export async function getClients(accessToken: string) {
+  const clients = await requestAuthenticatedApi<Customer[]>(
+    "/api/clients",
+    accessToken,
+  );
+
+  return [...clients].sort((clientA, clientB) => {
+    const nameA = `${clientA.first_name} ${clientA.last_name}`.trim();
+    const nameB = `${clientB.first_name} ${clientB.last_name}`.trim();
+
+    return nameA.localeCompare(nameB, undefined, {
+      sensitivity: "base",
+      numeric: true,
+    });
   });
 }

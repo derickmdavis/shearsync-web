@@ -174,16 +174,6 @@ export function buildWeekDateOptions(weekStart: string, count = 7) {
   );
 }
 
-export function formatDateChip(date: string, timeZone?: string | null) {
-  const targetDate = new Date(`${date}T12:00:00`);
-
-  return new Intl.DateTimeFormat("en-US", {
-    weekday: "short",
-    day: "numeric",
-    timeZone: timeZone ?? undefined,
-  }).format(targetDate);
-}
-
 export function formatShortWeekday(date: string, timeZone?: string | null) {
   const targetDate = new Date(`${date}T12:00:00`);
 
@@ -201,17 +191,6 @@ export function formatMonthDay(date: string, timeZone?: string | null) {
     day: "numeric",
     timeZone: timeZone ?? undefined,
   }).format(targetDate);
-}
-
-export function formatRelativeDateLabel(date: string, timeZone?: string | null) {
-  const today = getTodayDateValue();
-  const monthDay = formatMonthDay(date, timeZone);
-
-  if (date === today) {
-    return `Today, ${monthDay}`;
-  }
-
-  return `${formatShortWeekday(date, timeZone)}, ${monthDay}`;
 }
 
 export function formatMonthLabel(date: string, timeZone?: string | null) {

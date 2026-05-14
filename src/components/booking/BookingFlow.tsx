@@ -27,20 +27,26 @@ import {
 } from "@/src/lib/booking-format";
 import { BookedStep } from "@/src/components/booking/BookedStep";
 import { BookingStepper } from "@/src/components/booking/BookingStepper";
+import {
+  buildBookingServiceUnavailableMessage,
+  detailsAreValid,
+  isBookingContextExpiredError,
+  isBookingDisabledError,
+  isBookingSchemaMismatch,
+  isSelectedServiceUnavailableError,
+  isSlotConflictError,
+  sortServices,
+} from "@/src/components/booking/booking-flow-utils";
 import { ConfirmStep } from "@/src/components/booking/ConfirmStep";
 import { DetailsStep } from "@/src/components/booking/DetailsStep";
 import { TimeStep } from "@/src/components/booking/TimeStep";
+import { useBookingDetails } from "@/src/components/booking/useBookingDetails";
+import { WaitlistCallout } from "@/src/components/booking/WaitlistCallout";
 
 type BookingFlowProps = {
   slug: string;
   stylist: PublicStylist;
 };
-
-type DetailsErrors = Partial<{
-  fullName: string;
-  email: string;
-  phone: string;
-}>;
 
 type BookingIntakeState =
   | { status: "idle" }
@@ -48,109 +54,14 @@ type BookingIntakeState =
   | { status: "ready"; data: PublicBookingIntakeData }
   | { status: "error"; message: string };
 
-type ApiErrorDetails = {
-  code?: string;
-  message?: string;
-};
-
 type AvailabilityDayPreview = {
   date: string;
   slots: PublicSlot[];
 };
 
-type ContactValues = {
-  fullName: string;
-  email: string;
-  phone: string;
-};
-
-function isSlotConflictError(error: unknown, message: string) {
-  if (!(error instanceof ApiError)) {
-    return false;
-  }
-
-  const normalizedMessage = message.trim().toLowerCase();
-
-  return (
-    error.status === 409 ||
-    normalizedMessage === "requested time is no longer available" ||
-    normalizedMessage === "this time slot is already booked."
-  );
-}
-
-function getApiErrorDetails(error: unknown) {
-  if (
-    !(error instanceof ApiError) ||
-    !error.details ||
-    typeof error.details !== "object"
-  ) {
-    return null;
-  }
-
-  return error.details as ApiErrorDetails;
-}
-
-function isBookingSchemaMismatch(error: unknown) {
-  if (!(error instanceof ApiError)) {
-    return false;
-  }
-
-  const details = getApiErrorDetails(error);
-  const normalizedMessage = error.message.trim().toLowerCase();
-  const normalizedDetailsMessage = details?.message?.trim().toLowerCase();
-
-  return (
-    details?.code === "PGRST204" &&
-    (normalizedMessage === "unable to create appointment" ||
-      normalizedDetailsMessage?.includes("booking_source column"))
-  );
-}
-
-function normalizeApiErrorMessage(error: ApiError) {
-  return error.message.trim().toLowerCase();
-}
-
-function isBookingDisabledError(error: unknown) {
-  return (
-    error instanceof ApiError &&
-    error.status === 400 &&
-    normalizeApiErrorMessage(error) ===
-      "online booking is not enabled for this stylist"
-  );
-}
-
-function isBookingContextExpiredError(error: unknown) {
-  return (
-    error instanceof ApiError &&
-    error.status === 400 &&
-    normalizeApiErrorMessage(error) ===
-      "booking context is invalid or expired"
-  );
-}
-
-function isSelectedServiceUnavailableError(error: unknown) {
-  return (
-    error instanceof ApiError &&
-    error.status === 400 &&
-    normalizeApiErrorMessage(error) === "selected service is not available"
-  );
-}
-
-function buildBookingServiceUnavailableMessage(stylist: PublicStylist) {
-  if (stylist.phone_number?.trim()) {
-    return `Online booking is temporarily unavailable. Please call ${stylist.phone_number} to finish your appointment.`;
-  }
-
-  return "Online booking is temporarily unavailable. Please contact the business to finish your appointment.";
-}
-
 export function BookingFlow({ slug, stylist }: BookingFlowProps) {
   const [currentStep, setCurrentStep] = useState(1);
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
   const [notes, setNotes] = useState("");
-  const [detailsErrors, setDetailsErrors] = useState<DetailsErrors>({});
   const [intakeState, setIntakeState] = useState<BookingIntakeState>({
     status: "idle",
   });
@@ -181,13 +92,15 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
   const [confirmation, setConfirmation] =
     useState<PublicBookingConfirmation | null>(null);
 
-  const parsedName = useMemo(() => splitFullName(fullName), [fullName]);
   const intakeData = intakeState.status === "ready" ? intakeState.data : null;
   const bookingContextToken = intakeData?.bookingContextToken ?? null;
   const bookingDisabled =
     !stylist.booking_enabled ||
     bookingDisabledByFlow ||
     intakeData?.bookingEnabled === false;
+  const canShowWaitlist =
+    stylist.booking_enabled === true &&
+    stylist.features?.waitlistEnabled === true;
   const servicesAreSynced =
     Boolean(bookingContextToken) && servicesLoadedToken === bookingContextToken;
   const sortedServices = useMemo(() => sortServices(services), [services]);
@@ -197,14 +110,22 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
     !bookingDisabled &&
     intakeState.status === "ready" &&
     Boolean(intakeData?.bookingEnabled);
-  const canBeginServiceSelection =
-    Boolean(fullName.trim()) && Boolean(phone.trim());
   const selectedServiceIds = useMemo(
     () => selectedServices.map((service) => service.id),
     [selectedServices],
   );
   const primarySelectedService = selectedServices[0] ?? null;
   const canShowTimeStep = Boolean(selectedServices.length && selectedDate);
+  const availabilityLoaded =
+    Boolean(selectedDate) && loadedSlotsDate === selectedDate;
+  const shouldShowWaitlistCta =
+    canShowWaitlist &&
+    selectedServiceIds.length > 0 &&
+    Boolean(selectedDate) &&
+    availabilityLoaded &&
+    !availabilityLoading &&
+    !slotsError &&
+    slots.length === 0;
   const upcomingAvailabilityDays = useMemo<AvailabilityDayPreview[]>(() => {
     const today = getTodayDateValue();
     const orderedDates = Array.from(
@@ -225,15 +146,10 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
       .filter((day) => day.slots.length > 0);
   }, [dateOptions, loadedSlotsDate, selectedDate, slotPreviews, slots]);
 
-  const contactValuesRef = useRef<ContactValues>({ fullName, email, phone });
   const selectedServicesRef = useRef(selectedServices);
   const tokenRefreshPromiseRef = useRef<Promise<PublicBookingIntakeData | null> | null>(
     null,
   );
-
-  useEffect(() => {
-    contactValuesRef.current = { fullName, email, phone };
-  }, [email, fullName, phone]);
 
   useEffect(() => {
     selectedServicesRef.current = selectedServices;
@@ -271,6 +187,27 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
     setServiceError(null);
     setConfirmError(null);
   }, [clearAvailabilityState]);
+
+  const {
+    contactValues,
+    contactValuesRef,
+    detailsErrors,
+    email,
+    fullName,
+    handleDetailsChange,
+    parsedName,
+    phone,
+    validateDetails,
+  } = useBookingDetails({
+    onDetailsChanged: () => {
+      if (intakeState.status !== "idle" || services.length || servicesLoadedToken) {
+        invalidateBookingContext();
+      }
+    },
+  });
+
+  const canBeginServiceSelection =
+    Boolean(contactValues.fullName.trim()) && Boolean(contactValues.phone.trim());
 
   const handleBookingContextRecoveryFailure = useCallback(
     (message: string) => {
@@ -326,7 +263,7 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
         }
       }
     },
-    [disableBookingFlow, slug],
+    [contactValuesRef, disableBookingFlow, slug],
   );
 
   const refreshBookingContext = useCallback(async () => {
@@ -904,27 +841,6 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
     servicesAreSynced,
   ]);
 
-  function validateDetails() {
-    const nextErrors: DetailsErrors = {};
-
-    if (!fullName.trim()) {
-      nextErrors.fullName = "Full name is required.";
-    } else if (!parsedName.lastName) {
-      nextErrors.fullName = "Please include a last name.";
-    }
-
-    if (!phone.trim()) {
-      nextErrors.phone = "Phone is required.";
-    }
-
-    if (email.trim() && !isValidEmail(email.trim())) {
-      nextErrors.email = "Enter a valid email address.";
-    }
-
-    setDetailsErrors(nextErrors);
-    return Object.keys(nextErrors).length === 0;
-  }
-
   async function handleContinueFromDetails() {
     if (!validateDetails()) {
       return;
@@ -1098,32 +1014,6 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
     setServiceError(null);
   }
 
-  function handleDetailsChange(
-    field: "fullName" | "email" | "phone",
-    value: string,
-  ) {
-    setDetailsErrors((currentErrors) => ({
-      ...currentErrors,
-      [field]: undefined,
-    }));
-
-    if (field === "fullName") {
-      setFullName(value);
-    }
-
-    if (field === "email") {
-      setEmail(value);
-    }
-
-    if (field === "phone") {
-      setPhone(value);
-    }
-
-    if (intakeState.status !== "idle" || services.length || servicesLoadedToken) {
-      invalidateBookingContext();
-    }
-  }
-
   if (confirmation && selectedServices.length && selectedSlot) {
     return (
       <div className="rounded-[30px] border border-white/80 bg-card p-6 shadow-[0_24px_80px_rgba(17,24,39,0.08)] sm:p-8">
@@ -1211,6 +1101,18 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
               loading={availabilityLoading}
               error={slotsError}
               timezone={activeTimezone}
+              waitlistCta={
+                shouldShowWaitlistCta ? (
+                  <WaitlistCallout
+                    slug={slug}
+                    selectedDate={selectedDate}
+                    selectedServiceId={primarySelectedService?.id ?? null}
+                    defaultClientName={fullName}
+                    defaultClientEmail={email}
+                    defaultClientPhone={phone}
+                  />
+                ) : null
+              }
               onDateSelect={(date) => {
                 setSelectedDate(date);
                 setSelectedSlot(null);
@@ -1252,52 +1154,4 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
       )}
     </div>
   );
-}
-
-function sortServices(services: PublicService[]) {
-  return services
-    .map((service, index) => ({ service, index }))
-    .sort((left, right) => {
-      const leftSortOrder = left.service.sort_order ?? Number.MAX_SAFE_INTEGER;
-      const rightSortOrder = right.service.sort_order ?? Number.MAX_SAFE_INTEGER;
-
-      if (leftSortOrder !== rightSortOrder) {
-        return leftSortOrder - rightSortOrder;
-      }
-
-      return left.index - right.index;
-    })
-    .map(({ service }) => service);
-}
-
-function detailsAreValid(values: ContactValues) {
-  const parsedName = splitFullName(values.fullName);
-
-  return (
-    Boolean(values.fullName.trim()) &&
-    Boolean(parsedName.lastName) &&
-    Boolean(values.phone.trim()) &&
-    (!values.email.trim() || isValidEmail(values.email.trim()))
-  );
-}
-
-function isValidEmail(value: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-}
-
-function splitFullName(value: string) {
-  const parts = value.trim().split(/\s+/).filter(Boolean);
-
-  if (parts.length === 0) {
-    return { firstName: "", lastName: "" };
-  }
-
-  if (parts.length === 1) {
-    return { firstName: parts[0], lastName: "" };
-  }
-
-  return {
-    firstName: parts[0],
-    lastName: parts.slice(1).join(" "),
-  };
 }

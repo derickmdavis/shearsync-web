@@ -24,6 +24,7 @@ type TimeStepProps = {
   loading: boolean;
   error?: string | null;
   timezone?: string | null;
+  waitlistCta?: ReactNode;
   onDateSelect: (date: string) => void;
   onSlotSelect: (slot: PublicSlot) => void;
   onBack: () => void;
@@ -37,6 +38,7 @@ export function TimeStep({
   loading,
   error,
   timezone,
+  waitlistCta,
   onDateSelect,
   onSlotSelect,
   onBack,
@@ -130,7 +132,7 @@ export function TimeStep({
             </button>
           </div>
 
-          <div className="mt-4 grid grid-cols-7 gap-2">
+          <div className="mt-4 grid grid-cols-7 gap-1 min-[430px]:gap-2">
             {calendarDates.map((date) => {
               const isSelected = date === selectedDate;
               const isPastDate = date < today;
@@ -148,7 +150,7 @@ export function TimeStep({
                   }}
                   disabled={isPastDate}
                   className={[
-                    "rounded-[12px] border px-2 py-2 text-center transition-colors",
+                    "flex h-[72px] min-w-0 flex-col items-center justify-center rounded-[12px] border px-0.5 py-2 text-center transition-colors min-[430px]:px-2",
                     isSelected
                       ? "border-[#6D4DF2] bg-[#6D4DF2] text-white"
                       : isPastDate
@@ -156,10 +158,10 @@ export function TimeStep({
                         : "border-[#E5E7EB] bg-white text-[#111827] hover:border-[#6D4DF2] hover:bg-[rgba(109,77,242,0.05)]",
                   ].join(" ")}
                 >
-                  <span className="block text-[10px] font-semibold uppercase tracking-[0.04em] min-[430px]:text-[11px]">
+                  <span className="block text-[10px] leading-none font-semibold uppercase tracking-[0.02em] min-[430px]:text-[11px] min-[430px]:tracking-[0.04em]">
                     {formatShortWeekday(date, timezone)}
                   </span>
-                  <span className="mt-1 block text-[14px] font-bold min-[430px]:text-[15px]">
+                  <span className="mt-1 block text-[14px] leading-none font-bold min-[430px]:text-[15px]">
                     {formatDayNumber(date, timezone)}
                   </span>
                 </button>
@@ -194,22 +196,23 @@ export function TimeStep({
                     ].join(" ")}
                   >
                     <div>
-                      <div className="flex items-center gap-2">
-                        <p className="text-[15px] leading-5 font-bold text-[#111827]">
-                          {formatShortWeekday(day.date, timezone)}
-                        </p>
-                        <p className="text-[15px] leading-5 font-bold text-[#111827]">
-                          {formatMonthDay(day.date, timezone)}
-                        </p>
-                      </div>
-
-                      <div className="mt-3 flex min-w-0 flex-col gap-2.5">
-                        <div className="inline-flex h-[26px] self-start items-center rounded-full bg-[#F3F4F6] px-[10px] text-[12px] font-bold text-[#6B7280]">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2">
+                          <p className="text-[15px] leading-5 font-bold text-[#111827]">
+                            {formatShortWeekday(day.date, timezone)}
+                          </p>
+                          <p className="text-[15px] leading-5 font-bold text-[#111827]">
+                            {formatMonthDay(day.date, timezone)}
+                          </p>
+                        </div>
+                        <div className="inline-flex h-[26px] shrink-0 items-center rounded-full bg-[#F3F4F6] px-[10px] text-[12px] font-bold text-[#6B7280]">
                           {day.slots.length}{" "}
                           {day.slots.length === 1 ? "timeslot" : "timeslots"}
                         </div>
+                      </div>
 
-                        <div className="flex flex-wrap gap-[6px]">
+                      <div className="mt-3 flex min-w-0 flex-col gap-2.5">
+                        <div className="grid grid-cols-3 gap-[6px]">
                           {previewSlots.map((slot) => (
                             <TimeSlotPill
                               key={slot.start}
@@ -254,6 +257,8 @@ export function TimeStep({
             </div>
           </section>
         ) : null}
+
+        {!loading && !error && waitlistCta ? waitlistCta : null}
 
         {showEmptyState ? (
           <InfoCard>
@@ -317,7 +322,7 @@ function TimeSlotPill({
       onClick={onSelect}
       aria-pressed={selected}
       className={[
-        "inline-flex h-8 min-w-[70px] cursor-pointer items-center justify-center whitespace-nowrap rounded-[12px] border px-[10px] text-[13px] leading-none font-semibold transition-all min-[430px]:min-w-[72px]",
+        "inline-flex h-8 w-full cursor-pointer items-center justify-center whitespace-nowrap rounded-[12px] border px-[10px] text-[13px] leading-none font-semibold transition-all",
         selected
           ? "border-[#6D4DF2] bg-[#6D4DF2] text-white"
           : "border-[rgba(109,77,242,0.14)] bg-[rgba(109,77,242,0.08)] text-[#6D4DF2] hover:bg-[rgba(109,77,242,0.12)] active:bg-[rgba(109,77,242,0.16)]",
@@ -339,7 +344,7 @@ function TogglePill({
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex h-8 items-center justify-center rounded-[10px] bg-[#F3F4F6] px-[10px] text-[13px] font-bold text-[#6B7280] transition-colors hover:bg-zinc-200 active:bg-zinc-300"
+      className="inline-flex h-8 w-full items-center justify-center rounded-[10px] bg-[#F3F4F6] px-[10px] text-[13px] font-bold text-[#6B7280] transition-colors hover:bg-zinc-200 active:bg-zinc-300"
     >
       {children}
     </button>

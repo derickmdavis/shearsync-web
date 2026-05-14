@@ -1,8 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  getClients,
   getPublicAvailability,
   getPublicServices,
   getPublicSlots,
+  joinWaitlist,
 } from "@/src/lib/api";
 
 describe("public booking api helpers", () => {
@@ -71,4 +73,123 @@ describe("public booking api helpers", () => {
       expect.objectContaining({ cache: "no-store" }),
     );
   });
+
+  it("posts public waitlist entries through the booking api", async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          data: {
+            id: "waitlist-1",
+            requestedDate: "2026-06-15",
+            serviceId: "service-1",
+            clientName: "Ava Martinez",
+            status: "active",
+            source: "public_booking",
+            createdAt: "2026-05-13T12:00:00.000Z",
+          },
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        },
+      ),
+    );
+
+    await joinWaitlist("maya-johnson", {
+      requestedDate: "2026-06-15",
+      serviceId: "service-1",
+      clientName: "Ava Martinez",
+      clientEmail: "ava@example.com",
+      clientPhone: null,
+      requestedTimePreference: "Morning preferred",
+      note: "Anytime after 10am.",
+    });
+
+    expect(fetch).toHaveBeenCalledWith(
+      "/api/public/stylists/maya-johnson/waitlist",
+      expect.objectContaining({
+        cache: "no-store",
+        method: "POST",
+        body: JSON.stringify({
+          requestedDate: "2026-06-15",
+          serviceId: "service-1",
+          clientName: "Ava Martinez",
+          clientEmail: "ava@example.com",
+          clientPhone: null,
+          requestedTimePreference: "Morning preferred",
+          note: "Anytime after 10am.",
+        }),
+      }),
+    );
+  });
 });
+
+describe("authenticated clients api helpers", () => {
+  beforeEach(() => {
+    vi.stubGlobal("fetch", vi.fn());
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("loads clients with a bearer token and sorts by client name", async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          data: [
+            makeCustomer({ id: "2", first_name: "Zoey", last_name: "Ray" }),
+            makeCustomer({ id: "1", first_name: "Ava", last_name: "Martinez" }),
+          ],
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        },
+      ),
+    );
+
+    const clients = await getClients("token-1");
+
+    expect(fetch).toHaveBeenCalledWith(
+      "http://localhost:3000/api/clients",
+      expect.objectContaining({
+        cache: "no-store",
+        headers: expect.any(Headers),
+      }),
+    );
+    expect(
+      (vi.mocked(fetch).mock.calls[0]?.[1]?.headers as Headers).get(
+        "Authorization",
+      ),
+    ).toBe("Bearer token-1");
+    expect(clients.map((client) => client.id)).toEqual(["1", "2"]);
+  });
+});
+
+function makeCustomer(
+  overrides: Partial<Awaited<ReturnType<typeof getClients>>[number]>,
+) {
+  return {
+    id: "client-1",
+    user_id: "user-1",
+    first_name: "Ava",
+    last_name: "Martinez",
+    preferred_name: null,
+    phone: null,
+    phone_normalized: null,
+    email: null,
+    instagram: null,
+    birthday: null,
+    notes: null,
+    preferred_contact_method: null,
+    tags: null,
+    source: null,
+    reminder_consent: null,
+    total_spend: null,
+    last_visit_at: null,
+    created_at: "2026-05-12T18:00:00.000Z",
+    updated_at: "2026-05-12T18:00:00.000Z",
+    ...overrides,
+  };
+}
