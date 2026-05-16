@@ -25,6 +25,8 @@ export function useBookingDetails({
   const [phone, setPhone] = useState("");
   const [detailsErrors, setDetailsErrors] = useState<DetailsErrors>({});
   const parsedName = useMemo(() => splitFullName(fullName), [fullName]);
+  // Async booking/intake callbacks read the latest contact values through this
+  // ref to avoid stale closures after field edits.
   const contactValuesRef = useRef<ContactValues>({ fullName, email, phone });
 
   useEffect(() => {
@@ -53,6 +55,8 @@ export function useBookingDetails({
   }
 
   function handleDetailsChange(field: ContactField, value: string) {
+    // Changing identity details invalidates downstream intake/service context in
+    // the parent flow because availability is scoped to that context token.
     setDetailsErrors((currentErrors) => ({
       ...currentErrors,
       [field]: undefined,

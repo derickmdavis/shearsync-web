@@ -98,7 +98,7 @@ export function TimeStep({
           </InfoCard>
         ) : null}
 
-        <div className="mt-3 rounded-[16px] border border-[#E5E7EB] bg-white p-4 shadow-[0_2px_10px_rgba(17,24,39,0.035)]">
+        <div className="mt-3 rounded-[16px] border border-border bg-white p-4 shadow-[0_2px_10px_rgba(17,17,17,0.035)]">
           <div className="flex items-center justify-between gap-3">
             <button
               type="button"
@@ -108,13 +108,13 @@ export function TimeStep({
                 )
               }
               disabled={addDaysToDate(calendarWeekStart, -7) < startOfWeek(today)}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#E5E7EB] text-[#6B7280] transition-colors hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-40"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border text-muted transition-colors hover:bg-surface-warm disabled:cursor-not-allowed disabled:opacity-40"
               aria-label="Show previous week"
             >
               <ArrowIcon direction="left" />
             </button>
 
-            <p className="text-[15px] font-bold text-[#111827]">
+            <p className="text-[15px] font-bold text-foreground">
               {formatMonthLabel(calendarWeekStart, timezone)}
             </p>
 
@@ -125,7 +125,7 @@ export function TimeStep({
                   addDaysToDate(currentWeekStart, 7),
                 )
               }
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#E5E7EB] text-[#6B7280] transition-colors hover:bg-zinc-50"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border text-muted transition-colors hover:bg-surface-warm"
               aria-label="Show next week"
             >
               <ArrowIcon />
@@ -152,10 +152,10 @@ export function TimeStep({
                   className={[
                     "flex h-[72px] min-w-0 flex-col items-center justify-center rounded-[12px] border px-0.5 py-2 text-center transition-colors min-[430px]:px-2",
                     isSelected
-                      ? "border-[#6D4DF2] bg-[#6D4DF2] text-white"
+                      ? "border-brand bg-brand text-white"
                       : isPastDate
                         ? "border-[#E5E7EB] bg-zinc-50 text-zinc-400"
-                        : "border-[#E5E7EB] bg-white text-[#111827] hover:border-[#6D4DF2] hover:bg-[rgba(109,77,242,0.05)]",
+                        : "border-border bg-white text-foreground hover:border-brand hover:bg-brand-soft",
                   ].join(" ")}
                 >
                   <span className="block text-[10px] leading-none font-semibold uppercase tracking-[0.02em] min-[430px]:text-[11px] min-[430px]:tracking-[0.04em]">
@@ -173,7 +173,7 @@ export function TimeStep({
         {!loading && !error && !showEmptyState ? (
           <section className="mt-7">
             <div className="mb-3">
-              <h3 className="text-[24px] leading-[30px] font-bold text-[#111827]">
+              <h3 className="text-[24px] leading-[30px] font-bold text-foreground">
                 Upcoming
               </h3>
             </div>
@@ -189,23 +189,23 @@ export function TimeStep({
                   <div
                     key={day.date}
                     className={[
-                      "mb-3 rounded-[16px] border border-[#E5E7EB] bg-white p-4 shadow-[0_2px_10px_rgba(17,24,39,0.035)] transition-colors active:bg-zinc-50",
+                      "mb-3 rounded-[16px] border border-border bg-white p-4 shadow-[0_2px_10px_rgba(17,17,17,0.035)] transition-colors active:bg-surface-warm",
                       isSelectedDate
-                        ? "bg-[rgba(109,77,242,0.02)]"
+                        ? "bg-brand-soft"
                         : "",
                     ].join(" ")}
                   >
                     <div>
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-2">
-                          <p className="text-[15px] leading-5 font-bold text-[#111827]">
+                          <p className="text-[15px] leading-5 font-bold text-foreground">
                             {formatShortWeekday(day.date, timezone)}
                           </p>
-                          <p className="text-[15px] leading-5 font-bold text-[#111827]">
+                          <p className="text-[15px] leading-5 font-bold text-foreground">
                             {formatMonthDay(day.date, timezone)}
                           </p>
                         </div>
-                        <div className="inline-flex h-[26px] shrink-0 items-center rounded-full bg-[#F3F4F6] px-[10px] text-[12px] font-bold text-[#6B7280]">
+                        <div className="inline-flex h-[26px] shrink-0 items-center rounded-full bg-surface-warm px-[10px] text-[12px] font-bold text-muted">
                           {day.slots.length}{" "}
                           {day.slots.length === 1 ? "timeslot" : "timeslots"}
                         </div>
@@ -278,7 +278,7 @@ export function TimeStep({
         onClick={onContinue}
         disabled={!selectedSlot}
         aria-disabled={!selectedSlot}
-        className="mt-6 flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-brand px-5 text-base font-semibold text-white shadow-[0_18px_32px_rgba(109,79,242,0.26)] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:transform-none disabled:opacity-50 disabled:shadow-none"
+        className="mt-6 flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-brand px-5 text-base font-semibold text-white shadow-[0_18px_32px_rgba(183,121,61,0.24)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark disabled:cursor-not-allowed disabled:transform-none disabled:opacity-50 disabled:shadow-none"
       >
         Continue
         <ArrowIcon />
@@ -297,7 +297,7 @@ export function TimeStep({
 
 function InfoCard({ children }: { children: ReactNode }) {
   return (
-    <div className="rounded-[16px] border border-[#E5E7EB] bg-white p-4 shadow-[0_2px_10px_rgba(17,24,39,0.035)]">
+    <div className="rounded-[16px] border border-border bg-white p-4 shadow-[0_2px_10px_rgba(17,17,17,0.035)]">
       {children}
     </div>
   );
@@ -324,8 +324,8 @@ function TimeSlotPill({
       className={[
         "inline-flex h-8 w-full cursor-pointer items-center justify-center whitespace-nowrap rounded-[12px] border px-[10px] text-[13px] leading-none font-semibold transition-all",
         selected
-          ? "border-[#6D4DF2] bg-[#6D4DF2] text-white"
-          : "border-[rgba(109,77,242,0.14)] bg-[rgba(109,77,242,0.08)] text-[#6D4DF2] hover:bg-[rgba(109,77,242,0.12)] active:bg-[rgba(109,77,242,0.16)]",
+          ? "border-brand bg-brand text-white"
+          : "border-brand/20 bg-brand-soft text-brand hover:bg-[rgba(183,121,61,0.12)] active:bg-[rgba(183,121,61,0.16)]",
       ].join(" ")}
     >
       {formatTime(slot.start, timeZone)}
@@ -344,7 +344,7 @@ function TogglePill({
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex h-8 w-full items-center justify-center rounded-[10px] bg-[#F3F4F6] px-[10px] text-[13px] font-bold text-[#6B7280] transition-colors hover:bg-zinc-200 active:bg-zinc-300"
+      className="inline-flex h-8 w-full items-center justify-center rounded-[10px] bg-surface-warm px-[10px] text-[13px] font-bold text-muted transition-colors hover:bg-brand-soft active:bg-brand-soft"
     >
       {children}
     </button>

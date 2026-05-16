@@ -68,7 +68,7 @@ export function ConfirmStep({
 
       <div className="mt-6 space-y-4">
         {bookingBehavior ? (
-          <div className="rounded-2xl border border-border bg-zinc-50 p-4">
+          <div className="rounded-2xl border border-border bg-surface-warm p-4">
             <p className="text-sm font-semibold text-foreground">
               Booking preview
             </p>
@@ -126,7 +126,7 @@ export function ConfirmStep({
           onChange={(event) => onNotesChange(event.target.value.slice(0, 250))}
           rows={4}
           placeholder="Anything we should know?"
-          className="w-full rounded-2xl border border-border bg-white px-4 py-3 text-sm text-foreground outline-none transition-colors placeholder:text-zinc-400 focus:border-brand"
+          className="w-full rounded-2xl border border-border bg-white px-4 py-3 text-sm text-foreground outline-none transition-colors placeholder:text-zinc-400 focus:border-brand focus:ring-2 focus:ring-brand/20"
         />
         <p className="mt-2 text-right text-xs text-muted">{notes.length}/250</p>
       </label>
@@ -137,7 +137,7 @@ export function ConfirmStep({
         type="button"
         disabled={submitting}
         onClick={onSubmit}
-        className="mt-5 flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-brand px-5 text-base font-semibold text-white shadow-[0_18px_32px_rgba(109,79,242,0.26)] transition-transform hover:-translate-y-0.5 disabled:cursor-wait disabled:opacity-70"
+        className="mt-5 flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-brand px-5 text-base font-semibold text-white shadow-[0_18px_32px_rgba(183,121,61,0.24)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark disabled:cursor-wait disabled:opacity-70"
       >
         {submitting ? "Booking..." : "Book Appointment"}
         <ArrowIcon />

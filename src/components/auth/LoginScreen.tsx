@@ -57,6 +57,8 @@ export function LoginScreen({ initialMode, nextPath }: LoginScreenProps) {
       return;
     }
 
+    // Supabase owns the browser session. This screen only redirects after a
+    // valid session exists, and password recovery temporarily switches modes.
     const supabase = getSupabaseBrowserClient();
 
     void supabase.auth.getSession().then(({ data }) => {
@@ -99,6 +101,8 @@ export function LoginScreen({ initialMode, nextPath }: LoginScreenProps) {
       const supabase = getSupabaseBrowserClient();
 
       if (mode === "reset") {
+        // Use same-origin redirects so Supabase recovery links return to this
+        // frontend and preserve the sanitized next path.
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
           redirectTo: `${window.location.origin}/login?mode=update-password&next=${encodeURIComponent(nextPath)}`,
         });
@@ -126,6 +130,8 @@ export function LoginScreen({ initialMode, nextPath }: LoginScreenProps) {
       }
 
       const credentials = { email, password };
+      // Auth is intentionally client-side with the public anon key; protected
+      // app data is fetched later through API calls with the session token.
       const { data, error } =
         mode === "sign-up"
           ? await supabase.auth.signUp(credentials)
@@ -149,20 +155,20 @@ export function LoginScreen({ initialMode, nextPath }: LoginScreenProps) {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center px-4 py-10 text-[#111827] sm:px-6">
-      <section className="grid w-full max-w-5xl overflow-hidden rounded-[28px] border border-white/80 bg-white shadow-[0_28px_90px_rgba(17,24,39,0.12)] lg:grid-cols-[0.9fr_1.1fr]">
-        <div className="flex min-h-[22rem] flex-col justify-between bg-[#111827] px-6 py-7 text-white sm:px-8">
+    <main className="flex min-h-screen items-center justify-center px-4 py-10 text-foreground sm:px-6">
+      <section className="grid w-full max-w-5xl overflow-hidden rounded-[28px] border border-white/80 bg-white shadow-[0_28px_90px_rgba(17,17,17,0.12)] lg:grid-cols-[0.9fr_1.1fr]">
+        <div className="flex min-h-[22rem] flex-col justify-between bg-[#111111] px-6 py-7 text-white sm:px-8">
           <div>
             <p className="font-display text-4xl font-semibold italic">
-              ShearSync
+              ChairDesk
             </p>
             <h1 className="mt-8 max-w-sm text-3xl font-semibold tracking-tight sm:text-4xl">
-              Manage your booking business with a secure account.
+              Run your chair like a business with a secure account.
             </h1>
           </div>
           <p className="mt-8 max-w-sm text-sm leading-6 text-white/72">
             Your Supabase session is used for sign in, password recovery, and
-            authenticated ShearSync API requests.
+            authenticated ChairDesk API requests.
           </p>
         </div>
 
@@ -178,10 +184,10 @@ export function LoginScreen({ initialMode, nextPath }: LoginScreenProps) {
                   setErrorMessage("");
                 }}
                 className={[
-                  "h-10 rounded-2xl px-4 text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-[#4F46E5]/25",
+                  "h-10 rounded-2xl px-4 text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-brand/25",
                   mode === item
-                    ? "bg-[#4F46E5] text-white"
-                    : "border border-[#E5E7EB] bg-[#F9FAFB] text-[#4B5563]",
+                    ? "bg-brand text-white"
+                    : "border border-border bg-surface-warm text-muted",
                 ].join(" ")}
               >
                 {item === "sign-in"
@@ -206,7 +212,7 @@ export function LoginScreen({ initialMode, nextPath }: LoginScreenProps) {
                 <input
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
-                  className="h-12 w-full rounded-2xl border border-[#E5E7EB] bg-white px-4 text-sm outline-none focus:ring-2 focus:ring-[#4F46E5]/25"
+                  className="h-12 w-full rounded-2xl border border-border bg-white px-4 text-sm outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
                   type="email"
                   autoComplete="email"
                   required
@@ -222,7 +228,7 @@ export function LoginScreen({ initialMode, nextPath }: LoginScreenProps) {
                 <input
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
-                  className="h-12 w-full rounded-2xl border border-[#E5E7EB] bg-white px-4 text-sm outline-none focus:ring-2 focus:ring-[#4F46E5]/25"
+                  className="h-12 w-full rounded-2xl border border-border bg-white px-4 text-sm outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
                   type="password"
                   autoComplete={
                     mode === "sign-up" ? "new-password" : "current-password"
@@ -240,7 +246,7 @@ export function LoginScreen({ initialMode, nextPath }: LoginScreenProps) {
                 <input
                   value={newPassword}
                   onChange={(event) => setNewPassword(event.target.value)}
-                  className="h-12 w-full rounded-2xl border border-[#E5E7EB] bg-white px-4 text-sm outline-none focus:ring-2 focus:ring-[#4F46E5]/25"
+                  className="h-12 w-full rounded-2xl border border-border bg-white px-4 text-sm outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
                   type="password"
                   autoComplete="new-password"
                   required
@@ -263,7 +269,7 @@ export function LoginScreen({ initialMode, nextPath }: LoginScreenProps) {
             <button
               type="submit"
               disabled={isBusy}
-              className="mt-2 inline-flex h-12 items-center justify-center rounded-2xl bg-[#4F46E5] px-5 text-sm font-semibold text-white shadow-[0_16px_30px_rgba(79,70,229,0.23)] transition-transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-[#4F46E5]/30 disabled:cursor-not-allowed disabled:opacity-60"
+              className="mt-2 inline-flex h-12 items-center justify-center rounded-2xl bg-brand px-5 text-sm font-semibold text-white shadow-[0_16px_30px_rgba(183,121,61,0.23)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-brand/30 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isBusy
                 ? "Working..."

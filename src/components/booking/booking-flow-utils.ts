@@ -12,6 +12,8 @@ type ApiErrorDetails = {
 };
 
 export function sortServices(services: PublicService[]) {
+  // Preserve backend order as a stable tiebreaker when services do not define
+  // sort_order, preventing cards from jumping between renders.
   return services
     .map((service, index) => ({ service, index }))
     .sort((left, right) => {
@@ -28,6 +30,8 @@ export function sortServices(services: PublicService[]) {
 }
 
 export function detailsAreValid(values: ContactValues) {
+  // The intake endpoint needs enough identity information to decide whether
+  // returning-client rules apply before exposing service options.
   const parsedName = splitFullName(values.fullName);
 
   return (
@@ -74,6 +78,8 @@ export function isSlotConflictError(error: unknown, message: string) {
 }
 
 export function isBookingSchemaMismatch(error: unknown) {
+  // This handles a known backend migration mismatch so users see a graceful
+  // fallback instead of a database-shaped error.
   if (!(error instanceof ApiError)) {
     return false;
   }

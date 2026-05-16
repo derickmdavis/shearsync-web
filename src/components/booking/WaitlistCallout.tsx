@@ -38,23 +38,23 @@ export function WaitlistCallout({
 
   return (
     <>
-      <div className="mt-4 rounded-[16px] border border-[rgba(109,77,242,0.18)] bg-[rgba(109,77,242,0.05)] p-4">
+      <div className="mt-4 rounded-[16px] border border-brand/20 bg-brand-soft p-4">
         <div className="flex items-start gap-3">
           <span className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-brand shadow-[0_2px_8px_rgba(17,24,39,0.06)]">
             <CalendarIcon />
           </span>
           <div className="min-w-0 flex-1">
-            <h4 className="text-[15px] font-bold text-[#111827]">
+            <h4 className="text-[15px] font-bold text-foreground">
               No availability for the day you need?
             </h4>
-            <p className="mt-1 text-sm leading-6 text-[#6B7280]">
-              Join the waitlist and the stylist can contact you if something
+            <p className="mt-1 text-sm leading-6 text-muted">
+              Join the waitlist and the pro can contact you if something
               opens.
             </p>
             <button
               type="button"
               onClick={() => setOpen(true)}
-              className="mt-3 inline-flex h-11 items-center justify-center rounded-2xl bg-brand px-4 text-sm font-semibold text-white shadow-[0_12px_24px_rgba(109,79,242,0.22)] transition-transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-[#6D4DF2]/25"
+              className="mt-3 inline-flex h-11 items-center justify-center rounded-2xl bg-brand px-4 text-sm font-semibold text-white shadow-[0_12px_24px_rgba(183,121,61,0.22)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-brand/25"
             >
               Join waitlist
             </button>
@@ -99,6 +99,8 @@ function WaitlistDialog({
   const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
+    // The dialog is rendered as an overlay rather than a routed page, so it
+    // owns its Escape-key close behavior while mounted.
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         onClose();
@@ -110,6 +112,8 @@ function WaitlistDialog({
   }, [onClose]);
 
   function validate() {
+    // Client-side validation improves UX only; the backend still validates
+    // feature access, duplicate entries, and final payload shape.
     const nextErrors: WaitlistFormErrors = {};
     const trimmedEmail = clientEmail.trim();
     const trimmedPhone = clientPhone.trim();
@@ -145,6 +149,7 @@ function WaitlistDialog({
     }
 
     const payload: CreateWaitlistInput = {
+      // This shape mirrors POST /api/public/stylists/:slug/waitlist.
       requestedDate,
       serviceId: selectedServiceId || null,
       clientName: clientName.trim(),
@@ -184,21 +189,21 @@ function WaitlistDialog({
           <div>
             <h2
               id="waitlist-title"
-              className="text-2xl font-semibold tracking-tight text-[#111827]"
+              className="text-2xl font-semibold tracking-tight text-foreground"
             >
               You&apos;re on the waitlist
             </h2>
             <p
               id="waitlist-description"
-              className="mt-3 text-sm leading-6 text-[#6B7280]"
+              className="mt-3 text-sm leading-6 text-muted"
             >
-              The stylist can contact you if something opens. Joining the
+              The pro can contact you if something opens. Joining the
               waitlist does not reserve an appointment time.
             </p>
             <button
               type="button"
               onClick={onClose}
-              className="mt-6 flex h-12 w-full items-center justify-center rounded-2xl bg-brand px-5 text-sm font-semibold text-white shadow-[0_14px_28px_rgba(109,79,242,0.22)]"
+              className="mt-6 flex h-12 w-full items-center justify-center rounded-2xl bg-brand px-5 text-sm font-semibold text-white shadow-[0_14px_28px_rgba(183,121,61,0.22)]"
             >
               Done
             </button>
@@ -209,22 +214,22 @@ function WaitlistDialog({
               <div>
                 <h2
                   id="waitlist-title"
-                  className="text-2xl font-semibold tracking-tight text-[#111827]"
+                  className="text-2xl font-semibold tracking-tight text-foreground"
                 >
                   Join the waitlist
                 </h2>
                 <p
                   id="waitlist-description"
-                  className="mt-2 text-sm leading-6 text-[#6B7280]"
+                  className="mt-2 text-sm leading-6 text-muted"
                 >
-                  Tell us what day works for you. The stylist can contact you if
+                  Tell us what day works for you. The pro can contact you if
                   something opens.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={onClose}
-                className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#E5E7EB] text-[#6B7280] transition-colors hover:bg-zinc-50"
+                className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border text-muted transition-colors hover:bg-surface-warm"
                 aria-label="Close waitlist form"
               >
                 <CloseIcon />
@@ -245,7 +250,7 @@ function WaitlistDialog({
                       requestedDate: undefined,
                     }));
                   }}
-                  className="h-12 w-full rounded-2xl border border-[#E5E7EB] bg-white px-4 text-sm text-[#111827] outline-none transition-colors focus:border-[#6D4DF2] focus:ring-2 focus:ring-[#6D4DF2]/15"
+                  className="h-12 w-full rounded-2xl border border-border bg-white px-4 text-sm text-foreground outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-brand/20"
                 />
                 {errors.requestedDate ? <ErrorText>{errors.requestedDate}</ErrorText> : null}
               </Field>
@@ -262,7 +267,7 @@ function WaitlistDialog({
                       clientName: undefined,
                     }));
                   }}
-                  className="h-12 w-full rounded-2xl border border-[#E5E7EB] bg-white px-4 text-sm text-[#111827] outline-none transition-colors focus:border-[#6D4DF2] focus:ring-2 focus:ring-[#6D4DF2]/15"
+                  className="h-12 w-full rounded-2xl border border-border bg-white px-4 text-sm text-foreground outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-brand/20"
                 />
                 {errors.clientName ? <ErrorText>{errors.clientName}</ErrorText> : null}
               </Field>
@@ -281,7 +286,7 @@ function WaitlistDialog({
                         contact: undefined,
                       }));
                     }}
-                    className="h-12 w-full rounded-2xl border border-[#E5E7EB] bg-white px-4 text-sm text-[#111827] outline-none transition-colors focus:border-[#6D4DF2] focus:ring-2 focus:ring-[#6D4DF2]/15"
+                    className="h-12 w-full rounded-2xl border border-border bg-white px-4 text-sm text-foreground outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-brand/20"
                   />
                   {errors.clientEmail ? <ErrorText>{errors.clientEmail}</ErrorText> : null}
                 </Field>
@@ -298,7 +303,7 @@ function WaitlistDialog({
                         contact: undefined,
                       }));
                     }}
-                    className="h-12 w-full rounded-2xl border border-[#E5E7EB] bg-white px-4 text-sm text-[#111827] outline-none transition-colors focus:border-[#6D4DF2] focus:ring-2 focus:ring-[#6D4DF2]/15"
+                    className="h-12 w-full rounded-2xl border border-border bg-white px-4 text-sm text-foreground outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-brand/20"
                   />
                 </Field>
               </div>
@@ -311,7 +316,7 @@ function WaitlistDialog({
                   value={requestedTimePreference}
                   onChange={(event) => setRequestedTimePreference(event.target.value)}
                   placeholder="Morning preferred"
-                  className="h-12 w-full rounded-2xl border border-[#E5E7EB] bg-white px-4 text-sm text-[#111827] outline-none transition-colors placeholder:text-[#9CA3AF] focus:border-[#6D4DF2] focus:ring-2 focus:ring-[#6D4DF2]/15"
+                  className="h-12 w-full rounded-2xl border border-border bg-white px-4 text-sm text-foreground outline-none transition-colors placeholder:text-[#9CA3AF] focus:border-brand focus:ring-2 focus:ring-brand/20"
                 />
               </Field>
 
@@ -320,13 +325,13 @@ function WaitlistDialog({
                   id="waitlist-note"
                   value={note}
                   onChange={(event) => setNote(event.target.value)}
-                  placeholder="Anything the stylist should know?"
+                  placeholder="Anything the pro should know?"
                   rows={3}
-                  className="w-full resize-none rounded-2xl border border-[#E5E7EB] bg-white px-4 py-3 text-sm text-[#111827] outline-none transition-colors placeholder:text-[#9CA3AF] focus:border-[#6D4DF2] focus:ring-2 focus:ring-[#6D4DF2]/15"
+                  className="w-full resize-none rounded-2xl border border-border bg-white px-4 py-3 text-sm text-foreground outline-none transition-colors placeholder:text-[#9CA3AF] focus:border-brand focus:ring-2 focus:ring-brand/20"
                 />
               </Field>
 
-              <p className="rounded-2xl bg-zinc-50 px-4 py-3 text-xs leading-5 text-[#6B7280]">
+              <p className="rounded-2xl bg-surface-warm px-4 py-3 text-xs leading-5 text-muted">
                 Joining the waitlist does not reserve an appointment time.
               </p>
 
@@ -339,7 +344,7 @@ function WaitlistDialog({
               <button
                 type="submit"
                 disabled={submitting}
-                className="flex h-12 w-full items-center justify-center rounded-2xl bg-brand px-5 text-sm font-semibold text-white shadow-[0_14px_28px_rgba(109,79,242,0.22)] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:transform-none disabled:opacity-60 disabled:shadow-none"
+                className="flex h-12 w-full items-center justify-center rounded-2xl bg-brand px-5 text-sm font-semibold text-white shadow-[0_14px_28px_rgba(183,121,61,0.22)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark disabled:cursor-not-allowed disabled:transform-none disabled:opacity-60 disabled:shadow-none"
               >
                 {submitting ? "Joining waitlist..." : "Join waitlist"}
               </button>
@@ -378,6 +383,8 @@ function ErrorText({ children }: { children: ReactNode }) {
 }
 
 function getWaitlistErrorMessage(error: unknown) {
+  // Map backend statuses to customer-friendly copy while preserving useful 400
+  // validation messages from the API contract.
   const message = error instanceof Error ? error.message : "";
   const normalizedMessage = message.trim().toLowerCase();
 

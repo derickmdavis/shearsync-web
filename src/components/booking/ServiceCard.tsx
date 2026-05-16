@@ -22,7 +22,7 @@ export function ServiceCard({
       className={[
         "flex w-full items-start gap-3 rounded-2xl border p-4 text-left transition-all",
         selected
-          ? "border-brand bg-brand-soft shadow-[0_12px_24px_rgba(109,79,242,0.14)]"
+          ? "border-brand bg-brand-soft shadow-[0_12px_24px_rgba(183,121,61,0.14)]"
           : "border-border bg-white hover:border-brand/35",
       ].join(" ")}
     >

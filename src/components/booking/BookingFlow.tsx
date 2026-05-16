@@ -92,6 +92,8 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
   const [confirmation, setConfirmation] =
     useState<PublicBookingConfirmation | null>(null);
 
+  // Intake is the gatekeeper for booking rules: it tells the UI whether booking
+  // is allowed and provides a short-lived context token for services/slots.
   const intakeData = intakeState.status === "ready" ? intakeState.data : null;
   const bookingContextToken = intakeData?.bookingContextToken ?? null;
   const bookingDisabled =
@@ -119,6 +121,8 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
   const availabilityLoaded =
     Boolean(selectedDate) && loadedSlotsDate === selectedDate;
   const shouldShowWaitlistCta =
+    // Waitlist is intentionally feature-gated by public stylist metadata and
+    // only appears after an actual empty-slot result for the selected date.
     canShowWaitlist &&
     selectedServiceIds.length > 0 &&
     Boolean(selectedDate) &&
@@ -147,6 +151,8 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
   }, [dateOptions, loadedSlotsDate, selectedDate, slotPreviews, slots]);
 
   const selectedServicesRef = useRef(selectedServices);
+  // Token refreshes can be triggered by several concurrent availability calls;
+  // share one in-flight refresh to avoid duplicate intake requests.
   const tokenRefreshPromiseRef = useRef<Promise<PublicBookingIntakeData | null> | null>(
     null,
   );
@@ -156,6 +162,8 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
   }, [selectedServices]);
 
   const clearAvailabilityState = useCallback(() => {
+    // Service/contact changes invalidate every date and slot derived from the
+    // previous booking context token.
     setDateOptions([]);
     setSelectedDate("");
     setSlots([]);
@@ -223,6 +231,8 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
     async ({ background = false }: { background?: boolean } = {}) => {
       const currentValues = contactValuesRef.current;
 
+      // Avoid calling intake until client-side validation says the backend has
+      // enough data to match returning-client booking rules.
       if (!detailsAreValid(currentValues)) {
         return null;
       }
@@ -300,6 +310,8 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
         nextServices: PublicService[],
         nextIntake: PublicBookingIntakeData,
       ) => {
+        // Keep any still-valid user selections after a context refresh, and
+        // auto-select the backend recommendation only when nothing is selected.
         setServices(nextServices);
         setServicesLoadedToken(nextIntake.bookingContextToken);
 
@@ -519,6 +531,8 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
       }
 
       try {
+        // Slots are always requested with every selected service id so the
+        // backend can calculate the combined appointment duration.
         return await getPublicSlots(
           slug,
           activeSelectedServiceIds,
@@ -602,6 +616,8 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
     let cancelled = false;
 
     async function loadAvailability() {
+      // Initial availability load picks the first future date with actual slots,
+      // falling back to generated date options so users can still inspect dates.
       if (
         !selectedServiceIds.length ||
         bookingDisabled ||
@@ -782,6 +798,8 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
     let cancelled = false;
 
     async function loadSlotPreviews() {
+      // Previewing multiple days is intentionally capped to keep the number of
+      // parallel slot requests bounded.
       if (
         !selectedServiceIds.length ||
         !dateOptions.length ||
@@ -959,6 +977,8 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
           : "Unable to submit your booking right now.";
 
       const debugPayload = {
+        // Keep failure diagnostics scoped to booking identifiers and API error
+        // metadata; do not log guest contact details or notes here.
         status: error instanceof ApiError ? error.status : undefined,
         message,
         details: error instanceof ApiError ? error.details : undefined,

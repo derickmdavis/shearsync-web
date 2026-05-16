@@ -125,7 +125,7 @@ export function DetailsStep({
       ) : null}
 
       {showServicePicker ? (
-        <div className="mt-8 overflow-hidden rounded-3xl border border-border bg-zinc-50">
+        <div className="mt-8 overflow-hidden rounded-3xl border border-border bg-surface-warm">
           <div className="flex items-center justify-between gap-4 px-5 py-4">
             <div>
               <h3 className="text-base font-semibold text-foreground">
@@ -191,7 +191,7 @@ export function DetailsStep({
       <button
         type="submit"
         disabled={disableSubmit}
-        className="mt-8 flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-brand px-5 text-base font-semibold text-white shadow-[0_18px_32px_rgba(109,79,242,0.26)] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-55"
+        className="mt-8 flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-brand px-5 text-base font-semibold text-white shadow-[0_18px_32px_rgba(183,121,61,0.24)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-55"
       >
         {intakeLoading
           ? "Checking..."
@@ -317,7 +317,7 @@ function Field({
         inputMode={inputMode}
         aria-invalid={error ? true : undefined}
         className={[
-          "h-14 w-full rounded-2xl border bg-white px-4 text-sm text-foreground outline-none transition-colors placeholder:text-zinc-400",
+          "h-14 w-full rounded-2xl border bg-white px-4 text-sm text-foreground outline-none transition-colors placeholder:text-zinc-400 focus:ring-2 focus:ring-brand/20",
           error ? "border-red-400" : "border-border focus:border-brand",
         ].join(" ")}
       />

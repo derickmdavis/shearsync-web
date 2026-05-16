@@ -2,7 +2,10 @@ export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ??
   process.env.API_BASE_URL ??
   "http://localhost:3000";
+export const DEFAULT_FETCH_TIMEOUT_MS = 15000;
 
+// The frontend API accepts both wrapped { data, error } responses and bare
+// payloads so it can tolerate older backend shapes during rollout.
 export type ApiEnvelope<T> = {
   data?: T;
   error?: {
@@ -317,11 +320,52 @@ type RequestOptions = {
   preferProxy?: boolean;
 };
 
+export async function fetchWithTimeout(
+  input: RequestInfo | URL,
+  init: RequestInit = {},
+  timeoutMs = DEFAULT_FETCH_TIMEOUT_MS,
+) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  const upstreamSignal = init.signal;
+
+  function handleUpstreamAbort() {
+    controller.abort();
+  }
+
+  if (upstreamSignal?.aborted) {
+    controller.abort();
+  } else {
+    upstreamSignal?.addEventListener("abort", handleUpstreamAbort, {
+      once: true,
+    });
+  }
+
+  try {
+    return await fetch(input, {
+      ...init,
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timeoutId);
+    upstreamSignal?.removeEventListener("abort", handleUpstreamAbort);
+  }
+}
+
+function isAbortError(error: unknown) {
+  return (
+    error instanceof DOMException && error.name === "AbortError"
+  );
+}
+
 function isBrowser() {
   return typeof window !== "undefined";
 }
 
 function getRequestBaseUrl(preferProxy: boolean) {
+  // Browser public calls prefer same-origin Next route handlers so RLS-sensitive
+  // public mutations, like waitlist joins, go through the backend API instead
+  // of directly touching Supabase from an anonymous client.
   if (preferProxy && isBrowser()) {
     return "";
   }
@@ -332,6 +376,8 @@ function getRequestBaseUrl(preferProxy: boolean) {
 async function parseResponseBody(response: Response) {
   const contentType = response.headers.get("content-type") ?? "";
 
+  // Some backend/proxy errors return text, so parse defensively rather than
+  // assuming every response is JSON.
   if (contentType.includes("application/json")) {
     return response.json();
   }
@@ -350,6 +396,8 @@ async function parseResponseBody(response: Response) {
 }
 
 function unwrapPayload<T>(payload: ApiEnvelope<T> | T): T {
+  // Prefer the backend's data field when present, but keep bare-object support
+  // for endpoints that have not adopted the envelope yet.
   if (
     payload &&
     typeof payload === "object" &&
@@ -383,6 +431,8 @@ async function requestPublicApi<T>(
   const baseUrl = getRequestBaseUrl(preferProxy);
   const headers = new Headers(init?.headers);
 
+  // Any request with a body is JSON by convention unless the caller explicitly
+  // supplies a different Content-Type.
   if (init?.body && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
   }
@@ -390,7 +440,7 @@ async function requestPublicApi<T>(
   let response: Response;
 
   try {
-    response = await fetch(`${baseUrl}${path}`, {
+    response = await fetchWithTimeout(`${baseUrl}${path}`, {
       ...init,
       headers,
       cache: "no-store",
@@ -398,7 +448,9 @@ async function requestPublicApi<T>(
   } catch (error) {
     throw new ApiError(
       error instanceof Error
-        ? error.message
+        ? isAbortError(error)
+          ? "The booking service timed out. Please try again."
+          : error.message
         : "A network error occurred while contacting the booking service.",
       0,
     );
@@ -426,6 +478,8 @@ async function requestAuthenticatedApi<T>(
 ) {
   const headers = new Headers(init?.headers);
 
+  // Authenticated account/settings calls use the Supabase access token as a
+  // bearer token; the backend still owns authorization decisions.
   headers.set("Authorization", `Bearer ${accessToken}`);
 
   if (init?.body && !headers.has("Content-Type")) {
@@ -435,7 +489,7 @@ async function requestAuthenticatedApi<T>(
   let response: Response;
 
   try {
-    response = await fetch(`${API_BASE_URL}${path}`, {
+    response = await fetchWithTimeout(`${API_BASE_URL}${path}`, {
       ...init,
       headers,
       cache: "no-store",
@@ -443,7 +497,9 @@ async function requestAuthenticatedApi<T>(
   } catch (error) {
     throw new ApiError(
       error instanceof Error
-        ? error.message
+        ? isAbortError(error)
+          ? "The account service timed out. Please try again."
+          : error.message
         : "A network error occurred while contacting the account service.",
       0,
     );
@@ -557,6 +613,8 @@ export async function createPublicBooking(body: CreatePublicBookingBody) {
 }
 
 export async function joinWaitlist(slug: string, input: CreateWaitlistInput) {
+  // Public waitlist creation must go through the backend endpoint so anonymous
+  // visitors never need direct table insert permissions.
   return requestPublicApi<PublicWaitlistEntry>(
     `/api/public/stylists/${slug}/waitlist`,
     {

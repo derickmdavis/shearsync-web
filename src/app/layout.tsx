@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "ShearSync Booking",
-  description: "Public booking flow for ShearSync stylists.",
+  title: "ChairDesk Booking",
+  description: "Booking and client management for independent pros.",
 };
 
 export default function RootLayout({

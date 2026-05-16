@@ -74,6 +74,8 @@ export function formatTimezoneLabel(timezone?: string | null) {
 export function extractAvailabilityDates(
   availability?: PublicAvailabilityResponse,
 ) {
+  // The API may return either summarized dates or raw recurring rows; this
+  // helper normalizes the summary shape while row handling stays separate.
   if (Array.isArray(availability)) {
     return [];
   }
@@ -109,6 +111,8 @@ export function buildAvailabilityDateOptions(
     scanDays?: number;
   } = {},
 ) {
+  // When the backend only returns recurring weekly availability, scan forward
+  // from today and produce concrete date strings for the booking UI.
   const activeDays = new Set(
     rows.filter((row) => row.is_active).map((row) => row.day_of_week),
   );
@@ -213,6 +217,8 @@ export function buildBookingIcs(
   services: PublicService[],
   slot: PublicSlot,
 ) {
+  // Generate a small client-side .ics file from the confirmation payload so the
+  // user can save the appointment without another backend round trip.
   const selectedServices = services.length
     ? services
     : [
@@ -237,7 +243,7 @@ export function buildBookingIcs(
   return [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//ShearSync//Public Booking//EN",
+    "PRODID:-//ChairDesk//Public Booking//EN",
     "BEGIN:VEVENT",
     `UID:${confirmation.appointment_id ?? `${stylist.slug}-${slot.start}`}`,
     `DTSTAMP:${toIcsDate(new Date().toISOString())}`,
@@ -255,6 +261,8 @@ export function buildBookingNotes(
   services: PublicService[],
   notes: string,
 ) {
+  // Multi-service bookings still send a primary service_id for compatibility,
+  // so include the full service list in notes for backend/operator visibility.
   const trimmedNotes = notes.trim();
 
   if (services.length <= 1) {
@@ -281,6 +289,8 @@ function escapeIcsText(value: string) {
 }
 
 function parseDateValue(value: string) {
+  // Noon avoids accidental date rollover around daylight-saving boundaries when
+  // converting date-only strings through the local Date constructor.
   return new Date(`${value}T12:00:00`);
 }
 

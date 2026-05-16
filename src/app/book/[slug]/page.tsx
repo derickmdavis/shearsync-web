@@ -24,7 +24,7 @@ export default async function BookingPage(props: BookingPageProps) {
         <main className="flex min-h-screen items-center justify-center px-4 py-10">
           <div className="w-full max-w-[430px] rounded-[30px] border border-white/80 bg-card p-8 text-center shadow-[0_24px_80px_rgba(17,24,39,0.08)]">
             <p className="font-display text-4xl font-semibold italic text-foreground">
-              ShearSync
+              ChairDesk
             </p>
             <h1 className="mt-6 text-3xl font-semibold tracking-tight text-foreground">
               Stylist not found

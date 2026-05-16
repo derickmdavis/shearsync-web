@@ -54,7 +54,7 @@ export function BookedStep({
     const url = URL.createObjectURL(file);
     const anchor = document.createElement("a");
     anchor.href = url;
-    anchor.download = `shearsync-${stylist.slug}-booking.ics`;
+    anchor.download = `chairdesk-${stylist.slug}-booking.ics`;
     document.body.appendChild(anchor);
     anchor.click();
     anchor.remove();
@@ -106,7 +106,7 @@ export function BookedStep({
       <button
         type="button"
         onClick={handleAddToCalendar}
-        className="mt-7 flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-brand px-5 text-base font-semibold text-white shadow-[0_18px_32px_rgba(109,79,242,0.26)] transition-transform hover:-translate-y-0.5"
+        className="mt-7 flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-brand px-5 text-base font-semibold text-white shadow-[0_18px_32px_rgba(183,121,61,0.24)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark"
       >
         Add to Calendar
       </button>
