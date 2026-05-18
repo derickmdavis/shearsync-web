@@ -59,6 +59,16 @@ type AvailabilityDayPreview = {
   slots: PublicSlot[];
 };
 
+function formatInstagramHandle(value?: string | null) {
+  if (!value) return null;
+  return `@${value.replace(/^@+/, "")}`;
+}
+
+function getInstagramUrl(value?: string | null) {
+  if (!value) return null;
+  return `https://instagram.com/${value.replace(/^@+/, "")}`;
+}
+
 export function BookingFlow({ slug, stylist }: BookingFlowProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [notes, setNotes] = useState("");
@@ -108,6 +118,8 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
   const sortedServices = useMemo(() => sortServices(services), [services]);
   const activeTimezone = availabilityTimezone || stylist.timezone || null;
   const pageName = buildSummaryName(stylist);
+  const instagramHandle = formatInstagramHandle(stylist.instagram);
+  const instagramUrl = getInstagramUrl(stylist.instagram);
   const showServicePicker =
     !bookingDisabled &&
     intakeState.status === "ready" &&
@@ -1062,8 +1074,22 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
           <p className="font-display text-4xl font-semibold italic text-foreground">
             {stylist.display_name}
           </p>
-          {stylist.business_name ? (
-            <p className="mt-1 text-sm text-muted">{stylist.business_name}</p>
+          {stylist.business_name || instagramHandle ? (
+            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+              {stylist.business_name ? (
+                <p className="text-muted">{stylist.business_name}</p>
+              ) : null}
+              {instagramHandle && instagramUrl ? (
+                <a
+                  className="font-medium text-foreground underline decoration-border underline-offset-4 transition hover:text-muted"
+                  href={instagramUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {instagramHandle}
+                </a>
+              ) : null}
+            </div>
           ) : null}
         </div>
       </div>

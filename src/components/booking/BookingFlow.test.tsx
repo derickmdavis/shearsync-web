@@ -41,6 +41,7 @@ const baseStylist: PublicStylist = {
   display_name: "Maya Johnson",
   bio: "Lived-in color specialist",
   cover_photo_url: null,
+  instagram: null,
   booking_enabled: true,
   business_name: "Maya Johnson Hair",
   phone_number: "555-0101",
@@ -146,6 +147,30 @@ async function openServicesStep() {
 describe("BookingFlow", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  it("shows a linked Instagram handle when the stylist profile includes one", () => {
+    render(
+      <BookingFlow
+        slug="maya-johnson"
+        stylist={{ ...baseStylist, instagram: "mayajohnsonhair" }}
+      />,
+    );
+
+    const instagramLink = screen.getByRole("link", {
+      name: "@mayajohnsonhair",
+    });
+
+    expect(instagramLink.getAttribute("href")).toBe(
+      "https://instagram.com/mayajohnsonhair",
+    );
+    expect(screen.getByText("Maya Johnson Hair")).toBeTruthy();
+  });
+
+  it("hides the Instagram link when the stylist profile does not include one", () => {
+    render(<BookingFlow slug="maya-johnson" stylist={baseStylist} />);
+
+    expect(screen.queryByRole("link", { name: /^@/ })).toBeNull();
   });
 
   it("stops immediately when profile booking is disabled", () => {

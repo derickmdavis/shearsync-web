@@ -34,6 +34,7 @@ export type PublicStylistProfile = {
   display_name: string;
   bio?: string | null;
   cover_photo_url?: string | null;
+  instagram?: string | null;
   booking_enabled: boolean;
   business_name?: string | null;
   phone_number?: string | null;
