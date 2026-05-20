@@ -24,7 +24,7 @@ export function BookingStepper({ currentStep }: BookingStepperProps) {
                   className={[
                     "flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold transition-colors",
                     isComplete
-                      ? "bg-foreground text-white"
+                      ? "bg-[#111111] text-white"
                       : isActive
                         ? "bg-brand text-white"
                         : "bg-zinc-100 text-zinc-500",
