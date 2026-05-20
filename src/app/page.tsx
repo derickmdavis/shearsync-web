@@ -122,13 +122,19 @@ function Header() {
       <div className="mx-auto flex h-[66px] max-w-[1120px] items-center justify-between gap-4 px-5 sm:px-8">
         <Link
           href="/"
-          className="flex items-center gap-2 text-2xl font-extrabold tracking-tight text-foreground focus:outline-none focus:ring-2 focus:ring-brand/30"
-          aria-label="ChairDesk home"
+          className="flex items-center gap-2 font-display text-3xl font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-brand/30"
+          aria-label="DripDesk home"
         >
-          <span className="grid h-8 w-8 place-items-center rounded-[9px] border-2 border-brand text-xl font-black italic leading-none text-brand">
-            C
-          </span>
-          <span>ChairDesk</span>
+          <Image
+            src="/branding/dripdesk-drop-logo.png"
+            alt=""
+            width={416}
+            height={473}
+            priority
+            aria-hidden="true"
+            className="h-10 w-[35px] shrink-0 object-contain"
+          />
+          <span>DripDesk</span>
         </Link>
 
         <div className="flex min-w-0 items-center gap-2 sm:gap-3">
@@ -156,7 +162,7 @@ function HeroVisual() {
     <div
       className="relative mx-auto h-[430px] w-full max-w-[610px] overflow-hidden lg:h-[455px]"
       role="img"
-      aria-label="Independent professional using ChairDesk with a mobile dashboard preview"
+      aria-label="Independent professional using DripDesk with a mobile dashboard preview"
     >
       <div className="absolute inset-y-0 left-0 w-[76%] overflow-hidden rounded-[34px] shadow-[0_22px_58px_rgba(17,24,39,0.16)] [clip-path:polygon(10%_0,100%_0,87%_100%,0_100%)]">
         <Image
@@ -172,7 +178,7 @@ function HeroVisual() {
         {/* TODO: Replace static purple-accented mockup with a ChairDesk charcoal/bronze version. */}
         <Image
           src="/marketing/app-dashboard-phone.png"
-          alt="ChairDesk mobile dashboard showing revenue, appointments, and upcoming bookings"
+          alt="DripDesk mobile dashboard showing revenue, appointments, and upcoming bookings"
           width={1024}
           height={1536}
           priority
@@ -203,7 +209,7 @@ function HeroSection() {
             The front desk for your chair.
           </h1>
           <p className="mt-6 max-w-[470px] text-base leading-7 text-muted sm:text-lg">
-            ChairDesk helps barbers, stylists, and independent pros manage
+            DripDesk helps barbers, stylists, and independent pros manage
             online booking, client notes, reminders, and business insights from
             one simple workspace.
           </p>
@@ -336,7 +342,7 @@ function FeatureSection() {
   );
 }
 
-function WhyChairDeskSection() {
+function WhyDripDeskSection() {
   return (
     <section className="bg-[linear-gradient(180deg,#FFFFFF_0%,#FBFAF7_100%)] px-5 py-9 sm:px-8 sm:py-11">
       <div className="mx-auto max-w-[1120px]">
@@ -347,7 +353,7 @@ function WhyChairDeskSection() {
             </h2>
             <p className="mt-4 max-w-[560px] text-sm leading-6 text-muted sm:text-base">
               Most booking tools are built for salons, marketplaces, or full
-              shops. ChairDesk is built for independent pros who need a simple
+              shops. DripDesk is built for independent pros who need a simple
               way to manage their chair, clients, schedule, and follow-ups
               without extra complexity.
             </p>
@@ -479,7 +485,7 @@ function FinalCTA() {
               Ready to run your chair like a business?
             </h2>
             <p className="mt-2 max-w-xl text-sm leading-6 text-muted">
-              Start with ChairDesk today and keep your bookings, clients, and
+              Start with DripDesk today and keep your bookings, clients, and
               business insights in one simple workspace.
             </p>
           </div>
@@ -506,7 +512,7 @@ function Footer() {
   return (
     <footer className="bg-white px-5 pb-8 pt-3 sm:px-8">
       <div className="mx-auto flex max-w-[1000px] flex-col gap-4 text-xs text-[#6B7280] sm:flex-row sm:items-center sm:justify-between">
-        <p>© 2026 ChairDesk. All rights reserved.</p>
+        <p>© 2026 DripDesk. All rights reserved.</p>
         <nav className="flex flex-wrap gap-x-6 gap-y-2" aria-label="Footer">
           {/* TODO: Replace placeholder links when legal/contact routes exist. */}
           <a className="font-semibold hover:text-brand" href="#">
@@ -530,7 +536,7 @@ export default function HomePage() {
       <Header />
       <HeroSection />
       <FeatureSection />
-      <WhyChairDeskSection />
+      <WhyDripDeskSection />
       <PricingSection />
       <FinalCTA />
       <Footer />

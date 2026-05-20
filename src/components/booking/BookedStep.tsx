@@ -54,7 +54,7 @@ export function BookedStep({
     const url = URL.createObjectURL(file);
     const anchor = document.createElement("a");
     anchor.href = url;
-    anchor.download = `chairdesk-${stylist.slug}-booking.ics`;
+    anchor.download = `dripdesk-${stylist.slug}-booking.ics`;
     document.body.appendChild(anchor);
     anchor.click();
     anchor.remove();

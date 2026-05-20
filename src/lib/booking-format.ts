@@ -243,7 +243,7 @@ export function buildBookingIcs(
   return [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//ChairDesk//Public Booking//EN",
+    "PRODID:-//DripDesk//Public Booking//EN",
     "BEGIN:VEVENT",
     `UID:${confirmation.appointment_id ?? `${stylist.slug}-${slot.start}`}`,
     `DTSTAMP:${toIcsDate(new Date().toISOString())}`,

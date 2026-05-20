@@ -282,7 +282,7 @@ export function AuthPanel({
       </h2>
       <p className="mt-2 text-sm leading-6 text-[#6B7280]">
         Supabase handles authentication and this app sends the active access
-        token to the ChairDesk API as a bearer token.
+        token to the DripDesk API as a bearer token.
       </p>
       <div className="mt-5 flex flex-wrap gap-2">
         {(["sign-in", "sign-up", "reset"] as const).map((item) => (

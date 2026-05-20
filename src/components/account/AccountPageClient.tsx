@@ -538,7 +538,7 @@ export function AccountPageClient() {
           <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="font-display text-3xl font-semibold italic text-brand">
-                ChairDesk
+                DripDesk
               </p>
               <h1 className="mt-5 text-3xl font-semibold tracking-tight text-[#111827] sm:text-4xl">
                 Account Management

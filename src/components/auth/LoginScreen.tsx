@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import {
@@ -159,16 +160,21 @@ export function LoginScreen({ initialMode, nextPath }: LoginScreenProps) {
       <section className="grid w-full max-w-5xl overflow-hidden rounded-[28px] border border-white/80 bg-white shadow-[0_28px_90px_rgba(17,17,17,0.12)] lg:grid-cols-[0.9fr_1.1fr]">
         <div className="flex min-h-[22rem] flex-col justify-between bg-[#111111] px-6 py-7 text-white sm:px-8">
           <div>
-            <p className="font-display text-4xl font-semibold italic">
-              ChairDesk
-            </p>
+            <Image
+              src="/branding/dripdesk-logo-wordmark-light.svg"
+              alt="DripDesk"
+              width={720}
+              height={160}
+              priority
+              className="h-auto w-[190px]"
+            />
             <h1 className="mt-8 max-w-sm text-3xl font-semibold tracking-tight sm:text-4xl">
               Run your chair like a business with a secure account.
             </h1>
           </div>
           <p className="mt-8 max-w-sm text-sm leading-6 text-white/72">
             Your Supabase session is used for sign in, password recovery, and
-            authenticated ChairDesk API requests.
+            authenticated DripDesk API requests.
           </p>
         </div>
 
