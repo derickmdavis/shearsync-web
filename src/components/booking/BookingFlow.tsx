@@ -30,6 +30,7 @@ import { BookingStepper } from "@/src/components/booking/BookingStepper";
 import {
   buildBookingServiceUnavailableMessage,
   detailsAreValid,
+  getApiErrorReason,
   isBookingContextExpiredError,
   isBookingDisabledError,
   isBookingSchemaMismatch,
@@ -960,7 +961,7 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
   }
 
   async function handleSubmitBooking() {
-    if (!primarySelectedService || !selectedSlot) {
+    if (!primarySelectedService || !selectedSlot || !bookingContextToken) {
       return;
     }
 
@@ -977,22 +978,26 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
         guest_last_name: parsedName.lastName,
         guest_email: email.trim() || undefined,
         guest_phone: phone.trim(),
+        booking_context_token: bookingContextToken,
         notes: buildBookingNotes(selectedServices, notes),
       });
 
       setConfirmation(response);
       setCurrentStep(5);
     } catch (error) {
+      const apiReason = getApiErrorReason(error);
       const message =
-        error instanceof Error
+        apiReason ??
+        (error instanceof Error
           ? error.message
-          : "Unable to submit your booking right now.";
+          : "Unable to submit your booking right now.");
 
       const debugPayload = {
         // Keep failure diagnostics scoped to booking identifiers and API error
         // metadata; do not log guest contact details or notes here.
         status: error instanceof ApiError ? error.status : undefined,
         message,
+        reason: apiReason ?? undefined,
         details: error instanceof ApiError ? error.details : undefined,
         requested_datetime: selectedSlot.start,
         service_id: primarySelectedService.id,

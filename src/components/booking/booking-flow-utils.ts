@@ -9,6 +9,7 @@ export type ContactValues = {
 type ApiErrorDetails = {
   code?: string;
   message?: string;
+  reason?: string;
 };
 
 export function sortServices(services: PublicService[]) {
@@ -68,12 +69,16 @@ export function isSlotConflictError(error: unknown, message: string) {
     return false;
   }
 
+  const details = getApiErrorDetails(error);
   const normalizedMessage = message.trim().toLowerCase();
+  const normalizedReason = details?.reason?.trim().toLowerCase();
 
   return (
     error.status === 409 ||
     normalizedMessage === "requested time is no longer available" ||
-    normalizedMessage === "this time slot is already booked."
+    normalizedMessage === "this time slot is already booked." ||
+    normalizedReason === "requested time is no longer available" ||
+    normalizedReason === "this time slot is already booked."
   );
 }
 
@@ -127,6 +132,12 @@ export function buildBookingServiceUnavailableMessage(stylist: PublicStylist) {
   }
 
   return "Online booking is temporarily unavailable. Please contact the business to finish your appointment.";
+}
+
+export function getApiErrorReason(error: unknown) {
+  const reason = getApiErrorDetails(error)?.reason?.trim();
+
+  return reason || null;
 }
 
 function getApiErrorDetails(error: unknown) {

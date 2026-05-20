@@ -110,11 +110,24 @@ function createAvailabilityRow(
 
 function setupMockReferences() {
   return {
+    createPublicBooking: vi.mocked(bookingApi.createPublicBooking),
     createPublicBookingIntake: vi.mocked(bookingApi.createPublicBookingIntake),
     getPublicServices: vi.mocked(bookingApi.getPublicServices),
     getPublicAvailability: vi.mocked(bookingApi.getPublicAvailability),
     getPublicSlots: vi.mocked(bookingApi.getPublicSlots),
     joinWaitlist: vi.mocked(bookingApi.joinWaitlist),
+  };
+}
+
+function createBookingConfirmation() {
+  return {
+    stylist_slug: "maya-johnson",
+    service_id: "service-1",
+    service_name: "Haircut",
+    service_duration_minutes: 60,
+    service_price: 95,
+    appointment_date: "2026-06-15T09:00:00-06:00",
+    status: "scheduled" as const,
   };
 }
 
@@ -434,6 +447,121 @@ describe("BookingFlow", () => {
       );
     },
   );
+
+  it("sends the intake booking context token when submitting the final booking", async () => {
+    const {
+      createPublicBooking,
+      createPublicBookingIntake,
+      getPublicAvailability,
+      getPublicServices,
+      getPublicSlots,
+    } = setupMockReferences();
+
+    createPublicBookingIntake.mockResolvedValue(
+      createIntake({ bookingContextToken: "token-final" }),
+    );
+    getPublicServices.mockResolvedValue([createService("service-1", "Haircut")]);
+    getPublicAvailability.mockResolvedValue({
+      dates: ["2026-06-15"],
+      timezone: "America/Denver",
+    });
+    getPublicSlots.mockResolvedValue({
+      date: "2026-06-15",
+      timezone: "America/Denver",
+      service: {
+        id: "service-1",
+        name: "Haircut",
+        duration_minutes: 60,
+        price: 95,
+      },
+      slots: [
+        {
+          start: "2026-06-15T09:00:00-06:00",
+          end: "2026-06-15T10:00:00-06:00",
+        },
+      ],
+    });
+    createPublicBooking.mockResolvedValue(createBookingConfirmation());
+
+    render(<BookingFlow slug="maya-johnson" stylist={baseStylist} />);
+
+    await openServicesStep();
+    fireEvent.click(screen.getByRole("button", { name: /Haircut/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+
+    await screen.findByText("Choose a date & time");
+    fireEvent.click(await screen.findByRole("button", { name: /9:00/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+
+    await screen.findByText("Review your booking");
+    fireEvent.click(screen.getByRole("button", { name: /Book Appointment/i }));
+
+    await waitFor(() => {
+      expect(createPublicBooking).toHaveBeenCalledWith(
+        expect.objectContaining({
+          stylist_slug: "maya-johnson",
+          service_id: "service-1",
+          requested_datetime: "2026-06-15T09:00:00-06:00",
+          guest_first_name: "Jane",
+          guest_last_name: "Smith",
+          guest_email: "jane@example.com",
+          guest_phone: "(720) 555-0103",
+          booking_context_token: "token-final",
+        }),
+      );
+    });
+  });
+
+  it("shows booking failure reasons from API error details", async () => {
+    const {
+      createPublicBooking,
+      createPublicBookingIntake,
+      getPublicAvailability,
+      getPublicServices,
+      getPublicSlots,
+    } = setupMockReferences();
+
+    createPublicBookingIntake.mockResolvedValue(createIntake());
+    getPublicServices.mockResolvedValue([createService("service-1", "Haircut")]);
+    getPublicAvailability.mockResolvedValue({
+      dates: ["2026-06-15"],
+      timezone: "America/Denver",
+    });
+    getPublicSlots.mockResolvedValue({
+      date: "2026-06-15",
+      timezone: "America/Denver",
+      slots: [
+        {
+          start: "2026-06-15T09:00:00-06:00",
+          end: "2026-06-15T10:00:00-06:00",
+        },
+      ],
+    });
+    createPublicBooking.mockRejectedValue(
+      new bookingApi.ApiError("Unable to create appointment", 400, {
+        reason: "Selected service is not available for returning clients",
+      }),
+    );
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    render(<BookingFlow slug="maya-johnson" stylist={baseStylist} />);
+
+    await openServicesStep();
+    fireEvent.click(screen.getByRole("button", { name: /Haircut/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+
+    await screen.findByText("Choose a date & time");
+    fireEvent.click(await screen.findByRole("button", { name: /9:00/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+
+    await screen.findByText("Review your booking");
+    fireEvent.click(screen.getByRole("button", { name: /Book Appointment/i }));
+
+    expect(
+      await screen.findByText("Selected service is not available for returning clients"),
+    ).toBeTruthy();
+    consoleError.mockRestore();
+  });
 
   it("shows waitlist CTA for enabled stylists when the selected date has no slots", async () => {
     const {

@@ -272,6 +272,7 @@ export type CreatePublicBookingBody = {
   guest_last_name: string;
   guest_email?: string;
   guest_phone: string;
+  booking_context_token?: string;
   notes?: string;
 };
 

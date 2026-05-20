@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  createPublicBooking,
   getClients,
   getPublicAvailability,
   getPublicServices,
@@ -71,6 +72,57 @@ describe("public booking api helpers", () => {
     expect(fetch).toHaveBeenCalledWith(
       "/api/public/availability/maya-johnson/slots?date=2026-05-04&service_id=service-1&service_ids=service-1&service_ids=service-2&booking_context_token=token-3",
       expect.objectContaining({ cache: "no-store" }),
+    );
+  });
+
+  it("posts booking_context_token when creating a public booking", async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          data: {
+            stylist_slug: "maya-johnson",
+            service_id: "service-1",
+            service_name: "Haircut",
+            service_duration_minutes: 60,
+            service_price: 95,
+            appointment_date: "2026-06-15T09:00:00-06:00",
+            status: "scheduled",
+          },
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        },
+      ),
+    );
+
+    await createPublicBooking({
+      stylist_slug: "maya-johnson",
+      service_id: "service-1",
+      requested_datetime: "2026-06-15T09:00:00-06:00",
+      guest_first_name: "Jane",
+      guest_last_name: "Smith",
+      guest_email: "jane@example.com",
+      guest_phone: "(720) 555-0103",
+      booking_context_token: "token-4",
+    });
+
+    expect(fetch).toHaveBeenCalledWith(
+      "/api/public/bookings",
+      expect.objectContaining({
+        cache: "no-store",
+        method: "POST",
+        body: JSON.stringify({
+          stylist_slug: "maya-johnson",
+          service_id: "service-1",
+          requested_datetime: "2026-06-15T09:00:00-06:00",
+          guest_first_name: "Jane",
+          guest_last_name: "Smith",
+          guest_email: "jane@example.com",
+          guest_phone: "(720) 555-0103",
+          booking_context_token: "token-4",
+        }),
+      }),
     );
   });
 
