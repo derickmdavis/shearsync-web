@@ -512,6 +512,72 @@ describe("BookingFlow", () => {
     });
   });
 
+  it("rechecks the selected slot before submitting a booking", async () => {
+    const {
+      createPublicBooking,
+      createPublicBookingIntake,
+      getPublicAvailability,
+      getPublicServices,
+      getPublicSlots,
+    } = setupMockReferences();
+
+    const availableSlot = {
+      start: "2026-06-15T09:00:00-06:00",
+      end: "2026-06-15T10:00:00-06:00",
+    };
+
+    createPublicBookingIntake.mockResolvedValue(
+      createIntake({ bookingContextToken: "token-final" }),
+    );
+    getPublicServices.mockResolvedValue([createService("service-1", "Haircut")]);
+    getPublicAvailability.mockResolvedValue({
+      dates: ["2026-06-15"],
+      timezone: "America/Denver",
+    });
+    getPublicSlots.mockResolvedValue({
+      date: "2026-06-15",
+      timezone: "America/Denver",
+      service: {
+        id: "service-1",
+        name: "Haircut",
+        duration_minutes: 60,
+        price: 95,
+      },
+      slots: [availableSlot],
+    });
+
+    render(<BookingFlow slug="maya-johnson" stylist={baseStylist} />);
+
+    await openServicesStep();
+    fireEvent.click(screen.getByRole("button", { name: /Haircut/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+
+    await screen.findByText("Choose a date & time");
+    fireEvent.click(await screen.findByRole("button", { name: /9:00/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+
+    await screen.findByText("Review your booking");
+
+    getPublicSlots.mockResolvedValue({
+      date: "2026-06-15",
+      timezone: "America/Denver",
+      service: {
+        id: "service-1",
+        name: "Haircut",
+        duration_minutes: 60,
+        price: 95,
+      },
+      slots: [],
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Book Appointment/i }));
+
+    expect(
+      await screen.findByText("That time just became unavailable. Please choose another time."),
+    ).toBeTruthy();
+    expect(createPublicBooking).not.toHaveBeenCalled();
+  });
+
   it("shows booking failure reasons from API error details", async () => {
     const {
       createPublicBooking,

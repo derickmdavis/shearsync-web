@@ -276,11 +276,11 @@ export function TimeStep({
       <button
         type="button"
         onClick={onContinue}
-        disabled={!selectedSlot}
-        aria-disabled={!selectedSlot}
+        disabled={loading || !selectedSlot}
+        aria-disabled={loading || !selectedSlot}
         className="mt-6 flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-brand px-5 text-base font-semibold text-white shadow-[0_18px_32px_rgba(183,121,61,0.24)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark disabled:cursor-not-allowed disabled:transform-none disabled:opacity-50 disabled:shadow-none"
       >
-        Continue
+        {loading ? "Checking..." : "Continue"}
         <ArrowIcon />
       </button>
 

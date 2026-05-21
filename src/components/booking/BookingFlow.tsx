@@ -921,9 +921,15 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
     setCurrentStep(2);
   }
 
-  function handleContinueFromTime() {
+  async function handleContinueFromTime() {
     if (!selectedSlot) {
       setSlotsError("Please select a time to continue.");
+      return;
+    }
+
+    const verifiedSlot = await revalidateSelectedSlot();
+
+    if (!verifiedSlot) {
       return;
     }
 
@@ -931,16 +937,16 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
     setCurrentStep(3);
   }
 
-  async function refreshSlotsForSelectedDate() {
+  async function refreshSlotsForSelectedDate({ clearSelection = true } = {}) {
     if (!selectedServiceIds.length || !selectedDate) {
-      return;
+      return null;
     }
 
     try {
       const response = await getSlotsForDate(selectedDate);
 
       if (!response) {
-        return;
+        return null;
       }
 
       const nextSlots = response.slots ?? [];
@@ -951,12 +957,47 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
         ...currentPreviews,
         [selectedDate]: nextSlots,
       }));
-      setSelectedSlot(null);
+      if (clearSelection) {
+        setSelectedSlot(null);
+      }
       setAvailabilityTimezone(response.timezone ?? activeTimezone);
+      return nextSlots;
     } catch {
       setSlots([]);
       setLoadedSlotsDate("");
-      setSelectedSlot(null);
+      if (clearSelection) {
+        setSelectedSlot(null);
+      }
+      return null;
+    }
+  }
+
+  async function revalidateSelectedSlot() {
+    if (!selectedSlot) {
+      setSlotsError("Please select a time to continue.");
+      return null;
+    }
+
+    setAvailabilityLoading(true);
+    setSlotsError(null);
+
+    try {
+      const nextSlots = await refreshSlotsForSelectedDate({ clearSelection: false });
+      const verifiedSlot =
+        nextSlots?.find((slot) => slot.start === selectedSlot.start) ?? null;
+
+      if (!verifiedSlot) {
+        setSelectedSlot(null);
+        setSlotsError("That time just became unavailable. Please choose another time.");
+        setConfirmError(null);
+        setCurrentStep(2);
+        return null;
+      }
+
+      setSelectedSlot(verifiedSlot);
+      return verifiedSlot;
+    } finally {
+      setAvailabilityLoading(false);
     }
   }
 
@@ -969,11 +1010,17 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
     setConfirmError(null);
 
     try {
+      const verifiedSlot = await revalidateSelectedSlot();
+
+      if (!verifiedSlot) {
+        return;
+      }
+
       const response = await createPublicBooking({
         stylist_slug: slug,
         service_id: primarySelectedService.id,
         service_ids: selectedServiceIds,
-        requested_datetime: selectedSlot.start,
+        requested_datetime: verifiedSlot.start,
         guest_first_name: parsedName.firstName,
         guest_last_name: parsedName.lastName,
         guest_email: email.trim() || undefined,
