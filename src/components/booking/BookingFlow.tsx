@@ -70,6 +70,15 @@ function getInstagramUrl(value?: string | null) {
   return `https://instagram.com/${value.replace(/^@+/, "")}`;
 }
 
+function filterRejectedSlots(slots: PublicSlot[], rejectedStarts: string[]) {
+  if (!rejectedStarts.length) {
+    return slots;
+  }
+
+  const rejectedStartSet = new Set(rejectedStarts);
+  return slots.filter((slot) => !rejectedStartSet.has(slot.start));
+}
+
 export function BookingFlow({ slug, stylist }: BookingFlowProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [notes, setNotes] = useState("");
@@ -93,6 +102,7 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
     Record<string, PublicSlot[]>
   >({});
   const [selectedSlot, setSelectedSlot] = useState<PublicSlot | null>(null);
+  const [rejectedSlotStarts, setRejectedSlotStarts] = useState<string[]>([]);
   const [availabilityLoading, setAvailabilityLoading] = useState(false);
   const [slotsError, setSlotsError] = useState<string | null>(null);
   const [availabilityTimezone, setAvailabilityTimezone] = useState<
@@ -152,16 +162,25 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
     return orderedDates
       .map((date) => ({
         date,
-        slots:
+        slots: filterRejectedSlots(
           slotPreviews[date] ??
-          (date === selectedDate &&
-          loadedSlotsDate === selectedDate &&
-          slots.length
-            ? slots
-            : []),
+            (date === selectedDate &&
+            loadedSlotsDate === selectedDate &&
+            slots.length
+              ? slots
+              : []),
+          rejectedSlotStarts,
+        ),
       }))
       .filter((day) => day.slots.length > 0);
-  }, [dateOptions, loadedSlotsDate, selectedDate, slotPreviews, slots]);
+  }, [
+    dateOptions,
+    loadedSlotsDate,
+    rejectedSlotStarts,
+    selectedDate,
+    slotPreviews,
+    slots,
+  ]);
 
   const selectedServicesRef = useRef(selectedServices);
   // Token refreshes can be triggered by several concurrent availability calls;
@@ -183,6 +202,7 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
     setLoadedSlotsDate("");
     setSlotPreviews({});
     setSelectedSlot(null);
+    setRejectedSlotStarts([]);
     setSlotsError(null);
     setAvailabilityTimezone(stylist.timezone ?? null);
   }, [stylist.timezone]);
@@ -764,7 +784,10 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
           return;
         }
 
-        const nextSlots = response.slots ?? [];
+        const nextSlots = filterRejectedSlots(
+          response.slots ?? [],
+          rejectedSlotStarts,
+        );
 
         setAvailabilityTimezone(response.timezone ?? activeTimezone);
         setSlots(nextSlots);
@@ -802,6 +825,7 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
     bookingContextToken,
     bookingDisabled,
     getSlotsForDate,
+    rejectedSlotStarts,
     selectedDate,
     selectedServiceIds,
     servicesAreSynced,
@@ -937,7 +961,13 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
     setCurrentStep(3);
   }
 
-  async function refreshSlotsForSelectedDate({ clearSelection = true } = {}) {
+  async function refreshSlotsForSelectedDate({
+    clearSelection = true,
+    rejectedSlotStart,
+  }: {
+    clearSelection?: boolean;
+    rejectedSlotStart?: string;
+  } = {}) {
     if (!selectedServiceIds.length || !selectedDate) {
       return null;
     }
@@ -949,7 +979,11 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
         return null;
       }
 
-      const nextSlots = response.slots ?? [];
+      const rawSlots = response.slots ?? [];
+      const startsToExclude = rejectedSlotStart
+        ? [...rejectedSlotStarts, rejectedSlotStart]
+        : rejectedSlotStarts;
+      const nextSlots = filterRejectedSlots(rawSlots, startsToExclude);
 
       setSlots(nextSlots);
       setLoadedSlotsDate(selectedDate);
@@ -961,7 +995,10 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
         setSelectedSlot(null);
       }
       setAvailabilityTimezone(response.timezone ?? activeTimezone);
-      return nextSlots;
+      return {
+        rawSlots,
+        slots: nextSlots,
+      };
     } catch {
       setSlots([]);
       setLoadedSlotsDate("");
@@ -982,9 +1019,12 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
     setSlotsError(null);
 
     try {
-      const nextSlots = await refreshSlotsForSelectedDate({ clearSelection: false });
+      const refreshedSlots = await refreshSlotsForSelectedDate({
+        clearSelection: false,
+      });
       const verifiedSlot =
-        nextSlots?.find((slot) => slot.start === selectedSlot.start) ?? null;
+        refreshedSlots?.slots.find((slot) => slot.start === selectedSlot.start) ??
+        null;
 
       if (!verifiedSlot) {
         setSelectedSlot(null);
@@ -1055,7 +1095,33 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
       console.error(`Booking submit failed ${JSON.stringify(debugPayload)}`);
 
       if (isSlotConflictError(error, message)) {
-        await refreshSlotsForSelectedDate();
+        const rejectedSlotStart = selectedSlot.start;
+
+        setRejectedSlotStarts((currentStarts) =>
+          currentStarts.includes(rejectedSlotStart)
+            ? currentStarts
+            : [...currentStarts, rejectedSlotStart],
+        );
+        const refreshedSlots = await refreshSlotsForSelectedDate({
+          rejectedSlotStart,
+        });
+        const slotStillReturnedByAvailabilityEndpoint = Boolean(
+          refreshedSlots?.rawSlots.some(
+            (slot) => slot.start === rejectedSlotStart,
+          ),
+        );
+
+        console.error(
+          `Booking conflict refresh diagnostics ${JSON.stringify({
+            requested_datetime: rejectedSlotStart,
+            service_id: primarySelectedService.id,
+            service_ids: selectedServiceIds,
+            stylist_slug: slug,
+            slotStillReturnedByAvailabilityEndpoint,
+            refreshedSlotCount: refreshedSlots?.slots.length ?? null,
+            rawRefreshedSlotCount: refreshedSlots?.rawSlots.length ?? null,
+          })}`,
+        );
         setSlotsError("That time just became unavailable. Please choose another time.");
         setConfirmError(null);
         setCurrentStep(2);

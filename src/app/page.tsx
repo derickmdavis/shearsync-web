@@ -1,83 +1,92 @@
 import Image from "next/image";
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 const loginHref = "/login";
 const signUpHref = "/login?mode=sign-up";
 
-const features = [
+const valueCards = [
   {
-    icon: "clients",
-    title: "Remember every client",
-    copy: "Track notes, formulas, preferences, photos, and appointment history in one clean client profile.",
+    icon: "/assets/icons/icon-calendar-bronze.svg",
+    title: (
+      <>
+        Stay booked without
+        <br />
+        the back-and-forth
+      </>
+    ),
+    body: "Give clients a polished booking page, manage appointment requests, and keep confirmations and reminders organized without another \"what time works?\" text.",
   },
   {
-    icon: "calendar",
-    title: "Stay booked without the back-and-forth",
-    copy: "Share a booking page, manage appointment requests, and send confirmations or reminders.",
+    icon: "/assets/icons/icon-client-bronze.svg",
+    title: <>Remember every client</>,
+    body: "Keep notes, formulas, preferences, photos, and appointment history in one clean profile so every appointment feels personal, consistent, and professional.",
   },
   {
-    icon: "growth",
-    title: "Know what your chair is earning",
-    copy: "See revenue, appointments, rebooking, and upcoming income without building a spreadsheet.",
+    icon: "/assets/icons/icon-analytics-bronze.svg",
+    title: (
+      <>
+        Know what your chair
+        <br />
+        is earning
+      </>
+    ),
+    body: "See revenue, appointments, rebooking activity, and upcoming income in one simple view without building your own spreadsheet.",
   },
 ];
 
-const proofPoints = [
-  {
-    title: "Simple setup",
-    copy: "Launch your booking page and client list without a complicated onboarding process.",
-  },
-  {
-    title: "Client-first",
-    copy: "Keep the notes, preferences, and history that bring clients back.",
-  },
-  {
-    title: "Built to grow",
-    copy: "Start solo, then add reminders, waitlist, calendar sync, and business insights as you need them.",
-  },
+const commandBullets = [
+  "Stay organized and look more professional",
+  "Save time by automating the busy work",
+  "Manage clients and build loyalty",
+  "Track your income and grow with confidence",
 ];
 
 const pricingPlans = [
   {
     name: "Basic",
-    price: "$12",
-    description: "For solo pros getting organized.",
+    price: "$12/mo",
+    description: "Great for solo stylists getting started.",
+    cta: "Start Basic",
     features: [
-      "Booking page",
-      "Client list",
-      "Appointment tracking",
-      "Email confirmations/reminders",
-      "Basic business snapshot",
-      "No SMS included",
+      "Custom booking page",
+      "Client notes",
+      "Appointment reminders",
+      "Basic client history & appointment tracking",
+      "Revenue overview",
+      "Email support",
     ],
   },
   {
     name: "Pro",
-    price: "$25",
-    description:
-      "For pros who want reminders and a more polished booking experience.",
+    price: "$25/mo",
+    description: "Everything you need to run and grow your chair.",
+    cta: "Start Pro",
+    popular: true,
     features: [
       "Everything in Basic",
-      "100 SMS/month",
-      "Automated appointment reminders",
-      "Custom booking slug",
-      "Custom booking page cover photo",
+      "No-show protection",
+      "Advanced client management & formulas",
+      "Smart rebooking tools",
+      "Detailed reporting & income insights",
+      "Automations & SMS",
       "Priority support",
     ],
-    highlighted: true,
   },
   {
     name: "Premium",
-    price: "$30",
+    price: "$30/mo",
     description:
-      "For chair-based businesses that want more automation and insight.",
+      "All features, priority support, and confidence to scale your business.",
+    cta: "Start Premium",
     features: [
       "Everything in Pro",
-      "300 SMS/month",
-      "Google Calendar sync (Coming soon)",
-      "Weekly business recap email (Coming soon)",
-      "Advanced business insights",
-      "Waitlist tools (Coming soon)",
+      "Multi-chair support",
+      "Advanced analytics",
+      "Team & staff access",
+      "Custom integrations coming soon",
+      "Priority onboarding",
+      "Premium support",
     ],
   },
 ];
@@ -89,24 +98,24 @@ function MarketingLink({
   className = "",
 }: {
   href: string;
-  children: React.ReactNode;
-  variant?: "primary" | "secondary" | "outline";
+  children: ReactNode;
+  variant?: "primary" | "secondary" | "dark";
   className?: string;
 }) {
   const styles = {
     primary:
-      "bg-brand text-white shadow-[0_14px_24px_rgba(183,121,61,0.22)] hover:bg-brand-dark",
+      "border border-brand bg-brand text-white shadow-[0_18px_38px_rgba(183,121,61,0.32)] hover:border-brand-gold hover:bg-brand-gold hover:text-[#111111]",
     secondary:
-      "border border-border bg-white text-foreground shadow-[0_8px_18px_rgba(17,17,17,0.04)] hover:border-brand/40 hover:text-brand",
-    outline:
-      "border border-brand/35 bg-white text-brand hover:border-brand hover:bg-brand-soft",
+      "border border-brand/75 bg-transparent text-white hover:border-brand-gold hover:bg-brand/15",
+    dark:
+      "border border-[#D6A85A]/40 bg-[#111111] text-white hover:border-brand-gold hover:bg-[#1C1C1E]",
   };
 
   return (
     <Link
       href={href}
       className={[
-        "inline-flex h-11 items-center justify-center rounded-[8px] px-7 text-sm font-bold transition-colors focus:outline-none focus:ring-2 focus:ring-brand/35 focus:ring-offset-2",
+        "inline-flex h-11 items-center justify-center rounded-[8px] px-6 text-sm font-bold transition-colors focus:outline-none focus:ring-2 focus:ring-brand-gold/45 focus:ring-offset-2 focus:ring-offset-[#111111]",
         styles[variant],
         className,
       ].join(" ")}
@@ -116,223 +125,176 @@ function MarketingLink({
   );
 }
 
-function Header() {
+function HomeNav() {
   return (
-    <header className="sticky top-0 z-30 border-b border-foreground/[0.08] bg-white/95 backdrop-blur">
-      <div className="mx-auto flex h-[66px] max-w-[1120px] items-center justify-between gap-4 px-5 sm:px-8">
-        <Link
-          href="/"
-          className="flex items-center gap-2 font-display text-3xl font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-brand/30"
-          aria-label="DripDesk home"
-        >
-          <Image
-            src="/branding/dripdesk-drop-logo.png"
-            alt=""
-            width={416}
-            height={473}
-            priority
-            aria-hidden="true"
-            className="h-10 w-[35px] shrink-0 object-contain"
-          />
-          <span>DripDesk</span>
-        </Link>
-
-        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-          <MarketingLink
-            href={loginHref}
-            variant="secondary"
-            className="h-9 px-5 text-xs sm:h-10 sm:px-7 sm:text-sm"
-          >
-            Login
-          </MarketingLink>
-          <MarketingLink
-            href={signUpHref}
-            className="h-9 px-5 text-xs sm:h-10 sm:px-7 sm:text-sm"
-          >
-            Sign Up
-          </MarketingLink>
-        </div>
-      </div>
-    </header>
-  );
-}
-
-function HeroVisual() {
-  return (
-    <div
-      className="relative mx-auto h-[430px] w-full max-w-[610px] overflow-hidden lg:h-[455px]"
-      role="img"
-      aria-label="Independent professional using DripDesk with a mobile dashboard preview"
+    <nav
+      className="relative z-20 mx-auto flex max-w-[1180px] flex-col items-start justify-between gap-4 px-5 py-4 sm:h-[74px] sm:flex-row sm:items-center sm:px-8 sm:py-0"
+      aria-label="Primary"
     >
-      <div className="absolute inset-y-0 left-0 w-[76%] overflow-hidden rounded-[34px] shadow-[0_22px_58px_rgba(17,24,39,0.16)] [clip-path:polygon(10%_0,100%_0,87%_100%,0_100%)]">
+      <Link
+        href="#top"
+        className="flex shrink-0 items-center gap-3 focus:outline-none focus:ring-2 focus:ring-brand-gold/40"
+        aria-label="DripDesk"
+      >
         <Image
-          src="/marketing/stylist-hero.png"
-          alt="Stylist reviewing bookings on a tablet in her salon"
-          fill
+          src="/assets/brand/dripdesk-chair-mark.png"
+          alt=""
+          width={416}
+          height={473}
           priority
-          sizes="(min-width: 1024px) 520px, 82vw"
-          className="object-cover object-[58%_center]"
+          aria-hidden="true"
+          className="h-9 w-auto object-contain sm:h-11"
         />
+        <span className="font-display text-3xl font-semibold text-white sm:text-[34px]">
+          DripDesk
+        </span>
+      </Link>
+
+      <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-start sm:gap-4">
+        <Link
+          href="#top"
+          className="text-xs font-semibold text-white/75 transition-colors hover:text-white sm:text-sm"
+        >
+          About
+        </Link>
+        <Link
+          href="#pricing"
+          className="text-xs font-semibold text-white/75 transition-colors hover:text-white sm:text-sm"
+        >
+          Pricing
+        </Link>
+        <Link
+          href={loginHref}
+          className="text-xs font-semibold text-white/75 transition-colors hover:text-white sm:text-sm"
+        >
+          Login
+        </Link>
+        <MarketingLink
+          href={signUpHref}
+          className="h-9 px-4 text-xs sm:h-10 sm:px-5 sm:text-sm"
+        >
+          Let&apos;s Start!
+        </MarketingLink>
       </div>
-      <div className="absolute bottom-[-34px] right-0 w-[42%] min-w-[190px] drop-shadow-[0_18px_34px_rgba(17,24,39,0.22)] sm:w-[39%] lg:w-[40%]">
-        {/* TODO: Replace static purple-accented mockup with a ChairDesk charcoal/bronze version. */}
-        <Image
-          src="/marketing/app-dashboard-phone.png"
-          alt="DripDesk mobile dashboard showing revenue, appointments, and upcoming bookings"
-          width={1024}
-          height={1536}
-          priority
-          sizes="(min-width: 1024px) 245px, 42vw"
-          className="h-auto w-full"
-        />
-      </div>
-    </div>
+    </nav>
   );
 }
 
-function HeroSection() {
+function HomeHero() {
   return (
     <section
-      id="about"
-      className="overflow-hidden bg-[linear-gradient(90deg,#FAF7F2_0%,#ffffff_46%,#FBFAF7_100%)] px-5 py-12 sm:px-8 sm:py-14 lg:py-0"
+      id="top"
+      className="relative isolate overflow-hidden bg-[#111111] text-white"
     >
-      <div className="mx-auto grid max-w-[1120px] items-center gap-10 lg:min-h-[430px] lg:grid-cols-[0.83fr_1fr]">
-        <div className="relative z-10 py-4 lg:py-14">
-          <div className="inline-flex items-center rounded-full bg-brand-soft px-4 py-2 text-sm font-bold text-brand">
-            <span className="mr-2 text-base" aria-hidden="true">
-              +
-            </span>
-            Built for independent pros
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_76%_22%,rgba(214,168,90,0.18),transparent_32%),linear-gradient(120deg,#111111_0%,#111111_46%,#1C1C1E_100%)]" />
+      <HomeNav />
+
+      <div className="relative z-10 mx-auto grid max-w-[1180px] gap-8 px-5 pb-14 pt-7 sm:px-8 sm:pb-18 lg:min-h-[690px] lg:grid-cols-[0.92fr_1.08fr] lg:items-center lg:pb-16 lg:pt-2">
+        <div className="max-w-[570px]">
+          <div className="inline-flex rounded-full border border-brand/45 bg-white/[0.04] px-4 py-2 text-[11px] font-extrabold uppercase tracking-[0.16em] text-brand-gold">
+            Built for independent stylists &amp; barbers
           </div>
 
-          <h1 className="mt-6 max-w-[520px] font-display text-[42px] font-bold leading-[1.08] tracking-normal text-foreground sm:text-[56px] lg:text-[48px] xl:text-[52px]">
-            The front desk for your chair.
+          <h1 className="mt-6 max-w-[540px] font-display text-[54px] font-bold leading-[0.92] tracking-normal text-[#FAF7F2] sm:text-[76px] lg:text-[84px]">
+            Run your chair
+            <br />
+            like a business.
           </h1>
-          <p className="mt-6 max-w-[470px] text-base leading-7 text-muted sm:text-lg">
-            DripDesk helps barbers, stylists, and independent pros manage
-            online booking, client notes, reminders, and business insights from
-            one simple workspace.
+
+          <p className="mt-6 max-w-[540px] text-[17px] leading-8 text-white/78 sm:text-lg">
+            Manage bookings, clients, reminders, and business insights for your
+            chair &mdash; so you can book more, replace texts, stay busy and be
+            stress-free.
+          </p>
+
+          <p className="mt-4 text-sm font-bold text-brand-gold">
+            Simple to setup. Affordable to run. Built to help you last and win.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <MarketingLink href={signUpHref} className="w-full sm:w-[118px]">
-              Sign Up
+            <MarketingLink href={signUpHref} className="w-full sm:w-auto">
+              Get Started
             </MarketingLink>
             <MarketingLink
-              href={loginHref}
+              href="#pricing"
               variant="secondary"
-              className="w-full sm:w-[118px]"
+              className="w-full sm:w-auto"
             >
-              Login
+              View Plans
             </MarketingLink>
           </div>
-          <p className="mt-3 text-sm font-semibold text-muted">
-            Simple setup. No bulky salon software.
-          </p>
 
-          <div className="mt-6 flex flex-wrap items-center gap-3 text-sm font-semibold text-[#6B7280]">
-            <div className="flex -space-x-2" aria-hidden="true">
-              {["M", "J", "A"].map((initial) => (
-                <span
-                  key={initial}
-                  className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-[linear-gradient(135deg,#111111,#D6A85A)] text-xs font-bold text-white"
-                >
-                  {initial}
-                </span>
-              ))}
-            </div>
-            <span className="text-[#FFB703]" aria-hidden="true">
-              ★★★★★
-            </span>
-            <span>Loved by pros like you</span>
-          </div>
+          <p className="mt-7 max-w-[500px] border-l-2 border-brand pl-4 text-sm font-semibold leading-6 text-white/64">
+            Designed for solo stylists, barbers, braiders, booth renters, and
+            independent beauty pros.
+          </p>
         </div>
 
-        <HeroVisual />
+        <div className="relative min-h-[470px] sm:min-h-[560px] lg:min-h-[650px]">
+          <div className="absolute inset-y-2 left-[13%] right-[8%] overflow-hidden rounded-[28px] border border-white/10 bg-[#1C1C1E] shadow-[0_30px_90px_rgba(0,0,0,0.48)] sm:left-[18%] sm:right-[7%] lg:left-[15%] lg:right-[8%]">
+            <Image
+              src="/assets/home/hero-barber-standing.webp"
+              alt="Barber managing his chair business on a tablet inside a barbershop"
+              fill
+              priority
+              sizes="(min-width: 1024px) 560px, (min-width: 640px) 70vw, 88vw"
+              className="object-cover object-[92%_center] sm:object-[90%_center] lg:object-[86%_center]"
+            />
+            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(17,17,17,0.46),transparent_35%,rgba(17,17,17,0.08)),linear-gradient(180deg,transparent_58%,rgba(17,17,17,0.72))]" />
+          </div>
+
+          <div className="absolute bottom-[-10px] right-[2%] w-[42%] min-w-[178px] max-w-[248px] drop-shadow-[0_30px_42px_rgba(0,0,0,0.42)] sm:right-[6%] sm:w-[34%] sm:max-w-[275px] lg:bottom-[22px] lg:right-[1%] lg:w-[38%]">
+            <Image
+              src="/assets/home/hero-phone-dashboard.png"
+              alt="DripDesk mobile app dashboard showing business snapshot metrics"
+              width={820}
+              height={1620}
+              priority
+              sizes="(min-width: 1024px) 260px, (min-width: 640px) 230px, 42vw"
+              className="h-auto w-full"
+            />
+          </div>
+        </div>
       </div>
     </section>
   );
 }
 
-function FeatureSection() {
-  const iconStyles = "h-7 w-7 text-brand";
-
+function HomeValueCards() {
   return (
-    <section id="features" className="bg-white px-5 py-10 sm:px-8 sm:py-12">
-      <div className="mx-auto max-w-[1120px]">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-2xl font-extrabold tracking-tight text-[#080D22] sm:text-3xl">
-            Built for the people behind the chair
+    <section className="bg-[#FAF7F2] px-5 py-16 text-[#111111] sm:px-8 sm:py-20">
+      <div className="mx-auto max-w-[1180px]">
+        <div className="mx-auto max-w-[760px] text-center">
+          <h2 className="font-display text-[38px] font-bold leading-[1.02] tracking-normal sm:text-[52px]">
+            Everything behind your chair, finally in one place.
           </h2>
-          <p className="mt-3 text-sm leading-6 text-muted sm:text-base">
-            Keep your schedule full, remember every client detail, and
-            understand how your business is performing without complicated salon
-            software.
+          <p className="mt-5 text-base leading-8 text-[#6B7280] sm:text-lg">
+            DripDesk helps you stay booked, remember every client detail, and
+            understand what your chair is earning without juggling texts, notes,
+            screenshots, or spreadsheets.
           </p>
-          <div className="mx-auto mt-4 h-[3px] w-12 rounded-full bg-brand" />
         </div>
 
-        <div className="mt-9 grid gap-8 md:grid-cols-3 md:gap-0">
-          {features.map((feature, index) => (
+        <div className="mt-12 grid gap-5 lg:grid-cols-3">
+          {valueCards.map((card) => (
             <article
-              key={feature.title}
-              className={[
-                "px-0 text-center md:px-8",
-                index > 0 ? "md:border-l md:border-border" : "",
-              ].join(" ")}
+              key={card.icon}
+              className="rounded-[8px] border border-[#E4D6C3] bg-white p-7 shadow-[0_18px_42px_rgba(17,17,17,0.05)]"
             >
-              <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-brand-soft text-brand shadow-[0_10px_22px_rgba(183,121,61,0.10)]">
-                {feature.icon === "clients" ? (
-                  <svg
-                    className={iconStyles}
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm8 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM3.5 19c.6-3.1 2.1-5 4.5-5s3.9 1.9 4.5 5M11.5 19c.6-3.1 2.1-5 4.5-5s3.9 1.9 4.5 5"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                ) : feature.icon === "calendar" ? (
-                  <svg
-                    className={iconStyles}
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M7 3v4M17 3v4M4 9h16M6 5h12a2 2 0 0 1 2 2v12H4V7a2 2 0 0 1 2-2Zm2 8h3m2 0h3M8 17h3m2 0h3"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                ) : (
-                  <svg
-                    className={iconStyles}
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M4 19V5M4 19h17M8 16v-4m5 4V9m5 7V6m-7 1 3-3 3 3"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                )}
+              <div className="grid h-14 w-14 place-items-center rounded-full border border-brand/25 bg-brand/10">
+                <Image
+                  src={card.icon}
+                  alt=""
+                  width={28}
+                  height={28}
+                  aria-hidden="true"
+                />
               </div>
-              <h3 className="mt-5 text-base font-extrabold tracking-tight text-foreground">
-                {feature.title}
+              <h3 className="mt-6 text-xl font-extrabold leading-7 text-[#111111]">
+                {card.title}
               </h3>
-              <p className="mx-auto mt-3 max-w-[270px] text-sm leading-6 text-muted">
-                {feature.copy}
+              <p className="mt-4 text-sm leading-7 text-[#6B7280]">
+                {card.body}
               </p>
             </article>
           ))}
@@ -342,37 +304,53 @@ function FeatureSection() {
   );
 }
 
-function WhyDripDeskSection() {
+function HomeCommandCenter() {
   return (
-    <section className="bg-[linear-gradient(180deg,#FFFFFF_0%,#FBFAF7_100%)] px-5 py-9 sm:px-8 sm:py-11">
-      <div className="mx-auto max-w-[1120px]">
-        <div className="grid gap-7 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-          <div>
-            <h2 className="text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
-              Simple software for independent pros
-            </h2>
-            <p className="mt-4 max-w-[560px] text-sm leading-6 text-muted sm:text-base">
-              Most booking tools are built for salons, marketplaces, or full
-              shops. DripDesk is built for independent pros who need a simple
-              way to manage their chair, clients, schedule, and follow-ups
-              without extra complexity.
-            </p>
+    <section className="overflow-hidden bg-[#111111] px-5 py-16 text-white sm:px-8 sm:py-20">
+      <div className="mx-auto grid max-w-[1180px] gap-10 lg:grid-cols-[0.76fr_1.24fr] lg:items-center">
+        <div>
+          <div className="inline-flex rounded-full border border-brand/45 bg-white/[0.04] px-4 py-2 text-[11px] font-extrabold uppercase tracking-[0.18em] text-brand-gold">
+            All-in-one
           </div>
+          <h2 className="mt-6 font-display text-[42px] font-bold leading-[1] tracking-normal text-[#FAF7F2] sm:text-[58px]">
+            A cleaner command
+            <br />
+            center for your chair.
+          </h2>
+          <p className="mt-5 max-w-[500px] text-base leading-8 text-white/70">
+            Stop juggling apps, texts, and screenshots. DripDesk gives you
+            everything you need to run your business &mdash; in one simple
+            place.
+          </p>
 
-          <div className="grid gap-4 sm:grid-cols-3">
-            {proofPoints.map((point) => (
-              <article
-                key={point.title}
-                className="rounded-[8px] border border-border bg-white p-5 shadow-[0_8px_20px_rgba(17,17,17,0.04)]"
-              >
-                <h3 className="text-sm font-extrabold text-foreground">
-                  {point.title}
-                </h3>
-                <p className="mt-2 text-sm leading-6 text-muted">
-                  {point.copy}
-                </p>
-              </article>
+          <ul className="mt-8 grid gap-4">
+            {commandBullets.map((bullet) => (
+              <li key={bullet} className="flex gap-3 text-sm font-bold text-white/82">
+                <Image
+                  src="/assets/icons/icon-check-bronze.svg"
+                  alt=""
+                  width={22}
+                  height={22}
+                  aria-hidden="true"
+                  className="mt-0.5 h-5 w-5 shrink-0"
+                />
+                <span>{bullet}</span>
+              </li>
             ))}
+          </ul>
+        </div>
+
+        <div className="relative">
+          <div className="absolute inset-4 rounded-[24px] bg-brand/20 blur-3xl" />
+          <div className="relative overflow-hidden rounded-[18px] border border-white/10 bg-[#1C1C1E] shadow-[0_34px_80px_rgba(0,0,0,0.38)]">
+            <Image
+              src="/assets/home/dashboard-command-center-mockup.png"
+              alt="DripDesk dashboard showing appointments, revenue, and business insights"
+              width={1400}
+              height={832}
+              sizes="(min-width: 1024px) 680px, 92vw"
+              className="h-auto w-full"
+            />
           </div>
         </div>
       </div>
@@ -380,88 +358,79 @@ function WhyDripDeskSection() {
   );
 }
 
-function PricingCard({
-  plan,
-}: {
-  plan: (typeof pricingPlans)[number];
-}) {
+function HomePricing() {
   return (
-    <article
-      className={[
-        "relative flex h-full flex-col overflow-hidden rounded-[8px] border bg-white p-6 shadow-[0_10px_28px_rgba(17,24,39,0.08)]",
-        plan.highlighted
-          ? "border-brand shadow-[0_18px_38px_rgba(183,121,61,0.16)]"
-          : "border-border",
-      ].join(" ")}
+    <section
+      id="pricing"
+      className="bg-[#FAF7F2] px-5 py-14 text-[#111111] sm:px-8 sm:py-18"
     >
-      {plan.highlighted ? (
-        <span className="absolute inset-x-0 top-0 bg-brand py-2 text-center text-xs font-extrabold text-white">
-          Most Popular
-        </span>
-      ) : null}
-
-      <h3
-        className={[
-          "text-xl font-extrabold text-foreground",
-          plan.highlighted ? "mt-7" : "",
-        ].join(" ")}
-      >
-        {plan.name}
-      </h3>
-      <div className="mt-2 flex items-end gap-1">
-        <span className="text-4xl font-extrabold tracking-tight text-foreground">
-          {plan.price}
-        </span>
-        <span className="pb-1 text-sm font-semibold text-muted">
-          /month
-        </span>
-      </div>
-      <p className="mt-4 min-h-[3rem] text-sm leading-6 text-muted">
-        {plan.description}
-      </p>
-
-      <ul className="mt-5 grid gap-3 text-sm font-medium text-muted">
-        {plan.features.map((feature) => (
-          <li key={feature} className="flex gap-3">
-            <span
-              className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center text-xs font-extrabold text-brand"
-              aria-hidden="true"
-            >
-              ✓
-            </span>
-            <span>{feature}</span>
-          </li>
-        ))}
-      </ul>
-
-      <MarketingLink
-        href={signUpHref}
-        variant={plan.highlighted ? "primary" : "outline"}
-        className="mt-7 w-full"
-      >
-        Get Started
-      </MarketingLink>
-    </article>
-  );
-}
-
-function PricingSection() {
-  return (
-    <section id="pricing" className="bg-white px-5 py-8 sm:px-8 sm:py-10">
-      <div className="mx-auto max-w-[1120px] rounded-[8px] border border-border bg-[linear-gradient(180deg,#FFFFFF_0%,#FBFAF7_100%)] px-5 py-6 shadow-[0_12px_28px_rgba(17,17,17,0.05)] sm:px-8 lg:px-28">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
-            Plans that grow with your chair
+      <div className="mx-auto max-w-[1180px]">
+        <div className="mx-auto max-w-[660px] text-center">
+          <h2 className="font-display text-[34px] font-bold leading-[1.05] tracking-normal sm:text-[46px]">
+            Plans that grow with you.
           </h2>
-          <p className="mt-3 text-sm font-semibold text-[#6B7280]">
-            Start simple. Add automation when you need it. No contracts. Cancel
-            anytime.
+          <p className="mt-4 text-sm leading-7 text-[#6B7280] sm:text-base">
+            Start simple. Upgrade when you need more tools and insights to
+            scale, hire, and save more.
           </p>
         </div>
 
-        <div className="mt-7 grid gap-7 lg:grid-cols-3">
+        <div className="mt-10 grid gap-5 lg:grid-cols-3">
           {pricingPlans.map((plan) => (
-            <PricingCard key={plan.name} plan={plan} />
+            <article
+              key={plan.name}
+              className={[
+                "relative flex min-h-full flex-col rounded-[8px] border bg-white p-6 shadow-[0_14px_34px_rgba(17,17,17,0.055)] sm:p-7",
+                plan.popular
+                  ? "border-brand shadow-[0_20px_46px_rgba(183,121,61,0.14)]"
+                  : "border-[#E4D6C3]",
+              ].join(" ")}
+            >
+              {plan.popular ? (
+                <div className="absolute right-5 top-5 rounded-full bg-brand-gold px-3.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.13em] text-[#111111]">
+                  Most Popular
+                </div>
+              ) : null}
+
+              <h3 className="text-xl font-extrabold text-[#111111] sm:text-[22px]">
+                {plan.name}
+              </h3>
+              <p className="mt-4 text-[34px] font-extrabold tracking-tight text-[#111111] sm:text-[38px]">
+                {plan.price}
+              </p>
+              <p className="mt-3 min-h-[3rem] text-sm leading-6 text-[#6B7280]">
+                {plan.description}
+              </p>
+
+              <ul className="mb-8 mt-6 grid gap-3 text-[13px] font-semibold leading-5 text-[#1C1C1E]/78 sm:text-sm">
+                {plan.features.map((feature) => (
+                  <li key={feature} className="flex gap-3">
+                    <Image
+                      src="/assets/icons/icon-check-bronze.svg"
+                      alt=""
+                      width={18}
+                      height={18}
+                      aria-hidden="true"
+                      className="mt-0.5 h-4 w-4 shrink-0"
+                    />
+                    <span>{feature}</span>
+                  </li>
+                ))}
+              </ul>
+
+              {/* TODO: Route to plan-specific signup when plan selection exists. */}
+              <Link
+                href={signUpHref}
+                className={[
+                  "relative z-10 mt-auto inline-flex h-12 w-full items-center justify-center rounded-[8px] border px-5 text-sm font-extrabold transition-colors focus:outline-none focus:ring-2 focus:ring-brand/35 focus:ring-offset-2",
+                  plan.popular
+                    ? "border-brand bg-brand text-[#111111] hover:border-brand-dark hover:bg-brand-dark hover:text-white"
+                    : "border-[#D6A85A]/70 bg-[#FAF7F2] text-[#111111] shadow-[inset_0_0_0_1px_rgba(17,17,17,0.04)] hover:border-brand hover:bg-white",
+                ].join(" ")}
+              >
+                {plan.cta}
+              </Link>
+            </article>
           ))}
         </div>
       </div>
@@ -469,38 +438,31 @@ function PricingSection() {
   );
 }
 
-function FinalCTA() {
+function HomeFinalCta() {
   return (
-    <section className="bg-white px-5 py-8 sm:px-8 sm:py-10">
-      <div className="mx-auto flex max-w-[1000px] flex-col gap-6 rounded-[12px] border border-border bg-white p-6 shadow-[0_12px_28px_rgba(17,17,17,0.06)] sm:p-7 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-          <div
-            className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[14px] bg-brand-soft text-3xl font-light text-brand"
-            aria-hidden="true"
-          >
-            +
-          </div>
-          <div>
-            <h2 className="text-xl font-extrabold tracking-tight text-foreground">
-              Ready to run your chair like a business?
-            </h2>
-            <p className="mt-2 max-w-xl text-sm leading-6 text-muted">
-              Start with DripDesk today and keep your bookings, clients, and
-              business insights in one simple workspace.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-3 sm:flex-row lg:shrink-0">
+    <section
+      className="relative isolate overflow-hidden bg-[#111111] px-5 py-16 text-center text-white sm:px-8 sm:py-20"
+    >
+      <div className="mx-auto max-w-[720px]">
+        <h2 className="font-display text-[42px] font-bold leading-[1] tracking-normal text-[#FAF7F2] sm:text-[62px]">
+          Your chair deserves a
+          <br />
+          real business system.
+        </h2>
+        <p className="mx-auto mt-5 max-w-[620px] text-base leading-8 text-white/76 sm:text-lg">
+          Built for independent stylists and barbers who want more bookings,
+          less stress, and a business that actually pays you.
+        </p>
+        <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
           <MarketingLink href={signUpHref} className="w-full sm:w-auto">
-            Sign Up
+            Get Started
           </MarketingLink>
           <MarketingLink
-            href={loginHref}
+            href="#pricing"
             variant="secondary"
             className="w-full sm:w-auto"
           >
-            Login
+            View Plans
           </MarketingLink>
         </div>
       </div>
@@ -508,38 +470,14 @@ function FinalCTA() {
   );
 }
 
-function Footer() {
-  return (
-    <footer className="bg-white px-5 pb-8 pt-3 sm:px-8">
-      <div className="mx-auto flex max-w-[1000px] flex-col gap-4 text-xs text-[#6B7280] sm:flex-row sm:items-center sm:justify-between">
-        <p>© 2026 DripDesk. All rights reserved.</p>
-        <nav className="flex flex-wrap gap-x-6 gap-y-2" aria-label="Footer">
-          {/* TODO: Replace placeholder links when legal/contact routes exist. */}
-          <a className="font-semibold hover:text-brand" href="#">
-            Privacy Policy
-          </a>
-          <a className="font-semibold hover:text-brand" href="#">
-            Terms of Service
-          </a>
-          <a className="font-semibold hover:text-brand" href="#">
-            Contact
-          </a>
-        </nav>
-      </div>
-    </footer>
-  );
-}
-
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-white text-[#111827]">
-      <Header />
-      <HeroSection />
-      <FeatureSection />
-      <WhyDripDeskSection />
-      <PricingSection />
-      <FinalCTA />
-      <Footer />
+    <main className="min-h-screen bg-[#FAF7F2] text-[#111111]">
+      <HomeHero />
+      <HomeValueCards />
+      <HomeCommandCenter />
+      <HomePricing />
+      <HomeFinalCta />
     </main>
   );
 }
