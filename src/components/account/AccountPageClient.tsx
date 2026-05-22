@@ -37,6 +37,7 @@ import {
   BlankTabPanel,
   CancelDialog,
   ClientsTabPanel,
+  DashboardTabPanel,
   ErrorPanel,
   LoadingPanel,
   ProfileTabPanel,
@@ -152,7 +153,7 @@ export function AccountPageClient() {
   const [savingProfile, setSavingProfile] = useState(false);
   const [savingPublic, setSavingPublic] = useState(false);
   const [isCancelOpen, setIsCancelOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<AccountTab>("profile");
+  const [activeTab, setActiveTab] = useState<AccountTab>("dashboard");
 
   const publicUrl = useMemo(() => {
     if (!stylist?.slug) {
@@ -532,31 +533,29 @@ export function AccountPageClient() {
   const canUpgrade = plan ? plan.tier !== "premium" : false;
 
   return (
-    <main className="min-h-screen bg-page px-4 py-6 text-foreground sm:px-6 sm:py-10">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
-        <header className="rounded-[28px] border border-white/80 bg-white px-5 py-6 shadow-[0_20px_60px_rgba(17,17,17,0.07)] sm:px-8">
-          <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+    <main className="min-h-screen bg-[#FAF7F2] text-foreground">
+      <div className="grid min-h-screen w-full bg-[#FAF7F2] lg:grid-cols-[17rem_1fr]">
+        <AccountSideNav activeTab={activeTab} onTabChange={setActiveTab} />
+
+        <section className="min-w-0 bg-[#FAF7F2] px-4 py-5 sm:px-7 sm:py-8 lg:px-10">
+          <header className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="font-display text-3xl font-semibold italic text-brand">
-                DripDesk
-              </p>
-              <h1 className="mt-5 text-3xl font-semibold tracking-tight text-[#111827] sm:text-4xl">
-                Account Management
+              <h1 className="text-2xl font-extrabold tracking-tight text-[#111111] sm:text-3xl">
+                {activeTab === "dashboard"
+                  ? `Good morning${profile?.full_name ? `, ${profile.full_name.split(" ")[0]}` : ""}`
+                  : "Account Management"}
               </h1>
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-[#6B7280] sm:text-base">
-                Manage your private account details, public booking identity,
-                and plan access.
+              <p className="mt-2 text-sm leading-6 text-[#6B7280]">
+                {activeTab === "dashboard"
+                  ? "Here's what's happening with your chair."
+                  : "Manage your private account details, public booking identity, and plan access."}
               </p>
             </div>
-            <div className="inline-flex w-fit items-center gap-2 rounded-full border border-border bg-surface-warm px-3 py-2 text-xs font-semibold text-[#4B5563]">
+            <div className="inline-flex w-fit items-center gap-2 rounded-[8px] border border-[#E4D6C3] bg-white px-3 py-2 text-xs font-bold text-[#1C1C1E] shadow-[0_8px_22px_rgba(17,17,17,0.04)]">
               <span className="h-2 w-2 rounded-full bg-[#22C55E]" />
               {plan ? plan.displayName : "Account portal"}
             </div>
-          </div>
-        </header>
-
-        <div className="grid gap-6 lg:grid-cols-[15rem_1fr] lg:items-start">
-          <AccountSideNav activeTab={activeTab} onTabChange={setActiveTab} />
+          </header>
 
           <div className="flex min-w-0 flex-col gap-6">
             {loadState.status === "config" ? (
@@ -591,7 +590,9 @@ export function AccountPageClient() {
             plan &&
             profileForm &&
             publicForm ? (
-              activeTab === "profile" ? (
+              activeTab === "dashboard" ? (
+                <DashboardTabPanel profile={profile} plan={plan} />
+              ) : activeTab === "profile" ? (
                 <ProfileTabPanel
                   profile={profile}
                   plan={plan}
@@ -629,7 +630,7 @@ export function AccountPageClient() {
               )
             ) : null}
           </div>
-        </div>
+        </section>
       </div>
 
       {toast ? <ToastMessage message={toast.message} /> : null}

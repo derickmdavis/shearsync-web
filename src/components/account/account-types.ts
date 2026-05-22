@@ -1,6 +1,7 @@
 import type { AccountPlan } from "@/src/lib/api";
 
 export const accountNavItems = [
+  { id: "dashboard", label: "Dashboard" },
   { id: "profile", label: "Profile" },
   { id: "clients", label: "Clients" },
   { id: "appointments", label: "Appointments" },

@@ -1,4 +1,5 @@
 import type { ChangeEvent, FormEvent, ReactNode } from "react";
+import Image from "next/image";
 import type { AccountPlan, AccountProfile, Customer } from "@/src/lib/api";
 import {
   accountNavItems,
@@ -21,8 +22,22 @@ export function AccountSideNav({
   return (
     <nav
       aria-label="Account management"
-      className="rounded-[24px] border border-[#E5E7EB] bg-white p-2 shadow-[0_16px_45px_rgba(17,24,39,0.06)] lg:sticky lg:top-6"
+      className="bg-[#111111] p-4 text-white lg:flex lg:min-h-full lg:flex-col lg:p-6"
     >
+      <div className="mb-5 flex items-center gap-3 lg:mb-8">
+        <Image
+          src="/assets/brand/dripdesk-chair-mark.png"
+          alt=""
+          width={416}
+          height={473}
+          aria-hidden="true"
+          className="h-8 w-auto object-contain"
+        />
+        <span className="font-display text-2xl font-semibold text-white">
+          DripDesk
+        </span>
+      </div>
+
       <ul className="flex gap-2 overflow-x-auto lg:flex-col lg:overflow-visible">
         {accountNavItems.map((item) => (
           <li key={item.label} className="w-full">
@@ -31,18 +46,222 @@ export function AccountSideNav({
               onClick={() => onTabChange(item.id)}
               aria-current={activeTab === item.id ? "page" : undefined}
               className={[
-                "flex h-11 w-full min-w-max items-center rounded-[16px] px-4 text-left text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-brand/25",
+                "flex h-11 w-full min-w-max items-center gap-3 rounded-[8px] px-4 text-left text-sm font-bold transition-colors focus:outline-none focus:ring-2 focus:ring-brand-gold/35",
                 activeTab === item.id
-                  ? "bg-brand-soft text-brand"
-                  : "text-[#4B5563] hover:bg-surface-warm",
+                  ? "bg-white/10 text-white"
+                  : "text-white/68 hover:bg-white/[0.06] hover:text-white",
               ].join(" ")}
             >
+              <AccountNavIcon id={item.id} />
               {item.label}
             </button>
           </li>
         ))}
       </ul>
     </nav>
+  );
+}
+
+function AccountNavIcon({ id }: { id: AccountTab }) {
+  const commonProps = {
+    className: "h-5 w-5 shrink-0",
+    fill: "none",
+    stroke: "currentColor",
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+    strokeWidth: 1.8,
+    viewBox: "0 0 24 24",
+    "aria-hidden": true,
+  };
+
+  if (id === "dashboard") {
+    return (
+      <svg {...commonProps}>
+        <path d="M4 13h7V4H4v9Zm9 7h7V4h-7v16ZM4 20h7v-5H4v5Z" />
+      </svg>
+    );
+  }
+
+  if (id === "clients") {
+    return (
+      <svg {...commonProps}>
+        <path d="M16 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM3.5 19c.6-3.1 2.1-5 4.5-5s3.9 1.9 4.5 5M11.5 19c.6-3.1 2.1-5 4.5-5s3.9 1.9 4.5 5" />
+      </svg>
+    );
+  }
+
+  if (id === "appointments") {
+    return (
+      <svg {...commonProps}>
+        <path d="M7 3v4M17 3v4M4 9h16M6 5h12a2 2 0 0 1 2 2v12H4V7a2 2 0 0 1 2-2Zm4 8h4m-4 4h7" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg {...commonProps}>
+      <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4.5 20c.9-4.1 3.4-6 7.5-6s6.6 1.9 7.5 6" />
+    </svg>
+  );
+}
+
+export function DashboardTabPanel({
+  profile,
+  plan,
+}: {
+  profile: AccountProfile;
+  plan: AccountPlan;
+}) {
+  const displayName = profile.full_name || profile.business_name || "Your chair";
+  const metrics = [
+    {
+      label: "Revenue",
+      value: "$1,165",
+      detail: "+10% from last week",
+    },
+    {
+      label: "Appointments",
+      value: "24",
+      detail: "+9% from last week",
+    },
+    {
+      label: "Rebooking Rate",
+      value: "81%",
+      detail: "+12% from last week",
+    },
+    {
+      label: "Upcoming Income",
+      value: "$415.50",
+      detail: "In next 7 days",
+    },
+  ];
+  const appointments = [
+    ["9:00 AM", "Jalen R."],
+    ["10:30 AM", "Marcus T."],
+    ["12:00 PM", "Derrick S."],
+    ["1:30 PM", "Chris B."],
+    ["3:00 PM", "DeAndre J."],
+  ];
+  const bars = [32, 50, 66, 48, 60, 88, 56];
+
+  return (
+    <div className="grid gap-6">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {metrics.map((metric) => (
+          <article
+            key={metric.label}
+            className="rounded-[12px] border border-[#E4D6C3] bg-white p-5 shadow-[0_12px_28px_rgba(17,17,17,0.045)]"
+          >
+            <p className="text-sm font-extrabold text-[#1C1C1E]">
+              {metric.label}
+            </p>
+            <p className="mt-4 text-3xl font-extrabold tracking-tight text-[#111111]">
+              {metric.value}
+            </p>
+            <p className="mt-2 text-xs font-bold text-[#15803D]">
+              {metric.detail}
+            </p>
+          </article>
+        ))}
+      </div>
+
+      <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
+        <section className="rounded-[12px] border border-[#E4D6C3] bg-white p-5 shadow-[0_12px_28px_rgba(17,17,17,0.045)]">
+          <div className="flex items-center justify-between gap-4">
+            <h2 className="text-base font-extrabold text-[#111111]">
+              Upcoming Appointments
+            </h2>
+            <span className="rounded-full bg-brand-soft px-3 py-1 text-xs font-extrabold text-brand">
+              Preview
+            </span>
+          </div>
+
+          <div className="mt-5 grid gap-3">
+            {appointments.map(([time, client], index) => (
+              <div
+                key={`${time}-${client}`}
+                className="grid grid-cols-[2.5rem_1fr_auto] items-center gap-3"
+              >
+                <div className="grid h-10 w-10 place-items-center rounded-full bg-[#1C1C1E] text-xs font-extrabold text-brand-gold">
+                  {index + 1}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-extrabold text-[#1C1C1E]">
+                    {time}
+                  </p>
+                  <p className="text-xs font-semibold text-[#6B7280]">
+                    {client}
+                  </p>
+                </div>
+                <span className="rounded-[8px] bg-[#ECFDF5] px-3 py-1 text-xs font-extrabold text-[#15803D]">
+                  Confirmed
+                </span>
+              </div>
+            ))}
+          </div>
+
+          <button
+            type="button"
+            className="mt-6 inline-flex h-11 w-full items-center justify-center rounded-[8px] bg-brand px-5 text-sm font-extrabold text-white shadow-[0_14px_28px_rgba(183,121,61,0.18)]"
+          >
+            View Full Calendar
+          </button>
+        </section>
+
+        <section className="rounded-[12px] border border-[#E4D6C3] bg-white p-5 shadow-[0_12px_28px_rgba(17,17,17,0.045)]">
+          <div className="flex items-center justify-between gap-4">
+            <h2 className="text-base font-extrabold text-[#111111]">
+              Revenue Overview
+            </h2>
+            <span className="rounded-[8px] border border-[#E4D6C3] bg-[#FAF7F2] px-3 py-2 text-xs font-extrabold text-[#1C1C1E]">
+              This week
+            </span>
+          </div>
+
+          <div className="mt-8 flex h-56 items-end gap-3 border-b border-l border-[#E4D6C3] px-4 pb-4">
+            {bars.map((height, index) => (
+              <div key={index} className="flex flex-1 flex-col items-center gap-2">
+                <div
+                  className="w-full rounded-t-[6px] bg-[linear-gradient(180deg,#D6A85A_0%,#B7793D_100%)]"
+                  style={{ height: `${height}%` }}
+                />
+                <span className="text-[10px] font-bold text-[#6B7280]">
+                  {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][index]}
+                </span>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        <article className="rounded-[12px] border border-[#E4D6C3] bg-white p-5 shadow-[0_12px_28px_rgba(17,17,17,0.045)]">
+          <p className="text-sm font-extrabold text-[#111111]">New Clients</p>
+          <p className="mt-4 text-3xl font-extrabold text-[#111111]">5</p>
+          <p className="mt-2 text-xs font-bold text-[#15803D]">
+            +25% from last week
+          </p>
+        </article>
+        <article className="rounded-[12px] border border-[#E4D6C3] bg-white p-5 shadow-[0_12px_28px_rgba(17,17,17,0.045)]">
+          <p className="text-sm font-extrabold text-[#111111]">
+            Returning Clients
+          </p>
+          <p className="mt-4 text-3xl font-extrabold text-[#111111]">17</p>
+          <p className="mt-2 text-xs font-bold text-[#15803D]">
+            +45% from last week
+          </p>
+        </article>
+        <article className="rounded-[12px] border border-[#E4D6C3] bg-white p-5 shadow-[0_12px_28px_rgba(17,17,17,0.045)]">
+          <p className="text-sm font-extrabold text-[#111111]">Workspace</p>
+          <p className="mt-4 text-lg font-extrabold text-[#111111]">
+            {displayName}
+          </p>
+          <p className="mt-2 text-xs font-bold capitalize text-brand">
+            {plan.tier} plan
+          </p>
+        </article>
+      </div>
+    </div>
   );
 }
 
@@ -136,8 +355,8 @@ export function ProfileTabPanel({
 
 export function BlankTabPanel({ title }: { title: string }) {
   return (
-    <section className="min-h-[22rem] rounded-[24px] border border-[#E5E7EB] bg-white p-5 shadow-[0_16px_45px_rgba(17,24,39,0.06)] sm:p-6">
-      <h2 className="text-xl font-semibold tracking-tight text-[#111827]">
+    <section className="min-h-[22rem] rounded-[12px] border border-[#E4D6C3] bg-white p-5 shadow-[0_12px_28px_rgba(17,17,17,0.045)] sm:p-6">
+      <h2 className="text-xl font-semibold tracking-tight text-[#111111]">
         {title}
       </h2>
     </section>
@@ -154,10 +373,10 @@ export function ClientsTabPanel({
   onRetry: () => void;
 }) {
   return (
-    <section className="min-h-[22rem] rounded-[24px] border border-[#E5E7EB] bg-white p-5 shadow-[0_16px_45px_rgba(17,24,39,0.06)] sm:p-6">
+    <section className="min-h-[22rem] rounded-[12px] border border-[#E4D6C3] bg-white p-5 shadow-[0_12px_28px_rgba(17,17,17,0.045)] sm:p-6">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h2 className="text-xl font-semibold tracking-tight text-[#111827]">
+          <h2 className="text-xl font-semibold tracking-tight text-[#111111]">
             Clients
           </h2>
           <p className="mt-2 text-sm leading-6 text-[#6B7280]">
@@ -172,7 +391,7 @@ export function ClientsTabPanel({
       </div>
 
       {loadState.status === "loading" || loadState.status === "idle" ? (
-        <div className="mt-6 rounded-[18px] border border-[#E5E7EB] bg-[#F9FAFB] p-5 text-sm font-semibold text-[#4B5563]">
+        <div className="mt-6 rounded-[18px] border border-[#E5E7EB] bg-[#FAF7F2] p-5 text-sm font-semibold text-[#4B5563]">
           Loading clients...
         </div>
       ) : null}
@@ -188,7 +407,7 @@ export function ClientsTabPanel({
           <button
             type="button"
             onClick={onRetry}
-            className="mt-4 inline-flex h-10 items-center justify-center rounded-2xl bg-brand px-4 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-brand/30"
+            className="mt-4 inline-flex h-10 items-center justify-center rounded-[8px] bg-brand px-4 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-brand/30"
           >
             Retry
           </button>
@@ -196,7 +415,7 @@ export function ClientsTabPanel({
       ) : null}
 
       {loadState.status === "ready" && clients.length === 0 ? (
-        <div className="mt-6 rounded-[18px] border border-[#E5E7EB] bg-[#F9FAFB] p-5 text-sm leading-6 text-[#6B7280]">
+        <div className="mt-6 rounded-[18px] border border-[#E5E7EB] bg-[#FAF7F2] p-5 text-sm leading-6 text-[#6B7280]">
           No clients found.
         </div>
       ) : null}
@@ -205,7 +424,7 @@ export function ClientsTabPanel({
         <div className="mt-6 overflow-hidden rounded-[18px] border border-[#E5E7EB]">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-[#E5E7EB] text-left text-sm">
-              <thead className="bg-[#F9FAFB] text-xs font-semibold uppercase tracking-[0.08em] text-[#6B7280]">
+              <thead className="bg-[#FAF7F2] text-xs font-semibold uppercase tracking-[0.08em] text-[#6B7280]">
                 <tr>
                   <th scope="col" className="px-4 py-3 sm:px-5">
                     Client name
@@ -221,7 +440,7 @@ export function ClientsTabPanel({
               <tbody className="divide-y divide-[#EEF0F3] bg-white">
                 {clients.map((client) => (
                   <tr key={client.id}>
-                    <td className="whitespace-nowrap px-4 py-4 font-semibold text-[#111827] sm:px-5">
+                    <td className="whitespace-nowrap px-4 py-4 font-semibold text-[#111111] sm:px-5">
                       {formatClientName(client)}
                     </td>
                     <td className="whitespace-nowrap px-4 py-4 text-[#4B5563] sm:px-5">
@@ -272,8 +491,8 @@ export function AuthPanel({
         : "Send reset email";
 
   return (
-    <section className="rounded-[24px] border border-border bg-white p-5 shadow-[0_16px_45px_rgba(17,24,39,0.06)] sm:p-6">
-      <h2 className="text-xl font-semibold tracking-tight text-[#111827]">
+    <section className="rounded-[12px] border border-border bg-white p-5 shadow-[0_12px_28px_rgba(17,17,17,0.045)] sm:p-6">
+      <h2 className="text-xl font-semibold tracking-tight text-[#111111]">
         {mode === "sign-up"
           ? "Create your account"
           : mode === "reset"
@@ -291,10 +510,10 @@ export function AuthPanel({
             type="button"
             onClick={() => onModeChange(item)}
             className={[
-              "h-10 rounded-2xl px-4 text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-brand/25",
+              "h-10 rounded-[8px] px-4 text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-brand/25",
               mode === item
                 ? "bg-brand text-white"
-                : "border border-border bg-surface-warm text-[#4B5563]",
+                : "border border-[#E4D6C3] bg-[#FAF7F2] text-[#4B5563]",
             ].join(" ")}
           >
             {item === "sign-in"
@@ -309,7 +528,7 @@ export function AuthPanel({
         <input
           value={email}
           onChange={(event) => onEmailChange(event.target.value)}
-          className="h-12 min-w-0 rounded-2xl border border-[#E5E7EB] bg-white px-4 text-sm outline-none focus:ring-2 focus:ring-brand/25"
+          className="h-12 min-w-0 rounded-[8px] border border-[#E4D6C3] bg-white px-4 text-sm outline-none focus:ring-2 focus:ring-brand/25"
           placeholder="Email"
           type="email"
           autoComplete="email"
@@ -319,7 +538,7 @@ export function AuthPanel({
           <input
             value={password}
             onChange={(event) => onPasswordChange(event.target.value)}
-            className="h-12 min-w-0 rounded-2xl border border-[#E5E7EB] bg-white px-4 text-sm outline-none focus:ring-2 focus:ring-brand/25"
+            className="h-12 min-w-0 rounded-[8px] border border-[#E4D6C3] bg-white px-4 text-sm outline-none focus:ring-2 focus:ring-brand/25"
             placeholder="Password"
             type="password"
             autoComplete={
@@ -331,7 +550,7 @@ export function AuthPanel({
         <button
           type="submit"
           disabled={isBusy}
-          className="inline-flex h-12 items-center justify-center rounded-2xl bg-brand px-5 text-sm font-semibold text-white shadow-[0_16px_30px_rgba(183,121,61,0.23)] hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-brand/30 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex h-12 items-center justify-center rounded-[8px] bg-brand px-5 text-sm font-semibold text-white shadow-[0_16px_30px_rgba(183,121,61,0.23)] hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-brand/30 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isBusy ? "Working..." : submitLabel}
         </button>
@@ -356,10 +575,10 @@ function SessionPanel({
   onSignOut: () => void;
 }) {
   return (
-    <section className="rounded-[24px] border border-[#E5E7EB] bg-white p-5 shadow-[0_16px_45px_rgba(17,24,39,0.06)] sm:p-6">
+    <section className="rounded-[12px] border border-[#E4D6C3] bg-white p-5 shadow-[0_12px_28px_rgba(17,17,17,0.045)] sm:p-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <h2 className="text-xl font-semibold tracking-tight text-[#111827]">
+          <h2 className="text-xl font-semibold tracking-tight text-[#111111]">
             Signed in
           </h2>
           <p className="mt-2 text-sm leading-6 text-[#6B7280]">{email}</p>
@@ -368,7 +587,7 @@ function SessionPanel({
           type="button"
           onClick={onSignOut}
           disabled={isBusy}
-          className="inline-flex h-11 items-center justify-center rounded-2xl border border-[#E5E7EB] bg-[#F9FAFB] px-5 text-sm font-semibold text-[#4B5563] focus:outline-none focus:ring-2 focus:ring-brand/25 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex h-11 items-center justify-center rounded-[8px] border border-[#E5E7EB] bg-[#FAF7F2] px-5 text-sm font-semibold text-[#4B5563] focus:outline-none focus:ring-2 focus:ring-brand/25 disabled:cursor-not-allowed disabled:opacity-60"
         >
           Sign out
         </button>
@@ -380,7 +599,7 @@ function SessionPanel({
         <input
           value={newPassword}
           onChange={(event) => onNewPasswordChange(event.target.value)}
-          className="h-12 min-w-0 flex-1 rounded-2xl border border-[#E5E7EB] bg-white px-4 text-sm outline-none focus:ring-2 focus:ring-brand/25"
+          className="h-12 min-w-0 flex-1 rounded-[8px] border border-[#E4D6C3] bg-white px-4 text-sm outline-none focus:ring-2 focus:ring-brand/25"
           placeholder="New password"
           type="password"
           autoComplete="new-password"
@@ -388,7 +607,7 @@ function SessionPanel({
         <button
           type="submit"
           disabled={isBusy}
-          className="inline-flex h-12 items-center justify-center rounded-2xl bg-brand px-5 text-sm font-semibold text-white shadow-[0_16px_30px_rgba(183,121,61,0.23)] focus:outline-none focus:ring-2 focus:ring-brand/30 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex h-12 items-center justify-center rounded-[8px] bg-brand px-5 text-sm font-semibold text-white shadow-[0_16px_30px_rgba(183,121,61,0.23)] focus:outline-none focus:ring-2 focus:ring-brand/30 disabled:cursor-not-allowed disabled:opacity-60"
         >
           Update password
         </button>
@@ -399,7 +618,7 @@ function SessionPanel({
 
 export function LoadingPanel() {
   return (
-    <section className="rounded-[24px] border border-[#E5E7EB] bg-white p-6 text-sm font-semibold text-[#4B5563] shadow-[0_16px_45px_rgba(17,24,39,0.06)]">
+    <section className="rounded-[12px] border border-[#E4D6C3] bg-white p-6 text-sm font-semibold text-[#4B5563] shadow-[0_12px_28px_rgba(17,17,17,0.045)]">
       Loading account profile...
     </section>
   );
@@ -413,7 +632,7 @@ export function ErrorPanel({
   onRetry?: () => void;
 }) {
   return (
-    <section className="rounded-[24px] border border-[#FECACA] bg-[#FFF7F7] p-5 shadow-[0_16px_45px_rgba(17,24,39,0.06)] sm:p-6">
+    <section className="rounded-[12px] border border-[#FECACA] bg-[#FFF7F7] p-5 shadow-[0_12px_28px_rgba(17,17,17,0.045)] sm:p-6">
       <h2 className="text-xl font-semibold tracking-tight text-[#991B1B]">
         Account could not load
       </h2>
@@ -422,7 +641,7 @@ export function ErrorPanel({
         <button
           type="button"
           onClick={onRetry}
-          className="mt-5 inline-flex h-11 items-center justify-center rounded-2xl bg-brand px-5 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-brand/30"
+          className="mt-5 inline-flex h-11 items-center justify-center rounded-[8px] bg-brand px-5 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-brand/30"
         >
           Retry
         </button>
@@ -450,10 +669,10 @@ function ProfileSection({
   return (
     <section
       id="profile"
-      className="scroll-mt-6 rounded-[24px] border border-[#E5E7EB] bg-white p-5 shadow-[0_16px_45px_rgba(17,24,39,0.06)] sm:p-6"
+      className="scroll-mt-6 rounded-[12px] border border-[#E4D6C3] bg-white p-5 shadow-[0_12px_28px_rgba(17,17,17,0.045)] sm:p-6"
     >
       <div>
-        <h2 className="text-xl font-semibold tracking-tight text-[#111827]">
+        <h2 className="text-xl font-semibold tracking-tight text-[#111111]">
           Private Profile
         </h2>
         <p className="mt-2 text-sm leading-6 text-[#6B7280]">
@@ -466,42 +685,42 @@ function ProfileSection({
           <input
             value={email}
             readOnly
-            className="h-12 w-full rounded-2xl border border-[#E5E7EB] bg-[#F9FAFB] px-4 text-sm font-semibold text-[#6B7280]"
+            className="h-12 w-full rounded-[8px] border border-[#E5E7EB] bg-[#FAF7F2] px-4 text-sm font-semibold text-[#6B7280]"
           />
         </Field>
         <Field label="Full name">
           <input
             value={form.full_name}
             onChange={(event) => onFieldChange("full_name", event)}
-            className="h-12 w-full rounded-2xl border border-[#E5E7EB] bg-white px-4 text-sm outline-none focus:ring-2 focus:ring-brand/25"
+            className="h-12 w-full rounded-[8px] border border-[#E4D6C3] bg-white px-4 text-sm outline-none focus:ring-2 focus:ring-brand/25"
           />
         </Field>
         <Field label="Business name">
           <input
             value={form.business_name}
             onChange={(event) => onFieldChange("business_name", event)}
-            className="h-12 w-full rounded-2xl border border-[#E5E7EB] bg-white px-4 text-sm outline-none focus:ring-2 focus:ring-brand/25"
+            className="h-12 w-full rounded-[8px] border border-[#E4D6C3] bg-white px-4 text-sm outline-none focus:ring-2 focus:ring-brand/25"
           />
         </Field>
         <Field label="Phone number">
           <input
             value={form.phone_number}
             onChange={(event) => onFieldChange("phone_number", event)}
-            className="h-12 w-full rounded-2xl border border-[#E5E7EB] bg-white px-4 text-sm outline-none focus:ring-2 focus:ring-brand/25"
+            className="h-12 w-full rounded-[8px] border border-[#E4D6C3] bg-white px-4 text-sm outline-none focus:ring-2 focus:ring-brand/25"
           />
         </Field>
         <Field label="Location">
           <input
             value={form.location_label}
             onChange={(event) => onFieldChange("location_label", event)}
-            className="h-12 w-full rounded-2xl border border-[#E5E7EB] bg-white px-4 text-sm outline-none focus:ring-2 focus:ring-brand/25"
+            className="h-12 w-full rounded-[8px] border border-[#E4D6C3] bg-white px-4 text-sm outline-none focus:ring-2 focus:ring-brand/25"
           />
         </Field>
         <Field label="Timezone">
           <input
             value={form.timezone}
             onChange={(event) => onFieldChange("timezone", event)}
-            className="h-12 w-full rounded-2xl border border-[#E5E7EB] bg-white px-4 text-sm outline-none focus:ring-2 focus:ring-brand/25"
+            className="h-12 w-full rounded-[8px] border border-[#E4D6C3] bg-white px-4 text-sm outline-none focus:ring-2 focus:ring-brand/25"
             placeholder="America/Denver"
           />
         </Field>
@@ -509,13 +728,13 @@ function ProfileSection({
           <input
             value={form.avatar_image_id}
             onChange={(event) => onFieldChange("avatar_image_id", event)}
-            className="h-12 w-full rounded-2xl border border-[#E5E7EB] bg-white px-4 text-sm outline-none focus:ring-2 focus:ring-brand/25"
+            className="h-12 w-full rounded-[8px] border border-[#E4D6C3] bg-white px-4 text-sm outline-none focus:ring-2 focus:ring-brand/25"
           />
         </Field>
         <button
           type="submit"
           disabled={isSaving}
-          className="mt-2 inline-flex h-12 items-center justify-center rounded-2xl bg-brand px-5 text-sm font-semibold text-white shadow-[0_16px_30px_rgba(183,121,61,0.23)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-brand/30 disabled:cursor-not-allowed disabled:opacity-60"
+          className="mt-2 inline-flex h-12 items-center justify-center rounded-[8px] bg-brand px-5 text-sm font-semibold text-white shadow-[0_16px_30px_rgba(183,121,61,0.23)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-brand/30 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isSaving ? "Saving..." : "Save private profile"}
         </button>
@@ -547,10 +766,10 @@ function PublicProfileSection({
   return (
     <section
       id="public-page"
-      className="scroll-mt-6 rounded-[24px] border border-[#E5E7EB] bg-white p-5 shadow-[0_16px_45px_rgba(17,24,39,0.06)] sm:p-6"
+      className="scroll-mt-6 rounded-[12px] border border-[#E4D6C3] bg-white p-5 shadow-[0_12px_28px_rgba(17,17,17,0.045)] sm:p-6"
     >
       <div>
-        <h2 className="text-xl font-semibold tracking-tight text-[#111827]">
+        <h2 className="text-xl font-semibold tracking-tight text-[#111111]">
           Public Booking Page
         </h2>
         <p className="mt-2 text-sm leading-6 text-[#6B7280]">
@@ -560,7 +779,7 @@ function PublicProfileSection({
 
       <form onSubmit={onSubmit} className="mt-6 grid gap-4">
         <Field label="Booking link">
-          <div className="rounded-2xl border border-[#E5E7EB] bg-[#F9FAFB] px-4 py-3 text-sm font-semibold text-[#111827]">
+          <div className="rounded-[8px] border border-[#E5E7EB] bg-[#FAF7F2] px-4 py-3 text-sm font-semibold text-[#111111]">
             {publicUrl}
           </div>
         </Field>
@@ -570,7 +789,7 @@ function PublicProfileSection({
             onChange={(event) => onFieldChange("slug", event)}
             disabled={!plan.features.customSlug}
             pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
-            className="h-12 w-full rounded-2xl border border-[#E5E7EB] bg-white px-4 text-sm outline-none focus:ring-2 focus:ring-brand/25 disabled:bg-[#F9FAFB] disabled:text-[#6B7280]"
+            className="h-12 w-full rounded-[8px] border border-[#E4D6C3] bg-white px-4 text-sm outline-none focus:ring-2 focus:ring-brand/25 disabled:bg-[#FAF7F2] disabled:text-[#6B7280]"
           />
           {!plan.features.customSlug ? (
             <p className="mt-2 text-xs font-semibold text-[#92400E]">
@@ -582,7 +801,7 @@ function PublicProfileSection({
           <input
             value={form.display_name}
             onChange={(event) => onFieldChange("display_name", event)}
-            className="h-12 w-full rounded-2xl border border-[#E5E7EB] bg-white px-4 text-sm outline-none focus:ring-2 focus:ring-brand/25"
+            className="h-12 w-full rounded-[8px] border border-[#E4D6C3] bg-white px-4 text-sm outline-none focus:ring-2 focus:ring-brand/25"
           />
         </Field>
         <Field label="Bio">
@@ -590,7 +809,7 @@ function PublicProfileSection({
             value={form.bio}
             onChange={(event) => onFieldChange("bio", event)}
             maxLength={2000}
-            className="min-h-28 w-full resize-y rounded-2xl border border-[#E5E7EB] bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-brand/25"
+            className="min-h-28 w-full resize-y rounded-[8px] border border-[#E4D6C3] bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-brand/25"
           />
         </Field>
         <Field label="Cover photo URL">
@@ -598,7 +817,7 @@ function PublicProfileSection({
             value={form.cover_photo_url}
             onChange={(event) => onFieldChange("cover_photo_url", event)}
             disabled={!plan.features.customCoverPhoto}
-            className="h-12 w-full rounded-2xl border border-[#E5E7EB] bg-white px-4 text-sm outline-none focus:ring-2 focus:ring-brand/25 disabled:bg-[#F9FAFB] disabled:text-[#6B7280]"
+            className="h-12 w-full rounded-[8px] border border-[#E4D6C3] bg-white px-4 text-sm outline-none focus:ring-2 focus:ring-brand/25 disabled:bg-[#FAF7F2] disabled:text-[#6B7280]"
             placeholder="https://..."
           />
           {!plan.features.customCoverPhoto ? (
@@ -607,9 +826,9 @@ function PublicProfileSection({
             </p>
           ) : null}
         </Field>
-        <label className="flex items-center justify-between gap-4 rounded-2xl border border-border bg-surface-warm px-4 py-3">
+        <label className="flex items-center justify-between gap-4 rounded-[8px] border border-[#E4D6C3] bg-[#FAF7F2] px-4 py-3">
           <span>
-            <span className="block text-sm font-semibold text-[#111827]">
+            <span className="block text-sm font-semibold text-[#111111]">
               Booking enabled
             </span>
             <span className="mt-1 block text-xs font-semibold text-[#6B7280]">
@@ -626,7 +845,7 @@ function PublicProfileSection({
         <button
           type="submit"
           disabled={isSaving}
-          className="mt-2 inline-flex h-12 items-center justify-center rounded-2xl bg-brand px-5 text-sm font-semibold text-white shadow-[0_16px_30px_rgba(183,121,61,0.23)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-brand/30 disabled:cursor-not-allowed disabled:opacity-60"
+          className="mt-2 inline-flex h-12 items-center justify-center rounded-[8px] bg-brand px-5 text-sm font-semibold text-white shadow-[0_16px_30px_rgba(183,121,61,0.23)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-brand/30 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isSaving ? "Saving..." : "Save public profile"}
         </button>
@@ -649,23 +868,23 @@ function AccountSection({
   return (
     <section
       id="plan"
-      className="scroll-mt-6 rounded-[24px] border border-[#E5E7EB] bg-white p-5 shadow-[0_16px_45px_rgba(17,24,39,0.06)] sm:p-6"
+      className="scroll-mt-6 rounded-[12px] border border-[#E4D6C3] bg-white p-5 shadow-[0_12px_28px_rgba(17,17,17,0.045)] sm:p-6"
     >
       <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
         <div>
-          <h2 className="text-xl font-semibold tracking-tight text-[#111827]">
+          <h2 className="text-xl font-semibold tracking-tight text-[#111111]">
             Account Plan
           </h2>
           <p className="mt-2 text-sm leading-6 text-[#6B7280]">
             Tier and entitlement data from <code>/api/account/plan</code>.
           </p>
 
-          <div className="mt-6 rounded-[22px] border border-[#E5E7EB] bg-[#F9FAFB] p-5">
+          <div className="mt-6 rounded-[22px] border border-[#E5E7EB] bg-[#FAF7F2] p-5">
             <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[#6B7280]">
               Current plan
             </p>
             <div className="mt-3 flex flex-wrap items-end gap-3">
-              <p className="text-3xl font-semibold tracking-tight text-[#111827]">
+              <p className="text-3xl font-semibold tracking-tight text-[#111111]">
                 {plan.displayName}
               </p>
               <p className="pb-1 text-sm font-semibold capitalize text-brand">
@@ -683,19 +902,19 @@ function AccountSection({
               <button
                 type="button"
                 onClick={() => onSoon("Upgrade checkout coming soon.")}
-                className="inline-flex h-12 flex-1 items-center justify-center rounded-2xl bg-brand px-5 text-sm font-semibold text-white shadow-[0_16px_30px_rgba(183,121,61,0.23)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-brand/30"
+                className="inline-flex h-12 flex-1 items-center justify-center rounded-[8px] bg-brand px-5 text-sm font-semibold text-white shadow-[0_16px_30px_rgba(183,121,61,0.23)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-brand/30"
               >
                 Upgrade
               </button>
             ) : (
-              <p className="inline-flex h-12 flex-1 items-center justify-center rounded-2xl bg-[#ECFDF5] px-5 text-sm font-semibold text-[#15803D]">
+              <p className="inline-flex h-12 flex-1 items-center justify-center rounded-[8px] bg-[#ECFDF5] px-5 text-sm font-semibold text-[#15803D]">
                 You&apos;re on the highest plan.
               </p>
             )}
             <button
               type="button"
               onClick={onCancel}
-              className="inline-flex h-12 flex-1 items-center justify-center rounded-2xl border border-[#FECACA] bg-[#FFF7F7] px-5 text-sm font-semibold text-[#B91C1C] transition-colors hover:bg-[#FEF2F2] focus:outline-none focus:ring-2 focus:ring-[#EF4444]/20"
+              className="inline-flex h-12 flex-1 items-center justify-center rounded-[8px] border border-[#FECACA] bg-[#FFF7F7] px-5 text-sm font-semibold text-[#B91C1C] transition-colors hover:bg-[#FEF2F2] focus:outline-none focus:ring-2 focus:ring-[#EF4444]/20"
             >
               Cancel
             </button>
@@ -718,7 +937,7 @@ function AccountSection({
               >
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <h3 className="font-semibold text-[#111827]">
+                    <h3 className="font-semibold text-[#111111]">
                       {planNote.name}
                     </h3>
                     <p className="mt-1 text-sm leading-6 text-[#6B7280]">
@@ -734,8 +953,8 @@ function AccountSection({
               </article>
             );
           })}
-          <div className="rounded-[18px] border border-[#EEF0F3] bg-[#F9FAFB] p-4">
-            <h3 className="font-semibold text-[#111827]">Features</h3>
+          <div className="rounded-[18px] border border-[#EEF0F3] bg-[#FAF7F2] p-4">
+            <h3 className="font-semibold text-[#111111]">Features</h3>
             <dl className="mt-3 grid gap-2 sm:grid-cols-2">
               {Object.entries(plan.features).map(([key, enabled]) => (
                 <div
@@ -803,12 +1022,12 @@ export function CancelDialog({
         aria-modal="true"
         aria-labelledby="cancel-title"
         aria-describedby="cancel-description"
-        className="w-full max-w-lg rounded-[28px] border border-white/80 bg-white p-5 shadow-[0_30px_90px_rgba(17,24,39,0.22)] sm:p-6"
+        className="w-full max-w-lg rounded-[16px] border border-white/80 bg-white p-5 shadow-[0_30px_90px_rgba(17,24,39,0.22)] sm:p-6"
         onMouseDown={(event) => event.stopPropagation()}
       >
         <h2
           id="cancel-title"
-          className="text-2xl font-semibold tracking-tight text-[#111827]"
+          className="text-2xl font-semibold tracking-tight text-[#111111]"
         >
           Before you cancel
         </h2>
@@ -824,14 +1043,14 @@ export function CancelDialog({
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex h-12 items-center justify-center rounded-2xl border border-[#E5E7EB] bg-white px-5 text-sm font-semibold text-[#4B5563] transition-colors hover:bg-[#F9FAFB] focus:outline-none focus:ring-2 focus:ring-brand/25"
+            className="inline-flex h-12 items-center justify-center rounded-[8px] border border-[#E4D6C3] bg-white px-5 text-sm font-semibold text-[#4B5563] transition-colors hover:bg-[#FAF7F2] focus:outline-none focus:ring-2 focus:ring-brand/25"
           >
             Keep My Plan
           </button>
           <button
             type="button"
             onClick={() => handleSoon("Cancellation flow coming soon.")}
-            className="inline-flex h-12 items-center justify-center rounded-2xl border border-[#FECACA] bg-[#FFF7F7] px-5 text-sm font-semibold text-[#B91C1C] transition-colors hover:bg-[#FEF2F2] focus:outline-none focus:ring-2 focus:ring-[#EF4444]/20"
+            className="inline-flex h-12 items-center justify-center rounded-[8px] border border-[#FECACA] bg-[#FFF7F7] px-5 text-sm font-semibold text-[#B91C1C] transition-colors hover:bg-[#FEF2F2] focus:outline-none focus:ring-2 focus:ring-[#EF4444]/20"
           >
             Continue to Cancel
           </button>
@@ -844,7 +1063,7 @@ export function CancelDialog({
 export function ToastMessage({ message }: { message: string }) {
   return (
     <div
-      className="fixed right-4 bottom-4 z-30 max-w-[calc(100vw-2rem)] rounded-2xl border border-[#E5E7EB] bg-white px-4 py-3 text-sm font-semibold text-[#111827] shadow-[0_18px_45px_rgba(17,24,39,0.16)]"
+      className="fixed right-4 bottom-4 z-30 max-w-[calc(100vw-2rem)] rounded-[8px] border border-[#E4D6C3] bg-white px-4 py-3 text-sm font-semibold text-[#111111] shadow-[0_18px_45px_rgba(17,24,39,0.16)]"
       role="status"
       aria-live="polite"
     >
