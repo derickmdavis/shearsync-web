@@ -8,30 +8,18 @@ const signUpHref = "/login?mode=sign-up";
 const valueCards = [
   {
     icon: "/assets/icons/icon-calendar-bronze.svg",
-    title: (
-      <>
-        Stay booked without
-        <br />
-        the back-and-forth
-      </>
-    ),
-    body: "Give clients a polished booking page, manage appointment requests, and keep confirmations and reminders organized without another \"what time works?\" text.",
+    title: <>Stay booked.</>,
+    body: "Simple, reliable booking that makes it easy for clients to schedule and return.",
   },
   {
     icon: "/assets/icons/icon-client-bronze.svg",
-    title: <>Remember every client</>,
-    body: "Keep notes, formulas, preferences, photos, and appointment history in one clean profile so every appointment feels personal, consistent, and professional.",
+    title: <>Grow automatically.</>,
+    body: "Automated reminders, rebooking prompts, and waitlist management help fill your calendar without manual follow-up.",
   },
   {
     icon: "/assets/icons/icon-analytics-bronze.svg",
-    title: (
-      <>
-        Know what your chair
-        <br />
-        is earning
-      </>
-    ),
-    body: "See revenue, appointments, rebooking activity, and upcoming income in one simple view without building your own spreadsheet.",
+    title: <>Know what&apos;s working.</>,
+    body: "Clear insights into revenue, retention, client behavior, and booking trends so you can make smarter decisions.",
   },
 ];
 
@@ -196,9 +184,9 @@ function HomeHero() {
           </div>
 
           <h1 className="mt-6 max-w-[540px] font-display text-[54px] font-bold leading-[0.92] tracking-normal text-[#FAF7F2] sm:text-[76px] lg:text-[84px]">
-            Run your chair
+            Get booked.
             <br />
-            like a business.
+            Stay booked.
           </h1>
 
           <p className="mt-6 max-w-[540px] text-[17px] leading-8 text-white/78 sm:text-lg">
@@ -208,7 +196,7 @@ function HomeHero() {
           </p>
 
           <p className="mt-4 text-sm font-bold text-brand-gold">
-            Simple to setup. Affordable to run. Built to help you last and win.
+            Simple bookings. Automated re-bookings. Effortless Growth.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -266,7 +254,7 @@ function HomeValueCards() {
       <div className="mx-auto max-w-[1180px]">
         <div className="mx-auto max-w-[760px] text-center">
           <h2 className="font-display text-[38px] font-bold leading-[1.02] tracking-normal sm:text-[52px]">
-            Everything behind your chair, finally in one place.
+            Stop chasing bookings, managing waitlists,and manually texting clients
           </h2>
           <p className="mt-5 text-base leading-8 text-[#6B7280] sm:text-lg">
             DripDesk helps you stay booked, remember every client detail, and
@@ -445,7 +433,7 @@ function HomeFinalCta() {
     >
       <div className="mx-auto max-w-[720px]">
         <h2 className="font-display text-[42px] font-bold leading-[1] tracking-normal text-[#FAF7F2] sm:text-[62px]">
-          Your chair deserves a
+          You deserve a
           <br />
           real business system.
         </h2>
