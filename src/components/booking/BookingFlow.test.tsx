@@ -233,6 +233,25 @@ describe("BookingFlow", () => {
     ).toBeNull();
   });
 
+  it("shows the backend intake error instead of a generic booking details error", async () => {
+    const { createPublicBookingIntake, getPublicServices } = setupMockReferences();
+
+    createPublicBookingIntake.mockRejectedValue(
+      new bookingApi.ApiError("Stylist not found", 404),
+    );
+
+    render(<BookingFlow slug="maya-johnson" stylist={baseStylist} />);
+
+    fillContactDetails();
+    fireEvent.click(screen.getByRole("button", { name: "Select Services" }));
+
+    expect(await screen.findByText("Stylist not found")).toBeTruthy();
+    expect(
+      screen.queryByText("We couldn't check your booking details right now."),
+    ).toBeNull();
+    expect(getPublicServices).not.toHaveBeenCalled();
+  });
+
   it("reruns intake and reloads token-dependent services when contact details change", async () => {
     const { createPublicBookingIntake, getPublicServices } = setupMockReferences();
 

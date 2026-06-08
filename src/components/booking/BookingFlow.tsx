@@ -299,6 +299,9 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
             : "We couldn't check your booking details right now.";
 
         setIntakeState({ status: "error", message });
+        if (!background) {
+          setServiceError(message);
+        }
         return null;
       } finally {
         if (background) {
@@ -911,7 +914,6 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
       nextIntake = await runIntake();
 
       if (!nextIntake) {
-        setServiceError("We couldn't check your booking details right now.");
         return;
       }
     }
