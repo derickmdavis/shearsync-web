@@ -363,6 +363,16 @@ function isAbortError(error: unknown) {
   );
 }
 
+function isFetchNetworkError(error: unknown) {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  return /^(fetch failed|failed to fetch|load failed|networkerror)$/i.test(
+    error.message.trim(),
+  );
+}
+
 function isBrowser() {
   return typeof window !== "undefined";
 }
@@ -482,7 +492,9 @@ async function requestPublicApi<T>(
       error instanceof Error
         ? isAbortError(error)
           ? "The booking service timed out. Please try again."
-          : error.message
+          : isFetchNetworkError(error)
+            ? "Unable to reach the booking service. Please try again."
+            : error.message
         : "A network error occurred while contacting the booking service.",
       0,
     );
@@ -531,7 +543,9 @@ async function requestAuthenticatedApi<T>(
       error instanceof Error
         ? isAbortError(error)
           ? "The account service timed out. Please try again."
-          : error.message
+          : isFetchNetworkError(error)
+            ? "Unable to reach the account service. Please try again."
+            : error.message
         : "A network error occurred while contacting the account service.",
       0,
     );

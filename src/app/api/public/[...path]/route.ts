@@ -18,6 +18,18 @@ const SENSITIVE_LOG_KEYS = new Set([
   "phone",
   "token",
 ]);
+const UNSAFE_PROXY_RESPONSE_HEADERS = new Set([
+  "connection",
+  "content-encoding",
+  "content-length",
+  "keep-alive",
+  "proxy-authenticate",
+  "proxy-authorization",
+  "te",
+  "trailer",
+  "transfer-encoding",
+  "upgrade",
+]);
 
 type RouteContext = {
   params: Promise<{
@@ -79,8 +91,20 @@ async function forwardRequest(request: Request, context: RouteContext) {
   return new Response(response.body, {
     status: response.status,
     statusText: response.statusText,
-    headers: response.headers,
+    headers: buildProxyResponseHeaders(response.headers),
   });
+}
+
+function buildProxyResponseHeaders(upstreamHeaders: Headers) {
+  const headers = new Headers();
+
+  upstreamHeaders.forEach((value, key) => {
+    if (!UNSAFE_PROXY_RESPONSE_HEADERS.has(key.toLowerCase())) {
+      headers.set(key, value);
+    }
+  });
+
+  return headers;
 }
 
 function summarizeBookingRequest(rawBody: string) {

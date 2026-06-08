@@ -126,6 +126,17 @@ describe("public booking api helpers", () => {
     );
   });
 
+  it("shows a readable booking-service error for browser load failures", async () => {
+    vi.mocked(fetch).mockRejectedValue(new TypeError("Load failed"));
+
+    await expect(getPublicServices("maya-johnson", "token-1")).rejects.toEqual(
+      expect.objectContaining({
+        message: "Unable to reach the booking service. Please try again.",
+        status: 0,
+      }),
+    );
+  });
+
   it("posts public waitlist entries through the booking api", async () => {
     vi.mocked(fetch).mockResolvedValue(
       new Response(
