@@ -129,10 +129,10 @@ export function DetailsStep({
           <div className="flex items-center justify-between gap-4 px-5 py-4">
             <div>
               <h3 className="text-base font-semibold text-foreground">
-                Select your services
+                Select your service
               </h3>
               <p className="mt-1 text-sm text-muted">
-                Choose one or more services for this appointment.
+                Choose a service for this appointment.
               </p>
             </div>
             <div className="flex items-center">

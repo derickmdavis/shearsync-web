@@ -32,7 +32,7 @@ export function formatDuration(totalMinutes: number) {
 
 export function sumServiceDurations(services: PublicService[]) {
   return services.reduce(
-    (total, service) => total + service.duration_minutes,
+    (total, service) => total + service.durationMinutes,
     0,
   );
 }
@@ -225,9 +225,11 @@ export function buildBookingIcs(
         {
           id: confirmation.service_id,
           name: confirmation.service_name,
-          duration_minutes: confirmation.service_duration_minutes,
+          durationMinutes: confirmation.service_duration_minutes,
           price: confirmation.service_price,
-          is_active: true,
+          isActive: true,
+          isDefault: true,
+          sortOrder: 0,
         },
       ];
   const serviceNames = formatServiceNames(selectedServices);

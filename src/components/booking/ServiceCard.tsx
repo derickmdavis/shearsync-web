@@ -58,7 +58,7 @@ export function ServiceCard({
           </div>
         </div>
         <div className="mt-3 flex items-center gap-3 text-sm text-muted">
-          <span>{formatDuration(service.duration_minutes)}</span>
+          <span>{formatDuration(service.durationMinutes)}</span>
           <span className="h-1 w-1 rounded-full bg-border" />
           <span className="font-medium text-foreground">
             {formatCurrency(service.price)}

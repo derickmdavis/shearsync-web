@@ -56,9 +56,11 @@ function createService(
   return {
     id,
     name,
-    duration_minutes: durationMinutes,
+    durationMinutes,
     price: 95,
-    is_active: true,
+    isActive: true,
+    isDefault: false,
+    sortOrder: 0,
   };
 }
 
@@ -154,7 +156,7 @@ function fillContactDetails({
 async function openServicesStep() {
   fillContactDetails();
   fireEvent.click(screen.getByRole("button", { name: "Select Services" }));
-  await screen.findByText("Select your services");
+  await screen.findByText("Select your service");
 }
 
 describe("BookingFlow", () => {
@@ -273,7 +275,7 @@ describe("BookingFlow", () => {
     });
 
     await waitFor(() => {
-      expect(screen.queryByText("Select your services")).toBeNull();
+      expect(screen.queryByText("Select your service")).toBeNull();
     });
 
     fireEvent.click(screen.getByRole("button", { name: "Select Services" }));
@@ -326,7 +328,7 @@ describe("BookingFlow", () => {
         service: {
           id: "service-1",
           name: "Haircut",
-          duration_minutes: 60,
+          durationMinutes: 60,
           price: 95,
         },
         slots: [
@@ -437,7 +439,7 @@ describe("BookingFlow", () => {
         service: {
           id: "service-1",
           name: "Haircut",
-          duration_minutes: 60,
+          durationMinutes: 60,
           price: 95,
         },
         slots: token === intake.bookingContextToken
@@ -490,7 +492,7 @@ describe("BookingFlow", () => {
       service: {
         id: "service-1",
         name: "Haircut",
-        duration_minutes: 60,
+        durationMinutes: 60,
         price: 95,
       },
       slots: [
@@ -559,7 +561,7 @@ describe("BookingFlow", () => {
       service: {
         id: "service-1",
         name: "Haircut",
-        duration_minutes: 60,
+        durationMinutes: 60,
         price: 95,
       },
       slots: [availableSlot],
@@ -583,7 +585,7 @@ describe("BookingFlow", () => {
       service: {
         id: "service-1",
         name: "Haircut",
-        duration_minutes: 60,
+        durationMinutes: 60,
         price: 95,
       },
       slots: [],
@@ -625,7 +627,7 @@ describe("BookingFlow", () => {
       service: {
         id: "service-1",
         name: "Haircut",
-        duration_minutes: 60,
+        durationMinutes: 60,
         price: 95,
       },
       slots: [conflictedSlot],
@@ -736,7 +738,7 @@ describe("BookingFlow", () => {
       service: {
         id: "service-1",
         name: "Haircut",
-        duration_minutes: 60,
+        durationMinutes: 60,
         price: 95,
       },
       slots: [],

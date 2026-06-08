@@ -164,11 +164,11 @@ export type PublicService = {
   name: string;
   description?: string | null;
   category?: string | null;
-  duration_minutes: number;
+  durationMinutes: number;
   price: number;
-  is_active: boolean;
-  is_default?: boolean | null;
-  sort_order?: number | null;
+  isActive: boolean;
+  isDefault: boolean;
+  sortOrder: number;
 };
 
 export type AvailabilitySummary = {
@@ -195,6 +195,7 @@ export type PublicAvailabilityResponse =
 export type PublicSlot = {
   start: string;
   end: string;
+  label?: string;
 };
 
 export type PublicSlotsResponse = {
@@ -203,10 +204,13 @@ export type PublicSlotsResponse = {
   service?: {
     id: string;
     name: string;
-    duration_minutes: number;
+    durationMinutes: number;
     price: number;
   };
   slots: PublicSlot[];
+  moreSlots?: PublicSlot[];
+  hasMore?: boolean;
+  intelligentSchedulingEnabled?: boolean;
 };
 
 export type PublicBookingIntakeMatchStatus =
@@ -266,7 +270,6 @@ export type CreatePublicBookingIntakeBody = {
 export type CreatePublicBookingBody = {
   stylist_slug: string;
   service_id: string;
-  service_ids?: string[];
   requested_datetime: string;
   guest_first_name: string;
   guest_last_name: string;
@@ -411,6 +414,33 @@ function unwrapPayload<T>(payload: ApiEnvelope<T> | T): T {
   return payload as T;
 }
 
+type LegacyPublicService = Omit<
+  PublicService,
+  "durationMinutes" | "isActive" | "isDefault" | "sortOrder"
+> & {
+  durationMinutes?: number;
+  duration_minutes?: number;
+  isActive?: boolean;
+  is_active?: boolean;
+  isDefault?: boolean;
+  is_default?: boolean | null;
+  sortOrder?: number;
+  sort_order?: number | null;
+};
+
+function normalizePublicService(service: LegacyPublicService): PublicService {
+  return {
+    ...service,
+    durationMinutes: service.durationMinutes ?? service.duration_minutes ?? 0,
+    isActive: service.isActive ?? service.is_active ?? true,
+    isDefault: service.isDefault ?? service.is_default ?? false,
+    sortOrder:
+      service.sortOrder ??
+      service.sort_order ??
+      Number.MAX_SAFE_INTEGER,
+  };
+}
+
 function extractApiErrorMessage(payload: unknown, fallback: string) {
   if (payload && typeof payload === "object") {
     const error = (payload as ApiEnvelope<unknown>).error;
@@ -544,9 +574,11 @@ export async function getPublicServices(
 
   const search = params.toString();
 
-  return requestPublicApi<PublicService[]>(
+  const services = await requestPublicApi<LegacyPublicService[]>(
     `/api/public/services/${slug}${search ? `?${search}` : ""}`,
   );
+
+  return services.map(normalizePublicService);
 }
 
 export async function getPublicAvailability(
@@ -580,10 +612,6 @@ export async function getPublicSlots(
   if (normalizedServiceIds[0]) {
     params.set("service_id", normalizedServiceIds[0]);
   }
-
-  normalizedServiceIds.forEach((serviceId) => {
-    params.append("service_ids", serviceId);
-  });
 
   if (bookingContextToken?.trim()) {
     params.set("booking_context_token", bookingContextToken);

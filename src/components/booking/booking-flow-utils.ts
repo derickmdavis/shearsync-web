@@ -14,12 +14,12 @@ type ApiErrorDetails = {
 
 export function sortServices(services: PublicService[]) {
   // Preserve backend order as a stable tiebreaker when services do not define
-  // sort_order, preventing cards from jumping between renders.
+  // sortOrder, preventing cards from jumping between renders.
   return services
     .map((service, index) => ({ service, index }))
     .sort((left, right) => {
-      const leftSortOrder = left.service.sort_order ?? Number.MAX_SAFE_INTEGER;
-      const rightSortOrder = right.service.sort_order ?? Number.MAX_SAFE_INTEGER;
+      const leftSortOrder = left.service.sortOrder ?? Number.MAX_SAFE_INTEGER;
+      const rightSortOrder = right.service.sortOrder ?? Number.MAX_SAFE_INTEGER;
 
       if (leftSortOrder !== rightSortOrder) {
         return leftSortOrder - rightSortOrder;

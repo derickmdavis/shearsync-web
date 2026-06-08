@@ -12,6 +12,7 @@ import {
   type PublicBookingIntakeData,
   type PublicService,
   type PublicSlot,
+  type PublicSlotsResponse,
   type PublicStylist,
 } from "@/src/lib/api";
 import {
@@ -77,6 +78,16 @@ function filterRejectedSlots(slots: PublicSlot[], rejectedStarts: string[]) {
 
   const rejectedStartSet = new Set(rejectedStarts);
   return slots.filter((slot) => !rejectedStartSet.has(slot.start));
+}
+
+function getBookableSlots(response: PublicSlotsResponse) {
+  const slotMap = new Map<string, PublicSlot>();
+
+  [...(response.slots ?? []), ...(response.moreSlots ?? [])].forEach((slot) => {
+    slotMap.set(slot.start, slot);
+  });
+
+  return Array.from(slotMap.values());
 }
 
 export function BookingFlow({ slug, stylist }: BookingFlowProps) {
@@ -709,9 +720,11 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
 
           nextTimezone = response.timezone ?? nextTimezone;
 
-          if ((response.slots ?? []).length > 0) {
+          const responseSlots = getBookableSlots(response);
+
+          if (responseSlots.length > 0) {
             nextSelectedDate = date;
-            nextSlots = response.slots ?? [];
+            nextSlots = responseSlots;
             break;
           }
         }
@@ -788,7 +801,7 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
         }
 
         const nextSlots = filterRejectedSlots(
-          response.slots ?? [],
+          getBookableSlots(response),
           rejectedSlotStarts,
         );
 
@@ -868,7 +881,7 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
               allowTokenRefresh: false,
             });
 
-            return [date, response?.slots ?? []] as const;
+            return [date, response ? getBookableSlots(response) : []] as const;
           } catch {
             return [date, [] as PublicSlot[]] as const;
           }
@@ -981,7 +994,7 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
         return null;
       }
 
-      const rawSlots = response.slots ?? [];
+      const rawSlots = getBookableSlots(response);
       const startsToExclude = rejectedSlotStart
         ? [...rejectedSlotStarts, rejectedSlotStart]
         : rejectedSlotStarts;
@@ -1061,7 +1074,6 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
       const response = await createPublicBooking({
         stylist_slug: slug,
         service_id: primarySelectedService.id,
-        service_ids: selectedServiceIds,
         requested_datetime: verifiedSlot.start,
         guest_first_name: parsedName.firstName,
         guest_last_name: parsedName.lastName,
@@ -1090,7 +1102,6 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
         details: error instanceof ApiError ? error.details : undefined,
         requested_datetime: selectedSlot.start,
         service_id: primarySelectedService.id,
-        service_ids: selectedServiceIds,
         stylist_slug: slug,
       };
 
@@ -1117,7 +1128,6 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
           `Booking conflict refresh diagnostics ${JSON.stringify({
             requested_datetime: rejectedSlotStart,
             service_id: primarySelectedService.id,
-            service_ids: selectedServiceIds,
             stylist_slug: slug,
             slotStillReturnedByAvailabilityEndpoint,
             refreshedSlotCount: refreshedSlots?.slots.length ?? null,
@@ -1159,7 +1169,7 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
         );
       }
 
-      return [...currentServices, service];
+      return [service];
     });
     clearAvailabilityState();
     setConfirmError(null);

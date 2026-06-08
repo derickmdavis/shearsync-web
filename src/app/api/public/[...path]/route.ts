@@ -88,14 +88,12 @@ function summarizeBookingRequest(rawBody: string) {
     const payload = JSON.parse(rawBody) as {
       stylist_slug?: string;
       service_id?: string;
-      service_ids?: string[];
       requested_datetime?: string;
     };
 
     return {
       stylist_slug: payload.stylist_slug,
       service_id: payload.service_id,
-      service_ids: payload.service_ids,
       requested_datetime: payload.requested_datetime,
     };
   } catch {

@@ -70,7 +70,7 @@ describe("public booking api helpers", () => {
     );
 
     expect(fetch).toHaveBeenCalledWith(
-      "/api/public/availability/maya-johnson/slots?date=2026-05-04&service_id=service-1&service_ids=service-1&service_ids=service-2&booking_context_token=token-3",
+      "/api/public/availability/maya-johnson/slots?date=2026-05-04&service_id=service-1&booking_context_token=token-3",
       expect.objectContaining({ cache: "no-store" }),
     );
   });
