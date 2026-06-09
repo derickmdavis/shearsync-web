@@ -320,6 +320,25 @@ export type PublicBookingConfirmation = {
   status: "scheduled" | "pending" | string;
 };
 
+export type PublicManagedAppointment = {
+  appointment_id: string;
+  client_id: string;
+  stylist_id: string;
+  stylist_slug: string;
+  stylist_display_name: string;
+  business_name?: string | null;
+  client_name: string;
+  service_name: string;
+  service_duration_minutes: number;
+  service_price: number;
+  appointment_date: string;
+  appointment_end?: string | null;
+  business_timezone?: string | null;
+  status: "scheduled" | "pending" | "cancelled" | string;
+  can_cancel: boolean;
+  can_reschedule: boolean;
+};
+
 type RequestOptions = {
   init?: RequestInit;
   preferProxy?: boolean;
@@ -668,6 +687,41 @@ export async function joinWaitlist(slug: string, input: CreateWaitlistInput) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(input),
+      },
+    },
+  );
+}
+
+export async function getManagedAppointment(token: string) {
+  return requestPublicApi<PublicManagedAppointment>(
+    `/api/public/appointments/manage/${encodeURIComponent(token)}`,
+  );
+}
+
+export async function cancelManagedAppointment(token: string) {
+  return requestPublicApi<PublicManagedAppointment>(
+    `/api/public/appointments/manage/${encodeURIComponent(token)}/cancel`,
+    {
+      init: {
+        method: "POST",
+      },
+    },
+  );
+}
+
+export async function rescheduleManagedAppointment(
+  token: string,
+  body: {
+    requested_datetime: string;
+    service_id?: string;
+  },
+) {
+  return requestPublicApi<PublicManagedAppointment>(
+    `/api/public/appointments/manage/${encodeURIComponent(token)}/reschedule`,
+    {
+      init: {
+        method: "POST",
+        body: JSON.stringify(body),
       },
     },
   );
