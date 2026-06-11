@@ -190,9 +190,9 @@ function HomeHero() {
           </h1>
 
           <p className="mt-6 max-w-[540px] text-[17px] leading-8 text-white/78 sm:text-lg">
-            Manage bookings, clients, reminders, and business insights for your
-            chair &mdash; so you can book more, replace texts, stay busy and be
-            stress-free.
+            Manage bookings, clients, reminders, and business insights from
+            your phone. Automated business tools built specifically for
+            independant stylists who want to grow their business
           </p>
 
           <p className="mt-4 text-sm font-bold text-brand-gold">
@@ -213,7 +213,7 @@ function HomeHero() {
           </div>
 
           <p className="mt-7 max-w-[500px] border-l-2 border-brand pl-4 text-sm font-semibold leading-6 text-white/64">
-            Designed for solo stylists, barbers, braiders, booth renters, and
+            Designed for solo stylists, barbers, booth renters, and
             independent beauty pros.
           </p>
         </div>
@@ -297,10 +297,7 @@ function HomeCommandCenter() {
     <section className="overflow-hidden bg-[#111111] px-5 py-16 text-white sm:px-8 sm:py-20">
       <div className="mx-auto grid max-w-[1180px] gap-10 lg:grid-cols-[0.76fr_1.24fr] lg:items-center">
         <div>
-          <div className="inline-flex rounded-full border border-brand/45 bg-white/[0.04] px-4 py-2 text-[11px] font-extrabold uppercase tracking-[0.18em] text-brand-gold">
-            All-in-one
-          </div>
-          <h2 className="mt-6 font-display text-[42px] font-bold leading-[1] tracking-normal text-[#FAF7F2] sm:text-[58px]">
+          <h2 className="font-display text-[42px] font-bold leading-[1] tracking-normal text-[#FAF7F2] sm:text-[58px]">
             A cleaner command
             <br />
             center for your chair.
@@ -358,8 +355,8 @@ function HomePricing() {
             Plans that grow with you.
           </h2>
           <p className="mt-4 text-sm leading-7 text-[#6B7280] sm:text-base">
-            Start simple. Upgrade when you need more tools and insights to
-            scale, hire, and save more.
+            Upgrade when you need more tools and insights to scale, hire, and
+            save more.
           </p>
         </div>
 
