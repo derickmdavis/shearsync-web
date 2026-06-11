@@ -179,24 +179,18 @@ function HomeHero() {
 
       <div className="relative z-10 mx-auto grid max-w-[1180px] gap-8 px-5 pb-14 pt-7 sm:px-8 sm:pb-18 lg:min-h-[690px] lg:grid-cols-[0.92fr_1.08fr] lg:items-center lg:pb-16 lg:pt-2">
         <div className="max-w-[570px]">
-          <div className="inline-flex rounded-full border border-brand/45 bg-white/[0.04] px-4 py-2 text-[11px] font-extrabold uppercase tracking-[0.16em] text-brand-gold">
-            Built for independent stylists &amp; barbers
-          </div>
-
-          <h1 className="mt-6 max-w-[540px] font-display text-[54px] font-bold leading-[0.92] tracking-normal text-[#FAF7F2] sm:text-[76px] lg:text-[84px]">
-            Get booked.
-            <br />
-            Stay booked.
+          <h1 className="max-w-[540px] font-display text-[54px] font-bold leading-[0.92] tracking-normal text-[#FAF7F2] sm:text-[76px] lg:text-[84px]">
+            Turn your chair into a thriving business
           </h1>
 
           <p className="mt-6 max-w-[540px] text-[17px] leading-8 text-white/78 sm:text-lg">
-            Manage bookings, clients, reminders, and business insights from
-            your phone. Automated business tools built specifically for
-            independant stylists who want to grow their business
+            Stop chasing appointments. Stop losing clients between visits. Keep
+            your book full with automated booking, rebooking, and client
+            management built for independent stylists.
           </p>
 
           <p className="mt-4 text-sm font-bold text-brand-gold">
-            Simple bookings. Automated re-bookings. Effortless Growth.
+            More rebooked clients. A fuller book. A stronger business.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -212,17 +206,17 @@ function HomeHero() {
             </MarketingLink>
           </div>
 
-          <p className="mt-7 max-w-[500px] border-l-2 border-brand pl-4 text-sm font-semibold leading-6 text-white/64">
-            Designed for solo stylists, barbers, booth renters, and
-            independent beauty pros.
+          <p className="mt-7 max-w-[570px] border-l-2 border-brand pl-4 text-sm font-semibold leading-6 text-white/64 sm:whitespace-nowrap">
+            Designed for stylists, barbers, booth renters, and independent
+            beauty pros.
           </p>
         </div>
 
         <div className="relative min-h-[470px] sm:min-h-[560px] lg:min-h-[650px]">
           <div className="absolute inset-y-2 left-[13%] right-[8%] overflow-hidden rounded-[28px] border border-white/10 bg-[#1C1C1E] shadow-[0_30px_90px_rgba(0,0,0,0.48)] sm:left-[18%] sm:right-[7%] lg:left-[15%] lg:right-[8%]">
             <Image
-              src="/assets/home/hero-barber-standing.webp"
-              alt="Barber managing his chair business on a tablet inside a barbershop"
+              src="/assets/home/dripdesk-hero-image.png"
+              alt="Stylist managing her chair business on a tablet inside a salon"
               fill
               priority
               sizes="(min-width: 1024px) 560px, (min-width: 640px) 70vw, 88vw"
@@ -254,7 +248,8 @@ function HomeValueCards() {
       <div className="mx-auto max-w-[1180px]">
         <div className="mx-auto max-w-[760px] text-center">
           <h2 className="font-display text-[38px] font-bold leading-[1.02] tracking-normal sm:text-[52px]">
-            Stop chasing bookings, managing waitlists,and manually texting clients
+            Tools that solve real problems, so you can stay booked and stress
+            less.
           </h2>
           <p className="mt-5 text-base leading-8 text-[#6B7280] sm:text-lg">
             DripDesk helps you stay booked, remember every client detail, and
