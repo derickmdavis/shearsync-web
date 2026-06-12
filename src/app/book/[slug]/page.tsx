@@ -55,8 +55,8 @@ export default async function BookingPage(props: BookingPageProps) {
   }
 
   return (
-    <main className="px-4 py-6 sm:px-6 sm:py-10">
-      <div className="mx-auto w-full max-w-[430px]">
+    <main className="px-4 py-6 sm:px-6 sm:py-10 lg:py-14">
+      <div className="mx-auto w-full max-w-[430px] lg:max-w-[980px]">
         <BookingFlow slug={slug} stylist={stylist} />
       </div>
     </main>

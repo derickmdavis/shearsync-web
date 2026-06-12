@@ -1178,7 +1178,7 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
 
   if (confirmation && selectedServices.length && selectedSlot) {
     return (
-      <div className="rounded-[30px] border border-white/80 bg-card p-6 shadow-[0_24px_80px_rgba(17,24,39,0.08)] sm:p-8">
+      <div className="mx-auto max-w-[620px] rounded-[30px] border border-white/80 bg-card p-6 shadow-[0_24px_80px_rgba(17,24,39,0.08)] sm:p-8">
         <BookedStep
           confirmation={confirmation}
           stylist={stylist}
@@ -1191,15 +1191,15 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
   }
 
   return (
-    <div className="rounded-[30px] border border-white/80 bg-card p-6 shadow-[0_24px_80px_rgba(17,24,39,0.08)] sm:p-8">
-      {stylist.cover_photo_url ? (
-        <div
-          className="-mx-6 -mt-6 mb-5 h-28 rounded-t-[30px] bg-zinc-100 bg-cover bg-center sm:-mx-8 sm:-mt-8"
-          style={{ backgroundImage: `url(${stylist.cover_photo_url})` }}
-        />
-      ) : null}
+    <div className="rounded-[30px] border border-white/80 bg-card p-6 shadow-[0_24px_80px_rgba(17,24,39,0.08)] sm:p-8 lg:grid lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-8">
+      <aside className="lg:sticky lg:top-8 lg:self-start">
+        {stylist.cover_photo_url ? (
+          <div
+            className="-mx-6 -mt-6 mb-5 h-28 rounded-t-[30px] bg-zinc-100 bg-cover bg-center sm:-mx-8 sm:-mt-8 lg:mx-0 lg:mt-0 lg:h-48 lg:rounded-3xl"
+            style={{ backgroundImage: `url(${stylist.cover_photo_url})` }}
+          />
+        ) : null}
 
-      <div>
         <div>
           <p className="font-display text-4xl font-semibold italic text-foreground">
             {stylist.display_name}
@@ -1222,16 +1222,17 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
             </div>
           ) : null}
         </div>
-      </div>
 
-      {stylist.bio ? (
-        <p className="mt-5 rounded-2xl bg-zinc-50 px-4 py-3 text-sm leading-6 text-muted">
-          {stylist.bio}
-        </p>
-      ) : null}
+        {stylist.bio ? (
+          <p className="mt-5 rounded-2xl bg-zinc-50 px-4 py-3 text-sm leading-6 text-muted">
+            {stylist.bio}
+          </p>
+        ) : null}
+      </aside>
 
-      {bookingDisabled ? (
-        <div className="mt-8 rounded-3xl border border-border bg-zinc-50 p-6">
+      <div className="lg:min-w-0">
+        {bookingDisabled ? (
+        <div className="mt-8 rounded-3xl border border-border bg-zinc-50 p-6 lg:mt-0">
           <h2 className="text-2xl font-semibold tracking-tight text-foreground">
             {pageName}
           </h2>
@@ -1244,9 +1245,9 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
             </p>
           ) : null}
         </div>
-      ) : (
+        ) : (
         <>
-          <div className="mt-8">
+          <div className="mt-8 lg:mt-0">
             <BookingStepper currentStep={currentStep} />
           </div>
 
@@ -1327,7 +1328,8 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
             {canShowTimeStep ? formatTimezoneLabel(activeTimezone) : null}
           </div>
         </>
-      )}
+        )}
+      </div>
     </div>
   );
 }

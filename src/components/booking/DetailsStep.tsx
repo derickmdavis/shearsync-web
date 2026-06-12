@@ -150,7 +150,7 @@ export function DetailsStep({
               <EmptyState message="Refreshing the services you can book right now..." />
             ) : services.length ? (
               <>
-                <div className="space-y-3">
+                <div className="grid gap-3 xl:grid-cols-2">
                   {services.map((service) => (
                     <ServiceCard
                       key={service.id}

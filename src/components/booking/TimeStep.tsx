@@ -212,7 +212,7 @@ export function TimeStep({
                       </div>
 
                       <div className="mt-3 flex min-w-0 flex-col gap-2.5">
-                        <div className="grid grid-cols-3 gap-[6px]">
+                        <div className="grid grid-cols-3 gap-[6px] xl:grid-cols-4">
                           {previewSlots.map((slot) => (
                             <TimeSlotPill
                               key={slot.start}
