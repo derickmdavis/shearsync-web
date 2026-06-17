@@ -6,6 +6,7 @@ import type {
   PublicSlot,
   PublicStylist,
 } from "@/src/lib/api";
+import { PublicReferencePhotoUpload } from "@/src/components/booking/PublicReferencePhotoUpload";
 import {
   buildBookingIcs,
   buildSummaryName,
@@ -23,6 +24,8 @@ type BookedStepProps = {
   stylist: PublicStylist;
   services: PublicService[];
   slot: PublicSlot;
+  initialReferencePhotoFile?: File | null;
+  onInitialReferencePhotoConsumed?: () => void;
   onDone: () => void;
 };
 
@@ -31,6 +34,8 @@ export function BookedStep({
   stylist,
   services,
   slot,
+  initialReferencePhotoFile,
+  onInitialReferencePhotoConsumed,
   onDone,
 }: BookedStepProps) {
   const scheduled = confirmation.status === "scheduled";
@@ -102,6 +107,19 @@ export function BookedStep({
           />
         </div>
       </div>
+
+      <PublicReferencePhotoUpload
+        referenceToken={
+          confirmation.reference_photo_upload_token ??
+          confirmation.referencePhotoUploadToken
+        }
+        tokenExpiresAt={
+          confirmation.reference_photo_upload_token_expires_at ??
+          confirmation.referencePhotoUploadTokenExpiresAt
+        }
+        initialFile={initialReferencePhotoFile}
+        onInitialFileConsumed={onInitialReferencePhotoConsumed}
+      />
 
       <button
         type="button"

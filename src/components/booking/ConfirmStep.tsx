@@ -1,3 +1,4 @@
+import { useRef, useState, type ChangeEvent } from "react";
 import type {
   PublicBookingBehavior,
   PublicService,
@@ -23,11 +24,15 @@ type ConfirmStepProps = {
   email: string;
   phone: string;
   notes: string;
+  referencePhotoFile?: File | null;
+  referencePhotoPreviewUrl?: string | null;
   submitting: boolean;
   error?: string | null;
   timezone?: string | null;
   bookingBehavior?: PublicBookingBehavior | null;
   onNotesChange: (value: string) => void;
+  onReferencePhotoSelect: (file: File) => void;
+  onReferencePhotoRemove: () => void;
   onEdit: (step: number) => void;
   onSubmit: () => void;
 };
@@ -40,14 +45,22 @@ export function ConfirmStep({
   email,
   phone,
   notes,
+  referencePhotoFile,
+  referencePhotoPreviewUrl,
   submitting,
   error,
   timezone,
   bookingBehavior,
   onNotesChange,
+  onReferencePhotoSelect,
+  onReferencePhotoRemove,
   onEdit,
   onSubmit,
 }: ConfirmStepProps) {
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [referencePhotoError, setReferencePhotoError] = useState<string | null>(
+    null,
+  );
   const totalDuration = sumServiceDurations(services);
   const totalPrice = sumServicePrices(services);
   const serviceSummary = formatServiceNames(services);
@@ -131,6 +144,89 @@ export function ConfirmStep({
         <p className="mt-2 text-right text-xs text-muted">{notes.length}/250</p>
       </label>
 
+      <section className="mt-5 text-left">
+        <h3 className="text-sm font-semibold text-foreground">
+          Add a reference photo (optional)
+        </h3>
+        <p className="mt-2 text-sm leading-6 text-muted">
+          Share an inspiration photo, current hair photo, or style reference to
+          help your stylist prepare.
+        </p>
+
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          className="sr-only"
+          onChange={handleReferencePhotoChange}
+        />
+
+        {referencePhotoFile ? (
+          <div className="mt-4 rounded-2xl border border-border bg-white p-4">
+            <div className="flex items-center gap-3">
+              {referencePhotoPreviewUrl ? (
+                <span
+                  aria-hidden="true"
+                  className="h-16 w-16 shrink-0 rounded-xl bg-cover bg-center"
+                  style={{
+                    backgroundImage: `url(${referencePhotoPreviewUrl})`,
+                  }}
+                />
+              ) : (
+                <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl border border-brand/20 text-brand">
+                  <ImageIcon />
+                </span>
+              )}
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-semibold text-foreground">
+                  {referencePhotoFile.name}
+                </p>
+                <p className="mt-1 text-xs text-muted">
+                  Ready to upload after booking
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setReferencePhotoError(null);
+                  onReferencePhotoRemove();
+                }}
+                className="shrink-0 text-sm font-semibold text-brand"
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="mt-4 flex min-h-24 w-full items-center justify-between gap-4 rounded-2xl border border-dashed border-brand/40 bg-white px-4 py-4 text-left transition hover:border-brand hover:bg-brand/5"
+          >
+            <span className="flex items-center gap-3">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-brand/30 text-brand">
+                <ImageIcon />
+              </span>
+              <span>
+                <span className="block text-sm font-semibold text-foreground">
+                  Add a reference photo
+                </span>
+                <span className="mt-1 block text-xs text-muted">
+                  JPG, PNG, or WebP up to 5 MB
+                </span>
+              </span>
+            </span>
+            <span className="shrink-0 rounded-full border border-brand/50 px-4 py-2 text-xs font-semibold text-brand">
+              Upload Photo
+            </span>
+          </button>
+        )}
+
+        {referencePhotoError ? (
+          <p className="mt-2 text-sm text-red-500">{referencePhotoError}</p>
+        ) : null}
+      </section>
+
       {error ? <p className="mt-4 text-sm text-red-500">{error}</p> : null}
 
       <button
@@ -144,6 +240,25 @@ export function ConfirmStep({
       </button>
     </div>
   );
+
+  function handleReferencePhotoChange(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0] ?? null;
+    event.target.value = "";
+
+    if (!file) {
+      return;
+    }
+
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      setReferencePhotoError(
+        "We couldn't use that photo. Please choose a JPG, PNG, or WebP image.",
+      );
+      return;
+    }
+
+    setReferencePhotoError(null);
+    onReferencePhotoSelect(file);
+  }
 }
 
 type ReviewCardProps = {
@@ -181,6 +296,32 @@ function ArrowIcon() {
         strokeLinejoin="round"
         strokeWidth="1.7"
       />
+    </svg>
+  );
+}
+
+function ImageIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-6 w-6">
+      <rect
+        x="3.5"
+        y="4.5"
+        width="17"
+        height="15"
+        rx="2.5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      />
+      <path
+        d="m6.5 16 3.2-3.4 2.4 2.3 2.6-3.1L18 16"
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.8"
+      />
+      <circle cx="9" cy="9" r="1.25" fill="currentColor" />
     </svg>
   );
 }

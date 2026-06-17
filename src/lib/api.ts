@@ -318,6 +318,69 @@ export type PublicBookingConfirmation = {
   appointment_end?: string;
   business_timezone?: string;
   status: "scheduled" | "pending" | string;
+  reference_photo_upload_token?: string | null;
+  reference_photo_upload_token_expires_at?: string | null;
+  referencePhotoUploadToken?: string | null;
+  referencePhotoUploadTokenExpiresAt?: string | null;
+};
+
+export type PublicReferencePhotoContentType =
+  | "image/jpeg"
+  | "image/png"
+  | "image/webp";
+
+export type CreatePublicReferencePhotoUploadIntentBody = {
+  reference_photo_upload_token: string;
+  original_filename?: string | null;
+  content_type: PublicReferencePhotoContentType;
+  input_size_bytes: number;
+  display_content_type: PublicReferencePhotoContentType;
+  thumbnail_content_type: PublicReferencePhotoContentType;
+};
+
+export type PublicReferencePhotoUploadIntent = {
+  id: string;
+  storage_path: string;
+  thumbnail_path: string;
+  image_source: "client";
+  image_role: "reference";
+  signed_upload_urls: {
+    display: {
+      signedUrl: string;
+      token: string;
+      path: string;
+    };
+    thumbnail: {
+      signedUrl: string;
+      token: string;
+      path: string;
+    };
+  };
+  max_constraints: {
+    max_reference_images: number;
+    max_file_size_bytes: number;
+    upload_expires_in_minutes: number;
+  };
+};
+
+export type FinalizePublicReferencePhotoBody = {
+  reference_photo_upload_token: string;
+  image_id: string;
+  storage_path: string;
+  thumbnail_path: string;
+  original_filename?: string | null;
+  content_type: PublicReferencePhotoContentType;
+  file_size_bytes: number;
+  thumbnail_size_bytes?: number | null;
+  width?: number | null;
+  height?: number | null;
+  caption?: string | null;
+};
+
+export type PublicReferencePhoto = {
+  id: string;
+  storage_path?: string;
+  thumbnail_path?: string;
 };
 
 export type PublicManagedAppointment = {
@@ -673,6 +736,34 @@ export async function createPublicBooking(body: CreatePublicBookingBody) {
       body: JSON.stringify(body),
     },
   });
+}
+
+export async function createPublicReferencePhotoUploadIntent(
+  body: CreatePublicReferencePhotoUploadIntentBody,
+) {
+  return requestPublicApi<PublicReferencePhotoUploadIntent>(
+    "/api/public/appointment-reference-photos/upload-intent",
+    {
+      init: {
+        method: "POST",
+        body: JSON.stringify(body),
+      },
+    },
+  );
+}
+
+export async function finalizePublicReferencePhoto(
+  body: FinalizePublicReferencePhotoBody,
+) {
+  return requestPublicApi<PublicReferencePhoto>(
+    "/api/public/appointment-reference-photos",
+    {
+      init: {
+        method: "POST",
+        body: JSON.stringify(body),
+      },
+    },
+  );
 }
 
 export async function joinWaitlist(slug: string, input: CreateWaitlistInput) {

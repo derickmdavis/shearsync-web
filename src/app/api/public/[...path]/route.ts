@@ -16,6 +16,8 @@ const SENSITIVE_LOG_KEYS = new Set([
   "note",
   "notes",
   "phone",
+  "reference_photo_upload_token",
+  "reference_photo_upload_token_expires_at",
   "token",
 ]);
 const UNSAFE_PROXY_RESPONSE_HEADERS = new Set([

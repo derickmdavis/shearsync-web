@@ -123,6 +123,12 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
   const [submitting, setSubmitting] = useState(false);
   const [confirmation, setConfirmation] =
     useState<PublicBookingConfirmation | null>(null);
+  const [referencePhotoFile, setReferencePhotoFile] = useState<File | null>(
+    null,
+  );
+  const [referencePhotoPreviewUrl, setReferencePhotoPreviewUrl] = useState<
+    string | null
+  >(null);
 
   // Intake is the gatekeeper for booking rules: it tells the UI whether booking
   // is allowed and provides a short-lived context token for services/slots.
@@ -203,6 +209,14 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
   useEffect(() => {
     selectedServicesRef.current = selectedServices;
   }, [selectedServices]);
+
+  useEffect(() => {
+    return () => {
+      if (referencePhotoPreviewUrl) {
+        URL.revokeObjectURL(referencePhotoPreviewUrl);
+      }
+    };
+  }, [referencePhotoPreviewUrl]);
 
   const clearAvailabilityState = useCallback(() => {
     // Service/contact changes invalidate every date and slot derived from the
@@ -1155,6 +1169,29 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
     setNotes("");
     setConfirmError(null);
     setConfirmation(null);
+    clearReferencePhotoSelection();
+  }
+
+  function handleReferencePhotoSelect(file: File) {
+    setReferencePhotoFile(file);
+    setReferencePhotoPreviewUrl((currentUrl) => {
+      if (currentUrl) {
+        URL.revokeObjectURL(currentUrl);
+      }
+
+      return URL.createObjectURL(file);
+    });
+  }
+
+  function clearReferencePhotoSelection() {
+    setReferencePhotoFile(null);
+    setReferencePhotoPreviewUrl((currentUrl) => {
+      if (currentUrl) {
+        URL.revokeObjectURL(currentUrl);
+      }
+
+      return null;
+    });
   }
 
   function handleToggleService(service: PublicService) {
@@ -1184,6 +1221,8 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
           stylist={stylist}
           services={selectedServices}
           slot={selectedSlot}
+          initialReferencePhotoFile={referencePhotoFile}
+          onInitialReferencePhotoConsumed={() => setReferencePhotoFile(null)}
           onDone={handleReset}
         />
       </div>
@@ -1314,11 +1353,15 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
               email={email.trim()}
               phone={phone.trim()}
               notes={notes}
+              referencePhotoFile={referencePhotoFile}
+              referencePhotoPreviewUrl={referencePhotoPreviewUrl}
               submitting={submitting}
               error={confirmError}
               timezone={activeTimezone}
               bookingBehavior={intakeData?.bookingBehavior ?? null}
               onNotesChange={setNotes}
+              onReferencePhotoSelect={handleReferencePhotoSelect}
+              onReferencePhotoRemove={clearReferencePhotoSelection}
               onEdit={(step) => setCurrentStep(step)}
               onSubmit={handleSubmitBooking}
             />

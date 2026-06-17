@@ -9,6 +9,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { BookingFlow } from "@/src/components/booking/BookingFlow";
 import type {
   PublicBookingIntakeData,
+  PublicBookingConfirmation,
   PublicService,
   PublicStylist,
   RawAvailabilityRow,
@@ -121,15 +122,18 @@ function setupMockReferences() {
   };
 }
 
-function createBookingConfirmation() {
+function createBookingConfirmation(
+  overrides: Partial<PublicBookingConfirmation> = {},
+): PublicBookingConfirmation {
   return {
     stylist_slug: "maya-johnson",
     service_id: "service-1",
     service_name: "Haircut",
     service_duration_minutes: 60,
     service_price: 95,
-    appointment_date: "2026-06-15T09:00:00-06:00",
+    appointment_date: "2026-07-15T09:00:00-06:00",
     status: "scheduled" as const,
+    ...overrides,
   };
 }
 
@@ -157,6 +161,19 @@ async function openServicesStep() {
   fillContactDetails();
   fireEvent.click(screen.getByRole("button", { name: "Select Services" }));
   await screen.findByText("Select your service");
+}
+
+async function completeSuccessfulBooking() {
+  await openServicesStep();
+  fireEvent.click(screen.getByRole("button", { name: /Haircut/i }));
+  fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+
+  await screen.findByText("Choose a date & time");
+  fireEvent.click(await screen.findByRole("button", { name: /9:00/i }));
+  fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+
+  await screen.findByText("Review your booking");
+  fireEvent.click(screen.getByRole("button", { name: /Book Appointment/i }));
 }
 
 describe("BookingFlow", () => {
@@ -483,11 +500,11 @@ describe("BookingFlow", () => {
     );
     getPublicServices.mockResolvedValue([createService("service-1", "Haircut")]);
     getPublicAvailability.mockResolvedValue({
-      dates: ["2026-06-15"],
+      dates: ["2026-07-15"],
       timezone: "America/Denver",
     });
     getPublicSlots.mockResolvedValue({
-      date: "2026-06-15",
+      date: "2026-07-15",
       timezone: "America/Denver",
       service: {
         id: "service-1",
@@ -497,8 +514,8 @@ describe("BookingFlow", () => {
       },
       slots: [
         {
-          start: "2026-06-15T09:00:00-06:00",
-          end: "2026-06-15T10:00:00-06:00",
+          start: "2026-07-15T09:00:00-06:00",
+          end: "2026-07-15T10:00:00-06:00",
         },
       ],
     });
@@ -522,7 +539,7 @@ describe("BookingFlow", () => {
         expect.objectContaining({
           stylist_slug: "maya-johnson",
           service_id: "service-1",
-          requested_datetime: "2026-06-15T09:00:00-06:00",
+          requested_datetime: "2026-07-15T09:00:00-06:00",
           guest_first_name: "Jane",
           guest_last_name: "Smith",
           guest_email: "jane@example.com",
@@ -531,6 +548,114 @@ describe("BookingFlow", () => {
         }),
       );
     });
+  });
+
+  it("shows the optional reference photo upload after a booking returns a live upload token", async () => {
+    const {
+      createPublicBooking,
+      createPublicBookingIntake,
+      getPublicAvailability,
+      getPublicServices,
+      getPublicSlots,
+    } = setupMockReferences();
+
+    createPublicBookingIntake.mockResolvedValue(
+      createIntake({ bookingContextToken: "token-final" }),
+    );
+    getPublicServices.mockResolvedValue([createService("service-1", "Haircut")]);
+    getPublicAvailability.mockResolvedValue({
+      dates: ["2026-07-15"],
+      timezone: "America/Denver",
+    });
+    getPublicSlots.mockResolvedValue({
+      date: "2026-07-15",
+      timezone: "America/Denver",
+      service: {
+        id: "service-1",
+        name: "Haircut",
+        durationMinutes: 60,
+        price: 95,
+      },
+      slots: [
+        {
+          start: "2026-07-15T09:00:00-06:00",
+          end: "2026-07-15T10:00:00-06:00",
+        },
+      ],
+    });
+    createPublicBooking.mockResolvedValue(
+      createBookingConfirmation({
+        reference_photo_upload_token: "reference-token",
+        reference_photo_upload_token_expires_at: "2099-06-15T09:00:00-06:00",
+      }),
+    );
+
+    render(<BookingFlow slug="maya-johnson" stylist={baseStylist} />);
+
+    await completeSuccessfulBooking();
+
+    expect(await screen.findByText("You're All Set!")).toBeTruthy();
+    expect(
+      await screen.findByText("Add an inspiration/reference photo"),
+    ).toBeTruthy();
+    expect(
+      screen.getByText(
+        "This photo is private and shared only with your stylist for this appointment.",
+      ),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: /Add a reference photo/i }),
+    ).toBeTruthy();
+  });
+
+  it("hides the reference photo upload when the returned upload token is expired", async () => {
+    const {
+      createPublicBooking,
+      createPublicBookingIntake,
+      getPublicAvailability,
+      getPublicServices,
+      getPublicSlots,
+    } = setupMockReferences();
+
+    createPublicBookingIntake.mockResolvedValue(
+      createIntake({ bookingContextToken: "token-final" }),
+    );
+    getPublicServices.mockResolvedValue([createService("service-1", "Haircut")]);
+    getPublicAvailability.mockResolvedValue({
+      dates: ["2026-07-15"],
+      timezone: "America/Denver",
+    });
+    getPublicSlots.mockResolvedValue({
+      date: "2026-07-15",
+      timezone: "America/Denver",
+      service: {
+        id: "service-1",
+        name: "Haircut",
+        durationMinutes: 60,
+        price: 95,
+      },
+      slots: [
+        {
+          start: "2026-07-15T09:00:00-06:00",
+          end: "2026-07-15T10:00:00-06:00",
+        },
+      ],
+    });
+    createPublicBooking.mockResolvedValue(
+      createBookingConfirmation({
+        reference_photo_upload_token: "reference-token",
+        reference_photo_upload_token_expires_at: "2020-06-15T09:00:00-06:00",
+      }),
+    );
+
+    render(<BookingFlow slug="maya-johnson" stylist={baseStylist} />);
+
+    await completeSuccessfulBooking();
+
+    expect(await screen.findByText("You're All Set!")).toBeTruthy();
+    expect(
+      screen.queryByText("Add an inspiration/reference photo"),
+    ).toBeNull();
   });
 
   it("rechecks the selected slot before submitting a booking", async () => {
@@ -543,8 +668,8 @@ describe("BookingFlow", () => {
     } = setupMockReferences();
 
     const availableSlot = {
-      start: "2026-06-15T09:00:00-06:00",
-      end: "2026-06-15T10:00:00-06:00",
+      start: "2026-07-15T09:00:00-06:00",
+      end: "2026-07-15T10:00:00-06:00",
     };
 
     createPublicBookingIntake.mockResolvedValue(
@@ -552,11 +677,11 @@ describe("BookingFlow", () => {
     );
     getPublicServices.mockResolvedValue([createService("service-1", "Haircut")]);
     getPublicAvailability.mockResolvedValue({
-      dates: ["2026-06-15"],
+      dates: ["2026-07-15"],
       timezone: "America/Denver",
     });
     getPublicSlots.mockResolvedValue({
-      date: "2026-06-15",
+      date: "2026-07-15",
       timezone: "America/Denver",
       service: {
         id: "service-1",
@@ -580,7 +705,7 @@ describe("BookingFlow", () => {
     await screen.findByText("Review your booking");
 
     getPublicSlots.mockResolvedValue({
-      date: "2026-06-15",
+      date: "2026-07-15",
       timezone: "America/Denver",
       service: {
         id: "service-1",
@@ -608,8 +733,8 @@ describe("BookingFlow", () => {
       getPublicSlots,
     } = setupMockReferences();
     const conflictedSlot = {
-      start: "2026-06-15T09:00:00-06:00",
-      end: "2026-06-15T10:00:00-06:00",
+      start: "2026-07-15T09:00:00-06:00",
+      end: "2026-07-15T10:00:00-06:00",
     };
     const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
 
@@ -618,11 +743,11 @@ describe("BookingFlow", () => {
     );
     getPublicServices.mockResolvedValue([createService("service-1", "Haircut")]);
     getPublicAvailability.mockResolvedValue({
-      dates: ["2026-06-15"],
+      dates: ["2026-07-15"],
       timezone: "America/Denver",
     });
     getPublicSlots.mockResolvedValue({
-      date: "2026-06-15",
+      date: "2026-07-15",
       timezone: "America/Denver",
       service: {
         id: "service-1",
@@ -678,16 +803,16 @@ describe("BookingFlow", () => {
     createPublicBookingIntake.mockResolvedValue(createIntake());
     getPublicServices.mockResolvedValue([createService("service-1", "Haircut")]);
     getPublicAvailability.mockResolvedValue({
-      dates: ["2026-06-15"],
+      dates: ["2026-07-15"],
       timezone: "America/Denver",
     });
     getPublicSlots.mockResolvedValue({
-      date: "2026-06-15",
+      date: "2026-07-15",
       timezone: "America/Denver",
       slots: [
         {
-          start: "2026-06-15T09:00:00-06:00",
-          end: "2026-06-15T10:00:00-06:00",
+          start: "2026-07-15T09:00:00-06:00",
+          end: "2026-07-15T10:00:00-06:00",
         },
       ],
     });
@@ -729,11 +854,11 @@ describe("BookingFlow", () => {
     createPublicBookingIntake.mockResolvedValue(createIntake());
     getPublicServices.mockResolvedValue([createService("service-1", "Haircut")]);
     getPublicAvailability.mockResolvedValue({
-      dates: ["2026-06-15"],
+      dates: ["2026-07-15"],
       timezone: "America/Denver",
     });
     getPublicSlots.mockResolvedValue({
-      date: "2026-06-15",
+      date: "2026-07-15",
       timezone: "America/Denver",
       service: {
         id: "service-1",
@@ -745,7 +870,7 @@ describe("BookingFlow", () => {
     });
     joinWaitlist.mockResolvedValue({
       id: "waitlist-1",
-      requestedDate: "2026-06-15",
+      requestedDate: "2026-07-15",
       serviceId: "service-1",
       serviceName: "Haircut",
       requestedTimePreference: "Morning preferred",
@@ -780,7 +905,7 @@ describe("BookingFlow", () => {
     expect(dialog).toBeTruthy();
     expect(
       (within(dialog).getByLabelText("Requested date") as HTMLInputElement).value,
-    ).toBe("2026-06-15");
+    ).toBe("2026-07-15");
 
     fireEvent.change(within(dialog).getByLabelText("Name"), {
       target: { value: "" },
@@ -812,7 +937,7 @@ describe("BookingFlow", () => {
 
     await screen.findByText("You're on the waitlist");
     expect(joinWaitlist).toHaveBeenCalledWith("maya-johnson", {
-      requestedDate: "2026-06-15",
+      requestedDate: "2026-07-15",
       serviceId: "service-1",
       clientName: "Jane Smith",
       clientEmail: "jane@example.com",
@@ -834,11 +959,11 @@ describe("BookingFlow", () => {
     createPublicBookingIntake.mockResolvedValue(createIntake());
     getPublicServices.mockResolvedValue([createService("service-1", "Haircut")]);
     getPublicAvailability.mockResolvedValue({
-      dates: ["2026-06-15"],
+      dates: ["2026-07-15"],
       timezone: "America/Denver",
     });
     getPublicSlots.mockResolvedValue({
-      date: "2026-06-15",
+      date: "2026-07-15",
       timezone: "America/Denver",
       slots: [],
     });
