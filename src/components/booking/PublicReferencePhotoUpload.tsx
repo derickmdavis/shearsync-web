@@ -16,12 +16,17 @@ import {
 } from "@/src/lib/api";
 import { getSupabaseBrowserClient } from "@/src/lib/supabase";
 
-const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
+const ACCEPTED_INPUT_IMAGE_TYPES = [
+  "image/jpeg",
+  "image/jpg",
+  "image/pjpeg",
+  "image/png",
+  "image/webp",
+] as const;
+const ACCEPTED_IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp"] as const;
 const APPOINTMENT_IMAGE_BUCKET = "appointment-images";
 const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
 const MAX_TIMEOUT_MS = 2_147_483_647;
-
-type AcceptedImageType = (typeof ACCEPTED_IMAGE_TYPES)[number];
 
 type ProcessedImage = {
   blob: Blob;
@@ -196,7 +201,7 @@ export function PublicReferencePhotoUpload({
       return;
     }
 
-    if (!isAcceptedImageType(file.type)) {
+    if (!isAcceptedImage(file)) {
       setState({
         status: "failed",
         message: "We couldn't upload that photo. Please try another image.",
@@ -242,7 +247,7 @@ export function PublicReferencePhotoUpload({
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp"
+        accept="image/jpeg,image/jpg,image/pjpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
         className="sr-only"
         onChange={(event) => void handleFileChange(event)}
       />
@@ -413,8 +418,14 @@ function useTokenIsActive(
   return useSyncExternalStore(subscribe, getSnapshot, () => false);
 }
 
-function isAcceptedImageType(value: string): value is AcceptedImageType {
-  return ACCEPTED_IMAGE_TYPES.some((contentType) => contentType === value);
+function isAcceptedImage(file: File) {
+  const type = file.type.toLowerCase();
+  const name = file.name.toLowerCase();
+
+  return (
+    ACCEPTED_INPUT_IMAGE_TYPES.some((contentType) => contentType === type) ||
+    ACCEPTED_IMAGE_EXTENSIONS.some((extension) => name.endsWith(extension))
+  );
 }
 
 async function resizeImage(

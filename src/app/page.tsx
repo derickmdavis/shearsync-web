@@ -30,51 +30,120 @@ const commandBullets = [
   "Track your income and grow with confidence",
 ];
 
+const phoneScreens = [
+  {
+    src: "/assets/home/dripdesk-phone-calendar.png",
+    alt: "DripDesk mobile calendar screen showing appointments and open booking gaps",
+    className: "lg:translate-y-8",
+  },
+  {
+    src: "/assets/home/dripdesk-phone-insights.png",
+    alt: "DripDesk mobile insights dashboard showing business snapshot metrics",
+    className: "lg:z-10",
+  },
+  {
+    src: "/assets/home/dripdesk-phone-clients.png",
+    alt: "DripDesk mobile clients screen showing client history and upcoming visits",
+    className: "lg:translate-y-8",
+  },
+];
+
 const pricingPlans = [
+  { name: "Basic", price: "$12", period: "/ month" },
+  { name: "Pro", price: "$25", period: "/ month", popular: true },
+  { name: "Premium", price: "$35", period: "/ month" },
+];
+
+const comparisonRows = [
   {
-    name: "Basic",
-    price: "$12/mo",
-    description: "Great for solo stylists getting started.",
-    cta: "Start Basic",
-    features: [
-      "Custom booking page",
-      "Client notes",
-      "Appointment reminders",
-      "Basic client history & appointment tracking",
-      "Revenue overview",
-      "Email support",
+    feature: "Online booking",
+    basic: "yes",
+    pro: "yes",
+    premium: "yes",
+  },
+  {
+    feature: "Client notes & history",
+    basic: "yes",
+    pro: "yes",
+    premium: "yes",
+  },
+  {
+    feature: "Appointment reminders",
+    basic: "yes",
+    pro: "yes",
+    premium: "yes",
+  },
+  {
+    feature: "Import from GlossGenius / Booksy / Fresha / Vagaro / StyleSeat / Square",
+    basic: "yes",
+    pro: "yes",
+    premium: "yes",
+  },
+  {
+    feature: "Full client history",
+    basic: "yes",
+    pro: "yes",
+    premium: "yes",
+  },
+  {
+    feature: "Service limit",
+    basic: "7 services",
+    pro: "Unlimited services",
+    premium: "Unlimited services",
+  },
+  {
+    feature: "Waitlist",
+    basic: "no",
+    pro: "yes",
+    premium: "yes",
+  },
+  {
+    feature: "QR booking code",
+    basic: "no",
+    pro: "yes",
+    premium: "yes",
+  },
+  {
+    feature: "Advanced metrics",
+    basic: "no",
+    pro: "yes",
+    premium: "yes",
+  },
+  {
+    feature: "Weekly business recap email",
+    basic: "no",
+    pro: "no",
+    premium: "yes",
+  },
+  {
+    feature: "Apple / Google Calendar integration",
+    basic: "no",
+    pro: "no",
+    premium: "yes",
+  },
+];
+
+const footerGroups = [
+  {
+    title: "Product",
+    links: [
+      { label: "Features", href: "#features" },
+      { label: "Pricing", href: "#pricing" },
     ],
   },
   {
-    name: "Pro",
-    price: "$25/mo",
-    description: "Everything you need to run and grow your chair.",
-    cta: "Start Pro",
-    popular: true,
-    features: [
-      "Everything in Basic",
-      "No-show protection",
-      "Advanced client management & formulas",
-      "Smart rebooking tools",
-      "Detailed reporting & income insights",
-      "Automations & SMS",
-      "Priority support",
+    title: "Company",
+    links: [
+      { label: "About", href: "#top" },
+      { label: "Blog", href: "#" },
+      { label: "Contact", href: "#" },
     ],
   },
   {
-    name: "Premium",
-    price: "$30/mo",
-    description:
-      "All features, priority support, and confidence to scale your business.",
-    cta: "Start Premium",
-    features: [
-      "Everything in Pro",
-      "Multi-chair support",
-      "Advanced analytics",
-      "Team & staff access",
-      "Custom integrations coming soon",
-      "Priority onboarding",
-      "Premium support",
+    title: "Legal",
+    links: [
+      { label: "Privacy Policy", href: "#" },
+      { label: "Terms of Service", href: "#" },
     ],
   },
 ];
@@ -87,23 +156,22 @@ function MarketingLink({
 }: {
   href: string;
   children: ReactNode;
-  variant?: "primary" | "secondary" | "dark";
+  variant?: "primary" | "secondary" | "nav";
   className?: string;
 }) {
   const styles = {
     primary:
-      "border border-brand bg-brand text-white shadow-[0_18px_38px_rgba(183,121,61,0.32)] hover:border-brand-gold hover:bg-brand-gold hover:text-[#111111]",
+      "border border-brand bg-gradient-to-b from-[#C9823F] to-brand text-white shadow-[0_18px_38px_rgba(183,121,61,0.24)] hover:border-brand-dark hover:from-brand-dark hover:to-brand-dark",
     secondary:
-      "border border-brand/75 bg-transparent text-white hover:border-brand-gold hover:bg-brand/15",
-    dark:
-      "border border-[#D6A85A]/40 bg-[#111111] text-white hover:border-brand-gold hover:bg-[#1C1C1E]",
+      "border border-brand/80 bg-transparent text-brand hover:bg-brand hover:text-white",
+    nav: "border border-brand bg-gradient-to-b from-[#C9823F] to-brand text-white hover:border-brand-dark hover:from-brand-dark hover:to-brand-dark",
   };
 
   return (
     <Link
       href={href}
       className={[
-        "inline-flex h-11 items-center justify-center rounded-[8px] px-6 text-sm font-bold transition-colors focus:outline-none focus:ring-2 focus:ring-brand-gold/45 focus:ring-offset-2 focus:ring-offset-[#111111]",
+        "inline-flex h-11 items-center justify-center rounded-[8px] px-6 text-sm font-extrabold transition-colors focus:outline-none focus:ring-2 focus:ring-brand/35 focus:ring-offset-2 focus:ring-offset-[#FAF7F2]",
         styles[variant],
         className,
       ].join(" ")}
@@ -113,55 +181,67 @@ function MarketingLink({
   );
 }
 
+function BrandLogo({ light = false }: { light?: boolean }) {
+  return (
+    <Link
+      href="#top"
+      className="flex shrink-0 items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-brand/35"
+      aria-label="DripDesk"
+    >
+      <Image
+        src="/assets/brand/dripdesk-chair-mark.png"
+        alt=""
+        width={416}
+        height={473}
+        priority
+        aria-hidden="true"
+        className="h-8 w-auto object-contain"
+      />
+      <span
+        className={[
+          "font-display text-[28px] font-semibold sm:text-[31px]",
+          light ? "text-white" : "text-[#111111]",
+        ].join(" ")}
+      >
+        DripDesk
+      </span>
+    </Link>
+  );
+}
+
 function HomeNav() {
   return (
     <nav
-      className="relative z-20 mx-auto flex max-w-[1180px] flex-col items-start justify-between gap-4 px-5 py-4 sm:h-[74px] sm:flex-row sm:items-center sm:px-8 sm:py-0"
+      className="relative z-20 mx-auto flex max-w-[1180px] flex-col items-start justify-between gap-4 px-5 py-5 sm:h-[76px] sm:flex-row sm:items-center sm:px-8 sm:py-0"
       aria-label="Primary"
     >
-      <Link
-        href="#top"
-        className="flex shrink-0 items-center gap-3 focus:outline-none focus:ring-2 focus:ring-brand-gold/40"
-        aria-label="DripDesk"
-      >
-        <Image
-          src="/assets/brand/dripdesk-chair-mark.png"
-          alt=""
-          width={416}
-          height={473}
-          priority
-          aria-hidden="true"
-          className="h-9 w-auto object-contain sm:h-11"
-        />
-        <span className="font-display text-3xl font-semibold text-white sm:text-[34px]">
-          DripDesk
-        </span>
-      </Link>
+      <BrandLogo />
 
-      <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-start sm:gap-4">
+      <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-start sm:gap-6">
         <Link
           href="#top"
-          className="text-xs font-semibold text-white/75 transition-colors hover:text-white sm:text-sm"
+          className="text-xs font-extrabold text-[#111111] transition-colors hover:text-brand sm:text-sm"
         >
           About
         </Link>
         <Link
           href="#pricing"
-          className="text-xs font-semibold text-white/75 transition-colors hover:text-white sm:text-sm"
+          className="text-xs font-extrabold text-[#111111] transition-colors hover:text-brand sm:text-sm"
         >
           Pricing
         </Link>
         <Link
           href={loginHref}
-          className="text-xs font-semibold text-white/75 transition-colors hover:text-white sm:text-sm"
+          className="text-xs font-extrabold text-[#111111] transition-colors hover:text-brand sm:text-sm"
         >
           Login
         </Link>
         <MarketingLink
           href={signUpHref}
+          variant="nav"
           className="h-9 px-4 text-xs sm:h-10 sm:px-5 sm:text-sm"
         >
-          Let&apos;s Start!
+          Let&apos;s Start
         </MarketingLink>
       </div>
     </nav>
@@ -172,25 +252,34 @@ function HomeHero() {
   return (
     <section
       id="top"
-      className="relative isolate overflow-hidden bg-[#111111] text-white"
+      className="relative isolate overflow-hidden bg-[#FFFDF8] text-[#111111]"
     >
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_76%_22%,rgba(214,168,90,0.18),transparent_32%),linear-gradient(120deg,#111111_0%,#111111_46%,#1C1C1E_100%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(214,168,90,0.13),transparent_30%),linear-gradient(100deg,#FFFDF8_0%,#FAF7F2_48%,#FFFDF8_100%)]" />
       <HomeNav />
 
-      <div className="relative z-10 mx-auto grid max-w-[1180px] gap-8 px-5 pb-14 pt-7 sm:px-8 sm:pb-18 lg:min-h-[690px] lg:grid-cols-[0.92fr_1.08fr] lg:items-center lg:pb-16 lg:pt-2">
-        <div className="max-w-[570px]">
-          <h1 className="max-w-[540px] font-display text-[54px] font-bold leading-[0.92] tracking-normal text-[#FAF7F2] sm:text-[76px] lg:text-[84px]">
-            Turn your chair into a thriving business
-          </h1>
-
-          <p className="mt-6 max-w-[540px] text-[17px] leading-8 text-white/78 sm:text-lg">
-            Stop chasing appointments. Stop losing clients between visits. Keep
-            your book full with automated booking, rebooking, and client
-            management built for independent stylists.
+      <div className="relative z-10 mx-auto grid max-w-[1180px] gap-8 px-5 pb-12 pt-7 sm:px-8 lg:min-h-[610px] lg:grid-cols-[0.86fr_1.14fr] lg:items-center lg:pb-0 lg:pt-0">
+        <div className="max-w-[560px]">
+          <p className="inline-flex items-center gap-2 rounded-[4px] border border-brand/60 bg-white/55 px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.12em] text-brand">
+            <span className="h-1.5 w-1.5 rotate-45 bg-brand" />
+            Designed for stylists, barbers, and independent booth renters
           </p>
 
-          <p className="mt-4 text-sm font-bold text-brand-gold">
-            More rebooked clients. A fuller book. A stronger business.
+          <h1 className="mt-6 max-w-[530px] font-display text-[54px] font-bold leading-[0.9] tracking-normal text-[#111111] sm:text-[72px] lg:text-[78px]">
+            The business
+            <br />
+            side of beauty.
+          </h1>
+
+          <p className="mt-6 max-w-[520px] text-[16px] leading-7 text-[#1C1C1E]/78 sm:text-[17px]">
+            Stop chasing appointments. Stop losing clients between visits.
+            DripDesk helps you remember every client and keep them coming back.
+          </p>
+
+          <p className="mt-7 flex max-w-[560px] items-center gap-3 text-xs font-bold leading-5 text-[#1C1C1E]/78 sm:text-[13px]">
+            <span className="relative h-5 w-5 shrink-0 rotate-45 border border-brand after:absolute after:left-1/2 after:top-1/2 after:h-1.5 after:w-1.5 after:-translate-x-1/2 after:-translate-y-1/2 after:bg-brand" />
+            <span className="sm:whitespace-nowrap">
+              Seamless booking, automated growth, and smart business insights.
+            </span>
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -206,36 +295,27 @@ function HomeHero() {
             </MarketingLink>
           </div>
 
-          <p className="mt-7 max-w-[570px] border-l-2 border-brand pl-4 text-sm font-semibold leading-6 text-white/64 sm:whitespace-nowrap">
-            Designed for stylists, barbers, booth renters, and independent
-            beauty pros.
+          <p className="mt-7 flex max-w-[500px] items-start gap-3 text-sm font-semibold leading-6 text-[#1C1C1E]/72">
+            <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-brand/45 text-brand">
+              <span className="h-2.5 w-2.5 rotate-45 rounded-[2px] border border-current" />
+            </span>
+            <span>
+              Designed for stylists, barbers, booth renters, and independent
+              beauty pros.
+            </span>
           </p>
         </div>
 
-        <div className="relative min-h-[470px] sm:min-h-[560px] lg:min-h-[650px]">
-          <div className="absolute inset-y-2 left-[13%] right-[8%] overflow-hidden rounded-[28px] border border-white/10 bg-[#1C1C1E] shadow-[0_30px_90px_rgba(0,0,0,0.48)] sm:left-[18%] sm:right-[7%] lg:left-[15%] lg:right-[8%]">
-            <Image
-              src="/assets/home/dripdesk-hero-image.png"
-              alt="Stylist managing her chair business on a tablet inside a salon"
-              fill
-              priority
-              sizes="(min-width: 1024px) 560px, (min-width: 640px) 70vw, 88vw"
-              className="object-cover object-[92%_center] sm:object-[90%_center] lg:object-[86%_center]"
-            />
-            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(17,17,17,0.46),transparent_35%,rgba(17,17,17,0.08)),linear-gradient(180deg,transparent_58%,rgba(17,17,17,0.72))]" />
-          </div>
-
-          <div className="absolute bottom-[-10px] right-[2%] w-[42%] min-w-[178px] max-w-[248px] drop-shadow-[0_30px_42px_rgba(0,0,0,0.42)] sm:right-[6%] sm:w-[34%] sm:max-w-[275px] lg:bottom-[22px] lg:right-[1%] lg:w-[38%]">
-            <Image
-              src="/assets/home/hero-phone-dashboard.png"
-              alt="DripDesk mobile app dashboard showing business snapshot metrics"
-              width={820}
-              height={1620}
-              priority
-              sizes="(min-width: 1024px) 260px, (min-width: 640px) 230px, 42vw"
-              className="h-auto w-full"
-            />
-          </div>
+        <div className="relative -mr-5 min-h-[390px] sm:-mr-8 sm:min-h-[500px] lg:-mr-[calc((100vw-1180px)/2)] lg:h-[610px] lg:min-h-0 lg:self-end">
+          <Image
+            src="/assets/home/dripdesk-male-hero-light-with-phone.png"
+            alt="Independent beauty professional using DripDesk on a tablet with the mobile dashboard shown beside him"
+            fill
+            priority
+            sizes="(min-width: 1180px) 660px, (min-width: 1024px) 56vw, 100vw"
+            className="object-cover object-[54%_center]"
+          />
+          <div className="absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-[#FFFDF8] via-[#FFFDF8]/72 to-transparent" />
         </div>
       </div>
     </section>
@@ -244,41 +324,50 @@ function HomeHero() {
 
 function HomeValueCards() {
   return (
-    <section className="bg-[#FAF7F2] px-5 py-16 text-[#111111] sm:px-8 sm:py-20">
+    <section
+      id="features"
+      className="border-t border-[#E4D6C3]/55 bg-[#FFFDF8] px-5 py-14 text-[#111111] sm:px-8 sm:py-16"
+    >
       <div className="mx-auto max-w-[1180px]">
-        <div className="mx-auto max-w-[760px] text-center">
-          <h2 className="font-display text-[38px] font-bold leading-[1.02] tracking-normal sm:text-[52px]">
+        <div className="mx-auto max-w-[840px] text-center">
+          <h2 className="font-display text-[30px] font-bold leading-[1.08] tracking-normal sm:text-[40px]">
             Tools that solve real problems, so you can stay booked and stress
             less.
           </h2>
-          <p className="mt-5 text-base leading-8 text-[#6B7280] sm:text-lg">
+          <p className="mx-auto mt-4 max-w-[700px] text-[15px] leading-7 text-[#6B7280]">
             DripDesk helps you stay booked, remember every client detail, and
             understand what your chair is earning without juggling texts, notes,
             screenshots, or spreadsheets.
           </p>
         </div>
 
-        <div className="mt-12 grid gap-5 lg:grid-cols-3">
+        <div className="mx-auto mt-9 grid max-w-[900px] gap-5 lg:grid-cols-3">
           {valueCards.map((card) => (
             <article
               key={card.icon}
-              className="rounded-[8px] border border-[#E4D6C3] bg-white p-7 shadow-[0_18px_42px_rgba(17,17,17,0.05)]"
+              className="rounded-[8px] border border-[#E4D6C3] bg-white p-6 shadow-[0_18px_42px_rgba(17,17,17,0.04)]"
             >
-              <div className="grid h-14 w-14 place-items-center rounded-full border border-brand/25 bg-brand/10">
+              <div className="grid h-12 w-12 place-items-center rounded-full border border-brand/25 bg-brand/10">
                 <Image
                   src={card.icon}
                   alt=""
-                  width={28}
-                  height={28}
+                  width={24}
+                  height={24}
                   aria-hidden="true"
                 />
               </div>
               <h3 className="mt-6 text-xl font-extrabold leading-7 text-[#111111]">
                 {card.title}
               </h3>
-              <p className="mt-4 text-sm leading-7 text-[#6B7280]">
+              <p className="mt-3 text-sm leading-7 text-[#6B7280]">
                 {card.body}
               </p>
+              <Link
+                href="#pricing"
+                className="mt-6 inline-flex text-sm font-extrabold text-brand hover:text-brand-dark"
+              >
+                Learn more <span aria-hidden="true" className="ml-2">-&gt;</span>
+              </Link>
             </article>
           ))}
         </div>
@@ -289,23 +378,29 @@ function HomeValueCards() {
 
 function HomeCommandCenter() {
   return (
-    <section className="overflow-hidden bg-[#111111] px-5 py-16 text-white sm:px-8 sm:py-20">
-      <div className="mx-auto grid max-w-[1180px] gap-10 lg:grid-cols-[0.76fr_1.24fr] lg:items-center">
+    <section className="overflow-hidden bg-[#FFFDF8] px-5 py-10 text-[#111111] sm:px-8 sm:py-14">
+      <div className="mx-auto grid max-w-[1180px] gap-8 lg:grid-cols-[0.66fr_1.34fr] lg:items-center">
         <div>
-          <h2 className="font-display text-[42px] font-bold leading-[1] tracking-normal text-[#FAF7F2] sm:text-[58px]">
+          <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-brand">
+            All-in-one business hub
+          </p>
+          <h2 className="mt-4 font-display text-[38px] font-bold leading-[1] tracking-normal text-[#111111] sm:text-[48px]">
             A cleaner command
             <br />
             center for your chair.
           </h2>
-          <p className="mt-5 max-w-[500px] text-base leading-8 text-white/70">
+          <p className="mt-5 max-w-[400px] text-[15px] leading-7 text-[#1C1C1E]/74">
             Stop juggling apps, texts, and screenshots. DripDesk gives you
             everything you need to run your business &mdash; in one simple
             place.
           </p>
 
-          <ul className="mt-8 grid gap-4">
+          <ul className="mt-7 grid gap-3">
             {commandBullets.map((bullet) => (
-              <li key={bullet} className="flex gap-3 text-sm font-bold text-white/82">
+              <li
+                key={bullet}
+                className="flex gap-3 text-[13px] font-bold text-[#1C1C1E]/84"
+              >
                 <Image
                   src="/assets/icons/icon-check-bronze.svg"
                   alt=""
@@ -320,98 +415,130 @@ function HomeCommandCenter() {
           </ul>
         </div>
 
-        <div className="relative">
-          <div className="absolute inset-4 rounded-[24px] bg-brand/20 blur-3xl" />
-          <div className="relative overflow-hidden rounded-[18px] border border-white/10 bg-[#1C1C1E] shadow-[0_34px_80px_rgba(0,0,0,0.38)]">
-            <Image
-              src="/assets/home/dashboard-command-center-mockup.png"
-              alt="DripDesk dashboard showing appointments, revenue, and business insights"
-              width={1400}
-              height={832}
-              sizes="(min-width: 1024px) 680px, 92vw"
-              className="h-auto w-full"
-            />
-          </div>
+        <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-end sm:justify-end sm:gap-0">
+          {phoneScreens.map((screen) => (
+            <div
+              key={screen.src}
+              className={[
+                "relative mx-auto w-full max-w-[250px] drop-shadow-[0_22px_34px_rgba(17,17,17,0.14)] sm:-ml-8 sm:max-w-[255px] first:sm:ml-0 lg:max-w-[275px]",
+                screen.className,
+              ].join(" ")}
+            >
+              <Image
+                src={screen.src}
+                alt={screen.alt}
+                width={1122}
+                height={1402}
+                sizes="(min-width: 1024px) 250px, (min-width: 640px) 30vw, 260px"
+                className="h-auto w-full"
+              />
+            </div>
+          ))}
         </div>
       </div>
     </section>
   );
 }
 
+function FeatureValue({ value }: { value: string }) {
+  if (value === "yes") {
+    return <span className="text-lg font-extrabold text-brand">✓</span>;
+  }
+
+  if (value === "no") {
+    return <span className="text-lg font-bold text-[#9CA3AF]">—</span>;
+  }
+
+  return <span className="text-xs font-bold text-[#1C1C1E]">{value}</span>;
+}
+
 function HomePricing() {
   return (
     <section
       id="pricing"
-      className="bg-[#FAF7F2] px-5 py-14 text-[#111111] sm:px-8 sm:py-18"
+      className="bg-[#FFFDF8] px-5 py-10 text-[#111111] sm:px-8 sm:py-14"
     >
-      <div className="mx-auto max-w-[1180px]">
-        <div className="mx-auto max-w-[660px] text-center">
-          <h2 className="font-display text-[34px] font-bold leading-[1.05] tracking-normal sm:text-[46px]">
-            Plans that grow with you.
+      <div className="mx-auto grid max-w-[1180px] gap-8 lg:grid-cols-[0.42fr_1.58fr] lg:items-start">
+        <div>
+          <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-brand">
+            Compare plans
+          </p>
+          <h2 className="mt-4 font-display text-[38px] font-bold leading-[1.02] tracking-normal sm:text-[46px]">
+            Find the plan
+            <br />
+            that fits your
+            <br />
+            business.
           </h2>
-          <p className="mt-4 text-sm leading-7 text-[#6B7280] sm:text-base">
-            Upgrade when you need more tools and insights to scale, hire, and
-            save more.
+          <p className="mt-5 max-w-[280px] text-sm leading-7 text-[#6B7280]">
+            Simple pricing. Powerful features. Built for how you work.
           </p>
         </div>
 
-        <div className="mt-10 grid gap-5 lg:grid-cols-3">
-          {pricingPlans.map((plan) => (
-            <article
-              key={plan.name}
-              className={[
-                "relative flex min-h-full flex-col rounded-[8px] border bg-white p-6 shadow-[0_14px_34px_rgba(17,17,17,0.055)] sm:p-7",
-                plan.popular
-                  ? "border-brand shadow-[0_20px_46px_rgba(183,121,61,0.14)]"
-                  : "border-[#E4D6C3]",
-              ].join(" ")}
-            >
-              {plan.popular ? (
-                <div className="absolute right-5 top-5 rounded-full bg-brand-gold px-3.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.13em] text-[#111111]">
-                  Most Popular
-                </div>
-              ) : null}
-
-              <h3 className="text-xl font-extrabold text-[#111111] sm:text-[22px]">
-                {plan.name}
-              </h3>
-              <p className="mt-4 text-[34px] font-extrabold tracking-tight text-[#111111] sm:text-[38px]">
-                {plan.price}
-              </p>
-              <p className="mt-3 min-h-[3rem] text-sm leading-6 text-[#6B7280]">
-                {plan.description}
-              </p>
-
-              <ul className="mb-8 mt-6 grid gap-3 text-[13px] font-semibold leading-5 text-[#1C1C1E]/78 sm:text-sm">
-                {plan.features.map((feature) => (
-                  <li key={feature} className="flex gap-3">
-                    <Image
-                      src="/assets/icons/icon-check-bronze.svg"
-                      alt=""
-                      width={18}
-                      height={18}
-                      aria-hidden="true"
-                      className="mt-0.5 h-4 w-4 shrink-0"
-                    />
-                    <span>{feature}</span>
-                  </li>
+        <div className="overflow-x-auto rounded-[8px] border border-[#E4D6C3] bg-white shadow-[0_16px_38px_rgba(17,17,17,0.04)]">
+          <table className="min-w-[760px] table-fixed border-collapse text-left">
+            <thead>
+              <tr>
+                <th className="w-[30%] border-b border-[#E4D6C3] px-4 py-3 text-xs font-extrabold uppercase tracking-[0.08em] text-[#6B7280]">
+                  Feature
+                </th>
+                {pricingPlans.map((plan) => (
+                  <th
+                    key={plan.name}
+                    className={[
+                      "relative border-b border-l border-[#E4D6C3] px-4 py-3 text-center",
+                      plan.popular ? "bg-brand/10" : "bg-white",
+                    ].join(" ")}
+                  >
+                    {plan.popular ? (
+                      <div className="absolute inset-x-0 -top-px bg-brand py-1 text-[10px] font-extrabold uppercase tracking-[0.12em] text-white">
+                        Most Popular
+                      </div>
+                    ) : null}
+                    <p className="mt-3 text-xs font-extrabold uppercase tracking-[0.08em] text-[#111111]">
+                      {plan.name}
+                    </p>
+                    <p className="mt-1 text-xl font-extrabold text-[#111111]">
+                      {plan.price}
+                      <span className="ml-1 text-xs font-bold text-[#6B7280]">
+                        {plan.period}
+                      </span>
+                    </p>
+                    {/* TODO: Route to plan-specific signup when plan selection exists. */}
+                    <Link
+                      href={signUpHref}
+                      className={[
+                        "mt-3 inline-flex h-8 items-center justify-center rounded-[8px] border px-3 text-[11px] font-extrabold transition-colors focus:outline-none focus:ring-2 focus:ring-brand/35",
+                        plan.popular
+                          ? "border-brand bg-brand text-white hover:bg-brand-dark"
+                          : "border-brand/70 text-brand hover:bg-brand hover:text-white",
+                      ].join(" ")}
+                    >
+                      Get Started
+                    </Link>
+                  </th>
                 ))}
-              </ul>
-
-              {/* TODO: Route to plan-specific signup when plan selection exists. */}
-              <Link
-                href={signUpHref}
-                className={[
-                  "relative z-10 mt-auto inline-flex h-12 w-full items-center justify-center rounded-[8px] border px-5 text-sm font-extrabold transition-colors focus:outline-none focus:ring-2 focus:ring-brand/35 focus:ring-offset-2",
-                  plan.popular
-                    ? "border-brand bg-brand text-[#111111] hover:border-brand-dark hover:bg-brand-dark hover:text-white"
-                    : "border-[#D6A85A]/70 bg-[#FAF7F2] text-[#111111] shadow-[inset_0_0_0_1px_rgba(17,17,17,0.04)] hover:border-brand hover:bg-white",
-                ].join(" ")}
-              >
-                {plan.cta}
-              </Link>
-            </article>
-          ))}
+              </tr>
+            </thead>
+            <tbody>
+              {comparisonRows.map((row) => (
+                <tr key={row.feature}>
+                  <th className="border-t border-[#E4D6C3] px-4 py-2.5 text-xs font-bold text-[#1C1C1E]">
+                    {row.feature}
+                  </th>
+                  <td className="border-l border-t border-[#E4D6C3] px-4 py-2.5 text-center">
+                    <FeatureValue value={row.basic} />
+                  </td>
+                  <td className="border-l border-t border-[#E4D6C3] bg-brand/10 px-4 py-2.5 text-center">
+                    <FeatureValue value={row.pro} />
+                  </td>
+                  <td className="border-l border-t border-[#E4D6C3] px-4 py-2.5 text-center">
+                    <FeatureValue value={row.premium} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </section>
@@ -420,20 +547,17 @@ function HomePricing() {
 
 function HomeFinalCta() {
   return (
-    <section
-      className="relative isolate overflow-hidden bg-[#111111] px-5 py-16 text-center text-white sm:px-8 sm:py-20"
-    >
-      <div className="mx-auto max-w-[720px]">
-        <h2 className="font-display text-[42px] font-bold leading-[1] tracking-normal text-[#FAF7F2] sm:text-[62px]">
-          You deserve a
-          <br />
-          real business system.
-        </h2>
-        <p className="mx-auto mt-5 max-w-[620px] text-base leading-8 text-white/76 sm:text-lg">
-          Built for independent stylists and barbers who want more bookings,
-          less stress, and a business that actually pays you.
-        </p>
-        <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+    <section className="bg-[#FFFDF8] px-5 pb-14 pt-2 text-[#111111] sm:px-8 sm:pb-16">
+      <div className="mx-auto flex max-w-[980px] flex-col gap-6 rounded-[8px] border border-[#E4D6C3] bg-[#FAF7F2] px-6 py-7 shadow-[0_18px_44px_rgba(17,17,17,0.04)] sm:flex-row sm:items-center sm:justify-between sm:px-10">
+        <div>
+          <h2 className="font-display text-[28px] font-bold leading-tight tracking-normal sm:text-[34px]">
+            Ready to run your business like a pro?
+          </h2>
+          <p className="mt-2 text-sm leading-7 text-[#6B7280]">
+            More bookings. Less stress. Real results.
+          </p>
+        </div>
+        <div className="flex flex-col gap-3 sm:flex-row">
           <MarketingLink href={signUpHref} className="w-full sm:w-auto">
             Get Started
           </MarketingLink>
@@ -450,14 +574,58 @@ function HomeFinalCta() {
   );
 }
 
+function HomeFooter() {
+  return (
+    <footer className="border-t border-[#E4D6C3] bg-[#FFFDF8] px-5 py-10 text-[#111111] sm:px-8">
+      <div className="mx-auto grid max-w-[1180px] gap-8 md:grid-cols-[1.15fr_2fr_auto]">
+        <div>
+          <BrandLogo />
+          <p className="mt-4 max-w-[280px] text-sm leading-6 text-[#6B7280]">
+            Built for independent beauty pros. Designed to help you grow.
+          </p>
+        </div>
+
+        <div className="grid gap-6 sm:grid-cols-3">
+          {footerGroups.map((group) => (
+            <div key={group.title}>
+              <h3 className="text-xs font-extrabold uppercase tracking-[0.1em] text-[#111111]">
+                {group.title}
+              </h3>
+              <ul className="mt-3 grid gap-2">
+                {group.links.map((link) => (
+                  <li key={link.label}>
+                    <Link
+                      href={link.href}
+                      className="text-sm font-semibold text-[#6B7280] transition-colors hover:text-brand"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+
+        <p className="text-sm font-semibold text-[#6B7280] md:text-right">
+          © 2026 DripDesk
+          <br />
+          All rights reserved.
+        </p>
+      </div>
+    </footer>
+  );
+}
+
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-[#FAF7F2] text-[#111111]">
+    <main className="min-h-screen bg-[#FFFDF8] text-[#111111]">
       <HomeHero />
       <HomeValueCards />
       <HomeCommandCenter />
       <HomePricing />
       <HomeFinalCta />
+      <HomeFooter />
     </main>
   );
 }

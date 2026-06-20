@@ -156,7 +156,7 @@ export function ConfirmStep({
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/jpeg,image/png,image/webp"
+          accept="image/jpeg,image/jpg,image/pjpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
           className="sr-only"
           onChange={handleReferencePhotoChange}
         />
@@ -249,7 +249,7 @@ export function ConfirmStep({
       return;
     }
 
-    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+    if (!isAcceptedReferencePhoto(file)) {
       setReferencePhotoError(
         "We couldn't use that photo. Please choose a JPG, PNG, or WebP image.",
       );
@@ -259,6 +259,35 @@ export function ConfirmStep({
     setReferencePhotoError(null);
     onReferencePhotoSelect(file);
   }
+}
+
+const ACCEPTED_REFERENCE_PHOTO_TYPES = [
+  "image/jpeg",
+  "image/jpg",
+  "image/pjpeg",
+  "image/png",
+  "image/webp",
+] as const;
+
+const ACCEPTED_REFERENCE_PHOTO_EXTENSIONS = [
+  ".jpg",
+  ".jpeg",
+  ".png",
+  ".webp",
+] as const;
+
+function isAcceptedReferencePhoto(file: File) {
+  const type = file.type.toLowerCase();
+  const name = file.name.toLowerCase();
+
+  return (
+    ACCEPTED_REFERENCE_PHOTO_TYPES.some(
+      (contentType) => contentType === type,
+    ) ||
+    ACCEPTED_REFERENCE_PHOTO_EXTENSIONS.some((extension) =>
+      name.endsWith(extension),
+    )
+  );
 }
 
 type ReviewCardProps = {
