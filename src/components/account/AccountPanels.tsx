@@ -1,12 +1,19 @@
-import type { ChangeEvent, FormEvent, ReactNode } from "react";
+import { Fragment, type ChangeEvent, type FormEvent, type ReactNode } from "react";
 import Image from "next/image";
-import type { AccountPlan, AccountProfile, Customer } from "@/src/lib/api";
+import type {
+  AccountPlan,
+  AccountProfile,
+  Customer,
+  ReferralLink,
+  ReferralStats,
+} from "@/src/lib/api";
 import {
   accountNavItems,
   featureLabels,
   planNotes,
   type AccountTab,
   type AuthMode,
+  type ClientReferralLoadState,
   type ClientsLoadState,
   type ProfileForm,
   type PublicProfileForm,
@@ -366,10 +373,26 @@ export function BlankTabPanel({ title }: { title: string }) {
 export function ClientsTabPanel({
   clients,
   loadState,
+  selectedClientId,
+  referralStates,
+  creatingReferralClientId,
+  canNativeShare,
+  onClientToggle,
+  onCreateReferralLink,
+  onReferralRetry,
+  onMessage,
   onRetry,
 }: {
   clients: Customer[];
   loadState: ClientsLoadState;
+  selectedClientId: string | null;
+  referralStates: Record<string, ClientReferralLoadState>;
+  creatingReferralClientId: string | null;
+  canNativeShare: boolean;
+  onClientToggle: (clientId: string) => void;
+  onCreateReferralLink: (clientId: string) => void;
+  onReferralRetry: (clientId: string) => void;
+  onMessage: (message: string) => void;
   onRetry: () => void;
 }) {
   return (
@@ -380,7 +403,7 @@ export function ClientsTabPanel({
             Clients
           </h2>
           <p className="mt-2 text-sm leading-6 text-[#6B7280]">
-            Read-only customer list from <code>/api/clients</code>.
+            Customer list from <code>/api/clients</code>.
           </p>
         </div>
         {loadState.status === "ready" ? (
@@ -435,28 +458,261 @@ export function ClientsTabPanel({
                   <th scope="col" className="px-4 py-3 sm:px-5">
                     Phone number
                   </th>
+                  <th scope="col" className="px-4 py-3 sm:px-5">
+                    Referral
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#EEF0F3] bg-white">
-                {clients.map((client) => (
-                  <tr key={client.id}>
-                    <td className="whitespace-nowrap px-4 py-4 font-semibold text-[#111111] sm:px-5">
-                      {formatClientName(client)}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-4 text-[#4B5563] sm:px-5">
-                      {client.email ?? "None"}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-4 text-[#4B5563] sm:px-5">
-                      {client.phone ?? "None"}
-                    </td>
-                  </tr>
-                ))}
+                {clients.map((client) => {
+                  const isSelected = selectedClientId === client.id;
+
+                  return (
+                    <Fragment key={client.id}>
+                      <tr className={isSelected ? "bg-[#FFFBF5]" : undefined}>
+                        <td className="whitespace-nowrap px-4 py-4 font-semibold text-[#111111] sm:px-5">
+                          {formatClientName(client)}
+                        </td>
+                        <td className="whitespace-nowrap px-4 py-4 text-[#4B5563] sm:px-5">
+                          {client.email ?? "None"}
+                        </td>
+                        <td className="whitespace-nowrap px-4 py-4 text-[#4B5563] sm:px-5">
+                          {client.phone ?? "None"}
+                        </td>
+                        <td className="whitespace-nowrap px-4 py-4 sm:px-5">
+                          <button
+                            type="button"
+                            onClick={() => onClientToggle(client.id)}
+                            aria-expanded={isSelected}
+                            className="inline-flex h-9 items-center justify-center rounded-[8px] border border-[#E4D6C3] bg-white px-3 text-xs font-bold text-[#1C1C1E] hover:bg-[#FAF7F2] focus:outline-none focus:ring-2 focus:ring-brand/25"
+                          >
+                            {isSelected ? "Hide referral" : "View referral"}
+                          </button>
+                        </td>
+                      </tr>
+                      {isSelected ? (
+                        <tr>
+                          <td colSpan={4} className="bg-[#FFFBF5] px-4 py-4 sm:px-5">
+                            <ClientReferralPanel
+                              client={client}
+                              state={
+                                referralStates[client.id] ?? { status: "idle" }
+                              }
+                              isCreating={
+                                creatingReferralClientId === client.id
+                              }
+                              canNativeShare={canNativeShare}
+                              onCreate={() => onCreateReferralLink(client.id)}
+                              onRetry={() => onReferralRetry(client.id)}
+                              onMessage={onMessage}
+                            />
+                          </td>
+                        </tr>
+                      ) : null}
+                    </Fragment>
+                  );
+                })}
               </tbody>
             </table>
           </div>
         </div>
       ) : null}
     </section>
+  );
+}
+
+function ClientReferralPanel({
+  client,
+  state,
+  isCreating,
+  canNativeShare,
+  onCreate,
+  onRetry,
+  onMessage,
+}: {
+  client: Customer;
+  state: ClientReferralLoadState;
+  isCreating: boolean;
+  canNativeShare: boolean;
+  onCreate: () => void;
+  onRetry: () => void;
+  onMessage: (message: string) => void;
+}) {
+  if (state.status === "idle" || state.status === "loading") {
+    return (
+      <div className="rounded-[12px] border border-[#E5E7EB] bg-white p-4 text-sm font-semibold text-[#4B5563]">
+        Loading referral link...
+      </div>
+    );
+  }
+
+  if (state.status === "error") {
+    return (
+      <div className="rounded-[12px] border border-[#FECACA] bg-[#FFF7F7] p-4">
+        <p className="text-sm font-semibold text-[#991B1B]">
+          Referral link could not load.
+        </p>
+        <p className="mt-2 text-sm leading-6 text-[#7F1D1D]">
+          {state.message}
+        </p>
+        <button
+          type="button"
+          onClick={onRetry}
+          className="mt-4 inline-flex h-10 items-center justify-center rounded-[8px] bg-brand px-4 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-brand/30"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-[12px] border border-[#E4D6C3] bg-white p-4">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div className="min-w-0">
+          <p className="text-sm font-extrabold text-[#111111]">
+            Referral link
+          </p>
+          <p className="mt-1 text-xs font-semibold text-[#6B7280]">
+            Share this link when {formatClientName(client)} sends someone your
+            way.
+          </p>
+        </div>
+        <ReferralStatsSummary stats={state.stats} statsError={state.statsError} />
+      </div>
+
+      {state.link ? (
+        <ReferralLinkActions
+          link={state.link}
+          canNativeShare={canNativeShare}
+          onMessage={onMessage}
+        />
+      ) : (
+        <div className="mt-4 flex flex-col gap-3 rounded-[8px] border border-[#E5E7EB] bg-[#FAF7F2] p-4 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm font-semibold text-[#4B5563]">
+            Create a referral link for this client.
+          </p>
+          <button
+            type="button"
+            onClick={onCreate}
+            disabled={isCreating}
+            className="inline-flex h-10 shrink-0 items-center justify-center rounded-[8px] bg-brand px-4 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-brand/30 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isCreating ? "Creating..." : "Create referral link"}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ReferralLinkActions({
+  link,
+  canNativeShare,
+  onMessage,
+}: {
+  link: ReferralLink;
+  canNativeShare: boolean;
+  onMessage: (message: string) => void;
+}) {
+  async function handleCopy() {
+    if (!navigator.clipboard) {
+      onMessage("Copy is not available in this browser.");
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(link.referral_url);
+      onMessage("Referral link copied.");
+    } catch {
+      onMessage("Referral link could not be copied.");
+    }
+  }
+
+  async function handleShare() {
+    if (!navigator.share) {
+      onMessage("Sharing is not available in this browser.");
+      return;
+    }
+
+    try {
+      await navigator.share({
+        title: "Referral link",
+        url: link.referral_url,
+      });
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") {
+        return;
+      }
+
+      onMessage("Referral link could not be shared.");
+    }
+  }
+
+  return (
+    <div className="mt-4 rounded-[8px] border border-[#E5E7EB] bg-[#FAF7F2] p-4">
+      <p className="text-xs font-bold uppercase tracking-[0.08em] text-[#6B7280]">
+        Referral link
+      </p>
+      <p className="mt-2 break-all text-sm font-semibold text-[#111111]">
+        {link.referral_url}
+      </p>
+      <div className="mt-4 flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={handleCopy}
+          className="inline-flex h-10 items-center justify-center rounded-[8px] bg-brand px-4 text-sm font-semibold text-white focus:outline-none focus:ring-2 focus:ring-brand/30"
+        >
+          Copy
+        </button>
+        {canNativeShare ? (
+          <button
+            type="button"
+            onClick={handleShare}
+            className="inline-flex h-10 items-center justify-center rounded-[8px] border border-[#E4D6C3] bg-white px-4 text-sm font-semibold text-[#1C1C1E] focus:outline-none focus:ring-2 focus:ring-brand/25"
+          >
+            Share
+          </button>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+function ReferralStatsSummary({
+  stats,
+  statsError,
+}: {
+  stats: ReferralStats | null;
+  statsError?: string;
+}) {
+  if (!stats) {
+    return statsError ? (
+      <p className="text-xs font-semibold text-[#92400E]">
+        Referral stats unavailable.
+      </p>
+    ) : null;
+  }
+
+  return (
+    <dl className="grid grid-cols-2 gap-2 sm:min-w-64">
+      <ReferralStat label="Opens" value={stats.opened_count} />
+      <ReferralStat
+        label="Attributed bookings"
+        value={stats.booking_attributed_count}
+      />
+    </dl>
+  );
+}
+
+function ReferralStat({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-[8px] border border-[#E5E7EB] bg-[#FAF7F2] px-3 py-2">
+      <dt className="text-[11px] font-bold uppercase tracking-[0.08em] text-[#6B7280]">
+        {label}
+      </dt>
+      <dd className="mt-1 text-lg font-extrabold text-[#111111]">{value}</dd>
+    </div>
   );
 }
 

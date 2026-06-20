@@ -13,9 +13,12 @@ import {
 } from "react";
 import {
   ApiError,
+  createClientReferralLink,
   getAuthenticatedUser,
   getAccountPlan,
   getAccountProfile,
+  getClientReferralLink,
+  getClientReferralStats,
   getClients,
   getStylistSettingsProfile,
   updateAccountProfile,
@@ -24,6 +27,7 @@ import {
   type AccountProfile,
   type AccountProfileUpdate,
   type Customer,
+  type ReferralStats,
   type StylistSettingsProfile,
   type StylistSettingsUpdate,
 } from "@/src/lib/api";
@@ -46,6 +50,7 @@ import {
 import type {
   AccountTab,
   AuthMode,
+  ClientReferralLoadState,
   ClientsLoadState,
   LoadState,
   ProfileForm,
@@ -139,6 +144,14 @@ export function AccountPageClient() {
   const [clientsLoadState, setClientsLoadState] = useState<ClientsLoadState>({
     status: "idle",
   });
+  const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
+  const [clientReferralStates, setClientReferralStates] = useState<
+    Record<string, ClientReferralLoadState>
+  >({});
+  const [creatingReferralClientId, setCreatingReferralClientId] = useState<
+    string | null
+  >(null);
+  const [canNativeShare, setCanNativeShare] = useState(false);
   const [profileForm, setProfileForm] = useState<ProfileForm | null>(null);
   const [publicForm, setPublicForm] = useState<PublicProfileForm | null>(null);
   const [loadState, setLoadState] = useState<LoadState>(() =>
@@ -231,6 +244,9 @@ export function AccountPageClient() {
     if (!token) {
       setClients([]);
       setClientsLoadState({ status: "idle" });
+      setSelectedClientId(null);
+      setClientReferralStates({});
+      setCreatingReferralClientId(null);
       return;
     }
 
@@ -240,10 +256,116 @@ export function AccountPageClient() {
       const nextClients = await getClients(token);
       setClients(nextClients);
       setClientsLoadState({ status: "ready" });
+      setSelectedClientId((currentClientId) =>
+        currentClientId &&
+        nextClients.some((client) => client.id === currentClientId)
+          ? currentClientId
+          : null,
+      );
     } catch (error) {
       setClientsLoadState({ status: "error", message: getErrorMessage(error) });
     }
   }, []);
+
+  const loadClientReferral = useCallback(
+    async (clientId: string, token: string) => {
+      if (!token) {
+        return;
+      }
+
+      setClientReferralStates((currentStates) => ({
+        ...currentStates,
+        [clientId]: { status: "loading" },
+      }));
+
+      try {
+        const [link, statsResult] = await Promise.all([
+          getClientReferralLink(clientId, token),
+          getClientReferralStats(clientId, token)
+            .then((stats): { stats: ReferralStats | null; error?: string } => ({
+              stats,
+            }))
+            .catch((error): { stats: ReferralStats | null; error?: string } => ({
+              stats: null,
+              error: getErrorMessage(error),
+            })),
+        ]);
+
+        setClientReferralStates((currentStates) => ({
+          ...currentStates,
+          [clientId]: {
+            status: "ready",
+            link,
+            stats: statsResult.stats,
+            statsError: statsResult.error,
+          },
+        }));
+      } catch (error) {
+        setClientReferralStates((currentStates) => ({
+          ...currentStates,
+          [clientId]: { status: "error", message: getErrorMessage(error) },
+        }));
+      }
+    },
+    [],
+  );
+
+  const handleClientToggle = useCallback(
+    (clientId: string) => {
+      const isClosing = selectedClientId === clientId;
+      const nextClientId = isClosing ? null : clientId;
+
+      setSelectedClientId(nextClientId);
+
+      if (!isClosing && accessToken && !clientReferralStates[clientId]) {
+        void loadClientReferral(clientId, accessToken);
+      }
+    },
+    [
+      accessToken,
+      clientReferralStates,
+      loadClientReferral,
+      selectedClientId,
+    ],
+  );
+
+  const handleCreateClientReferralLink = useCallback(
+    async (clientId: string) => {
+      if (!accessToken) {
+        return;
+      }
+
+      const currentState = clientReferralStates[clientId];
+      const currentStats =
+        currentState?.status === "ready" ? currentState.stats : null;
+
+      setCreatingReferralClientId(clientId);
+
+      try {
+        const link = await createClientReferralLink(clientId, accessToken);
+        const stats = await getClientReferralStats(clientId, accessToken).catch(
+          () => currentStats,
+        );
+
+        setClientReferralStates((currentStates) => ({
+          ...currentStates,
+          [clientId]: {
+            status: "ready",
+            link,
+            stats,
+          },
+        }));
+        showMessage("Referral link created.", setToast);
+      } catch (error) {
+        showMessage(getErrorMessage(error), setToast);
+      } finally {
+        setCreatingReferralClientId((currentClientId) =>
+          currentClientId === clientId ? null : currentClientId,
+        );
+      }
+    },
+    [accessToken, clientReferralStates],
+  );
 
   useEffect(() => {
     if (!hasSupabaseBrowserConfig()) {
@@ -286,6 +408,9 @@ export function AccountPageClient() {
         setPlan(null);
         setClients([]);
         setClientsLoadState({ status: "idle" });
+        setSelectedClientId(null);
+        setClientReferralStates({});
+        setCreatingReferralClientId(null);
         setProfileForm(null);
         setPublicForm(null);
         setLoadState({ status: "auth" });
@@ -300,6 +425,13 @@ export function AccountPageClient() {
       subscription.unsubscribe();
     };
   }, [loadAccount]);
+
+  useEffect(() => {
+    setCanNativeShare(
+      typeof navigator !== "undefined" &&
+        typeof navigator.share === "function",
+    );
+  }, []);
 
   useEffect(() => {
     if (
@@ -623,6 +755,16 @@ export function AccountPageClient() {
                 <ClientsTabPanel
                   clients={clients}
                   loadState={clientsLoadState}
+                  selectedClientId={selectedClientId}
+                  referralStates={clientReferralStates}
+                  creatingReferralClientId={creatingReferralClientId}
+                  canNativeShare={canNativeShare}
+                  onClientToggle={handleClientToggle}
+                  onCreateReferralLink={handleCreateClientReferralLink}
+                  onReferralRetry={(clientId) =>
+                    void loadClientReferral(clientId, accessToken)
+                  }
+                  onMessage={(message) => showMessage(message, setToast)}
                   onRetry={() => void loadClients(accessToken)}
                 />
               ) : (

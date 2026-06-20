@@ -1,11 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  createClientReferralLink,
   createPublicBooking,
+  getClientReferralLink,
+  getClientReferralStats,
   getClients,
   getPublicAvailability,
   getPublicServices,
   getPublicSlots,
   joinWaitlist,
+  resolvePublicReferral,
 } from "@/src/lib/api";
 
 describe("public booking api helpers", () => {
@@ -228,6 +232,110 @@ describe("authenticated clients api helpers", () => {
     ).toBe("Bearer token-1");
     expect(clients.map((client) => client.id)).toEqual(["1", "2"]);
   });
+
+  it("unwraps null referral-link responses", async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(JSON.stringify({ data: null }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    await expect(getClientReferralLink("client-1", "token-1")).resolves.toBeNull();
+
+    expect(fetch).toHaveBeenCalledWith(
+      "http://localhost:3000/api/clients/client-1/referral-link",
+      expect.objectContaining({
+        cache: "no-store",
+        headers: expect.any(Headers),
+      }),
+    );
+  });
+
+  it("calls client referral helper paths with bearer auth", async () => {
+    vi.mocked(fetch)
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ data: makeReferralLink() }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ data: makeReferralStats() }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      );
+
+    await createClientReferralLink("client 1", "token-1");
+    await getClientReferralStats("client 1", "token-1");
+
+    expect(fetch).toHaveBeenNthCalledWith(
+      1,
+      "http://localhost:3000/api/clients/client%201/referral-link",
+      expect.objectContaining({
+        cache: "no-store",
+        method: "POST",
+        headers: expect.any(Headers),
+      }),
+    );
+    expect(fetch).toHaveBeenNthCalledWith(
+      2,
+      "http://localhost:3000/api/clients/client%201/referral-stats",
+      expect.objectContaining({
+        cache: "no-store",
+        headers: expect.any(Headers),
+      }),
+    );
+    expect(
+      (vi.mocked(fetch).mock.calls[0]?.[1]?.headers as Headers).get(
+        "Authorization",
+      ),
+    ).toBe("Bearer token-1");
+  });
+});
+
+describe("public referral api helpers", () => {
+  beforeEach(() => {
+    vi.stubGlobal("fetch", vi.fn());
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("resolves public referral codes through the public proxy", async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          data: {
+            referralLinkId: "referral-link-1",
+            referralCode: "rf_client123",
+            referralUrl: "https://dripdesk.test/r/rf_client123",
+            stylistSlug: "maya-johnson",
+            bookingUrl: "https://dripdesk.test/book/maya-johnson",
+            expiresAt: "2026-08-01T00:00:00.000Z",
+          },
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        },
+      ),
+    );
+
+    await expect(resolvePublicReferral("rf client123")).resolves.toEqual(
+      expect.objectContaining({
+        referralCode: "rf_client123",
+        stylistSlug: "maya-johnson",
+      }),
+    );
+
+    expect(fetch).toHaveBeenCalledWith(
+      "/api/public/referrals/rf%20client123",
+      expect.objectContaining({ cache: "no-store" }),
+    );
+  });
 });
 
 function makeCustomer(
@@ -254,5 +362,28 @@ function makeCustomer(
     created_at: "2026-05-12T18:00:00.000Z",
     updated_at: "2026-05-12T18:00:00.000Z",
     ...overrides,
+  };
+}
+
+function makeReferralLink() {
+  return {
+    id: "referral-link-1",
+    user_id: "user-1",
+    client_id: "client-1",
+    referral_code: "rf_client123",
+    referral_url: "https://dripdesk.test/r/rf_client123",
+    status: "active",
+    created_at: "2026-05-12T18:00:00.000Z",
+    updated_at: "2026-05-12T18:00:00.000Z",
+  };
+}
+
+function makeReferralStats() {
+  return {
+    referral_link_id: "referral-link-1",
+    referral_code: "rf_client123",
+    referral_url: "https://dripdesk.test/r/rf_client123",
+    opened_count: 3,
+    booking_attributed_count: 1,
   };
 }

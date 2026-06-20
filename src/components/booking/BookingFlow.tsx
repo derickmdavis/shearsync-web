@@ -48,6 +48,7 @@ import { WaitlistCallout } from "@/src/components/booking/WaitlistCallout";
 type BookingFlowProps = {
   slug: string;
   stylist: PublicStylist;
+  initialReferralCode?: string | null;
 };
 
 type BookingIntakeState =
@@ -90,7 +91,48 @@ function getBookableSlots(response: PublicSlotsResponse) {
   return Array.from(slotMap.values());
 }
 
-export function BookingFlow({ slug, stylist }: BookingFlowProps) {
+function normalizeReferralCode(value?: string | null) {
+  return value?.trim() || null;
+}
+
+function getReferralStorageKey(slug: string) {
+  return `referral:${slug}`;
+}
+
+function readStoredReferralCode(slug: string) {
+  if (typeof sessionStorage === "undefined") {
+    return null;
+  }
+
+  try {
+    return normalizeReferralCode(
+      sessionStorage.getItem(getReferralStorageKey(slug)),
+    );
+  } catch {
+    return null;
+  }
+}
+
+function clearStoredReferralCode(slug: string) {
+  if (typeof sessionStorage === "undefined") {
+    return;
+  }
+
+  try {
+    sessionStorage.removeItem(getReferralStorageKey(slug));
+  } catch {
+    // Referral cleanup should never block a completed booking.
+  }
+}
+
+export function BookingFlow({
+  slug,
+  stylist,
+  initialReferralCode,
+}: BookingFlowProps) {
+  const [referralCode, setReferralCode] = useState<string | null>(() =>
+    normalizeReferralCode(initialReferralCode) ?? readStoredReferralCode(slug),
+  );
   const [currentStep, setCurrentStep] = useState(1);
   const [notes, setNotes] = useState("");
   const [intakeState, setIntakeState] = useState<BookingIntakeState>({
@@ -200,11 +242,52 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
   ]);
 
   const selectedServicesRef = useRef(selectedServices);
+  const referralCodeRef = useRef(referralCode);
   // Token refreshes can be triggered by several concurrent availability calls;
   // share one in-flight refresh to avoid duplicate intake requests.
   const tokenRefreshPromiseRef = useRef<Promise<PublicBookingIntakeData | null> | null>(
     null,
   );
+
+  useEffect(() => {
+    referralCodeRef.current = referralCode;
+  }, [referralCode]);
+
+  useEffect(() => {
+    const storageKey = getReferralStorageKey(slug);
+    const nextReferralCode = normalizeReferralCode(initialReferralCode);
+    let timeoutId: number | null = null;
+
+    function scheduleReferralCodeUpdate(value: string | null) {
+      timeoutId = window.setTimeout(() => {
+        setReferralCode(value);
+      }, 0);
+    }
+
+    if (nextReferralCode) {
+      scheduleReferralCodeUpdate(nextReferralCode);
+
+      try {
+        sessionStorage.setItem(storageKey, nextReferralCode);
+      } catch {
+        // Referral attribution should never block booking if storage is unavailable.
+      }
+
+      return () => {
+        if (timeoutId !== null) {
+          window.clearTimeout(timeoutId);
+        }
+      };
+    }
+
+    scheduleReferralCodeUpdate(readStoredReferralCode(slug));
+
+    return () => {
+      if (timeoutId !== null) {
+        window.clearTimeout(timeoutId);
+      }
+    };
+  }, [initialReferralCode, slug]);
 
   useEffect(() => {
     selectedServicesRef.current = selectedServices;
@@ -1094,9 +1177,13 @@ export function BookingFlow({ slug, stylist }: BookingFlowProps) {
         guest_email: email.trim() || undefined,
         guest_phone: phone.trim(),
         booking_context_token: bookingContextToken,
+        referral_code: referralCodeRef.current || undefined,
         notes: buildBookingNotes(selectedServices, notes),
       });
 
+      clearStoredReferralCode(slug);
+      referralCodeRef.current = null;
+      setReferralCode(null);
       setConfirmation(response);
       setCurrentStep(5);
     } catch (error) {

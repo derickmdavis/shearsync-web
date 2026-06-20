@@ -9,10 +9,15 @@ type BookingPageProps = {
   params: Promise<{
     slug: string;
   }>;
+  searchParams: Promise<{
+    ref?: string | string[];
+  }>;
 };
 
 export default async function BookingPage(props: BookingPageProps) {
   const { slug } = await props.params;
+  const searchParams = await props.searchParams;
+  const referralCode = getFirstSearchParamValue(searchParams.ref);
 
   let stylist: PublicStylist | null = null;
 
@@ -57,8 +62,19 @@ export default async function BookingPage(props: BookingPageProps) {
   return (
     <main className="px-4 py-6 sm:px-6 sm:py-10 lg:py-14">
       <div className="mx-auto w-full max-w-[430px] lg:max-w-[980px]">
-        <BookingFlow slug={slug} stylist={stylist} />
+        <BookingFlow
+          slug={slug}
+          stylist={stylist}
+          initialReferralCode={referralCode}
+        />
       </div>
     </main>
   );
+}
+
+function getFirstSearchParamValue(value?: string | string[]) {
+  const rawValue = Array.isArray(value) ? value[0] : value;
+  const trimmedValue = rawValue?.trim();
+
+  return trimmedValue || null;
 }

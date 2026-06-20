@@ -1,4 +1,4 @@
-import type { AccountPlan } from "@/src/lib/api";
+import type { AccountPlan, ReferralLink, ReferralStats } from "@/src/lib/api";
 
 export const accountNavItems = [
   { id: "dashboard", label: "Dashboard" },
@@ -55,6 +55,17 @@ export type ClientsLoadState =
   | { status: "idle" }
   | { status: "loading" }
   | { status: "ready" }
+  | { status: "error"; message: string };
+
+export type ClientReferralLoadState =
+  | { status: "idle" }
+  | { status: "loading" }
+  | {
+      status: "ready";
+      link: ReferralLink | null;
+      stats: ReferralStats | null;
+      statsError?: string;
+    }
   | { status: "error"; message: string };
 
 export type AuthMode = "sign-in" | "sign-up" | "reset";

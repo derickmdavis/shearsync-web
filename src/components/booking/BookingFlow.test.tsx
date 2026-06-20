@@ -179,6 +179,7 @@ async function completeSuccessfulBooking() {
 describe("BookingFlow", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    window.sessionStorage.clear();
   });
 
   it("shows a linked Instagram handle when the stylist profile includes one", () => {
@@ -548,6 +549,213 @@ describe("BookingFlow", () => {
         }),
       );
     });
+  });
+
+  it("sends the referral code when submitting the final booking", async () => {
+    const {
+      createPublicBooking,
+      createPublicBookingIntake,
+      getPublicAvailability,
+      getPublicServices,
+      getPublicSlots,
+    } = setupMockReferences();
+
+    createPublicBookingIntake.mockResolvedValue(
+      createIntake({ bookingContextToken: "token-final" }),
+    );
+    getPublicServices.mockResolvedValue([createService("service-1", "Haircut")]);
+    getPublicAvailability.mockResolvedValue({
+      dates: ["2026-07-15"],
+      timezone: "America/Denver",
+    });
+    getPublicSlots.mockResolvedValue({
+      date: "2026-07-15",
+      timezone: "America/Denver",
+      service: {
+        id: "service-1",
+        name: "Haircut",
+        durationMinutes: 60,
+        price: 95,
+      },
+      slots: [
+        {
+          start: "2026-07-15T09:00:00-06:00",
+          end: "2026-07-15T10:00:00-06:00",
+        },
+      ],
+    });
+    createPublicBooking.mockResolvedValue(createBookingConfirmation());
+
+    render(
+      <BookingFlow
+        slug="maya-johnson"
+        stylist={baseStylist}
+        initialReferralCode="rf_client123"
+      />,
+    );
+
+    await completeSuccessfulBooking();
+
+    await waitFor(() => {
+      expect(createPublicBooking).toHaveBeenCalledWith(
+        expect.objectContaining({
+          referral_code: "rf_client123",
+        }),
+      );
+    });
+  });
+
+  it("clears the stored referral code after a successful booking", async () => {
+    const {
+      createPublicBooking,
+      createPublicBookingIntake,
+      getPublicAvailability,
+      getPublicServices,
+      getPublicSlots,
+    } = setupMockReferences();
+
+    createPublicBookingIntake.mockResolvedValue(
+      createIntake({ bookingContextToken: "token-final" }),
+    );
+    getPublicServices.mockResolvedValue([createService("service-1", "Haircut")]);
+    getPublicAvailability.mockResolvedValue({
+      dates: ["2026-07-15"],
+      timezone: "America/Denver",
+    });
+    getPublicSlots.mockResolvedValue({
+      date: "2026-07-15",
+      timezone: "America/Denver",
+      service: {
+        id: "service-1",
+        name: "Haircut",
+        durationMinutes: 60,
+        price: 95,
+      },
+      slots: [
+        {
+          start: "2026-07-15T09:00:00-06:00",
+          end: "2026-07-15T10:00:00-06:00",
+        },
+      ],
+    });
+    createPublicBooking.mockResolvedValue(createBookingConfirmation());
+
+    render(
+      <BookingFlow
+        slug="maya-johnson"
+        stylist={baseStylist}
+        initialReferralCode="rf_client123"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(window.sessionStorage.getItem("referral:maya-johnson")).toBe(
+        "rf_client123",
+      );
+    });
+
+    await completeSuccessfulBooking();
+
+    await waitFor(() => {
+      expect(createPublicBooking).toHaveBeenCalled();
+    });
+    expect(window.sessionStorage.getItem("referral:maya-johnson")).toBeNull();
+  });
+
+  it("falls back to a stored referral code scoped by stylist slug", async () => {
+    const {
+      createPublicBooking,
+      createPublicBookingIntake,
+      getPublicAvailability,
+      getPublicServices,
+      getPublicSlots,
+    } = setupMockReferences();
+
+    window.sessionStorage.setItem("referral:maya-johnson", "rf_stored123");
+    window.sessionStorage.setItem("referral:other-stylist", "rf_other999");
+    createPublicBookingIntake.mockResolvedValue(
+      createIntake({ bookingContextToken: "token-final" }),
+    );
+    getPublicServices.mockResolvedValue([createService("service-1", "Haircut")]);
+    getPublicAvailability.mockResolvedValue({
+      dates: ["2026-07-15"],
+      timezone: "America/Denver",
+    });
+    getPublicSlots.mockResolvedValue({
+      date: "2026-07-15",
+      timezone: "America/Denver",
+      service: {
+        id: "service-1",
+        name: "Haircut",
+        durationMinutes: 60,
+        price: 95,
+      },
+      slots: [
+        {
+          start: "2026-07-15T09:00:00-06:00",
+          end: "2026-07-15T10:00:00-06:00",
+        },
+      ],
+    });
+    createPublicBooking.mockResolvedValue(createBookingConfirmation());
+
+    render(<BookingFlow slug="maya-johnson" stylist={baseStylist} />);
+
+    await completeSuccessfulBooking();
+
+    await waitFor(() => {
+      expect(createPublicBooking).toHaveBeenCalledWith(
+        expect.objectContaining({
+          referral_code: "rf_stored123",
+        }),
+      );
+    });
+  });
+
+  it("does not use a stored referral code from another stylist slug", async () => {
+    const {
+      createPublicBooking,
+      createPublicBookingIntake,
+      getPublicAvailability,
+      getPublicServices,
+      getPublicSlots,
+    } = setupMockReferences();
+
+    window.sessionStorage.setItem("referral:other-stylist", "rf_other999");
+    createPublicBookingIntake.mockResolvedValue(
+      createIntake({ bookingContextToken: "token-final" }),
+    );
+    getPublicServices.mockResolvedValue([createService("service-1", "Haircut")]);
+    getPublicAvailability.mockResolvedValue({
+      dates: ["2026-07-15"],
+      timezone: "America/Denver",
+    });
+    getPublicSlots.mockResolvedValue({
+      date: "2026-07-15",
+      timezone: "America/Denver",
+      service: {
+        id: "service-1",
+        name: "Haircut",
+        durationMinutes: 60,
+        price: 95,
+      },
+      slots: [
+        {
+          start: "2026-07-15T09:00:00-06:00",
+          end: "2026-07-15T10:00:00-06:00",
+        },
+      ],
+    });
+    createPublicBooking.mockResolvedValue(createBookingConfirmation());
+
+    render(<BookingFlow slug="maya-johnson" stylist={baseStylist} />);
+
+    await completeSuccessfulBooking();
+
+    await waitFor(() => {
+      expect(createPublicBooking).toHaveBeenCalled();
+    });
+    expect(createPublicBooking.mock.calls[0]?.[0].referral_code).toBeUndefined();
   });
 
   it("shows the optional reference photo upload after a booking returns a live upload token", async () => {

@@ -129,6 +129,25 @@ export type Customer = {
   updated_at: string;
 };
 
+export type ReferralLink = {
+  id: string;
+  user_id: string;
+  client_id: string;
+  referral_code: string;
+  referral_url: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ReferralStats = {
+  referral_link_id: string | null;
+  referral_code: string | null;
+  referral_url: string | null;
+  opened_count: number;
+  booking_attributed_count: number;
+};
+
 export type AccountTier = "basic" | "pro" | "premium";
 
 export type AccountPlanStatus =
@@ -276,7 +295,17 @@ export type CreatePublicBookingBody = {
   guest_email?: string;
   guest_phone: string;
   booking_context_token?: string;
+  referral_code?: string;
   notes?: string;
+};
+
+export type PublicReferralResponse = {
+  referralLinkId: string;
+  referralCode: string;
+  referralUrl: string;
+  stylistSlug: string;
+  bookingUrl: string;
+  expiresAt: string;
 };
 
 export type CreateWaitlistInput = {
@@ -500,7 +529,7 @@ function unwrapPayload<T>(payload: ApiEnvelope<T> | T): T {
     typeof payload === "object" &&
     "data" in (payload as Record<string, unknown>)
   ) {
-    return ((payload as ApiEnvelope<T>).data ?? payload) as T;
+    return (payload as ApiEnvelope<T>).data as T;
   }
 
   return payload as T;
@@ -738,6 +767,12 @@ export async function createPublicBooking(body: CreatePublicBookingBody) {
   });
 }
 
+export async function resolvePublicReferral(referralCode: string) {
+  return requestPublicApi<PublicReferralResponse>(
+    `/api/public/referrals/${encodeURIComponent(referralCode)}`,
+  );
+}
+
 export async function createPublicReferencePhotoUploadIntent(
   body: CreatePublicReferencePhotoUploadIntentBody,
 ) {
@@ -883,4 +918,39 @@ export async function getClients(accessToken: string) {
       numeric: true,
     });
   });
+}
+
+export async function getClientReferralLink(
+  clientId: string,
+  accessToken: string,
+) {
+  return requestAuthenticatedApi<ReferralLink | null>(
+    `/api/clients/${encodeURIComponent(clientId)}/referral-link`,
+    accessToken,
+  );
+}
+
+export async function createClientReferralLink(
+  clientId: string,
+  accessToken: string,
+) {
+  return requestAuthenticatedApi<ReferralLink>(
+    `/api/clients/${encodeURIComponent(clientId)}/referral-link`,
+    accessToken,
+    {
+      init: {
+        method: "POST",
+      },
+    },
+  );
+}
+
+export async function getClientReferralStats(
+  clientId: string,
+  accessToken: string,
+) {
+  return requestAuthenticatedApi<ReferralStats>(
+    `/api/clients/${encodeURIComponent(clientId)}/referral-stats`,
+    accessToken,
+  );
 }
