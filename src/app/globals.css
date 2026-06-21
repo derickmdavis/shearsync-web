@@ -5,28 +5,54 @@
   --brand-name: "DripDesk";
   --color-charcoal: #111111;
   --color-soft-black: #1c1c1e;
-  --color-bronze: #b7793d;
-  --color-bronze-dark: #9a632f;
-  --color-bronze-active: #8a5728;
-  --color-warm-gold: #d6a85a;
-  --color-ivory: #faf7f2;
-  --color-surface: #ffffff;
-  --color-surface-warm: #fbfaf7;
-  --color-muted-gray: #6b7280;
-  --color-text-muted: #9ca3af;
-  --color-border-warm: #e8e1d8;
-  --background: #faf7f2;
+  --color-bronze: #b07a3e;
+  --color-bronze-dark: #8a5528;
+  --color-bronze-active: #996534;
+  --color-warm-gold: #c8a46b;
+  --color-ivory: #f6f1e8;
+  --color-surface: #fffdf8;
+  --color-surface-warm: #faf6ee;
+  --color-muted-gray: #6b625a;
+  --color-text-muted: #8a7e72;
+  --color-border-warm: #c8a46b;
+  --background: #f6f1e8;
   --foreground: #111111;
-  --muted: #6b7280;
-  --page: #faf7f2;
-  --card: #ffffff;
-  --border: #e8e1d8;
-  --brand: #b7793d;
-  --brand-dark: #9a632f;
-  --brand-active: #8a5728;
-  --brand-gold: #d6a85a;
-  --brand-soft: rgba(183, 121, 61, 0.1);
-  --surface-warm: #fbfaf7;
+  --muted: #6b625a;
+  --page: #f6f1e8;
+  --card: #fffdf8;
+  --border: #c8a46b;
+  --brand: #b07a3e;
+  --brand-dark: #8a5528;
+  --brand-active: #996534;
+  --brand-gold: #c8a46b;
+  --brand-soft: rgba(176, 122, 62, 0.12);
+  --surface-warm: #faf6ee;
+  --dd-bg-base: #f6f1e8;
+  --dd-bg-warm: #f8eecf;
+  --dd-bg-card: #fffdf8;
+  --dd-bg-card-soft: #faf6ee;
+  --dd-text-heading: #111111;
+  --dd-text-body: #4f4a45;
+  --dd-text-muted: #6b625a;
+  --dd-text-soft: #8a7e72;
+  --dd-bronze: #b07a3e;
+  --dd-bronze-dark: #8a5528;
+  --dd-bronze-hover: #996534;
+  --dd-champagne-gold: #c8a46b;
+  --dd-soft-gold: #d6bb85;
+  --dd-light-gold: #e8d3a3;
+  --dd-border-gold: #c8a46b;
+  --dd-border-soft: rgba(176, 122, 62, 0.35);
+  --dd-button-primary: #b07a3e;
+  --dd-button-primary-hover: #996534;
+  --dd-button-primary-text: #ffffff;
+  --dd-button-secondary-bg: transparent;
+  --dd-button-secondary-border: #b07a3e;
+  --dd-button-secondary-text: #4a3728;
+  --dd-nav-text: #1f1a17;
+  --dd-logo-text: #111111;
+  --dd-shadow-soft: 0 18px 45px rgba(80, 52, 25, 0.08);
+  --dd-shadow-button: 0 12px 28px rgba(176, 122, 62, 0.22);
   --success: #22c55e;
   --danger: #ef4444;
   --warning: #f59e0b;
@@ -66,8 +92,9 @@ html {
 body {
   min-height: 100vh;
   background:
-    radial-gradient(circle at top, rgba(183, 121, 61, 0.08), transparent 35%),
-    linear-gradient(180deg, #ffffff 0%, #faf7f2 36%, #fbfaf7 100%);
+    radial-gradient(circle at 12% 24%, rgba(232, 211, 163, 0.42) 0%, rgba(232, 211, 163, 0.12) 28%, transparent 54%),
+    radial-gradient(circle at 92% 18%, rgba(214, 187, 133, 0.35) 0%, rgba(214, 187, 133, 0.1) 34%, transparent 62%),
+    linear-gradient(135deg, #f6f1e8 0%, #fff8e8 48%, #f6f1e8 100%);
 }
 
 button,
@@ -82,5 +109,5 @@ a {
 }
 
 ::selection {
-  background: rgba(183, 121, 61, 0.2);
+  background: rgba(176, 122, 62, 0.22);
 }

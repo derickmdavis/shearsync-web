@@ -5,46 +5,42 @@ import type { ReactNode } from "react";
 const loginHref = "/login";
 const signUpHref = "/login?mode=sign-up";
 
-const valueCards = [
+const productPillars = [
   {
     icon: "/assets/icons/icon-calendar-bronze.svg",
-    title: <>Stay booked.</>,
-    body: "Simple, reliable booking that makes it easy for clients to schedule and return.",
+    title: "Stay booked.",
+    body: "Simple, reliable booking tools that make it easy for clients to schedule, reschedule, and return.",
+    bullets: [
+      "Online booking that’s always open",
+      "Automated reminders that reduce no-shows",
+      "Waitlist support to fill last-minute openings",
+    ],
+    screenshot: "/assets/home/dripdesk-phone-calendar.png",
+    alt: "DripDesk calendar screen showing appointments, open time, and booking controls",
   },
   {
     icon: "/assets/icons/icon-client-bronze.svg",
-    title: <>Grow automatically.</>,
-    body: "Automated reminders, rebooking prompts, and waitlist management help fill your calendar without manual follow-up.",
+    title: "Remember every client.",
+    body: "Keep every detail that matters so you can personalize every visit and build lasting relationships.",
+    bullets: [
+      "Notes, preferences, and service history",
+      "Before & after photos in one place",
+      "Quick access to past appointments and spend",
+    ],
+    screenshot: "/assets/home/dripdesk-phone-clients.png",
+    alt: "DripDesk clients screen showing client list, notes, and client history",
   },
   {
     icon: "/assets/icons/icon-analytics-bronze.svg",
-    title: <>Know what&apos;s working.</>,
-    body: "Clear insights into revenue, retention, client behavior, and booking trends so you can make smarter decisions.",
-  },
-];
-
-const commandBullets = [
-  "Stay organized and look more professional",
-  "Save time by automating the busy work",
-  "Manage clients and build loyalty",
-  "Track your income and grow with confidence",
-];
-
-const phoneScreens = [
-  {
-    src: "/assets/home/dripdesk-phone-calendar.png",
-    alt: "DripDesk mobile calendar screen showing appointments and open booking gaps",
-    className: "lg:translate-y-8",
-  },
-  {
-    src: "/assets/home/dripdesk-phone-insights.png",
-    alt: "DripDesk mobile insights dashboard showing business snapshot metrics",
-    className: "lg:z-10",
-  },
-  {
-    src: "/assets/home/dripdesk-phone-clients.png",
-    alt: "DripDesk mobile clients screen showing client history and upcoming visits",
-    className: "lg:translate-y-8",
+    title: "Know what’s working.",
+    body: "Understand your numbers, client behavior, and trends so you can make smarter decisions and grow with confidence.",
+    bullets: [
+      "Revenue, rebooking rate, and client retention",
+      "Average ticket, top services, and add-ons",
+      "Trends and insights to guide your next move",
+    ],
+    screenshot: "/assets/home/dripdesk-phone-insights.png",
+    alt: "DripDesk dashboard screen showing business snapshot and revenue insights",
   },
 ];
 
@@ -161,17 +157,17 @@ function MarketingLink({
 }) {
   const styles = {
     primary:
-      "border border-brand bg-gradient-to-b from-[#C9823F] to-brand text-white shadow-[0_18px_38px_rgba(183,121,61,0.24)] hover:border-brand-dark hover:from-brand-dark hover:to-brand-dark",
+      "border border-[rgba(138,85,40,0.65)] bg-gradient-to-b from-[#C98A44] via-[#B07A3E] to-[#A96A32] text-white shadow-[0_18px_38px_rgba(176,122,62,0.20)] hover:border-brand-dark hover:from-[#B97939] hover:to-[#996534]",
     secondary:
-      "border border-brand/80 bg-transparent text-brand hover:bg-brand hover:text-white",
-    nav: "border border-brand bg-gradient-to-b from-[#C9823F] to-brand text-white hover:border-brand-dark hover:from-brand-dark hover:to-brand-dark",
+      "border border-[#B07A3E] bg-transparent text-[#4A3728] hover:bg-[rgba(200,164,107,0.10)] hover:text-[#4A3728]",
+    nav: "border border-[rgba(138,85,40,0.55)] bg-gradient-to-b from-[#C98A44] to-[#B07A3E] text-white shadow-[0_12px_28px_rgba(176,122,62,0.20)] hover:border-brand-dark hover:from-[#996534] hover:to-[#996534]",
   };
 
   return (
     <Link
       href={href}
       className={[
-        "inline-flex h-11 items-center justify-center rounded-[8px] px-6 text-sm font-extrabold transition-colors focus:outline-none focus:ring-2 focus:ring-brand/35 focus:ring-offset-2 focus:ring-offset-[#FAF7F2]",
+        "inline-flex h-11 items-center justify-center rounded-[8px] px-6 text-sm font-extrabold transition-colors focus:outline-none focus:ring-2 focus:ring-brand/35 focus:ring-offset-2 focus:ring-offset-[#F6F1E8]",
         styles[variant],
         className,
       ].join(" ")}
@@ -220,19 +216,19 @@ function HomeNav() {
       <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-start sm:gap-6">
         <Link
           href="#top"
-          className="text-xs font-extrabold text-[#111111] transition-colors hover:text-brand sm:text-sm"
+          className="text-xs font-extrabold text-[#1F1A17] transition-colors hover:text-brand sm:text-sm"
         >
           About
         </Link>
         <Link
           href="#pricing"
-          className="text-xs font-extrabold text-[#111111] transition-colors hover:text-brand sm:text-sm"
+          className="text-xs font-extrabold text-[#1F1A17] transition-colors hover:text-brand sm:text-sm"
         >
           Pricing
         </Link>
         <Link
           href={loginHref}
-          className="text-xs font-extrabold text-[#111111] transition-colors hover:text-brand sm:text-sm"
+          className="text-xs font-extrabold text-[#1F1A17] transition-colors hover:text-brand sm:text-sm"
         >
           Login
         </Link>
@@ -252,16 +248,16 @@ function HomeHero() {
   return (
     <section
       id="top"
-      className="relative isolate overflow-hidden bg-[#FFFDF8] text-[#111111]"
+      className="relative isolate overflow-hidden bg-[#F6F1E8] text-[#111111]"
     >
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(214,168,90,0.13),transparent_30%),linear-gradient(100deg,#FFFDF8_0%,#FAF7F2_48%,#FFFDF8_100%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_24%,rgba(232,211,163,0.42)_0%,rgba(232,211,163,0.12)_28%,transparent_54%),radial-gradient(circle_at_92%_18%,rgba(214,187,133,0.35)_0%,rgba(214,187,133,0.10)_34%,transparent_62%),linear-gradient(135deg,#F6F1E8_0%,#FFF8E8_48%,#F6F1E8_100%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(120deg,transparent_0%,rgba(255,255,255,0.32)_44%,transparent_56%),linear-gradient(300deg,transparent_0%,rgba(200,164,107,0.12)_42%,transparent_65%)] opacity-60" />
       <HomeNav />
 
       <div className="relative z-10 mx-auto grid max-w-[1180px] gap-8 px-5 pb-12 pt-7 sm:px-8 lg:min-h-[610px] lg:grid-cols-[0.86fr_1.14fr] lg:items-center lg:pb-0 lg:pt-0">
         <div className="max-w-[560px]">
-          <p className="inline-flex items-center gap-2 rounded-[4px] border border-brand/60 bg-white/55 px-3 py-1 text-[9px] font-extrabold uppercase tracking-[0.07em] text-brand sm:whitespace-nowrap">
-            <span className="h-1.5 w-1.5 rotate-45 bg-brand" />
-            Designed for stylists, barbers, and independent booth renters
+          <p className="inline-flex items-center gap-2 rounded-[4px] border border-[#C8A46B] bg-[#FFFDF8]/35 px-3 py-1 text-[9px] font-extrabold uppercase tracking-[0.07em] text-brand sm:whitespace-nowrap">
+            Designed for independent stylists and barbers
           </p>
 
           <h1 className="mt-6 max-w-[530px] font-display text-[54px] font-bold leading-[0.9] tracking-normal text-[#111111] sm:text-[72px] lg:text-[78px]">
@@ -270,15 +266,14 @@ function HomeHero() {
             side of beauty.
           </h1>
 
-          <p className="mt-6 max-w-[520px] text-[16px] leading-7 text-[#1C1C1E]/78 sm:text-[17px]">
+          <p className="mt-6 max-w-[520px] text-[16px] leading-7 text-[#4F4A45] sm:text-[17px]">
             Stop chasing appointments. Stop losing clients between visits.
             DripDesk helps you remember every client and keep them coming back.
           </p>
 
-          <p className="mt-7 flex max-w-[560px] items-center gap-3 text-xs font-bold leading-5 text-[#1C1C1E]/78 sm:text-[13px]">
-            <span className="relative h-5 w-5 shrink-0 rotate-45 border border-brand after:absolute after:left-1/2 after:top-1/2 after:h-1.5 after:w-1.5 after:-translate-x-1/2 after:-translate-y-1/2 after:bg-brand" />
+          <p className="mt-7 flex max-w-[560px] items-center gap-3 text-xs font-bold leading-5 text-[#4F4A45] sm:text-[13px]">
             <span className="sm:whitespace-nowrap">
-              Seamless booking, automated growth, and smart business insights.
+              Seamless booking. Automated growth. Smart business insights.
             </span>
           </p>
 
@@ -306,124 +301,82 @@ function HomeHero() {
             sizes="(min-width: 1180px) 660px, (min-width: 1024px) 56vw, 100vw"
             className="object-cover object-[58%_center]"
           />
-          <div className="absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-[#FFFDF8] via-[#FFFDF8]/72 to-transparent" />
+          <div className="absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-[#F6F1E8] via-[#F6F1E8]/72 to-transparent" />
         </div>
       </div>
     </section>
   );
 }
 
-function HomeValueCards() {
+function HomeProductPillars() {
   return (
     <section
       id="features"
-      className="border-t border-[#E4D6C3]/55 bg-[#FFFDF8] px-5 py-14 text-[#111111] sm:px-8 sm:py-16"
+      className="border-t border-[rgba(200,164,107,0.30)] bg-transparent px-5 py-20 text-[#111111] sm:px-8 sm:py-24 lg:py-28"
     >
-      <div className="mx-auto max-w-[1180px]">
-        <div className="mx-auto max-w-[840px] text-center">
-          <h2 className="font-display text-[30px] font-bold leading-[1.08] tracking-normal sm:text-[40px]">
-            Tools that solve real problems, so you can stay booked and stress
-            less.
-          </h2>
-          <p className="mx-auto mt-4 max-w-[700px] text-[15px] leading-7 text-[#6B7280]">
-            DripDesk helps you stay booked, remember every client detail, and
-            understand what your chair is earning without juggling texts, notes,
-            screenshots, or spreadsheets.
-          </p>
-        </div>
-
-        <div className="mx-auto mt-9 grid max-w-[900px] gap-5 lg:grid-cols-3">
-          {valueCards.map((card) => (
-            <article
-              key={card.icon}
-              className="rounded-[8px] border border-[#E4D6C3] bg-white p-6 shadow-[0_18px_42px_rgba(17,17,17,0.04)]"
-            >
-              <div className="grid h-12 w-12 place-items-center rounded-full border border-brand/25 bg-brand/10">
-                <Image
-                  src={card.icon}
-                  alt=""
-                  width={24}
-                  height={24}
-                  aria-hidden="true"
-                />
-              </div>
-              <h3 className="mt-6 text-xl font-extrabold leading-7 text-[#111111]">
-                {card.title}
-              </h3>
-              <p className="mt-3 text-sm leading-7 text-[#6B7280]">
-                {card.body}
-              </p>
-              <Link
-                href="#pricing"
-                className="mt-6 inline-flex text-sm font-extrabold text-brand hover:text-brand-dark"
-              >
-                Learn more <span aria-hidden="true" className="ml-2">-&gt;</span>
-              </Link>
-            </article>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function HomeCommandCenter() {
-  return (
-    <section className="overflow-hidden bg-[#FFFDF8] px-5 py-10 text-[#111111] sm:px-8 sm:py-14">
-      <div className="mx-auto grid max-w-[1180px] gap-8 lg:grid-cols-[0.66fr_1.34fr] lg:items-center">
-        <div>
-          <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-brand">
-            All-in-one business hub
-          </p>
-          <h2 className="mt-4 font-display text-[38px] font-bold leading-[1] tracking-normal text-[#111111] sm:text-[48px]">
-            A cleaner command
+      <div className="mx-auto max-w-[1240px]">
+        <div className="mx-auto max-w-[860px] text-center">
+          <h2 className="font-display text-[38px] font-bold leading-[1.02] tracking-normal sm:text-[48px] lg:text-[56px]">
+            Everything behind your chair,
             <br />
-            center for your chair.
+            finally in one place.
           </h2>
-          <p className="mt-5 max-w-[400px] text-[15px] leading-7 text-[#1C1C1E]/74">
-            Stop juggling apps, texts, and screenshots. DripDesk gives you
-            everything you need to run your business &mdash; in one simple
-            place.
+          <p className="mx-auto mt-5 max-w-[720px] text-[15px] leading-7 text-[#4F4A45] sm:text-base">
+            DripDesk helps you stay booked, remember every client detail, and understand what your chair is earning without juggling texts, notes, screenshots, or spreadsheets.
           </p>
-
-          <ul className="mt-7 grid gap-3">
-            {commandBullets.map((bullet) => (
-              <li
-                key={bullet}
-                className="flex gap-3 text-[13px] font-bold text-[#1C1C1E]/84"
-              >
-                <Image
-                  src="/assets/icons/icon-check-bronze.svg"
-                  alt=""
-                  width={22}
-                  height={22}
-                  aria-hidden="true"
-                  className="mt-0.5 h-5 w-5 shrink-0"
-                />
-                <span>{bullet}</span>
-              </li>
-            ))}
-          </ul>
         </div>
 
-        <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-end sm:justify-end sm:gap-0">
-          {phoneScreens.map((screen) => (
-            <div
-              key={screen.src}
-              className={[
-                "relative mx-auto w-full max-w-[250px] drop-shadow-[0_22px_34px_rgba(17,17,17,0.14)] sm:-ml-8 sm:max-w-[255px] first:sm:ml-0 lg:max-w-[275px]",
-                screen.className,
-              ].join(" ")}
+        <div className="mt-11 grid gap-6 md:grid-cols-2 lg:mt-14 lg:grid-cols-3 lg:gap-7">
+          {productPillars.map((card) => (
+            <article
+              key={card.title}
+              className="flex overflow-hidden rounded-[14px] border border-[rgba(176,122,62,0.35)] bg-[#FFFDF8]/80 shadow-[0_18px_45px_rgba(80,52,25,0.08)]"
             >
-              <Image
-                src={screen.src}
-                alt={screen.alt}
-                width={1122}
-                height={1402}
-                sizes="(min-width: 1024px) 250px, (min-width: 640px) 30vw, 260px"
-                className="h-auto w-full"
-              />
-            </div>
+              <div className="flex min-h-full w-full flex-col px-6 pb-0 pt-6 sm:px-7 sm:pt-7 lg:px-8 lg:pt-8">
+                <div className="grid h-12 w-12 place-items-center rounded-full border border-[rgba(176,122,62,0.30)] bg-[rgba(214,168,90,0.12)]">
+                  <Image
+                    src={card.icon}
+                    alt=""
+                    width={24}
+                    height={24}
+                    aria-hidden="true"
+                  />
+                </div>
+                <h3 className="mt-6 font-display text-[30px] font-bold leading-[1.02] tracking-normal text-[#111111]">
+                  {card.title}
+                </h3>
+                <p className="mt-4 text-sm leading-7 text-[#4F4A45]">
+                  {card.body}
+                </p>
+                <div className="mt-6 h-px w-12 bg-[#B07A3E]" />
+                <ul className="mt-6 grid gap-3">
+                  {card.bullets.map((bullet) => (
+                    <li
+                      key={bullet}
+                      className="flex gap-3 text-[13px] font-bold leading-5 text-[#4F4A45]"
+                    >
+                      <span
+                        className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-brand text-[11px] font-extrabold leading-none text-white"
+                        aria-hidden="true"
+                      >
+                        ✓
+                      </span>
+                      <span>{bullet}</span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-auto flex justify-center pt-8">
+                  <Image
+                    src={card.screenshot}
+                    alt={card.alt}
+                    width={1122}
+                    height={1402}
+                    sizes="(min-width: 1024px) 300px, (min-width: 768px) 34vw, 78vw"
+                    className="h-auto max-h-[360px] w-auto object-contain sm:max-h-[380px] lg:max-h-[410px]"
+                  />
+                </div>
+              </div>
+            </article>
           ))}
         </div>
       </div>
@@ -437,17 +390,17 @@ function FeatureValue({ value }: { value: string }) {
   }
 
   if (value === "no") {
-    return <span className="text-lg font-bold text-[#9CA3AF]">—</span>;
+    return <span className="text-lg font-bold text-[#8A7E72]">—</span>;
   }
 
-  return <span className="text-xs font-bold text-[#1C1C1E]">{value}</span>;
+  return <span className="text-xs font-bold text-[#1F1A17]">{value}</span>;
 }
 
 function HomePricing() {
   return (
     <section
       id="pricing"
-      className="bg-[#FFFDF8] px-5 py-10 text-[#111111] sm:px-8 sm:py-14"
+      className="bg-transparent px-5 py-10 text-[#111111] sm:px-8 sm:py-14"
     >
       <div className="mx-auto flex max-w-[1180px] flex-col gap-8">
         <div className="mx-auto max-w-[920px] text-center">
@@ -457,24 +410,24 @@ function HomePricing() {
           <h2 className="mt-4 whitespace-nowrap font-display text-[clamp(25px,5vw,46px)] font-bold leading-[1.02] tracking-normal">
             Find the plan that fits your business.
           </h2>
-          <p className="mx-auto mt-5 max-w-[440px] text-sm leading-7 text-[#6B7280]">
+          <p className="mx-auto mt-5 max-w-[440px] text-sm leading-7 text-[#6B625A]">
             Simple pricing. Powerful features. Built for how you work.
           </p>
         </div>
 
-        <div className="overflow-x-auto rounded-[8px] border border-[#E4D6C3] bg-white shadow-[0_16px_38px_rgba(17,17,17,0.04)]">
+        <div className="overflow-x-auto rounded-[8px] border border-[rgba(200,164,107,0.42)] bg-[#FFFDF8]/80 shadow-[0_18px_45px_rgba(80,52,25,0.08)]">
           <table className="min-w-[760px] table-fixed border-collapse text-left">
             <thead>
               <tr>
-                <th className="w-[30%] border-b border-[#E4D6C3] px-4 py-3 text-xs font-extrabold uppercase tracking-[0.08em] text-[#6B7280]">
+                <th className="w-[30%] border-b border-[rgba(200,164,107,0.42)] px-4 py-3 text-xs font-extrabold uppercase tracking-[0.08em] text-[#6B625A]">
                   Feature
                 </th>
                 {pricingPlans.map((plan) => (
                   <th
                     key={plan.name}
                     className={[
-                      "relative border-b border-l border-[#E4D6C3] px-4 py-3 text-center",
-                      plan.popular ? "bg-brand/10" : "bg-white",
+                      "relative border-b border-l border-[rgba(200,164,107,0.42)] px-4 py-3 text-center",
+                      plan.popular ? "bg-brand/10" : "bg-[#FFFDF8]/70",
                     ].join(" ")}
                   >
                     {plan.popular ? (
@@ -487,7 +440,7 @@ function HomePricing() {
                     </p>
                     <p className="mt-1 text-xl font-extrabold text-[#111111]">
                       {plan.price}
-                      <span className="ml-1 text-xs font-bold text-[#6B7280]">
+                      <span className="ml-1 text-xs font-bold text-[#6B625A]">
                         {plan.period}
                       </span>
                     </p>
@@ -510,16 +463,16 @@ function HomePricing() {
             <tbody>
               {comparisonRows.map((row) => (
                 <tr key={row.feature}>
-                  <th className="border-t border-[#E4D6C3] px-4 py-2.5 text-xs font-bold text-[#1C1C1E]">
+                  <th className="border-t border-[rgba(200,164,107,0.42)] px-4 py-2.5 text-xs font-bold text-[#1F1A17]">
                     {row.feature}
                   </th>
-                  <td className="border-l border-t border-[#E4D6C3] px-4 py-2.5 text-center">
+                  <td className="border-l border-t border-[rgba(200,164,107,0.42)] px-4 py-2.5 text-center">
                     <FeatureValue value={row.basic} />
                   </td>
-                  <td className="border-l border-t border-[#E4D6C3] bg-brand/10 px-4 py-2.5 text-center">
+                  <td className="border-l border-t border-[rgba(200,164,107,0.42)] bg-brand/10 px-4 py-2.5 text-center">
                     <FeatureValue value={row.pro} />
                   </td>
-                  <td className="border-l border-t border-[#E4D6C3] px-4 py-2.5 text-center">
+                  <td className="border-l border-t border-[rgba(200,164,107,0.42)] px-4 py-2.5 text-center">
                     <FeatureValue value={row.premium} />
                   </td>
                 </tr>
@@ -534,14 +487,14 @@ function HomePricing() {
 
 function HomeFinalCta() {
   return (
-    <section className="bg-[#FFFDF8] px-5 pb-14 pt-2 text-[#111111] sm:px-8 sm:pb-16">
-      <div className="mx-auto flex max-w-[980px] flex-col gap-6 rounded-[8px] border border-brand/35 bg-[#111111] px-6 py-7 text-white shadow-[0_22px_52px_rgba(17,17,17,0.18)] sm:flex-row sm:items-center sm:justify-between sm:px-10">
+    <section className="bg-transparent px-5 pb-14 pt-2 text-[#111111] sm:px-8 sm:pb-16">
+      <div className="mx-auto flex max-w-[980px] flex-col gap-6 rounded-[8px] border border-[rgba(200,164,107,0.45)] bg-[#FFFDF8]/75 px-6 py-7 text-[#111111] shadow-[0_18px_45px_rgba(80,52,25,0.08)] sm:flex-row sm:items-center sm:justify-between sm:px-10">
         <div>
-          <h2 className="font-display text-[28px] font-bold leading-tight tracking-normal text-[#FAF7F2] sm:text-[34px]">
+          <h2 className="font-display text-[28px] font-bold leading-tight tracking-normal text-[#111111] sm:text-[34px]">
             Ready to run your business like a pro?
           </h2>
-          <p className="mt-2 text-sm leading-7 text-white/72">
-            More bookings. Less stress. Real results.
+          <p className="mt-2 text-sm leading-7 text-[#4F4A45]">
+            The business side of beauty.
           </p>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row">
@@ -550,7 +503,7 @@ function HomeFinalCta() {
           </MarketingLink>
           <Link
             href="#pricing"
-            className="inline-flex h-11 w-full items-center justify-center rounded-[8px] border border-brand/70 bg-transparent px-6 text-sm font-extrabold text-white transition-colors hover:border-brand-gold hover:bg-brand/20 focus:outline-none focus:ring-2 focus:ring-brand-gold/35 focus:ring-offset-2 focus:ring-offset-[#111111] sm:w-auto"
+            className="inline-flex h-11 w-full items-center justify-center rounded-[8px] border border-[#B07A3E] bg-transparent px-6 text-sm font-extrabold text-[#4A3728] transition-colors hover:bg-[rgba(200,164,107,0.10)] focus:outline-none focus:ring-2 focus:ring-brand-gold/35 focus:ring-offset-2 focus:ring-offset-[#FFFDF8] sm:w-auto"
           >
             View Plans
           </Link>
@@ -562,11 +515,11 @@ function HomeFinalCta() {
 
 function HomeFooter() {
   return (
-    <footer className="border-t border-[#E4D6C3] bg-[#FFFDF8] px-5 py-10 text-[#111111] sm:px-8">
+    <footer className="border-t border-[rgba(200,164,107,0.30)] bg-[#FFFDF8]/55 px-5 py-10 text-[#111111] sm:px-8">
       <div className="mx-auto grid max-w-[1180px] gap-8 md:grid-cols-[1.15fr_2fr_auto]">
         <div>
           <BrandLogo />
-          <p className="mt-4 max-w-[280px] text-sm leading-6 text-[#6B7280]">
+          <p className="mt-4 max-w-[280px] text-sm leading-6 text-[#4F4A45]">
             Built for independent beauty pros. Designed to help you grow.
           </p>
         </div>
@@ -582,7 +535,7 @@ function HomeFooter() {
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-sm font-semibold text-[#6B7280] transition-colors hover:text-brand"
+                      className="text-sm font-semibold text-[#4F4A45] transition-colors hover:text-brand"
                     >
                       {link.label}
                     </Link>
@@ -593,7 +546,7 @@ function HomeFooter() {
           ))}
         </div>
 
-        <p className="text-sm font-semibold text-[#6B7280] md:text-right">
+        <p className="text-sm font-semibold text-[#4F4A45] md:text-right">
           © 2026 DripDesk
           <br />
           All rights reserved.
@@ -605,10 +558,9 @@ function HomeFooter() {
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-[#FFFDF8] text-[#111111]">
+    <main className="min-h-screen bg-[#F6F1E8] text-[#111111]">
       <HomeHero />
-      <HomeValueCards />
-      <HomeCommandCenter />
+      <HomeProductPillars />
       <HomePricing />
       <HomeFinalCta />
       <HomeFooter />
