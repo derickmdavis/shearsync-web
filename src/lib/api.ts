@@ -1016,17 +1016,26 @@ export async function rescheduleManagedAppointment(
   token: string,
   source: AppointmentManageLinkSource,
   body: {
-    requested_datetime: string;
+    newAppointmentDate?: string;
+    requested_datetime?: string;
     service_id?: string;
   },
 ) {
+  const requestedDateTime = body.newAppointmentDate ?? body.requested_datetime;
+  if (!requestedDateTime) {
+    throw new ApiError("Please choose a new appointment time.", 400);
+  }
+
   const requestBody =
     source === "short-code"
       ? {
-          newAppointmentDate: body.requested_datetime,
+          newAppointmentDate: requestedDateTime,
           service_id: body.service_id,
         }
-      : body;
+      : {
+          requested_datetime: requestedDateTime,
+          service_id: body.service_id,
+        };
   const appointment = await requestPublicApi<
     PublicManagedAppointment | PublicAppointmentLinkResponse
   >(

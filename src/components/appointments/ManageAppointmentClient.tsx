@@ -28,12 +28,8 @@ import {
   formatTimezoneLabel,
   getTodayDateValue,
 } from "@/src/lib/booking-format";
-import { ServiceCard } from "@/src/components/booking/ServiceCard";
 import { TimeStep } from "@/src/components/booking/TimeStep";
-import {
-  isSlotConflictError,
-  sortServices,
-} from "@/src/components/booking/booking-flow-utils";
+import { isSlotConflictError } from "@/src/components/booking/booking-flow-utils";
 
 type ManageAppointmentClientProps = {
   token: string;
@@ -68,7 +64,6 @@ export function ManageAppointmentClient({
 }: ManageAppointmentClientProps) {
   const [loadState, setLoadState] = useState<LoadState>({ status: "loading" });
   const [mode, setMode] = useState<ManageMode>("details");
-  const [services, setServices] = useState<PublicService[]>([]);
   const [servicesLoading, setServicesLoading] = useState(false);
   const [selectedService, setSelectedService] = useState<PublicService | null>(
     null,
@@ -92,7 +87,6 @@ export function ManageAppointmentClient({
 
   const appointment =
     loadState.status === "ready" ? loadState.appointment : null;
-  const sortedServices = useMemo(() => sortServices(services), [services]);
   const activeTimezone = timezone ?? appointment?.business_timezone ?? null;
   const pageName =
     appointment?.business_name ||
@@ -123,16 +117,6 @@ export function ManageAppointmentClient({
   useEffect(() => {
     selectedServiceRef.current = selectedService;
   }, [selectedService]);
-
-  const clearRescheduleSelection = useCallback(() => {
-    setDateOptions([]);
-    setSelectedDate("");
-    setSlots([]);
-    setLoadedSlotsDate("");
-    setSlotPreviews({});
-    setSelectedSlot(null);
-    setAvailabilityError(null);
-  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -189,7 +173,6 @@ export function ManageAppointmentClient({
           return;
         }
 
-        setServices(nextServices);
         setSelectedService((currentService) => {
           if (
             currentService &&
@@ -424,7 +407,7 @@ export function ManageAppointmentClient({
 
   async function handleSubmitReschedule() {
     if (!appointment?.can_reschedule || !selectedService || !selectedSlot) {
-      setSubmitError("Please choose a service, date, and time.");
+      setSubmitError("Please choose a new date and time.");
       return;
     }
 
@@ -436,7 +419,7 @@ export function ManageAppointmentClient({
         token,
         source,
         {
-          requested_datetime: selectedSlot.start,
+          newAppointmentDate: selectedSlot.start,
           service_id: selectedService.id,
         },
       );
@@ -584,41 +567,28 @@ export function ManageAppointmentClient({
         <div className="mt-7">
           <div>
             <h1 className="text-[30px] font-semibold tracking-tight text-foreground">
-              Choose a new service
+              Choose a new time
             </h1>
             <p className="mt-2 text-sm leading-6 text-muted">
-              Your contact details stay the same. Pick one service, then choose
-              a new date and time.
+              Your service and contact details stay the same. Pick a new date
+              and time for this appointment.
             </p>
           </div>
 
           <div className="mt-5 space-y-3">
             {servicesLoading ? (
-              <NoticeCard>Loading services...</NoticeCard>
+              <NoticeCard>Loading appointment availability...</NoticeCard>
             ) : null}
 
             {serviceError ? (
               <p className="text-sm leading-6 text-red-500">{serviceError}</p>
             ) : null}
 
-            {!servicesLoading && !sortedServices.length && !serviceError ? (
+            {!servicesLoading && !selectedService && !serviceError ? (
               <NoticeCard>
-                Online service selection is unavailable right now.
+                Online rescheduling is unavailable right now.
               </NoticeCard>
             ) : null}
-
-            {sortedServices.map((service) => (
-              <ServiceCard
-                key={service.id}
-                service={service}
-                selected={service.id === selectedService?.id}
-                onSelect={(nextService) => {
-                  setSelectedService(nextService);
-                  clearRescheduleSelection();
-                  setSubmitError(null);
-                }}
-              />
-            ))}
           </div>
 
           {selectedService ? (
@@ -854,13 +824,15 @@ function getFriendlyLoadError(error: unknown): LoadState {
 
   if (
     message.includes("invalid or expired") ||
-    (error instanceof ApiError && error.status === 401)
+    (error instanceof ApiError &&
+      [401, 404, 410].includes(error.status))
   ) {
     return {
       status: "error",
       title: "This link has expired",
-      message:
-        "Appointment management links only work before the appointment starts. Please contact your stylist for help.",
+      message: error instanceof ApiError && error.message
+        ? error.message
+        : "This appointment link is no longer available. Please contact your stylist.",
     };
   }
 
