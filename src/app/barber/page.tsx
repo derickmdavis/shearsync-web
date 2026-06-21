@@ -57,9 +57,9 @@ const comparisonRows = [
   },
   {
     feature: "Client notes & history",
-    basic: "yes",
-    pro: "yes",
-    premium: "yes",
+    basic: "Unlimited clients",
+    pro: "Unlimited clients",
+    premium: "Unlimited clients",
   },
   {
     feature: "Appointment reminders",
@@ -237,98 +237,29 @@ function BarberNav() {
   );
 }
 
-function MiniPhoneDashboard({ className = "" }: { className?: string }) {
-  return (
-    <div
-      className={[
-        "relative mx-auto aspect-[0.52] w-[210px] overflow-hidden rounded-[34px] border-[8px] border-[#050505] bg-[#FAF7F2] shadow-[0_28px_50px_rgba(0,0,0,0.55)]",
-        className,
-      ].join(" ")}
-      aria-label="DripDesk mobile app dashboard preview"
-      role="img"
-    >
-      <div className="absolute left-1/2 top-2 h-5 w-20 -translate-x-1/2 rounded-full bg-black" />
-      <div className="flex h-full flex-col bg-[#FAF7F2] pt-9 text-[#111111]">
-        <div className="px-5">
-          <p className="font-display text-2xl font-bold">DripDesk</p>
-          <div className="mt-1 h-px w-24 bg-brand" />
-          <p className="mt-6 text-sm font-extrabold">Good morning, Jordan</p>
-          <p className="mt-1 text-[11px] font-semibold text-[#6B7280]">
-            Here&apos;s what&apos;s happening today.
-          </p>
-        </div>
-        <div className="mt-5 flex-1 bg-white px-4 py-5">
-          <p className="text-sm font-extrabold">Business Snapshot</p>
-          <p className="mt-1 text-[10px] leading-4 text-[#6B7280]">
-            Revenue, appointments, rebooking, and average ticket at a glance.
-          </p>
-          <div className="mt-4 grid grid-cols-2 gap-3">
-            {[
-              ["Revenue", "$3,240", "+12%"],
-              ["Appointments", "48", "+8%"],
-              ["Rebooking", "52%", "+15%"],
-              ["Avg. Ticket", "$67.40", "+10%"],
-            ].map(([label, value, change]) => (
-              <div
-                key={label}
-                className="rounded-[10px] border border-[#E4D6C3] bg-[#FFFDF8] p-3"
-              >
-                <p className="text-[10px] font-bold text-[#6B7280]">{label}</p>
-                <p className="mt-2 text-lg font-extrabold">{value}</p>
-                <p className="mt-1 text-[10px] font-bold text-emerald-600">
-                  {change}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="grid h-12 grid-cols-5 border-t border-[#E4D6C3] bg-white text-[9px] font-bold text-[#6B7280]">
-          {["Home", "Activity", "Calendar", "Clients", "Profile"].map((item) => (
-            <span key={item} className="grid place-items-center">
-              {item}
-            </span>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function DarkPhoneMockup({
-  title,
-  subtitle,
-  children,
+function PhoneScreenshot({
+  src,
+  alt,
   className = "",
 }: {
-  title: string;
-  subtitle: string;
-  children: ReactNode;
+  src: string;
+  alt: string;
   className?: string;
 }) {
   return (
     <div
       className={[
-        "relative mx-auto aspect-[0.52] w-full max-w-[245px] overflow-hidden rounded-[34px] border-[8px] border-[#050505] bg-[#111111] shadow-[0_28px_45px_rgba(0,0,0,0.5)]",
+        "relative mx-auto aspect-[1122/1402] w-full max-w-[245px] drop-shadow-[0_24px_42px_rgba(17,17,17,0.16)]",
         className,
       ].join(" ")}
     >
-      <div className="absolute left-1/2 top-2 z-10 h-5 w-20 -translate-x-1/2 rounded-full bg-black" />
-      <div className="flex h-full flex-col bg-[#111111] text-[#FAF7F2]">
-        <div className="bg-[#111111] px-5 pb-5 pt-12">
-          <p className="font-display text-3xl font-bold">{title}</p>
-          <p className="mt-1 text-sm font-bold text-brand-gold">{subtitle}</p>
-        </div>
-        <div className="flex-1 overflow-hidden bg-[#1C1C1E] px-4 py-4">
-          {children}
-        </div>
-        <div className="grid h-12 grid-cols-5 border-t border-white/10 bg-[#111111] text-[9px] font-bold text-white/56">
-          {["Home", "Activity", "Calendar", "Clients", "Profile"].map((item) => (
-            <span key={item} className="grid place-items-center">
-              {item}
-            </span>
-          ))}
-        </div>
-      </div>
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        sizes="245px"
+        className="object-contain"
+      />
     </div>
   );
 }
@@ -343,13 +274,13 @@ function BarberHero() {
       <BarberNav />
 
       <div className="relative z-10 mx-auto grid max-w-[1180px] gap-8 px-5 pb-12 pt-7 sm:px-8 lg:min-h-[610px] lg:grid-cols-[0.86fr_1.14fr] lg:items-center lg:pb-0 lg:pt-0">
-        <div className="max-w-[560px]">
+        <div className="max-w-[640px]">
           <p className="inline-flex items-center gap-2 rounded-[4px] border border-brand/80 bg-black/20 px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.12em] text-[#FAF7F2]">
             <span className="h-1.5 w-1.5 rotate-45 bg-brand-gold" />
             BUILT FOR BARBERS
           </p>
 
-          <h1 className="mt-6 max-w-[560px] font-display text-[54px] font-bold leading-[0.9] tracking-normal text-[#FAF7F2] sm:text-[72px] lg:text-[78px]">
+          <h1 className="mt-6 max-w-[640px] font-display text-[54px] font-bold leading-[0.9] tracking-normal text-[#FAF7F2] sm:text-[72px] lg:text-[74px]">
             The business
             <br />
             side of barbering.
@@ -380,12 +311,6 @@ function BarberHero() {
             </BarberButton>
           </div>
 
-          <p className="mt-7 flex max-w-[500px] items-start gap-3 text-sm font-semibold leading-6 text-white/68">
-            <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-brand/70 text-brand-gold">
-              <span className="h-2.5 w-2.5 rotate-45 rounded-[2px] border border-current" />
-            </span>
-            <span>Designed for barbers, booth renters, and independent pros.</span>
-          </p>
         </div>
 
         <div className="relative -mr-5 min-h-[390px] sm:-mr-8 sm:min-h-[500px] lg:-mr-[calc((100vw-1180px)/2)] lg:h-[610px] lg:min-h-0 lg:self-end">
@@ -399,7 +324,6 @@ function BarberHero() {
             className="object-cover object-[72%_center]"
           />
           <div className="absolute inset-0 bg-[linear-gradient(90deg,#111111_0%,rgba(17,17,17,0.82)_18%,rgba(17,17,17,0.16)_58%,rgba(17,17,17,0.5)_100%),linear-gradient(180deg,rgba(17,17,17,0.1)_0%,#111111_100%)]" />
-          <MiniPhoneDashboard className="absolute bottom-10 right-[8%] hidden w-[190px] lg:block xl:right-[11%]" />
         </div>
       </div>
     </section>
@@ -462,18 +386,18 @@ function BarberValueCards() {
 
 function BarberCommandCenter() {
   return (
-    <section className="overflow-hidden border-t border-brand/20 bg-[#111111] px-5 py-10 text-white sm:px-8 sm:py-14">
+    <section className="overflow-hidden border-t border-[#E4D6C3]/55 bg-[#FFFDF8] px-5 py-10 text-[#111111] sm:px-8 sm:py-14">
       <div className="mx-auto grid max-w-[1180px] gap-8 lg:grid-cols-[0.66fr_1.34fr] lg:items-center">
         <div>
-          <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-brand-gold">
+          <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-brand">
             All-in-one business hub
           </p>
-          <h2 className="mt-4 font-display text-[38px] font-bold leading-[1] tracking-normal text-[#FAF7F2] sm:text-[48px]">
+          <h2 className="mt-4 font-display text-[38px] font-bold leading-[1] tracking-normal text-[#111111] sm:text-[48px]">
             A cleaner command
             <br />
             center for your chair.
           </h2>
-          <p className="mt-5 max-w-[400px] text-[15px] leading-7 text-white/66">
+          <p className="mt-5 max-w-[400px] text-[15px] leading-7 text-[#6B7280]">
             Stop juggling apps, texts, and screenshots. DripDesk gives you
             everything you need to run your business &mdash; in one simple
             place.
@@ -481,7 +405,7 @@ function BarberCommandCenter() {
 
           <ul className="mt-7 grid gap-3">
             {commandBullets.map((bullet) => (
-              <li key={bullet} className="flex gap-3 text-[13px] font-bold text-white/82">
+              <li key={bullet} className="flex gap-3 text-[13px] font-bold text-[#1C1C1E]">
                 <Image
                   src="/assets/icons/icon-check-bronze.svg"
                   alt=""
@@ -497,77 +421,23 @@ function BarberCommandCenter() {
         </div>
 
         <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-end sm:justify-end sm:gap-0">
-          <DarkPhoneMockup
-            title="Calendar"
-            subtitle="Manage your day"
+          <PhoneScreenshot
+            src="/assets/home/barber-activity-iphone.png"
+            alt="DripDesk activity screen shown on an iPhone"
             className="sm:-ml-0 lg:translate-y-8"
-          >
-            <div className="rounded-[14px] border border-white/10 bg-white/6 p-3">
-              <p className="text-sm font-extrabold">Wednesday, June 24</p>
-              <div className="mt-4 grid grid-cols-4 gap-2 text-center text-[10px] text-white/66">
-                <span>3 Appts</span>
-                <span>$175</span>
-                <span>3h 45m</span>
-                <span>-20%</span>
-              </div>
-            </div>
-            <div className="mt-4 grid gap-3">
-              {["8:00 AM  Jamal Thompson", "9:30 AM  Open - Book now", "12:00 PM  Marcus Lee", "4:00 PM  Taylor Smith"].map((item) => (
-                <p key={item} className="rounded-[10px] bg-white/6 px-3 py-2 text-[11px] font-bold text-white/78">
-                  {item}
-                </p>
-              ))}
-            </div>
-          </DarkPhoneMockup>
+          />
 
-          <DarkPhoneMockup
-            title="DripDesk"
-            subtitle="Simple booking. Smarter business."
+          <PhoneScreenshot
+            src="/assets/home/barber-insights-iphone.png"
+            alt="DripDesk insights screen shown on an iPhone"
             className="sm:-ml-8 lg:z-10"
-          >
-            <p className="text-sm font-extrabold">Good morning, Jordan</p>
-            <p className="mt-1 text-[11px] text-white/56">
-              Here&apos;s what&apos;s happening today.
-            </p>
-            <div className="mt-4 rounded-[14px] border border-brand/35 bg-brand/10 p-3">
-              <p className="text-sm font-extrabold">Business Snapshot</p>
-              <div className="mt-4 grid grid-cols-2 gap-3">
-                {["$3,240", "68", "52%", "$67.40"].map((metric) => (
-                  <div key={metric} className="rounded-[10px] bg-[#111111] p-3">
-                    <p className="text-lg font-extrabold">{metric}</p>
-                    <p className="text-[10px] text-emerald-400">+10%</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </DarkPhoneMockup>
+          />
 
-          <DarkPhoneMockup
-            title="Clients"
-            subtitle="Manage your book"
+          <PhoneScreenshot
+            src="/assets/home/barber-clients-iphone.png"
+            alt="DripDesk clients screen shown on an iPhone"
             className="sm:-ml-8 lg:translate-y-8"
-          >
-            <div className="rounded-[12px] bg-white/8 px-3 py-2 text-[11px] text-white/50">
-              Search clients...
-            </div>
-            <div className="mt-4 grid gap-3">
-              {["Jamal Thompson", "Marcus Lee", "Arva Rodriguez", "Chris Walker", "Taylor Smith"].map((name) => (
-                <div key={name} className="flex items-center gap-3 rounded-[10px] bg-white/6 p-2">
-                  <span className="grid h-8 w-8 place-items-center rounded-full bg-brand/30 text-[10px] font-extrabold">
-                    {name.slice(0, 1)}
-                  </span>
-                  <span>
-                    <span className="block text-[12px] font-extrabold">
-                      {name}
-                    </span>
-                    <span className="text-[10px] text-white/48">
-                      Last visit May 10
-                    </span>
-                  </span>
-                </div>
-              ))}
-            </div>
-          </DarkPhoneMockup>
+          />
         </div>
       </div>
     </section>
@@ -592,19 +462,15 @@ function BarberPricing() {
       id="pricing"
       className="border-t border-brand/20 bg-[#111111] px-5 py-10 text-white sm:px-8 sm:py-14"
     >
-      <div className="mx-auto grid max-w-[1180px] gap-8 lg:grid-cols-[0.42fr_1.58fr] lg:items-start">
-        <div>
+      <div className="mx-auto flex max-w-[1180px] flex-col gap-8">
+        <div className="mx-auto max-w-[920px] text-center">
           <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-brand-gold">
             Compare plans
           </p>
-          <h2 className="mt-4 font-display text-[38px] font-bold leading-[1.02] tracking-normal text-[#FAF7F2] sm:text-[46px]">
-            Find the plan
-            <br />
-            that fits your
-            <br />
-            business.
+          <h2 className="mt-4 whitespace-nowrap font-display text-[clamp(25px,5vw,46px)] font-bold leading-[1.02] tracking-normal text-[#FAF7F2]">
+            Find the plan that fits your business.
           </h2>
-          <p className="mt-5 max-w-[280px] text-sm leading-7 text-white/62">
+          <p className="mx-auto mt-5 max-w-[440px] text-sm leading-7 text-white/62">
             Simple pricing. Powerful features. Built for how you work.
           </p>
         </div>

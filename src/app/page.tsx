@@ -63,9 +63,9 @@ const comparisonRows = [
   },
   {
     feature: "Client notes & history",
-    basic: "yes",
-    pro: "yes",
-    premium: "yes",
+    basic: "Unlimited clients",
+    pro: "Unlimited clients",
+    premium: "Unlimited clients",
   },
   {
     feature: "Appointment reminders",
@@ -259,7 +259,7 @@ function HomeHero() {
 
       <div className="relative z-10 mx-auto grid max-w-[1180px] gap-8 px-5 pb-12 pt-7 sm:px-8 lg:min-h-[610px] lg:grid-cols-[0.86fr_1.14fr] lg:items-center lg:pb-0 lg:pt-0">
         <div className="max-w-[560px]">
-          <p className="inline-flex items-center gap-2 rounded-[4px] border border-brand/60 bg-white/55 px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.12em] text-brand">
+          <p className="inline-flex items-center gap-2 rounded-[4px] border border-brand/60 bg-white/55 px-3 py-1 text-[9px] font-extrabold uppercase tracking-[0.07em] text-brand sm:whitespace-nowrap">
             <span className="h-1.5 w-1.5 rotate-45 bg-brand" />
             Designed for stylists, barbers, and independent booth renters
           </p>
@@ -295,25 +295,16 @@ function HomeHero() {
             </MarketingLink>
           </div>
 
-          <p className="mt-7 flex max-w-[500px] items-start gap-3 text-sm font-semibold leading-6 text-[#1C1C1E]/72">
-            <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-brand/45 text-brand">
-              <span className="h-2.5 w-2.5 rotate-45 rounded-[2px] border border-current" />
-            </span>
-            <span>
-              Designed for stylists, barbers, booth renters, and independent
-              beauty pros.
-            </span>
-          </p>
         </div>
 
         <div className="relative -mr-5 min-h-[390px] sm:-mr-8 sm:min-h-[500px] lg:-mr-[calc((100vw-1180px)/2)] lg:h-[610px] lg:min-h-0 lg:self-end">
           <Image
-            src="/assets/home/dripdesk-male-hero-light-with-phone.png"
-            alt="Independent beauty professional using DripDesk on a tablet with the mobile dashboard shown beside him"
+            src="/marketing/stylist-hero.png"
+            alt="Female stylist using a tablet in a salon"
             fill
             priority
             sizes="(min-width: 1180px) 660px, (min-width: 1024px) 56vw, 100vw"
-            className="object-cover object-[54%_center]"
+            className="object-cover object-[58%_center]"
           />
           <div className="absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-[#FFFDF8] via-[#FFFDF8]/72 to-transparent" />
         </div>
@@ -458,19 +449,15 @@ function HomePricing() {
       id="pricing"
       className="bg-[#FFFDF8] px-5 py-10 text-[#111111] sm:px-8 sm:py-14"
     >
-      <div className="mx-auto grid max-w-[1180px] gap-8 lg:grid-cols-[0.42fr_1.58fr] lg:items-start">
-        <div>
+      <div className="mx-auto flex max-w-[1180px] flex-col gap-8">
+        <div className="mx-auto max-w-[920px] text-center">
           <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-brand">
             Compare plans
           </p>
-          <h2 className="mt-4 font-display text-[38px] font-bold leading-[1.02] tracking-normal sm:text-[46px]">
-            Find the plan
-            <br />
-            that fits your
-            <br />
-            business.
+          <h2 className="mt-4 whitespace-nowrap font-display text-[clamp(25px,5vw,46px)] font-bold leading-[1.02] tracking-normal">
+            Find the plan that fits your business.
           </h2>
-          <p className="mt-5 max-w-[280px] text-sm leading-7 text-[#6B7280]">
+          <p className="mx-auto mt-5 max-w-[440px] text-sm leading-7 text-[#6B7280]">
             Simple pricing. Powerful features. Built for how you work.
           </p>
         </div>
@@ -548,12 +535,12 @@ function HomePricing() {
 function HomeFinalCta() {
   return (
     <section className="bg-[#FFFDF8] px-5 pb-14 pt-2 text-[#111111] sm:px-8 sm:pb-16">
-      <div className="mx-auto flex max-w-[980px] flex-col gap-6 rounded-[8px] border border-[#E4D6C3] bg-[#FAF7F2] px-6 py-7 shadow-[0_18px_44px_rgba(17,17,17,0.04)] sm:flex-row sm:items-center sm:justify-between sm:px-10">
+      <div className="mx-auto flex max-w-[980px] flex-col gap-6 rounded-[8px] border border-brand/35 bg-[#111111] px-6 py-7 text-white shadow-[0_22px_52px_rgba(17,17,17,0.18)] sm:flex-row sm:items-center sm:justify-between sm:px-10">
         <div>
-          <h2 className="font-display text-[28px] font-bold leading-tight tracking-normal sm:text-[34px]">
+          <h2 className="font-display text-[28px] font-bold leading-tight tracking-normal text-[#FAF7F2] sm:text-[34px]">
             Ready to run your business like a pro?
           </h2>
-          <p className="mt-2 text-sm leading-7 text-[#6B7280]">
+          <p className="mt-2 text-sm leading-7 text-white/72">
             More bookings. Less stress. Real results.
           </p>
         </div>
@@ -561,13 +548,12 @@ function HomeFinalCta() {
           <MarketingLink href={signUpHref} className="w-full sm:w-auto">
             Get Started
           </MarketingLink>
-          <MarketingLink
+          <Link
             href="#pricing"
-            variant="secondary"
-            className="w-full sm:w-auto"
+            className="inline-flex h-11 w-full items-center justify-center rounded-[8px] border border-brand/70 bg-transparent px-6 text-sm font-extrabold text-white transition-colors hover:border-brand-gold hover:bg-brand/20 focus:outline-none focus:ring-2 focus:ring-brand-gold/35 focus:ring-offset-2 focus:ring-offset-[#111111] sm:w-auto"
           >
             View Plans
-          </MarketingLink>
+          </Link>
         </div>
       </div>
     </section>
