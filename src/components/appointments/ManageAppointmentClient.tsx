@@ -9,6 +9,7 @@ import {
   getPublicServices,
   getPublicSlots,
   rescheduleManagedAppointment,
+  type AppointmentManageLinkSource,
   type PublicManagedAppointment,
   type PublicService,
   type PublicSlot,
@@ -36,6 +37,7 @@ import {
 
 type ManageAppointmentClientProps = {
   token: string;
+  source?: AppointmentManageLinkSource;
 };
 
 type ManageMode = "details" | "cancel" | "reschedule" | "success";
@@ -62,6 +64,7 @@ function getBookableSlots(response: PublicSlotsResponse) {
 
 export function ManageAppointmentClient({
   token,
+  source = "legacy-token",
 }: ManageAppointmentClientProps) {
   const [loadState, setLoadState] = useState<LoadState>({ status: "loading" });
   const [mode, setMode] = useState<ManageMode>("details");
@@ -138,7 +141,7 @@ export function ManageAppointmentClient({
       setLoadState({ status: "loading" });
 
       try {
-        const nextAppointment = await getManagedAppointment(token);
+        const nextAppointment = await getManagedAppointment(token, source);
 
         if (cancelled) {
           return;
@@ -166,7 +169,7 @@ export function ManageAppointmentClient({
     return () => {
       cancelled = true;
     };
-  }, [token]);
+  }, [source, token]);
 
   useEffect(() => {
     let cancelled = false;
@@ -408,7 +411,7 @@ export function ManageAppointmentClient({
     setSubmitError(null);
 
     try {
-      const nextAppointment = await cancelManagedAppointment(token);
+      const nextAppointment = await cancelManagedAppointment(token, source);
       setLoadState({ status: "ready", appointment: nextAppointment });
       setMode("success");
       setSuccessMessage("Your appointment has been cancelled.");
@@ -429,10 +432,14 @@ export function ManageAppointmentClient({
     setSubmitError(null);
 
     try {
-      const nextAppointment = await rescheduleManagedAppointment(token, {
-        requested_datetime: selectedSlot.start,
-        service_id: selectedService.id,
-      });
+      const nextAppointment = await rescheduleManagedAppointment(
+        token,
+        source,
+        {
+          requested_datetime: selectedSlot.start,
+          service_id: selectedService.id,
+        },
+      );
 
       setLoadState({ status: "ready", appointment: nextAppointment });
       setMode("success");
@@ -505,9 +512,11 @@ export function ManageAppointmentClient({
 
           {!canManage ? (
             <NoticeCard>
-              This appointment can no longer be managed from this link.
+              {getManageDisabledMessage(readyAppointment)}
             </NoticeCard>
           ) : null}
+
+          <PolicyText appointment={readyAppointment} />
 
           <div className="mt-5 grid gap-3">
             {readyAppointment.can_reschedule ? (
@@ -785,6 +794,29 @@ function NoticeCard({ children }: { children: React.ReactNode }) {
   );
 }
 
+function PolicyText({
+  appointment,
+}: {
+  appointment: PublicManagedAppointment;
+}) {
+  const policyMessages = [
+    appointment.reschedule_policy_text,
+    appointment.cancellation_policy_text,
+  ].filter(Boolean);
+
+  if (!policyMessages.length) {
+    return null;
+  }
+
+  return (
+    <div className="mt-5 space-y-2 text-sm leading-6 text-muted">
+      {policyMessages.map((message) => (
+        <p key={message}>{message}</p>
+      ))}
+    </div>
+  );
+}
+
 function BackButton({ onClick }: { onClick: () => void }) {
   return (
     <button
@@ -868,6 +900,14 @@ function getFriendlyActionMessage(error: unknown, action: "cancel" | "reschedule
   }
 
   return rawMessage || `Unable to ${action} this appointment right now.`;
+}
+
+function getManageDisabledMessage(appointment: PublicManagedAppointment) {
+  return (
+    appointment.reschedule_disabled_reason ||
+    appointment.cancel_disabled_reason ||
+    "This appointment can no longer be managed from this link."
+  );
 }
 
 function getDateValueInTimezone(dateTime: string, timezone?: string | null) {

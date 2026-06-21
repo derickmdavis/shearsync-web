@@ -429,6 +429,72 @@ export type PublicManagedAppointment = {
   status: "scheduled" | "pending" | "cancelled" | string;
   can_cancel: boolean;
   can_reschedule: boolean;
+  cancel_disabled_reason?: string | null;
+  reschedule_disabled_reason?: string | null;
+  cancellation_policy_text?: string | null;
+  reschedule_policy_text?: string | null;
+};
+
+export type AppointmentManageLinkSource = "legacy-token" | "short-code";
+
+type PublicAppointmentLinkResponse = {
+  valid: boolean;
+  reason?: string | null;
+  message?: string | null;
+  appointment?: {
+    id?: string | null;
+    appointment_id?: string | null;
+    serviceName?: string | null;
+    service_name?: string | null;
+    appointmentDate?: string | null;
+    appointment_date?: string | null;
+    appointmentEnd?: string | null;
+    appointment_end?: string | null;
+    durationMinutes?: number | null;
+    duration_minutes?: number | null;
+    serviceDurationMinutes?: number | null;
+    service_duration_minutes?: number | null;
+    status?: string | null;
+    price?: number | null;
+    servicePrice?: number | null;
+    service_price?: number | null;
+  } | null;
+  stylist?: {
+    id?: string | null;
+    stylist_id?: string | null;
+    displayName?: string | null;
+    display_name?: string | null;
+    slug?: string | null;
+    businessName?: string | null;
+    business_name?: string | null;
+    timezone?: string | null;
+    business_timezone?: string | null;
+  } | null;
+  client?: {
+    id?: string | null;
+    client_id?: string | null;
+    firstName?: string | null;
+    first_name?: string | null;
+    displayName?: string | null;
+    display_name?: string | null;
+    name?: string | null;
+  } | null;
+  allowedActions?: {
+    canCancel?: boolean | null;
+    can_cancel?: boolean | null;
+    canReschedule?: boolean | null;
+    can_reschedule?: boolean | null;
+    cancelDisabledReason?: string | null;
+    cancel_disabled_reason?: string | null;
+    rescheduleDisabledReason?: string | null;
+    reschedule_disabled_reason?: string | null;
+  } | null;
+  policy?: {
+    cancellationPolicyText?: string | null;
+    cancellation_policy_text?: string | null;
+    reschedulePolicyText?: string | null;
+    reschedule_policy_text?: string | null;
+  } | null;
 };
 
 type RequestOptions = {
@@ -818,39 +884,162 @@ export async function joinWaitlist(slug: string, input: CreateWaitlistInput) {
   );
 }
 
-export async function getManagedAppointment(token: string) {
-  return requestPublicApi<PublicManagedAppointment>(
-    `/api/public/appointments/manage/${encodeURIComponent(token)}`,
-  );
+function getManagedAppointmentPath(
+  token: string,
+  source: AppointmentManageLinkSource = "legacy-token",
+) {
+  const encodedToken = encodeURIComponent(token);
+
+  return source === "short-code"
+    ? `/api/public/appointment-links/${encodedToken}`
+    : `/api/public/appointments/manage/${encodedToken}`;
 }
 
-export async function cancelManagedAppointment(token: string) {
-  return requestPublicApi<PublicManagedAppointment>(
-    `/api/public/appointments/manage/${encodeURIComponent(token)}/cancel`,
+function normalizeManagedAppointmentResponse(
+  payload: PublicManagedAppointment | PublicAppointmentLinkResponse,
+): PublicManagedAppointment {
+  if (
+    payload &&
+    typeof payload === "object" &&
+    "valid" in payload
+  ) {
+    if (!payload.valid) {
+      throw new ApiError(
+        payload.message || "This appointment link is invalid or expired.",
+        401,
+        payload.reason ? { reason: payload.reason } : undefined,
+      );
+    }
+
+    const appointment = payload.appointment;
+    const stylist = payload.stylist;
+    const client = payload.client;
+    const allowedActions = payload.allowedActions;
+    const policy = payload.policy;
+
+    if (!appointment || !stylist) {
+      throw new ApiError("Unable to load this appointment link.", 502);
+    }
+
+    return {
+      appointment_id: appointment.appointment_id ?? appointment.id ?? "",
+      client_id: client?.client_id ?? client?.id ?? "",
+      stylist_id: stylist.stylist_id ?? stylist.id ?? "",
+      stylist_slug: stylist.slug ?? "",
+      stylist_display_name:
+        stylist.displayName ?? stylist.display_name ?? "Your stylist",
+      business_name: stylist.businessName ?? stylist.business_name ?? null,
+      client_name:
+        client?.displayName ??
+        client?.display_name ??
+        client?.name ??
+        client?.firstName ??
+        client?.first_name ??
+        "Client",
+      service_name: appointment.serviceName ?? appointment.service_name ?? "",
+      service_duration_minutes:
+        appointment.durationMinutes ??
+        appointment.duration_minutes ??
+        appointment.serviceDurationMinutes ??
+        appointment.service_duration_minutes ??
+        0,
+      service_price:
+        appointment.price ??
+        appointment.servicePrice ??
+        appointment.service_price ??
+        0,
+      appointment_date:
+        appointment.appointmentDate ?? appointment.appointment_date ?? "",
+      appointment_end:
+        appointment.appointmentEnd ?? appointment.appointment_end ?? null,
+      business_timezone:
+        stylist.timezone ?? stylist.business_timezone ?? null,
+      status: appointment.status ?? "scheduled",
+      can_cancel:
+        allowedActions?.canCancel ?? allowedActions?.can_cancel ?? false,
+      can_reschedule:
+        allowedActions?.canReschedule ??
+        allowedActions?.can_reschedule ??
+        false,
+      cancel_disabled_reason:
+        allowedActions?.cancelDisabledReason ??
+        allowedActions?.cancel_disabled_reason ??
+        null,
+      reschedule_disabled_reason:
+        allowedActions?.rescheduleDisabledReason ??
+        allowedActions?.reschedule_disabled_reason ??
+        null,
+      cancellation_policy_text:
+        policy?.cancellationPolicyText ??
+        policy?.cancellation_policy_text ??
+        null,
+      reschedule_policy_text:
+        policy?.reschedulePolicyText ??
+        policy?.reschedule_policy_text ??
+        null,
+    };
+  }
+
+  return payload;
+}
+
+export async function getManagedAppointment(
+  token: string,
+  source: AppointmentManageLinkSource = "legacy-token",
+) {
+  const appointment = await requestPublicApi<
+    PublicManagedAppointment | PublicAppointmentLinkResponse
+  >(getManagedAppointmentPath(token, source));
+
+  return normalizeManagedAppointmentResponse(appointment);
+}
+
+export async function cancelManagedAppointment(
+  token: string,
+  source: AppointmentManageLinkSource = "legacy-token",
+) {
+  const appointment = await requestPublicApi<
+    PublicManagedAppointment | PublicAppointmentLinkResponse
+  >(
+    `${getManagedAppointmentPath(token, source)}/cancel`,
     {
       init: {
         method: "POST",
       },
     },
   );
+
+  return normalizeManagedAppointmentResponse(appointment);
 }
 
 export async function rescheduleManagedAppointment(
   token: string,
+  source: AppointmentManageLinkSource,
   body: {
     requested_datetime: string;
     service_id?: string;
   },
 ) {
-  return requestPublicApi<PublicManagedAppointment>(
-    `/api/public/appointments/manage/${encodeURIComponent(token)}/reschedule`,
+  const requestBody =
+    source === "short-code"
+      ? {
+          newAppointmentDate: body.requested_datetime,
+          service_id: body.service_id,
+        }
+      : body;
+  const appointment = await requestPublicApi<
+    PublicManagedAppointment | PublicAppointmentLinkResponse
+  >(
+    `${getManagedAppointmentPath(token, source)}/reschedule`,
     {
       init: {
         method: "POST",
-        body: JSON.stringify(body),
+        body: JSON.stringify(requestBody),
       },
     },
   );
+
+  return normalizeManagedAppointmentResponse(appointment);
 }
 
 export async function getAccountProfile(accessToken: string) {

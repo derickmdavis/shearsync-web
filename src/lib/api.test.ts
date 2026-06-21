@@ -1,14 +1,17 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  cancelManagedAppointment,
   createClientReferralLink,
   createPublicBooking,
   getClientReferralLink,
   getClientReferralStats,
   getClients,
+  getManagedAppointment,
   getPublicAvailability,
   getPublicServices,
   getPublicSlots,
   joinWaitlist,
+  rescheduleManagedAppointment,
   resolvePublicReferral,
 } from "@/src/lib/api";
 
@@ -186,6 +189,152 @@ describe("public booking api helpers", () => {
           requestedTimePreference: "Morning preferred",
           note: "Anytime after 10am.",
         }),
+      }),
+    );
+  });
+
+  it("resolves short appointment links through the new public endpoint", async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          data: {
+            valid: true,
+            appointment: {
+              id: "opaque-appointment",
+              serviceName: "Cut & Style",
+              appointmentDate: "2026-06-20T18:00:00.000Z",
+              durationMinutes: 60,
+              status: "scheduled",
+              price: 85,
+            },
+            stylist: {
+              displayName: "Maya Beauty Studio",
+              slug: "maya",
+              timezone: "America/Denver",
+            },
+            client: {
+              firstName: "Katie",
+            },
+            allowedActions: {
+              canCancel: true,
+              canReschedule: false,
+              rescheduleDisabledReason: "Rescheduling is closed.",
+            },
+            policy: {
+              cancellationPolicyText: "Please cancel at least 24 hours ahead.",
+            },
+          },
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        },
+      ),
+    );
+
+    await expect(
+      getManagedAppointment("8Kp29xQm7A", "short-code"),
+    ).resolves.toEqual(
+      expect.objectContaining({
+        appointment_id: "opaque-appointment",
+        stylist_slug: "maya",
+        stylist_display_name: "Maya Beauty Studio",
+        client_name: "Katie",
+        service_name: "Cut & Style",
+        can_cancel: true,
+        can_reschedule: false,
+        reschedule_disabled_reason: "Rescheduling is closed.",
+        cancellation_policy_text: "Please cancel at least 24 hours ahead.",
+      }),
+    );
+
+    expect(fetch).toHaveBeenCalledWith(
+      "/api/public/appointment-links/8Kp29xQm7A",
+      expect.objectContaining({ cache: "no-store" }),
+    );
+  });
+
+  it("keeps legacy appointment management tokens on the old endpoint", async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(JSON.stringify({ data: makeManagedAppointment() }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    await getManagedAppointment("legacy token");
+
+    expect(fetch).toHaveBeenCalledWith(
+      "/api/public/appointments/manage/legacy%20token",
+      expect.objectContaining({ cache: "no-store" }),
+    );
+  });
+
+  it("posts short-link cancel and reschedule actions to appointment-links", async () => {
+    vi.mocked(fetch)
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ data: makeManagedAppointment() }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ data: makeManagedAppointment() }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      );
+
+    await cancelManagedAppointment("short-1", "short-code");
+    await rescheduleManagedAppointment("short-1", "short-code", {
+      requested_datetime: "2026-06-22T19:00:00.000Z",
+      service_id: "service-2",
+    });
+
+    expect(fetch).toHaveBeenNthCalledWith(
+      1,
+      "/api/public/appointment-links/short-1/cancel",
+      expect.objectContaining({ method: "POST" }),
+    );
+    expect(fetch).toHaveBeenNthCalledWith(
+      2,
+      "/api/public/appointment-links/short-1/reschedule",
+      expect.objectContaining({
+        method: "POST",
+        body: JSON.stringify({
+          newAppointmentDate: "2026-06-22T19:00:00.000Z",
+          service_id: "service-2",
+        }),
+      }),
+    );
+  });
+
+  it("treats invalid short appointment links as expired links", async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          data: {
+            valid: false,
+            reason: "expired",
+            message:
+              "This appointment link has expired. Please contact your stylist.",
+          },
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        },
+      ),
+    );
+
+    await expect(
+      getManagedAppointment("expired1", "short-code"),
+    ).rejects.toEqual(
+      expect.objectContaining({
+        message:
+          "This appointment link has expired. Please contact your stylist.",
+        status: 401,
+        details: { reason: "expired" },
       }),
     );
   });
@@ -385,5 +534,26 @@ function makeReferralStats() {
     referral_url: "https://dripdesk.test/r/rf_client123",
     opened_count: 3,
     booking_attributed_count: 1,
+  };
+}
+
+function makeManagedAppointment() {
+  return {
+    appointment_id: "appointment-1",
+    client_id: "client-1",
+    stylist_id: "stylist-1",
+    stylist_slug: "maya",
+    stylist_display_name: "Maya Beauty Studio",
+    business_name: "Maya Beauty Studio",
+    client_name: "Katie",
+    service_name: "Cut & Style",
+    service_duration_minutes: 60,
+    service_price: 85,
+    appointment_date: "2026-06-20T18:00:00.000Z",
+    appointment_end: "2026-06-20T19:00:00.000Z",
+    business_timezone: "America/Denver",
+    status: "scheduled",
+    can_cancel: true,
+    can_reschedule: true,
   };
 }
