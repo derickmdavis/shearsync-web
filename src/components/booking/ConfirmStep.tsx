@@ -256,10 +256,17 @@ export function ConfirmStep({
       return;
     }
 
+    if (!isReferencePhotoSizeAllowed(file)) {
+      setReferencePhotoError("Please choose a photo smaller than 5 MB.");
+      return;
+    }
+
     setReferencePhotoError(null);
     onReferencePhotoSelect(file);
   }
 }
+
+const MAX_REFERENCE_PHOTO_SIZE_BYTES = 5 * 1024 * 1024;
 
 const ACCEPTED_REFERENCE_PHOTO_TYPES = [
   "image/jpeg",
@@ -288,6 +295,10 @@ function isAcceptedReferencePhoto(file: File) {
       name.endsWith(extension),
     )
   );
+}
+
+function isReferencePhotoSizeAllowed(file: File) {
+  return file.size <= MAX_REFERENCE_PHOTO_SIZE_BYTES;
 }
 
 type ReviewCardProps = {

@@ -82,6 +82,33 @@ describe("public booking api helpers", () => {
     );
   });
 
+  it("passes abort signals into public slot requests", async () => {
+    const abortController = new AbortController();
+    abortController.abort();
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          data: { date: "2026-05-04", timezone: "America/Denver", slots: [] },
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        },
+      ),
+    );
+
+    await getPublicSlots(
+      "maya-johnson",
+      "service-1",
+      "2026-05-04",
+      "token-3",
+      { signal: abortController.signal },
+    );
+
+    const init = vi.mocked(fetch).mock.calls[0]?.[1] as RequestInit;
+    expect(init.signal).toEqual(expect.objectContaining({ aborted: true }));
+  });
+
   it("posts booking_context_token when creating a public booking", async () => {
     vi.mocked(fetch).mockResolvedValue(
       new Response(
@@ -130,6 +157,45 @@ describe("public booking api helpers", () => {
           booking_context_token: "token-4",
         }),
       }),
+    );
+  });
+
+  it("sends an idempotency key header when creating a public booking", async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          data: {
+            stylist_slug: "maya-johnson",
+            service_id: "service-1",
+            service_name: "Haircut",
+            service_duration_minutes: 60,
+            service_price: 95,
+            appointment_date: "2026-06-15T09:00:00-06:00",
+            status: "scheduled",
+          },
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        },
+      ),
+    );
+
+    await createPublicBooking(
+      {
+        stylist_slug: "maya-johnson",
+        service_id: "service-1",
+        requested_datetime: "2026-06-15T09:00:00-06:00",
+        guest_first_name: "Jane",
+        guest_last_name: "Smith",
+        guest_phone: "(720) 555-0103",
+      },
+      { idempotencyKey: "booking-key-1" },
+    );
+
+    const init = vi.mocked(fetch).mock.calls[0]?.[1] as RequestInit;
+    expect(new Headers(init.headers).get("Idempotency-Key")).toBe(
+      "booking-key-1",
     );
   });
 

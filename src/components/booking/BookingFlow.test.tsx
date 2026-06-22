@@ -372,7 +372,58 @@ describe("BookingFlow", () => {
     expect(getPublicAvailability).toHaveBeenCalledWith(
       "maya-johnson",
       "token-2",
+      expect.objectContaining({ signal: expect.any(AbortSignal) }),
     );
+  });
+
+  it("reuses slot responses across availability probing, selected-date loading, and previews", async () => {
+    const {
+      createPublicBookingIntake,
+      getPublicAvailability,
+      getPublicServices,
+      getPublicSlots,
+    } = setupMockReferences();
+
+    createPublicBookingIntake.mockResolvedValue(
+      createIntake({ bookingContextToken: "token-availability" }),
+    );
+    getPublicServices.mockResolvedValue([createService("service-1", "Haircut")]);
+    getPublicAvailability.mockResolvedValue({
+      dates: ["2026-07-15", "2026-07-16", "2026-07-17"],
+      timezone: "America/Denver",
+    });
+    getPublicSlots.mockImplementation(async (_slug, _serviceIds, date) => ({
+      date,
+      timezone: "America/Denver",
+      service: {
+        id: "service-1",
+        name: "Haircut",
+        durationMinutes: 60,
+        price: 95,
+      },
+      slots: [
+        {
+          start: `${date}T09:00:00-06:00`,
+          end: `${date}T10:00:00-06:00`,
+        },
+      ],
+    }));
+
+    render(<BookingFlow slug="maya-johnson" stylist={baseStylist} />);
+
+    await openServicesStep();
+    fireEvent.click(screen.getByRole("button", { name: /Haircut/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+
+    await screen.findByText("Choose a date & time");
+    await screen.findAllByRole("button", { name: /9:00/i });
+
+    await waitFor(() => {
+      expect(getPublicSlots).toHaveBeenCalledTimes(3);
+    });
+    expect(
+      getPublicSlots.mock.calls.map(([, , date]) => date).sort(),
+    ).toEqual(["2026-07-15", "2026-07-16", "2026-07-17"]);
   });
 
   it("renders only backend-filtered services for new clients", async () => {
@@ -477,12 +528,14 @@ describe("BookingFlow", () => {
       expect(getPublicAvailability).toHaveBeenCalledWith(
         "maya-johnson",
         intake.bookingContextToken,
+        expect.objectContaining({ signal: expect.any(AbortSignal) }),
       );
       expect(getPublicSlots).toHaveBeenCalledWith(
         "maya-johnson",
         ["service-1"],
         expect.any(String),
         intake.bookingContextToken,
+        expect.objectContaining({ signal: expect.any(AbortSignal) }),
       );
     },
   );
@@ -547,8 +600,76 @@ describe("BookingFlow", () => {
           guest_phone: "(720) 555-0103",
           booking_context_token: "token-final",
         }),
+        expect.objectContaining({ idempotencyKey: expect.any(String) }),
       );
     });
+  });
+
+  it("guards against duplicate final booking submissions", async () => {
+    const {
+      createPublicBooking,
+      createPublicBookingIntake,
+      getPublicAvailability,
+      getPublicServices,
+      getPublicSlots,
+    } = setupMockReferences();
+    let resolveBooking!: (confirmation: PublicBookingConfirmation) => void;
+
+    createPublicBookingIntake.mockResolvedValue(
+      createIntake({ bookingContextToken: "token-final" }),
+    );
+    getPublicServices.mockResolvedValue([createService("service-1", "Haircut")]);
+    getPublicAvailability.mockResolvedValue({
+      dates: ["2026-07-15"],
+      timezone: "America/Denver",
+    });
+    getPublicSlots.mockResolvedValue({
+      date: "2026-07-15",
+      timezone: "America/Denver",
+      service: {
+        id: "service-1",
+        name: "Haircut",
+        durationMinutes: 60,
+        price: 95,
+      },
+      slots: [
+        {
+          start: "2026-07-15T09:00:00-06:00",
+          end: "2026-07-15T10:00:00-06:00",
+        },
+      ],
+    });
+    createPublicBooking.mockReturnValue(
+      new Promise((resolve) => {
+        resolveBooking = resolve;
+      }),
+    );
+
+    render(<BookingFlow slug="maya-johnson" stylist={baseStylist} />);
+
+    await openServicesStep();
+    fireEvent.click(screen.getByRole("button", { name: /Haircut/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+
+    await screen.findByText("Choose a date & time");
+    fireEvent.click(await screen.findByRole("button", { name: /9:00/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+
+    await screen.findByText("Review your booking");
+
+    const submitButton = screen.getByRole("button", { name: /Book Appointment/i });
+    fireEvent.click(submitButton);
+    fireEvent.click(submitButton);
+
+    await waitFor(() => {
+      expect(createPublicBooking).toHaveBeenCalledTimes(1);
+    });
+    expect(createPublicBooking.mock.calls[0]?.[1]).toEqual(
+      expect.objectContaining({ idempotencyKey: expect.any(String) }),
+    );
+
+    resolveBooking(createBookingConfirmation());
+    expect(await screen.findByText("You're All Set!")).toBeTruthy();
   });
 
   it("sends the referral code when submitting the final booking", async () => {
@@ -601,6 +722,7 @@ describe("BookingFlow", () => {
         expect.objectContaining({
           referral_code: "rf_client123",
         }),
+        expect.objectContaining({ idempotencyKey: expect.any(String) }),
       );
     });
   });
@@ -708,6 +830,7 @@ describe("BookingFlow", () => {
         expect.objectContaining({
           referral_code: "rf_stored123",
         }),
+        expect.objectContaining({ idempotencyKey: expect.any(String) }),
       );
     });
   });
@@ -814,6 +937,76 @@ describe("BookingFlow", () => {
     expect(
       screen.getByRole("button", { name: /Add a reference photo/i }),
     ).toBeTruthy();
+  });
+
+  it("rejects reference photos larger than 5 MB before booking", async () => {
+    const {
+      createPublicBooking,
+      createPublicBookingIntake,
+      getPublicAvailability,
+      getPublicServices,
+      getPublicSlots,
+    } = setupMockReferences();
+
+    createPublicBookingIntake.mockResolvedValue(
+      createIntake({ bookingContextToken: "token-final" }),
+    );
+    getPublicServices.mockResolvedValue([createService("service-1", "Haircut")]);
+    getPublicAvailability.mockResolvedValue({
+      dates: ["2026-07-15"],
+      timezone: "America/Denver",
+    });
+    getPublicSlots.mockResolvedValue({
+      date: "2026-07-15",
+      timezone: "America/Denver",
+      service: {
+        id: "service-1",
+        name: "Haircut",
+        durationMinutes: 60,
+        price: 95,
+      },
+      slots: [
+        {
+          start: "2026-07-15T09:00:00-06:00",
+          end: "2026-07-15T10:00:00-06:00",
+        },
+      ],
+    });
+    createPublicBooking.mockResolvedValue(createBookingConfirmation());
+
+    const { container } = render(
+      <BookingFlow slug="maya-johnson" stylist={baseStylist} />,
+    );
+
+    await openServicesStep();
+    fireEvent.click(screen.getByRole("button", { name: /Haircut/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+
+    await screen.findByText("Choose a date & time");
+    fireEvent.click(await screen.findByRole("button", { name: /9:00/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+
+    await screen.findByText("Review your booking");
+
+    const fileInput = container.querySelector<HTMLInputElement>(
+      'input[type="file"]',
+    );
+    expect(fileInput).toBeTruthy();
+
+    const oversizedPhoto = new File(
+      [new Uint8Array(5 * 1024 * 1024 + 1)],
+      "too-large.jpg",
+      { type: "image/jpeg" },
+    );
+
+    fireEvent.change(fileInput!, {
+      target: { files: [oversizedPhoto] },
+    });
+
+    expect(
+      await screen.findByText("Please choose a photo smaller than 5 MB."),
+    ).toBeTruthy();
+    expect(screen.queryByText("too-large.jpg")).toBeNull();
   });
 
   it("hides the reference photo upload when the returned upload token is expired", async () => {

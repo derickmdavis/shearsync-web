@@ -99,6 +99,26 @@ function getReferralStorageKey(slug: string) {
   return `referral:${slug}`;
 }
 
+function getSlotCacheKey({
+  bookingContextToken,
+  date,
+  serviceIds,
+}: {
+  bookingContextToken: string;
+  date: string;
+  serviceIds: string[];
+}) {
+  return [bookingContextToken, date, [...serviceIds].sort().join("|")].join("::");
+}
+
+function createBookingIdempotencyKey() {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return crypto.randomUUID();
+  }
+
+  return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
 function readStoredReferralCode(slug: string) {
   if (typeof sessionStorage === "undefined") {
     return null;
@@ -243,11 +263,16 @@ export function BookingFlow({
 
   const selectedServicesRef = useRef(selectedServices);
   const referralCodeRef = useRef(referralCode);
+  const submittingRef = useRef(false);
   // Token refreshes can be triggered by several concurrent availability calls;
   // share one in-flight refresh to avoid duplicate intake requests.
   const tokenRefreshPromiseRef = useRef<Promise<PublicBookingIntakeData | null> | null>(
     null,
   );
+  const slotResponseCacheRef = useRef<Map<string, PublicSlotsResponse>>(new Map());
+  const slotRequestCacheRef = useRef<
+    Map<string, Promise<PublicSlotsResponse | null>>
+  >(new Map());
 
   useEffect(() => {
     referralCodeRef.current = referralCode;
@@ -304,6 +329,8 @@ export function BookingFlow({
   const clearAvailabilityState = useCallback(() => {
     // Service/contact changes invalidate every date and slot derived from the
     // previous booking context token.
+    slotResponseCacheRef.current.clear();
+    slotRequestCacheRef.current.clear();
     setDateOptions([]);
     setSelectedDate("");
     setSlots([]);
@@ -603,7 +630,10 @@ export function BookingFlow({
   );
 
   const getAvailabilityForCurrentContext = useCallback(
-    async ({ allowTokenRefresh = true }: { allowTokenRefresh?: boolean } = {}) => {
+    async ({
+      allowTokenRefresh = true,
+      signal,
+    }: { allowTokenRefresh?: boolean; signal?: AbortSignal } = {}) => {
       const activeIntake = intakeState.status === "ready" ? intakeState.data : null;
 
       if (!activeIntake?.bookingContextToken) {
@@ -611,7 +641,9 @@ export function BookingFlow({
       }
 
       try {
-        return await getPublicAvailability(slug, activeIntake.bookingContextToken);
+        return await getPublicAvailability(slug, activeIntake.bookingContextToken, {
+          signal,
+        });
       } catch (error) {
         if (isBookingDisabledError(error)) {
           disableBookingFlow();
@@ -644,7 +676,9 @@ export function BookingFlow({
             return null;
           }
 
-          return getPublicAvailability(slug, refreshedIntake.bookingContextToken);
+          return getPublicAvailability(slug, refreshedIntake.bookingContextToken, {
+            signal,
+          });
         }
 
         throw error;
@@ -663,7 +697,15 @@ export function BookingFlow({
   const getSlotsForDate = useCallback(
     async (
       date: string,
-      { allowTokenRefresh = true }: { allowTokenRefresh?: boolean } = {},
+      {
+        allowTokenRefresh = true,
+        forceRefresh = false,
+        signal,
+      }: {
+        allowTokenRefresh?: boolean;
+        forceRefresh?: boolean;
+        signal?: AbortSignal;
+      } = {},
     ) => {
       const activeIntake = intakeState.status === "ready" ? intakeState.data : null;
       const activeSelectedServiceIds = selectedServicesRef.current.map(
@@ -674,75 +716,118 @@ export function BookingFlow({
         return null;
       }
 
-      try {
-        // Slots are always requested with every selected service id so the
-        // backend can calculate the combined appointment duration.
-        return await getPublicSlots(
-          slug,
-          activeSelectedServiceIds,
-          date,
-          activeIntake.bookingContextToken,
-        );
-      } catch (error) {
-        if (isBookingDisabledError(error)) {
-          disableBookingFlow();
-          return null;
+      const cacheKey = getSlotCacheKey({
+        bookingContextToken: activeIntake.bookingContextToken,
+        date,
+        serviceIds: activeSelectedServiceIds,
+      });
+
+      if (forceRefresh) {
+        slotResponseCacheRef.current.delete(cacheKey);
+        slotRequestCacheRef.current.delete(cacheKey);
+      } else {
+        const cachedResponse = slotResponseCacheRef.current.get(cacheKey);
+        if (cachedResponse) {
+          return cachedResponse;
         }
 
-        if (isSelectedServiceUnavailableError(error)) {
-          await handleSelectedServiceUnavailable(activeIntake);
-          return null;
+        const inFlightRequest = slotRequestCacheRef.current.get(cacheKey);
+        if (inFlightRequest) {
+          return inFlightRequest;
         }
+      }
 
-        if (allowTokenRefresh && isBookingContextExpiredError(error)) {
-          const refreshedIntake = await refreshBookingContext();
-
-          if (!refreshedIntake) {
-            handleBookingContextRecoveryFailure(
-              "Please confirm your contact details to refresh availability.",
-            );
-            return null;
-          }
-
-          if (!refreshedIntake.bookingEnabled) {
+      const requestPromise = (async () => {
+        try {
+          // Slots are always requested with every selected service id so the
+          // backend can calculate the combined appointment duration.
+          return await getPublicSlots(
+            slug,
+            activeSelectedServiceIds,
+            date,
+            activeIntake.bookingContextToken,
+            { signal },
+          );
+        } catch (error) {
+          if (isBookingDisabledError(error)) {
             disableBookingFlow();
             return null;
           }
 
-          const refreshedServices = await loadServicesForIntake(refreshedIntake, {
-            allowTokenRefresh: false,
-          });
-
-          if (!refreshedServices || !selectedServicesRef.current.length) {
-            handleBookingContextRecoveryFailure(
-              "Your available services changed. Please select a service again.",
-            );
+          if (isSelectedServiceUnavailableError(error)) {
+            await handleSelectedServiceUnavailable(activeIntake);
             return null;
           }
 
-          try {
-            return await getPublicSlots(
-              slug,
-              selectedServicesRef.current.map((service) => service.id),
-              date,
-              refreshedIntake.bookingContextToken,
-            );
-          } catch (retryError) {
-            if (isBookingDisabledError(retryError)) {
+          if (allowTokenRefresh && isBookingContextExpiredError(error)) {
+            const refreshedIntake = await refreshBookingContext();
+
+            if (!refreshedIntake) {
+              handleBookingContextRecoveryFailure(
+                "Please confirm your contact details to refresh availability.",
+              );
+              return null;
+            }
+
+            if (!refreshedIntake.bookingEnabled) {
               disableBookingFlow();
               return null;
             }
 
-            if (isSelectedServiceUnavailableError(retryError)) {
-              await handleSelectedServiceUnavailable(refreshedIntake);
+            const refreshedServices = await loadServicesForIntake(refreshedIntake, {
+              allowTokenRefresh: false,
+            });
+
+            if (!refreshedServices || !selectedServicesRef.current.length) {
+              handleBookingContextRecoveryFailure(
+                "Your available services changed. Please select a service again.",
+              );
               return null;
             }
 
-            throw retryError;
+            try {
+              return await getPublicSlots(
+                slug,
+                selectedServicesRef.current.map((service) => service.id),
+                date,
+                refreshedIntake.bookingContextToken,
+                { signal },
+              );
+            } catch (retryError) {
+              if (isBookingDisabledError(retryError)) {
+                disableBookingFlow();
+                return null;
+              }
+
+              if (isSelectedServiceUnavailableError(retryError)) {
+                await handleSelectedServiceUnavailable(refreshedIntake);
+                return null;
+              }
+
+              throw retryError;
+            }
           }
+
+          throw error;
+        }
+      })();
+
+      slotRequestCacheRef.current.set(cacheKey, requestPromise);
+
+      try {
+        const response = await requestPromise;
+        const requestIsStillCurrent =
+          slotRequestCacheRef.current.get(cacheKey) === requestPromise;
+
+        if (response && requestIsStillCurrent) {
+          slotResponseCacheRef.current.set(cacheKey, response);
         }
 
-        throw error;
+        return response;
+      } finally {
+        if (slotRequestCacheRef.current.get(cacheKey) === requestPromise) {
+          slotRequestCacheRef.current.delete(cacheKey);
+        }
       }
     },
     [
@@ -758,6 +843,7 @@ export function BookingFlow({
 
   useEffect(() => {
     let cancelled = false;
+    const abortController = new AbortController();
 
     async function loadAvailability() {
       // Initial availability load picks the first future date with actual slots,
@@ -776,7 +862,9 @@ export function BookingFlow({
       setSlotsError(null);
 
       try {
-        const availability = await getAvailabilityForCurrentContext();
+        const availability = await getAvailabilityForCurrentContext({
+          signal: abortController.signal,
+        });
         if (cancelled) {
           return;
         }
@@ -806,7 +894,9 @@ export function BookingFlow({
         let nextSlots: PublicSlot[] = [];
 
         for (const date of nextDates) {
-          const response = await getSlotsForDate(date);
+          const response = await getSlotsForDate(date, {
+            signal: abortController.signal,
+          });
           if (cancelled) {
             return;
           }
@@ -860,6 +950,7 @@ export function BookingFlow({
 
     return () => {
       cancelled = true;
+      abortController.abort();
     };
   }, [
     bookingContextToken,
@@ -873,6 +964,7 @@ export function BookingFlow({
 
   useEffect(() => {
     let cancelled = false;
+    const abortController = new AbortController();
 
     async function loadSlots() {
       if (
@@ -888,7 +980,9 @@ export function BookingFlow({
       setSlotsError(null);
 
       try {
-        const response = await getSlotsForDate(selectedDate);
+        const response = await getSlotsForDate(selectedDate, {
+          signal: abortController.signal,
+        });
         if (cancelled) {
           return;
         }
@@ -932,6 +1026,7 @@ export function BookingFlow({
 
     return () => {
       cancelled = true;
+      abortController.abort();
     };
   }, [
     activeTimezone,
@@ -946,10 +1041,11 @@ export function BookingFlow({
 
   useEffect(() => {
     let cancelled = false;
+    const abortController = new AbortController();
 
     async function loadSlotPreviews() {
-      // Previewing multiple days is intentionally capped to keep the number of
-      // parallel slot requests bounded.
+      // Previewing multiple days is intentionally capped so the first time-step
+      // render does not fan out into weeks of parallel slot requests.
       if (
         !selectedServiceIds.length ||
         !dateOptions.length ||
@@ -964,7 +1060,7 @@ export function BookingFlow({
       const today = getTodayDateValue();
       const previewDates = Array.from(
         new Set(dateOptions.filter((date) => date >= today)),
-      ).slice(0, 21);
+      ).slice(0, 10);
 
       if (!previewDates.length) {
         setSlotPreviews({});
@@ -976,6 +1072,7 @@ export function BookingFlow({
           try {
             const response = await getSlotsForDate(date, {
               allowTokenRefresh: false,
+              signal: abortController.signal,
             });
 
             return [date, response ? getBookableSlots(response) : []] as const;
@@ -999,6 +1096,7 @@ export function BookingFlow({
 
     return () => {
       cancelled = true;
+      abortController.abort();
     };
   }, [
     bookingContextToken,
@@ -1085,7 +1183,9 @@ export function BookingFlow({
     }
 
     try {
-      const response = await getSlotsForDate(selectedDate);
+      const response = await getSlotsForDate(selectedDate, {
+        forceRefresh: true,
+      });
 
       if (!response) {
         return null;
@@ -1154,32 +1254,41 @@ export function BookingFlow({
   }
 
   async function handleSubmitBooking() {
+    if (submittingRef.current) {
+      return;
+    }
+
     if (!primarySelectedService || !selectedSlot || !bookingContextToken) {
       return;
     }
 
+    submittingRef.current = true;
     setSubmitting(true);
     setConfirmError(null);
 
     try {
+      const idempotencyKey = createBookingIdempotencyKey();
       const verifiedSlot = await revalidateSelectedSlot();
 
       if (!verifiedSlot) {
         return;
       }
 
-      const response = await createPublicBooking({
-        stylist_slug: slug,
-        service_id: primarySelectedService.id,
-        requested_datetime: verifiedSlot.start,
-        guest_first_name: parsedName.firstName,
-        guest_last_name: parsedName.lastName,
-        guest_email: email.trim() || undefined,
-        guest_phone: phone.trim(),
-        booking_context_token: bookingContextToken,
-        referral_code: referralCodeRef.current || undefined,
-        notes: buildBookingNotes(selectedServices, notes),
-      });
+      const response = await createPublicBooking(
+        {
+          stylist_slug: slug,
+          service_id: primarySelectedService.id,
+          requested_datetime: verifiedSlot.start,
+          guest_first_name: parsedName.firstName,
+          guest_last_name: parsedName.lastName,
+          guest_email: email.trim() || undefined,
+          guest_phone: phone.trim(),
+          booking_context_token: bookingContextToken,
+          referral_code: referralCodeRef.current || undefined,
+          notes: buildBookingNotes(selectedServices, notes),
+        },
+        { idempotencyKey },
+      );
 
       clearStoredReferralCode(slug);
       referralCodeRef.current = null;
@@ -1246,6 +1355,7 @@ export function BookingFlow({
         setConfirmError(message);
       }
     } finally {
+      submittingRef.current = false;
       setSubmitting(false);
     }
   }

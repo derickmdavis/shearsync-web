@@ -299,6 +299,14 @@ export type CreatePublicBookingBody = {
   notes?: string;
 };
 
+type PublicApiCallOptions = {
+  signal?: AbortSignal;
+};
+
+type CreatePublicBookingOptions = PublicApiCallOptions & {
+  idempotencyKey?: string;
+};
+
 export type PublicReferralResponse = {
   referralLinkId: string;
   referralCode: string;
@@ -756,6 +764,7 @@ export async function getPublicStylist(slug: string) {
 export async function getPublicServices(
   slug: string,
   bookingContextToken?: string | null,
+  options: PublicApiCallOptions = {},
 ) {
   const params = new URLSearchParams();
 
@@ -767,6 +776,11 @@ export async function getPublicServices(
 
   const services = await requestPublicApi<LegacyPublicService[]>(
     `/api/public/services/${slug}${search ? `?${search}` : ""}`,
+    {
+      init: {
+        signal: options.signal,
+      },
+    },
   );
 
   return services.map(normalizePublicService);
@@ -775,6 +789,7 @@ export async function getPublicServices(
 export async function getPublicAvailability(
   slug: string,
   bookingContextToken?: string | null,
+  options: PublicApiCallOptions = {},
 ) {
   const params = new URLSearchParams();
 
@@ -786,6 +801,11 @@ export async function getPublicAvailability(
 
   return requestPublicApi<PublicAvailabilityResponse>(
     `/api/public/availability/${slug}${search ? `?${search}` : ""}`,
+    {
+      init: {
+        signal: options.signal,
+      },
+    },
   );
 }
 
@@ -794,6 +814,7 @@ export async function getPublicSlots(
   serviceIds: string | string[],
   date: string,
   bookingContextToken?: string | null,
+  options: PublicApiCallOptions = {},
 ) {
   const normalizedServiceIds = Array.isArray(serviceIds)
     ? serviceIds.filter(Boolean)
@@ -810,6 +831,11 @@ export async function getPublicSlots(
 
   return requestPublicApi<PublicSlotsResponse>(
     `/api/public/availability/${slug}/slots?${params.toString()}`,
+    {
+      init: {
+        signal: options.signal,
+      },
+    },
   );
 }
 
@@ -824,10 +850,21 @@ export async function createPublicBookingIntake(
   });
 }
 
-export async function createPublicBooking(body: CreatePublicBookingBody) {
+export async function createPublicBooking(
+  body: CreatePublicBookingBody,
+  options: CreatePublicBookingOptions = {},
+) {
+  const headers = new Headers();
+
+  if (options.idempotencyKey) {
+    headers.set("Idempotency-Key", options.idempotencyKey);
+  }
+
   return requestPublicApi<PublicBookingConfirmation>("/api/public/bookings", {
     init: {
       method: "POST",
+      headers,
+      signal: options.signal,
       body: JSON.stringify(body),
     },
   });
