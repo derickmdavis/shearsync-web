@@ -691,7 +691,7 @@ function WaitlistModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-[#111111]/62 px-4 py-6 backdrop-blur-[3px] sm:px-6"
+      className="fixed inset-0 z-50 flex min-h-dvh items-start justify-center overflow-y-auto bg-[#111111]/62 px-3 py-[max(0.75rem,env(safe-area-inset-top))] backdrop-blur-[3px] sm:px-6 sm:py-6 lg:items-center"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) {
           onClose();
@@ -703,13 +703,13 @@ function WaitlistModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby={submitted ? "waitlist-success-title" : "waitlist-title"}
-        className="relative w-full max-w-[940px] overflow-hidden rounded-[22px] border border-[rgba(214,168,90,0.50)] bg-[#FFFDF8] text-[#111111] shadow-[0_32px_95px_rgba(17,17,17,0.34)]"
+        className="relative w-full max-w-[940px] overflow-hidden rounded-[16px] border border-[rgba(214,168,90,0.50)] bg-[#FFFDF8] text-[#111111] shadow-[0_32px_95px_rgba(17,17,17,0.34)] sm:rounded-[22px] lg:my-auto"
       >
         <button
           ref={closeButtonRef}
           type="button"
           onClick={onClose}
-          className="absolute right-4 top-4 z-10 grid h-9 w-9 place-items-center rounded-full text-2xl leading-none text-[#111111] transition hover:bg-[#111111]/5 focus:outline-none focus:ring-2 focus:ring-brand/35"
+          className="fixed right-4 top-[max(0.75rem,env(safe-area-inset-top))] z-[60] grid h-11 w-11 place-items-center rounded-full border border-[rgba(176,122,62,0.24)] bg-[#FFFDF8]/95 text-2xl leading-none text-[#111111] shadow-[0_10px_30px_rgba(17,17,17,0.18)] transition hover:bg-white focus:outline-none focus:ring-2 focus:ring-brand/35 sm:absolute sm:right-4 sm:top-4 sm:h-9 sm:w-9 sm:border-0 sm:bg-transparent sm:shadow-none sm:hover:bg-[#111111]/5"
           aria-label="Close waitlist form"
         >
           ×
@@ -719,31 +719,31 @@ function WaitlistModal({
           <WaitlistSuccessState />
         ) : (
           <div className="grid lg:grid-cols-[1.02fr_0.98fr]">
-            <div className="relative overflow-hidden bg-[radial-gradient(circle_at_18%_8%,rgba(214,168,90,0.25),transparent_32%),linear-gradient(145deg,#FFFDF8_0%,#FAF7F2_100%)] px-7 py-9 sm:px-10 lg:px-12 lg:py-12">
+            <div className="relative overflow-hidden bg-[radial-gradient(circle_at_18%_8%,rgba(214,168,90,0.25),transparent_32%),linear-gradient(145deg,#FFFDF8_0%,#FAF7F2_100%)] px-5 pb-6 pt-14 sm:px-10 sm:py-9 lg:px-12 lg:py-12">
               <Image
                 src="/assets/brand/dripdesk-chair-mark.png"
                 alt=""
                 width={416}
                 height={473}
                 aria-hidden="true"
-                className="h-12 w-auto object-contain"
+                className="h-9 w-auto object-contain sm:h-12"
               />
               <h2
                 id="waitlist-title"
-                className="mt-7 max-w-[360px] font-display text-[46px] font-bold leading-[0.95] tracking-normal text-[#111111] sm:text-[58px]"
+                className="mt-5 max-w-[360px] font-display text-[38px] font-bold leading-[0.95] tracking-normal text-[#111111] sm:mt-7 sm:text-[58px]"
               >
                 Request{" "}
                 <span className="text-[#B7793D]">early access</span>
               </h2>
-              <p className="mt-6 max-w-[420px] text-[15px] leading-7 text-[#4F4A45]">
+              <p className="mt-4 max-w-[420px] text-sm leading-6 text-[#4F4A45] sm:mt-6 sm:text-[15px] sm:leading-7">
                 DripDesk is opening to a small group of independent stylists
                 and barbers before public launch.
               </p>
-              <p className="mt-4 max-w-[420px] text-sm font-bold leading-6 text-[#1C1C1E]">
-                Join the list and we&apos;ll reach out when your account is ready.
+              <p className="mt-3 max-w-[420px] text-sm font-bold leading-6 text-[#1C1C1E] sm:mt-4">
+                Join the list and we&apos;ll reach out when we&apos;re ready.
               </p>
 
-              <ul className="mt-8 grid gap-4">
+              <ul className="mt-5 grid gap-3 sm:mt-8 sm:gap-4">
                 {[
                   "Built for independent stylists & barbers",
                   "Simple to use. Powerful results.",
@@ -751,11 +751,11 @@ function WaitlistModal({
                 ].map((item) => (
                   <li
                     key={item}
-                    className="flex items-center gap-3 text-sm font-bold text-[#4F4A45]"
+                    className="flex items-start gap-3 text-sm font-bold leading-5 text-[#4F4A45] sm:items-center"
                   >
                     <span
                       aria-hidden="true"
-                      className="grid h-6 w-6 shrink-0 place-items-center rounded-full border border-[#D6A85A] bg-[#D6A85A]/15 text-sm text-[#B7793D]"
+                      className="grid h-6 w-6 shrink-0 place-items-center rounded-full border border-[#D6A85A] bg-[#D6A85A]/15 text-sm leading-none text-[#B7793D]"
                     >
                       ✓
                     </span>
@@ -764,26 +764,16 @@ function WaitlistModal({
                 ))}
               </ul>
 
-              <div className="mt-9 h-px w-20 bg-[#D6A85A]" />
-              <p className="mt-4 text-xs font-extrabold uppercase tracking-[0.16em] text-[#B7793D]">
+              <div className="mt-6 h-px w-20 bg-[#D6A85A] sm:mt-9" />
+              <p className="mt-3 text-xs font-extrabold uppercase tracking-[0.16em] text-[#B7793D] sm:mt-4">
                 Thank you for your interest!
               </p>
             </div>
 
-            <div className="relative overflow-hidden px-7 py-9 sm:px-10 lg:px-12 lg:py-12">
+            <div className="relative overflow-hidden px-5 py-6 sm:px-10 sm:py-9 lg:px-12 lg:py-12">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_76%_18%,rgba(214,168,90,0.24),transparent_30%),linear-gradient(160deg,rgba(250,247,242,0.82),rgba(255,255,255,0.96))]" />
               <div className="relative">
-                <div className="mb-7 rounded-[14px] border border-[rgba(183,121,61,0.22)] bg-white/68 p-4 shadow-[0_16px_45px_rgba(80,52,25,0.08)]">
-                  <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-[#B7793D]">
-                    Private beta
-                  </p>
-                  <p className="mt-2 text-sm leading-6 text-[#4F4A45]">
-                    No account is created. We&apos;ll only use this to invite you
-                    when early access opens.
-                  </p>
-                </div>
-
-                <form className="grid gap-5" onSubmit={handleSubmit} noValidate>
+                <form className="grid gap-4 sm:gap-5" onSubmit={handleSubmit} noValidate>
                   <WaitlistField
                     id="waitlist-full-name"
                     label="Full name"
@@ -835,8 +825,8 @@ function WaitlistModal({
                   </button>
 
                   <p className="text-center text-xs leading-5 text-[#6B7280]">
-                    We respect your privacy. We&apos;ll only use your email to send
-                    early access updates about DripDesk.
+                    We respect your privacy. We&apos;ll only use your email for
+                    DripDesk updates.
                   </p>
                 </form>
               </div>
