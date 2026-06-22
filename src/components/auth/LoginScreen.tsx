@@ -169,13 +169,9 @@ export function LoginScreen({ initialMode, nextPath }: LoginScreenProps) {
               className="h-auto w-[190px]"
             />
             <h1 className="mt-8 max-w-sm text-3xl font-semibold tracking-tight sm:text-4xl">
-              Run your chair like a business with a secure account.
+              The business side of beauty
             </h1>
           </div>
-          <p className="mt-8 max-w-sm text-sm leading-6 text-white/72">
-            Your Supabase session is used for sign in, password recovery, and
-            authenticated DripDesk API requests.
-          </p>
         </div>
 
         <div className="px-5 py-7 sm:px-8 sm:py-9">

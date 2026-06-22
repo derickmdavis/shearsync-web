@@ -1,9 +1,14 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
-import type { ReactNode } from "react";
-
-const loginHref = "/login";
-const signUpHref = "/login?mode=sign-up";
+import {
+  type FormEvent,
+  type ReactNode,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 const productPillars = [
   {
@@ -177,6 +182,38 @@ function MarketingLink({
   );
 }
 
+function MarketingButton({
+  children,
+  onClick,
+  variant = "primary",
+  className = "",
+}: {
+  children: ReactNode;
+  onClick: () => void;
+  variant?: "primary" | "nav";
+  className?: string;
+}) {
+  const styles = {
+    primary:
+      "border border-[rgba(138,85,40,0.65)] bg-gradient-to-b from-[#C98A44] via-[#B07A3E] to-[#A96A32] text-white shadow-[0_18px_38px_rgba(176,122,62,0.20)] hover:border-brand-dark hover:from-[#B97939] hover:to-[#996534]",
+    nav: "border border-[rgba(138,85,40,0.55)] bg-gradient-to-b from-[#C98A44] to-[#B07A3E] text-white shadow-[0_12px_28px_rgba(176,122,62,0.20)] hover:border-brand-dark hover:from-[#996534] hover:to-[#996534]",
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={[
+        "inline-flex h-11 items-center justify-center rounded-[8px] px-6 text-sm font-extrabold transition-colors focus:outline-none focus:ring-2 focus:ring-brand/35 focus:ring-offset-2 focus:ring-offset-[#F6F1E8]",
+        styles[variant],
+        className,
+      ].join(" ")}
+    >
+      {children}
+    </button>
+  );
+}
+
 function BrandLogo({ light = false }: { light?: boolean }) {
   return (
     <Link
@@ -205,7 +242,7 @@ function BrandLogo({ light = false }: { light?: boolean }) {
   );
 }
 
-function HomeNav() {
+function HomeNav({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
   return (
     <nav
       className="relative z-20 mx-auto flex max-w-[1180px] flex-col items-start justify-between gap-4 px-5 py-5 sm:h-[76px] sm:flex-row sm:items-center sm:px-8 sm:py-0"
@@ -226,25 +263,19 @@ function HomeNav() {
         >
           Pricing
         </Link>
-        <Link
-          href={loginHref}
-          className="text-xs font-extrabold text-[#1F1A17] transition-colors hover:text-brand sm:text-sm"
-        >
-          Login
-        </Link>
-        <MarketingLink
-          href={signUpHref}
+        <MarketingButton
+          onClick={onJoinWaitlist}
           variant="nav"
           className="h-9 px-4 text-xs sm:h-10 sm:px-5 sm:text-sm"
         >
-          Let&apos;s Start
-        </MarketingLink>
+          Join Waitlist
+        </MarketingButton>
       </div>
     </nav>
   );
 }
 
-function HomeHero() {
+function HomeHero({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
   return (
     <section
       id="top"
@@ -252,7 +283,7 @@ function HomeHero() {
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_24%,rgba(232,211,163,0.42)_0%,rgba(232,211,163,0.12)_28%,transparent_54%),radial-gradient(circle_at_92%_18%,rgba(214,187,133,0.35)_0%,rgba(214,187,133,0.10)_34%,transparent_62%),linear-gradient(135deg,#F6F1E8_0%,#FFF8E8_48%,#F6F1E8_100%)]" />
       <div className="absolute inset-0 bg-[linear-gradient(120deg,transparent_0%,rgba(255,255,255,0.32)_44%,transparent_56%),linear-gradient(300deg,transparent_0%,rgba(200,164,107,0.12)_42%,transparent_65%)] opacity-60" />
-      <HomeNav />
+      <HomeNav onJoinWaitlist={onJoinWaitlist} />
 
       <div className="relative z-10 mx-auto grid max-w-[1180px] gap-8 px-5 pb-12 pt-7 sm:px-8 lg:min-h-[610px] lg:grid-cols-[0.86fr_1.14fr] lg:items-center lg:pb-0 lg:pt-0">
         <div className="max-w-[560px]">
@@ -278,9 +309,12 @@ function HomeHero() {
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <MarketingLink href={signUpHref} className="w-full sm:w-auto">
-              Get Started
-            </MarketingLink>
+            <MarketingButton
+              onClick={onJoinWaitlist}
+              className="w-full sm:w-auto"
+            >
+              Join Waitlist
+            </MarketingButton>
             <MarketingLink
               href="#pricing"
               variant="secondary"
@@ -396,7 +430,7 @@ function FeatureValue({ value }: { value: string }) {
   return <span className="text-xs font-bold text-[#1F1A17]">{value}</span>;
 }
 
-function HomePricing() {
+function HomePricing({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
   return (
     <section
       id="pricing"
@@ -444,9 +478,9 @@ function HomePricing() {
                         {plan.period}
                       </span>
                     </p>
-                    {/* TODO: Route to plan-specific signup when plan selection exists. */}
-                    <Link
-                      href={signUpHref}
+                    <button
+                      type="button"
+                      onClick={onJoinWaitlist}
                       className={[
                         "mt-3 inline-flex h-8 items-center justify-center rounded-[8px] border px-3 text-[11px] font-extrabold transition-colors focus:outline-none focus:ring-2 focus:ring-brand/35",
                         plan.popular
@@ -454,8 +488,8 @@ function HomePricing() {
                           : "border-brand/70 text-brand hover:bg-brand hover:text-white",
                       ].join(" ")}
                     >
-                      Get Started
-                    </Link>
+                      Join Waitlist
+                    </button>
                   </th>
                 ))}
               </tr>
@@ -485,7 +519,7 @@ function HomePricing() {
   );
 }
 
-function HomeFinalCta() {
+function HomeFinalCta({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
   return (
     <section className="bg-transparent px-5 pb-14 pt-2 text-[#111111] sm:px-8 sm:pb-16">
       <div className="mx-auto flex max-w-[980px] flex-col gap-6 rounded-[8px] border border-[rgba(200,164,107,0.45)] bg-[#FFFDF8]/75 px-6 py-7 text-[#111111] shadow-[0_18px_45px_rgba(80,52,25,0.08)] sm:flex-row sm:items-center sm:justify-between sm:px-10">
@@ -498,9 +532,12 @@ function HomeFinalCta() {
           </p>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row">
-          <MarketingLink href={signUpHref} className="w-full sm:w-auto">
-            Get Started
-          </MarketingLink>
+          <MarketingButton
+            onClick={onJoinWaitlist}
+            className="w-full sm:w-auto"
+          >
+            Join Waitlist
+          </MarketingButton>
           <Link
             href="#pricing"
             className="inline-flex h-11 w-full items-center justify-center rounded-[8px] border border-[#B07A3E] bg-transparent px-6 text-sm font-extrabold text-[#4A3728] transition-colors hover:bg-[rgba(200,164,107,0.10)] focus:outline-none focus:ring-2 focus:ring-brand-gold/35 focus:ring-offset-2 focus:ring-offset-[#FFFDF8] sm:w-auto"
@@ -510,6 +547,379 @@ function HomeFinalCta() {
         </div>
       </div>
     </section>
+  );
+}
+
+type WaitlistErrors = {
+  fullName?: string;
+  email?: string;
+  form?: string;
+};
+
+function WaitlistModal({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}) {
+  const modalRef = useRef<HTMLDivElement | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [errors, setErrors] = useState<WaitlistErrors>({});
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    previousFocusRef.current =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.setTimeout(() => closeButtonRef.current?.focus(), 0);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      previousFocusRef.current?.focus();
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        onClose();
+        return;
+      }
+
+      if (event.key !== "Tab" || !modalRef.current) {
+        return;
+      }
+
+      const focusableElements = modalRef.current.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      );
+
+      if (focusableElements.length === 0) {
+        return;
+      }
+
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+
+      if (event.shiftKey && document.activeElement === firstElement) {
+        event.preventDefault();
+        lastElement.focus();
+      } else if (!event.shiftKey && document.activeElement === lastElement) {
+        event.preventDefault();
+        firstElement.focus();
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [onClose, open]);
+
+  if (!open) {
+    return null;
+  }
+
+  const validate = () => {
+    const nextErrors: WaitlistErrors = {};
+    const trimmedName = fullName.trim();
+    const trimmedEmail = email.trim();
+
+    if (!trimmedName) {
+      nextErrors.fullName = "Please enter your full name.";
+    }
+
+    if (!trimmedEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      nextErrors.email = "Please enter a valid email address.";
+    }
+
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
+  };
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!validate()) {
+      return;
+    }
+
+    setSubmitting(true);
+    setErrors({});
+
+    try {
+      const response = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          full_name: fullName.trim(),
+          email: email.trim(),
+          source: "homepage_waitlist",
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Unable to submit waitlist request.");
+      }
+
+      setSubmitted(true);
+    } catch {
+      setErrors({
+        form: "We couldn't join the waitlist right now. Please try again.",
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-[#111111]/62 px-4 py-6 backdrop-blur-[3px] sm:px-6"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) {
+          onClose();
+        }
+      }}
+    >
+      <div
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={submitted ? "waitlist-success-title" : "waitlist-title"}
+        className="relative w-full max-w-[940px] overflow-hidden rounded-[22px] border border-[rgba(214,168,90,0.50)] bg-[#FFFDF8] text-[#111111] shadow-[0_32px_95px_rgba(17,17,17,0.34)]"
+      >
+        <button
+          ref={closeButtonRef}
+          type="button"
+          onClick={onClose}
+          className="absolute right-4 top-4 z-10 grid h-9 w-9 place-items-center rounded-full text-2xl leading-none text-[#111111] transition hover:bg-[#111111]/5 focus:outline-none focus:ring-2 focus:ring-brand/35"
+          aria-label="Close waitlist form"
+        >
+          ×
+        </button>
+
+        {submitted ? (
+          <WaitlistSuccessState />
+        ) : (
+          <div className="grid lg:grid-cols-[1.02fr_0.98fr]">
+            <div className="relative overflow-hidden bg-[radial-gradient(circle_at_18%_8%,rgba(214,168,90,0.25),transparent_32%),linear-gradient(145deg,#FFFDF8_0%,#FAF7F2_100%)] px-7 py-9 sm:px-10 lg:px-12 lg:py-12">
+              <Image
+                src="/assets/brand/dripdesk-chair-mark.png"
+                alt=""
+                width={416}
+                height={473}
+                aria-hidden="true"
+                className="h-12 w-auto object-contain"
+              />
+              <h2
+                id="waitlist-title"
+                className="mt-7 max-w-[360px] font-display text-[46px] font-bold leading-[0.95] tracking-normal text-[#111111] sm:text-[58px]"
+              >
+                Request{" "}
+                <span className="text-[#B7793D]">early access</span>
+              </h2>
+              <p className="mt-6 max-w-[420px] text-[15px] leading-7 text-[#4F4A45]">
+                DripDesk is opening to a small group of independent stylists
+                and barbers before public launch.
+              </p>
+              <p className="mt-4 max-w-[420px] text-sm font-bold leading-6 text-[#1C1C1E]">
+                Join the list and we&apos;ll reach out when your account is ready.
+              </p>
+
+              <ul className="mt-8 grid gap-4">
+                {[
+                  "Built for independent stylists & barbers",
+                  "Simple to use. Powerful results.",
+                  "Be among the first to get access",
+                ].map((item) => (
+                  <li
+                    key={item}
+                    className="flex items-center gap-3 text-sm font-bold text-[#4F4A45]"
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="grid h-6 w-6 shrink-0 place-items-center rounded-full border border-[#D6A85A] bg-[#D6A85A]/15 text-sm text-[#B7793D]"
+                    >
+                      ✓
+                    </span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="mt-9 h-px w-20 bg-[#D6A85A]" />
+              <p className="mt-4 text-xs font-extrabold uppercase tracking-[0.16em] text-[#B7793D]">
+                Thank you for your interest!
+              </p>
+            </div>
+
+            <div className="relative overflow-hidden px-7 py-9 sm:px-10 lg:px-12 lg:py-12">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_76%_18%,rgba(214,168,90,0.24),transparent_30%),linear-gradient(160deg,rgba(250,247,242,0.82),rgba(255,255,255,0.96))]" />
+              <div className="relative">
+                <div className="mb-7 rounded-[14px] border border-[rgba(183,121,61,0.22)] bg-white/68 p-4 shadow-[0_16px_45px_rgba(80,52,25,0.08)]">
+                  <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-[#B7793D]">
+                    Private beta
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-[#4F4A45]">
+                    No account is created. We&apos;ll only use this to invite you
+                    when early access opens.
+                  </p>
+                </div>
+
+                <form className="grid gap-5" onSubmit={handleSubmit} noValidate>
+                  <WaitlistField
+                    id="waitlist-full-name"
+                    label="Full name"
+                    value={fullName}
+                    placeholder="Your full name"
+                    autoComplete="name"
+                    error={errors.fullName}
+                    onChange={(value) => {
+                      setFullName(value);
+                      if (errors.fullName) {
+                        setErrors((current) => ({
+                          ...current,
+                          fullName: undefined,
+                        }));
+                      }
+                    }}
+                  />
+                  <WaitlistField
+                    id="waitlist-email"
+                    label="Email address"
+                    type="email"
+                    value={email}
+                    placeholder="you@example.com"
+                    autoComplete="email"
+                    error={errors.email}
+                    onChange={(value) => {
+                      setEmail(value);
+                      if (errors.email) {
+                        setErrors((current) => ({
+                          ...current,
+                          email: undefined,
+                        }));
+                      }
+                    }}
+                  />
+
+                  {errors.form ? (
+                    <p className="rounded-[8px] border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700">
+                      {errors.form}
+                    </p>
+                  ) : null}
+
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="mt-1 inline-flex h-12 w-full items-center justify-center rounded-[8px] border border-[rgba(138,85,40,0.65)] bg-gradient-to-b from-[#C98A44] via-[#B07A3E] to-[#A96A32] px-6 text-sm font-extrabold text-white shadow-[0_18px_38px_rgba(176,122,62,0.20)] transition hover:border-brand-dark hover:from-[#B97939] hover:to-[#996534] focus:outline-none focus:ring-2 focus:ring-brand/35 focus:ring-offset-2 focus:ring-offset-[#FFFDF8] disabled:cursor-not-allowed disabled:opacity-70"
+                  >
+                    {submitting ? "Joining..." : "Join the waitlist"}
+                  </button>
+
+                  <p className="text-center text-xs leading-5 text-[#6B7280]">
+                    We respect your privacy. We&apos;ll only use your email to send
+                    early access updates about DripDesk.
+                  </p>
+                </form>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function WaitlistField({
+  id,
+  label,
+  value,
+  placeholder,
+  onChange,
+  autoComplete,
+  error,
+  type = "text",
+}: {
+  id: string;
+  label: string;
+  value: string;
+  placeholder: string;
+  onChange: (value: string) => void;
+  autoComplete: string;
+  error?: string;
+  type?: "text" | "email";
+}) {
+  return (
+    <div>
+      <label
+        htmlFor={id}
+        className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-[#1C1C1E]"
+      >
+        {label}
+      </label>
+      <input
+        id={id}
+        type={type}
+        value={value}
+        placeholder={placeholder}
+        autoComplete={autoComplete}
+        aria-invalid={Boolean(error)}
+        aria-describedby={error ? `${id}-error` : undefined}
+        onChange={(event) => onChange(event.target.value)}
+        className="mt-2 h-12 w-full rounded-[8px] border border-[rgba(176,122,62,0.28)] bg-white px-4 text-sm text-[#111111] shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] outline-none transition placeholder:text-[#8A7E72] focus:border-[#B7793D] focus:ring-4 focus:ring-[#D6A85A]/20"
+      />
+      {error ? (
+        <p id={`${id}-error`} className="mt-2 text-sm font-semibold text-red-700">
+          {error}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+function WaitlistSuccessState() {
+  return (
+    <div className="relative grid min-h-[520px] place-items-center overflow-hidden bg-[radial-gradient(circle_at_50%_18%,rgba(214,168,90,0.26),transparent_28%),linear-gradient(145deg,#FFFDF8_0%,#FAF7F2_100%)] px-7 py-14 text-center sm:px-10">
+      <div className="absolute -bottom-24 -left-20 h-64 w-64 rounded-full bg-[#D6A85A]/12 blur-3xl" />
+      <div className="relative mx-auto max-w-[430px]">
+        <div className="mx-auto grid h-20 w-20 place-items-center rounded-full border-2 border-[#B7793D] bg-white/60 text-4xl text-[#B7793D]">
+          ✓
+        </div>
+        <h2
+          id="waitlist-success-title"
+          className="mt-8 font-display text-[44px] font-bold leading-none text-[#111111] sm:text-[54px]"
+        >
+          You&apos;re on the list!
+        </h2>
+        <p className="mx-auto mt-5 max-w-[320px] text-[15px] leading-7 text-[#4F4A45]">
+          Thanks - we&apos;ll be in touch when early access to DripDesk is ready.
+        </p>
+        <div
+          aria-hidden="true"
+          className="mx-auto mt-10 grid h-24 w-28 place-items-center rounded-[14px] border border-[#D6A85A] bg-white/45 text-5xl text-[#B7793D] shadow-[0_18px_45px_rgba(80,52,25,0.08)]"
+        >
+          ✉
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -557,13 +967,18 @@ function HomeFooter() {
 }
 
 export default function HomePage() {
+  const [waitlistOpen, setWaitlistOpen] = useState(false);
+  const openWaitlist = () => setWaitlistOpen(true);
+  const closeWaitlist = () => setWaitlistOpen(false);
+
   return (
     <main className="min-h-screen bg-[#F6F1E8] text-[#111111]">
-      <HomeHero />
+      <HomeHero onJoinWaitlist={openWaitlist} />
       <HomeProductPillars />
-      <HomePricing />
-      <HomeFinalCta />
+      <HomePricing onJoinWaitlist={openWaitlist} />
+      <HomeFinalCta onJoinWaitlist={openWaitlist} />
       <HomeFooter />
+      <WaitlistModal open={waitlistOpen} onClose={closeWaitlist} />
     </main>
   );
 }
