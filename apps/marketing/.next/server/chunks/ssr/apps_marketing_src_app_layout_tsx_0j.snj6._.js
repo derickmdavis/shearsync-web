@@ -1,0 +1,3 @@
+module.exports=[82851,a=>{"use strict";var b=a.i(7997);a.s(["default",0,function({children:a}){return(0,b.jsx)("html",{lang:"en",className:"h-full antialiased",children:(0,b.jsx)("body",{className:"min-h-full bg-page text-foreground font-sans",children:a})})},"metadata",0,{title:"DripDesk",description:"Booking and client management for independent pros."}])},68815,a=>{a.n(a.i(82851))}];
+
+//# sourceMappingURL=apps_marketing_src_app_layout_tsx_0j.snj6._.js.map
