@@ -1,19 +1,25 @@
 {
-  "name": "shearsync-booking-web",
+  "name": "root-and-foil",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
   "scripts": {
-    "dev": "next dev --port 3001",
-    "build": "next build",
-    "start": "next start --port 3001",
-    "lint": "eslint",
-    "test": "vitest run"
-  },
-  "dependencies": {
-    "@supabase/supabase-js": "^2.105.4",
-    "next": "16.2.4",
-    "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "dev:marketing": "npm run dev --workspace=@rootfoil/marketing",
+    "dev:web": "npm run dev --workspace=@rootfoil/web",
+    "build:marketing": "npm run build --workspace=@rootfoil/marketing",
+    "build:web": "npm run build --workspace=@rootfoil/web",
+    "lint:marketing": "npm run lint --workspace=@rootfoil/marketing",
+    "lint:web": "npm run lint --workspace=@rootfoil/web",
+    "test:marketing": "npm run test --workspace=@rootfoil/marketing",
+    "test:web": "npm run test --workspace=@rootfoil/web",
+    "typecheck:marketing": "npm run typecheck --workspace=@rootfoil/marketing",
+    "typecheck:web": "npm run typecheck --workspace=@rootfoil/web",
+    "build": "npm run build:marketing && npm run build:web",
+    "lint": "npm run lint:marketing && npm run lint:web",
+    "test": "npm run test:marketing && npm run test:web",
+    "typecheck": "npm run typecheck:marketing && npm run typecheck:web"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

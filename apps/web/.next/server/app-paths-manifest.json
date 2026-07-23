@@ -1,0 +1,14 @@
+{
+  "/_global-error/page": "app/_global-error/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/account/page": "app/account/page.js",
+  "/api/account/[...path]/route": "app/api/account/[...path]/route.js",
+  "/api/public/[...path]/route": "app/api/public/[...path]/route.js",
+  "/api/settings/[...path]/route": "app/api/settings/[...path]/route.js",
+  "/appointments/manage/[token]/page": "app/appointments/manage/[token]/page.js",
+  "/book/[slug]/page": "app/book/[slug]/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/login/page": "app/login/page.js",
+  "/manage/[shortCode]/page": "app/manage/[shortCode]/page.js",
+  "/r/[referralCode]/page": "app/r/[referralCode]/page.js"
+}

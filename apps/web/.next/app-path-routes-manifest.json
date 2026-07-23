@@ -1,0 +1,14 @@
+{
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/account/page": "/account",
+  "/api/account/[...path]/route": "/api/account/[...path]",
+  "/api/public/[...path]/route": "/api/public/[...path]",
+  "/api/settings/[...path]/route": "/api/settings/[...path]",
+  "/appointments/manage/[token]/page": "/appointments/manage/[token]",
+  "/book/[slug]/page": "/book/[slug]",
+  "/favicon.ico/route": "/favicon.ico",
+  "/login/page": "/login",
+  "/manage/[shortCode]/page": "/manage/[shortCode]",
+  "/r/[referralCode]/page": "/r/[referralCode]"
+}

@@ -1,0 +1,3 @@
+{
+  "/manage/[shortCode]/page": "app/manage/[shortCode]/page.js"
+}
