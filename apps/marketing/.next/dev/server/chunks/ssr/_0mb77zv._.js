@@ -12,7 +12,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist
 ;
 ;
 const metadata = {
-    title: "DripDesk",
+    title: "Root & Foil",
     description: "Booking and client management for independent pros."
 };
 function RootLayout({ children }) {

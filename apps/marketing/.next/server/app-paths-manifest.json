@@ -4,5 +4,7 @@
   "/api/waitlist/route": "app/api/waitlist/route.js",
   "/barber/page": "app/barber/page.js",
   "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/page": "app/page.js"
+  "/page": "app/page.js",
+  "/privacy-policy/page": "app/privacy-policy/page.js",
+  "/terms-of-service/page": "app/terms-of-service/page.js"
 }

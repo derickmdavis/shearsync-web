@@ -36,6 +36,11 @@ __turbopack_context__.s([
 ]);
 const LOCAL_MARKETING_ORIGIN = "http://localhost:3000";
 const LOCAL_WEB_APP_ORIGIN = "http://localhost:3001";
+const PRODUCTION_MARKETING_ORIGIN = "https://rootfoil.com";
+const PRODUCTION_WEB_APP_ORIGIN = "https://rootfoil.app";
+function getDefaultOrigin(localOrigin, productionOrigin) {
+    return ("TURBOPACK compile-time falsy", 0) ? "TURBOPACK unreachable" : localOrigin;
+}
 function getAbsoluteOrigin(name, value, fallback) {
     const candidate = value?.trim() || fallback;
     try {
@@ -52,10 +57,10 @@ function joinOriginAndPath(origin, path = "/") {
     return new URL(path.startsWith("/") ? path : `/${path}`, `${origin}/`).toString();
 }
 function getMarketingOrigin() {
-    return getAbsoluteOrigin("NEXT_PUBLIC_MARKETING_URL", process.env.NEXT_PUBLIC_MARKETING_URL, LOCAL_MARKETING_ORIGIN);
+    return getAbsoluteOrigin("NEXT_PUBLIC_MARKETING_URL", process.env.NEXT_PUBLIC_MARKETING_URL, getDefaultOrigin(LOCAL_MARKETING_ORIGIN, PRODUCTION_MARKETING_ORIGIN));
 }
 function getWebAppOrigin() {
-    return getAbsoluteOrigin("NEXT_PUBLIC_WEB_APP_URL", process.env.NEXT_PUBLIC_WEB_APP_URL, LOCAL_WEB_APP_ORIGIN);
+    return getAbsoluteOrigin("NEXT_PUBLIC_WEB_APP_URL", process.env.NEXT_PUBLIC_WEB_APP_URL, getDefaultOrigin(LOCAL_WEB_APP_ORIGIN, PRODUCTION_WEB_APP_ORIGIN));
 }
 function getWebAppUrl(path = "/") {
     return joinOriginAndPath(getWebAppOrigin(), path);
@@ -281,7 +286,7 @@ function BarberLogo() {
         "aria-label": "DripDesk",
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["default"], {
-                src: "/assets/brand/dripdesk-chair-mark.png",
+                src: "/assets/brand/root-and-foil-chair-mark.png",
                 alt: "",
                 width: 416,
                 height: 473,

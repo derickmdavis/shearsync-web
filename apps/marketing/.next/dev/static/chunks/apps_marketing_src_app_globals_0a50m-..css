@@ -1332,6 +1332,10 @@
     padding-block: calc(var(--spacing) * 14);
   }
 
+  .py-16 {
+    padding-block: calc(var(--spacing) * 16);
+  }
+
   .py-20 {
     padding-block: calc(var(--spacing) * 20);
   }
@@ -2673,7 +2677,7 @@
 }
 
 :root {
-  --brand-name: "DripDesk";
+  --brand-name: "Root & Foil";
   --color-charcoal: #111;
   --color-soft-black: #1c1c1e;
   --color-bronze: #b07a3e;

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "DripDesk",
+  title: "Root & Foil",
   description: "Booking and client management for independent pros.",
 };
 

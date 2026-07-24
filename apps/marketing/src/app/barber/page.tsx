@@ -184,7 +184,7 @@ function BarberLogo() {
       aria-label="DripDesk"
     >
       <Image
-        src="/assets/brand/dripdesk-chair-mark.png"
+        src="/assets/brand/root-and-foil-chair-mark.png"
         alt=""
         width={416}
         height={473}

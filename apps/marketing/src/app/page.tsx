@@ -20,8 +20,8 @@ const productPillars = [
       "Automated reminders that reduce no-shows",
       "Waitlist support to fill last-minute openings",
     ],
-    screenshot: "/assets/home/dripdesk-phone-calendar.png",
-    alt: "DripDesk calendar screen showing appointments, open time, and booking controls",
+    screenshot: "/assets/home/root-and-foil-phone-calendar.png",
+    alt: "Root & Foil calendar screen showing appointments, open time, and booking controls",
   },
   {
     icon: "/assets/icons/icon-client-bronze.svg",
@@ -32,8 +32,8 @@ const productPillars = [
       "Before & after photos in one place",
       "Quick access to past appointments and spend",
     ],
-    screenshot: "/assets/home/dripdesk-phone-clients.png",
-    alt: "DripDesk clients screen showing client list, notes, and client history",
+    screenshot: "/assets/home/root-and-foil-phone-clients.png",
+    alt: "Root & Foil clients screen showing client list, notes, and client history",
   },
   {
     icon: "/assets/icons/icon-analytics-bronze.svg",
@@ -44,8 +44,8 @@ const productPillars = [
       "Average ticket, top services, and add-ons",
       "Trends and insights to guide your next move",
     ],
-    screenshot: "/assets/home/dripdesk-phone-insights.png",
-    alt: "DripDesk dashboard screen showing business snapshot and revenue insights",
+    screenshot: "/assets/home/root-and-foil-phone-insights.png",
+    alt: "Root & Foil dashboard screen showing business snapshot and revenue insights",
   },
 ];
 
@@ -143,8 +143,8 @@ const footerGroups = [
   {
     title: "Legal",
     links: [
-      { label: "Privacy Policy", href: "#" },
-      { label: "Terms of Service", href: "#" },
+      { label: "Privacy Policy", href: "/privacy-policy" },
+      { label: "Terms of Service", href: "/terms-of-service" },
     ],
   },
 ];
@@ -172,7 +172,7 @@ function MarketingLink({
     <Link
       href={href}
       className={[
-        "inline-flex h-11 items-center justify-center rounded-[8px] px-6 text-sm font-extrabold transition-colors focus:outline-none focus:ring-2 focus:ring-brand/35 focus:ring-offset-2 focus:ring-offset-[#F6F1E8]",
+        "inline-flex h-11 items-center justify-center rounded-[8px] px-6 font-display text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-brand/35 focus:ring-offset-2 focus:ring-offset-[#F6F1E8]",
         styles[variant],
         className,
       ].join(" ")}
@@ -204,7 +204,7 @@ function MarketingButton({
       type="button"
       onClick={onClick}
       className={[
-        "inline-flex h-11 items-center justify-center rounded-[8px] px-6 text-sm font-extrabold transition-colors focus:outline-none focus:ring-2 focus:ring-brand/35 focus:ring-offset-2 focus:ring-offset-[#F6F1E8]",
+        "inline-flex h-11 items-center justify-center rounded-[8px] px-6 font-display text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-brand/35 focus:ring-offset-2 focus:ring-offset-[#F6F1E8]",
         styles[variant],
         className,
       ].join(" ")}
@@ -214,30 +214,21 @@ function MarketingButton({
   );
 }
 
-function BrandLogo({ light = false }: { light?: boolean }) {
+function BrandLogo() {
   return (
     <Link
       href="#top"
-      className="flex shrink-0 items-center gap-2.5 focus:outline-none focus:ring-2 focus:ring-brand/35"
-      aria-label="DripDesk"
+      className="shrink-0 focus:outline-none focus:ring-2 focus:ring-brand/35"
+      aria-label="Root & Foil"
     >
       <Image
-        src="/assets/brand/dripdesk-chair-mark.png"
-        alt=""
-        width={416}
-        height={473}
+        src="/assets/brand/root-and-foil-logo.svg"
+        alt="Root & Foil"
+        width={2120}
+        height={414}
         priority
-        aria-hidden="true"
-        className="h-8 w-auto object-contain"
+        className="h-8 w-auto object-contain sm:h-9"
       />
-      <span
-        className={[
-          "font-display text-[28px] font-semibold sm:text-[31px]",
-          light ? "text-white" : "text-[#111111]",
-        ].join(" ")}
-      >
-        DripDesk
-      </span>
     </Link>
   );
 }
@@ -253,13 +244,13 @@ function HomeNav({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
       <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-start sm:gap-6">
         <Link
           href="#top"
-          className="text-xs font-extrabold text-[#1F1A17] transition-colors hover:text-brand sm:text-sm"
+          className="font-display text-xs font-semibold text-[#1F1A17] transition-colors hover:text-brand sm:text-sm"
         >
           About
         </Link>
         <Link
           href="#pricing"
-          className="text-xs font-extrabold text-[#1F1A17] transition-colors hover:text-brand sm:text-sm"
+          className="font-display text-xs font-semibold text-[#1F1A17] transition-colors hover:text-brand sm:text-sm"
         >
           Pricing
         </Link>
@@ -292,14 +283,12 @@ function HomeHero({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
           </p>
 
           <h1 className="mt-6 max-w-[530px] font-display text-[54px] font-bold leading-[0.9] tracking-normal text-[#111111] sm:text-[72px] lg:text-[78px]">
-            The business
-            <br />
-            side of beauty.
+            Growth starts at the roots.
           </h1>
 
           <p className="mt-6 max-w-[520px] text-[16px] leading-7 text-[#4F4A45] sm:text-[17px]">
             Stop chasing appointments. Stop losing clients between visits.
-            DripDesk helps you remember every client and keep them coming back.
+            Root & Foil helps you remember every client and keep them coming back.
           </p>
 
           <p className="mt-7 flex max-w-[560px] items-center gap-3 text-xs font-bold leading-5 text-[#4F4A45] sm:text-[13px]">
@@ -356,7 +345,7 @@ function HomeProductPillars() {
             finally in one place.
           </h2>
           <p className="mx-auto mt-5 max-w-[720px] text-[15px] leading-7 text-[#4F4A45] sm:text-base">
-            DripDesk helps you stay booked, remember every client detail, and understand what your chair is earning without juggling texts, notes, screenshots, or spreadsheets.
+            Root & Foil helps you stay booked, remember every client detail, and understand what your chair is earning without juggling texts, notes, screenshots, or spreadsheets.
           </p>
         </div>
 
@@ -528,7 +517,7 @@ function HomeFinalCta({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
             Ready to run your business like a pro?
           </h2>
           <p className="mt-2 text-sm leading-7 text-[#4F4A45]">
-            The business side of beauty.
+            Growth starts at the roots.
           </p>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row">
@@ -540,7 +529,7 @@ function HomeFinalCta({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
           </MarketingButton>
           <Link
             href="#pricing"
-            className="inline-flex h-11 w-full items-center justify-center rounded-[8px] border border-[#B07A3E] bg-transparent px-6 text-sm font-extrabold text-[#4A3728] transition-colors hover:bg-[rgba(200,164,107,0.10)] focus:outline-none focus:ring-2 focus:ring-brand-gold/35 focus:ring-offset-2 focus:ring-offset-[#FFFDF8] sm:w-auto"
+            className="inline-flex h-11 w-full items-center justify-center rounded-[8px] border border-[#B07A3E] bg-transparent px-6 font-display text-sm font-semibold text-[#4A3728] transition-colors hover:bg-[rgba(200,164,107,0.10)] focus:outline-none focus:ring-2 focus:ring-brand-gold/35 focus:ring-offset-2 focus:ring-offset-[#FFFDF8] sm:w-auto"
           >
             View Plans
           </Link>
@@ -721,7 +710,7 @@ function WaitlistModal({
           <div className="grid lg:grid-cols-[1.02fr_0.98fr]">
             <div className="relative overflow-hidden bg-[radial-gradient(circle_at_18%_8%,rgba(214,168,90,0.25),transparent_32%),linear-gradient(145deg,#FFFDF8_0%,#FAF7F2_100%)] px-5 pb-6 pt-14 sm:px-10 sm:py-9 lg:px-12 lg:py-12">
               <Image
-                src="/assets/brand/dripdesk-chair-mark.png"
+                src="/assets/brand/root-and-foil-chair-mark.png"
                 alt=""
                 width={416}
                 height={473}
@@ -736,7 +725,7 @@ function WaitlistModal({
                 <span className="text-[#B7793D]">early access</span>
               </h2>
               <p className="mt-4 max-w-[420px] text-sm leading-6 text-[#4F4A45] sm:mt-6 sm:text-[15px] sm:leading-7">
-                DripDesk is opening to a small group of independent stylists
+                Root & Foil is opening to a small group of independent stylists
                 and barbers before public launch.
               </p>
               <p className="mt-3 max-w-[420px] text-sm font-bold leading-6 text-[#1C1C1E] sm:mt-4">
@@ -819,14 +808,14 @@ function WaitlistModal({
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="mt-1 inline-flex h-12 w-full items-center justify-center rounded-[8px] border border-[rgba(138,85,40,0.65)] bg-gradient-to-b from-[#C98A44] via-[#B07A3E] to-[#A96A32] px-6 text-sm font-extrabold text-white shadow-[0_18px_38px_rgba(176,122,62,0.20)] transition hover:border-brand-dark hover:from-[#B97939] hover:to-[#996534] focus:outline-none focus:ring-2 focus:ring-brand/35 focus:ring-offset-2 focus:ring-offset-[#FFFDF8] disabled:cursor-not-allowed disabled:opacity-70"
+                    className="mt-1 inline-flex h-12 w-full items-center justify-center rounded-[8px] border border-[rgba(138,85,40,0.65)] bg-gradient-to-b from-[#C98A44] via-[#B07A3E] to-[#A96A32] px-6 font-display text-sm font-semibold text-white shadow-[0_18px_38px_rgba(176,122,62,0.20)] transition hover:border-brand-dark hover:from-[#B97939] hover:to-[#996534] focus:outline-none focus:ring-2 focus:ring-brand/35 focus:ring-offset-2 focus:ring-offset-[#FFFDF8] disabled:cursor-not-allowed disabled:opacity-70"
                   >
                     {submitting ? "Joining..." : "Join the waitlist"}
                   </button>
 
                   <p className="text-center text-xs leading-5 text-[#6B7280]">
                     We respect your privacy. We&apos;ll only use your email for
-                    DripDesk updates.
+                    Root & Foil updates.
                   </p>
                 </form>
               </div>
@@ -900,7 +889,7 @@ function WaitlistSuccessState() {
           You&apos;re on the list!
         </h2>
         <p className="mx-auto mt-5 max-w-[320px] text-[15px] leading-7 text-[#4F4A45]">
-          Thanks - we&apos;ll be in touch when early access to DripDesk is ready.
+          Thanks - we&apos;ll be in touch when early access to Root & Foil is ready.
         </p>
         <div
           aria-hidden="true"
@@ -947,7 +936,7 @@ function HomeFooter() {
         </div>
 
         <p className="text-sm font-semibold text-[#4F4A45] md:text-right">
-          © 2026 DripDesk
+          © 2026 Root & Foil
           <br />
           All rights reserved.
         </p>
