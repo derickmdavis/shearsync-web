@@ -2,8 +2,22 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Root & Foil",
-  description: "Booking and client management for independent pros.",
+  title:
+    "Root & Foil | The Complete Business Platform for Independent Hair Professionals",
+  description:
+    "Root & Foil brings online booking, client profiles, formulas, reminders, waitlists, and business insights together in one complete product for independent stylists and barbers.",
+  openGraph: {
+    title:
+      "Root & Foil | The Complete Business Platform for Independent Hair Professionals",
+    description:
+      "Root & Foil brings online booking, client profiles, formulas, reminders, waitlists, and business insights together in one complete product for independent stylists and barbers.",
+  },
+  twitter: {
+    title:
+      "Root & Foil | The Complete Business Platform for Independent Hair Professionals",
+    description:
+      "Root & Foil brings online booking, client profiles, formulas, reminders, waitlists, and business insights together in one complete product for independent stylists and barbers.",
+  },
 };
 
 export default function RootLayout({

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { getWebAppUrl } from "@/src/lib/urls";
 import {
   type FormEvent,
   type ReactNode,
@@ -9,6 +10,9 @@ import {
   useRef,
   useState,
 } from "react";
+
+const MONTHLY_PRICE = "{{MONTHLY_PRICE}}";
+const loginHref = getWebAppUrl("/login");
 
 const productPillars = [
   {
@@ -26,11 +30,12 @@ const productPillars = [
   {
     icon: "/assets/icons/icon-client-bronze.svg",
     title: "Remember every client.",
-    body: "Keep every detail that matters so you can personalize every visit and build lasting relationships.",
+    body: "Keep notes, structured color formulas, preferences, photos, and appointment history in one clean profile so every appointment feels personal, consistent, and professional.",
     bullets: [
-      "Notes, preferences, and service history",
-      "Before & after photos in one place",
-      "Quick access to past appointments and spend",
+      "Client notes, preferences, and service history",
+      "Color formulas for roots, toners, lighteners, developers, and more",
+      "Before-and-after photos in one profile",
+      "Appointment history and rebooking patterns",
     ],
     screenshot: "/assets/home/root-and-foil-phone-clients.png",
     alt: "Root & Foil clients screen showing client list, notes, and client history",
@@ -49,94 +54,36 @@ const productPillars = [
   },
 ];
 
-const pricingPlans = [
-  { name: "Basic", price: "$12", period: "/ month" },
-  { name: "Pro", price: "$25", period: "/ month", popular: true },
-  { name: "Premium", price: "$35", period: "/ month" },
-];
-
-const comparisonRows = [
-  {
-    feature: "Online booking",
-    basic: "yes",
-    pro: "yes",
-    premium: "yes",
-  },
-  {
-    feature: "Client notes & history",
-    basic: "Unlimited clients",
-    pro: "Unlimited clients",
-    premium: "Unlimited clients",
-  },
-  {
-    feature: "Appointment reminders",
-    basic: "yes",
-    pro: "yes",
-    premium: "yes",
-  },
-  {
-    feature: "Import from GlossGenius / Booksy / Fresha / Vagaro / StyleSeat / Square",
-    basic: "yes",
-    pro: "yes",
-    premium: "yes",
-  },
-  {
-    feature: "Full client history",
-    basic: "yes",
-    pro: "yes",
-    premium: "yes",
-  },
-  {
-    feature: "Service limit",
-    basic: "7 services",
-    pro: "Unlimited services",
-    premium: "Unlimited services",
-  },
-  {
-    feature: "Waitlist",
-    basic: "no",
-    pro: "yes",
-    premium: "yes",
-  },
-  {
-    feature: "QR booking code",
-    basic: "no",
-    pro: "yes",
-    premium: "yes",
-  },
-  {
-    feature: "Advanced metrics",
-    basic: "no",
-    pro: "yes",
-    premium: "yes",
-  },
-  {
-    feature: "Weekly business recap email",
-    basic: "no",
-    pro: "no",
-    premium: "yes",
-  },
-  {
-    feature: "Apple / Google Calendar integration",
-    basic: "no",
-    pro: "no",
-    premium: "yes",
-  },
+const includedFeatures = [
+  "Online booking",
+  "Client profiles and appointment history",
+  "Structured formula tracking",
+  "Client notes, preferences, and photos",
+  "Appointment confirmations and reminders",
+  "Waitlist management",
+  "Rebooking tools",
+  "Campaigns and automations",
+  "Revenue and business insights",
+  "Calendar integration",
+  "QR booking tools",
+  "Business recap and reporting",
+  "Customer support",
 ];
 
 const footerGroups = [
   {
     title: "Product",
     links: [
-      { label: "Features", href: "#features" },
+      { label: "Product", href: "#product" },
+      { label: "What’s Included", href: "#product" },
       { label: "Pricing", href: "#pricing" },
+      { label: "Login", href: loginHref },
     ],
   },
   {
     title: "Company",
     links: [
       { label: "About", href: "#top" },
-      { label: "Blog", href: "#" },
       { label: "Contact", href: "#" },
     ],
   },
@@ -243,16 +190,28 @@ function HomeNav({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
 
       <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-start sm:gap-6">
         <Link
-          href="#top"
+          href="#product"
           className="font-display text-xs font-semibold text-[#1F1A17] transition-colors hover:text-brand sm:text-sm"
         >
-          About
+          Product
+        </Link>
+        <Link
+          href="#philosophy"
+          className="hidden font-display text-xs font-semibold text-[#1F1A17] transition-colors hover:text-brand sm:inline sm:text-sm"
+        >
+          Why Root &amp; Foil
         </Link>
         <Link
           href="#pricing"
           className="font-display text-xs font-semibold text-[#1F1A17] transition-colors hover:text-brand sm:text-sm"
         >
           Pricing
+        </Link>
+        <Link
+          href={loginHref}
+          className="font-display text-xs font-semibold text-[#1F1A17] transition-colors hover:text-brand sm:text-sm"
+        >
+          Login
         </Link>
         <MarketingButton
           onClick={onJoinWaitlist}
@@ -287,13 +246,14 @@ function HomeHero({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
           </h1>
 
           <p className="mt-6 max-w-[520px] text-[16px] leading-7 text-[#4F4A45] sm:text-[17px]">
-            Stop chasing appointments. Stop losing clients between visits.
-            Root & Foil helps you remember every client and keep them coming back.
+            Root &amp; Foil brings booking, client relationships, formulas,
+            follow-ups, and business insights together in one complete system
+            built for independent hair professionals.
           </p>
 
           <p className="mt-7 flex max-w-[560px] items-center gap-3 text-xs font-bold leading-5 text-[#4F4A45] sm:text-[13px]">
             <span className="sm:whitespace-nowrap">
-              Seamless booking. Automated growth. Smart business insights.
+              One complete system for your clients, schedule, and growth.
             </span>
           </p>
 
@@ -305,11 +265,11 @@ function HomeHero({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
               Join Waitlist
             </MarketingButton>
             <MarketingLink
-              href="#pricing"
+              href="#product"
               variant="secondary"
               className="w-full sm:w-auto"
             >
-              View Plans
+              See What&apos;s Included
             </MarketingLink>
           </div>
 
@@ -334,7 +294,7 @@ function HomeHero({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
 function HomeProductPillars() {
   return (
     <section
-      id="features"
+      id="product"
       className="border-t border-[rgba(200,164,107,0.30)] bg-transparent px-5 py-20 text-[#111111] sm:px-8 sm:py-24 lg:py-28"
     >
       <div className="mx-auto max-w-[1240px]">
@@ -345,7 +305,9 @@ function HomeProductPillars() {
             finally in one place.
           </h2>
           <p className="mx-auto mt-5 max-w-[720px] text-[15px] leading-7 text-[#4F4A45] sm:text-base">
-            Root & Foil helps you stay booked, remember every client detail, and understand what your chair is earning without juggling texts, notes, screenshots, or spreadsheets.
+            Root &amp; Foil helps you stay booked, remember every client detail,
+            and understand your business without juggling texts, notes,
+            screenshots, or spreadsheets.
           </p>
         </div>
 
@@ -407,16 +369,31 @@ function HomeProductPillars() {
   );
 }
 
-function FeatureValue({ value }: { value: string }) {
-  if (value === "yes") {
-    return <span className="text-lg font-extrabold text-brand">✓</span>;
-  }
-
-  if (value === "no") {
-    return <span className="text-lg font-bold text-[#8A7E72]">—</span>;
-  }
-
-  return <span className="text-xs font-bold text-[#1F1A17]">{value}</span>;
+function HomePhilosophy() {
+  return (
+    <section
+      id="philosophy"
+      className="border-t border-[rgba(200,164,107,0.30)] bg-transparent px-5 py-20 text-[#111111] sm:px-8 sm:py-24 lg:py-28"
+    >
+      <div className="mx-auto max-w-[860px] text-center">
+        <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-brand">
+          Why Root &amp; Foil
+        </p>
+        <h2 className="mt-4 font-display text-[38px] font-bold leading-[1.02] tracking-normal sm:text-[48px] lg:text-[56px]">
+          One business. One product. One philosophy.
+        </h2>
+        <p className="mx-auto mt-5 max-w-[720px] text-[15px] leading-7 text-[#4F4A45] sm:text-base">
+          Independent stylists should not have to choose which parts of their
+          business deserve support. Root &amp; Foil gives every member the complete
+          product because booking, client relationships, organization, and
+          growth all work better together.
+        </p>
+        <p className="mt-5 text-sm font-bold leading-7 text-[#4F4A45]">
+          You run one business. You should not need three software plans to run it.
+        </p>
+      </div>
+    </section>
+  );
 }
 
 function HomePricing({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
@@ -428,80 +405,45 @@ function HomePricing({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
       <div className="mx-auto flex max-w-[1180px] flex-col gap-8">
         <div className="mx-auto max-w-[920px] text-center">
           <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-brand">
-            Compare plans
+            Simple pricing
           </p>
-          <h2 className="mt-4 whitespace-nowrap font-display text-[clamp(25px,5vw,46px)] font-bold leading-[1.02] tracking-normal">
-            Find the plan that fits your business.
+          <h2 className="mt-4 font-display text-[clamp(25px,5vw,46px)] font-bold leading-[1.02] tracking-normal">
+            Everything your business needs. One straightforward price.
           </h2>
-          <p className="mx-auto mt-5 max-w-[440px] text-sm leading-7 text-[#6B625A]">
-            Simple pricing. Powerful features. Built for how you work.
+          <p className="mx-auto mt-5 max-w-[640px] text-sm leading-7 text-[#6B625A]">
+            No feature gates, confusing upgrades, or limits designed to push
+            you into a more expensive plan.
           </p>
         </div>
 
-        <div className="overflow-x-auto rounded-[8px] border border-[rgba(200,164,107,0.42)] bg-[#FFFDF8]/80 shadow-[0_18px_45px_rgba(80,52,25,0.08)]">
-          <table className="min-w-[760px] table-fixed border-collapse text-left">
-            <thead>
-              <tr>
-                <th className="w-[30%] border-b border-[rgba(200,164,107,0.42)] px-4 py-3 text-xs font-extrabold uppercase tracking-[0.08em] text-[#6B625A]">
-                  Feature
-                </th>
-                {pricingPlans.map((plan) => (
-                  <th
-                    key={plan.name}
-                    className={[
-                      "relative border-b border-l border-[rgba(200,164,107,0.42)] px-4 py-3 text-center",
-                      plan.popular ? "bg-brand/10" : "bg-[#FFFDF8]/70",
-                    ].join(" ")}
-                  >
-                    {plan.popular ? (
-                      <div className="absolute inset-x-0 -top-px bg-brand py-1 text-[10px] font-extrabold uppercase tracking-[0.12em] text-white">
-                        Most Popular
-                      </div>
-                    ) : null}
-                    <p className="mt-3 text-xs font-extrabold uppercase tracking-[0.08em] text-[#111111]">
-                      {plan.name}
-                    </p>
-                    <p className="mt-1 text-xl font-extrabold text-[#111111]">
-                      {plan.price}
-                      <span className="ml-1 text-xs font-bold text-[#6B625A]">
-                        {plan.period}
-                      </span>
-                    </p>
-                    <button
-                      type="button"
-                      onClick={onJoinWaitlist}
-                      className={[
-                        "mt-3 inline-flex h-8 items-center justify-center rounded-[8px] border px-3 text-[11px] font-extrabold transition-colors focus:outline-none focus:ring-2 focus:ring-brand/35",
-                        plan.popular
-                          ? "border-brand bg-brand text-white hover:bg-brand-dark"
-                          : "border-brand/70 text-brand hover:bg-brand hover:text-white",
-                      ].join(" ")}
-                    >
-                      Join Waitlist
-                    </button>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {comparisonRows.map((row) => (
-                <tr key={row.feature}>
-                  <th className="border-t border-[rgba(200,164,107,0.42)] px-4 py-2.5 text-xs font-bold text-[#1F1A17]">
-                    {row.feature}
-                  </th>
-                  <td className="border-l border-t border-[rgba(200,164,107,0.42)] px-4 py-2.5 text-center">
-                    <FeatureValue value={row.basic} />
-                  </td>
-                  <td className="border-l border-t border-[rgba(200,164,107,0.42)] bg-brand/10 px-4 py-2.5 text-center">
-                    <FeatureValue value={row.pro} />
-                  </td>
-                  <td className="border-l border-t border-[rgba(200,164,107,0.42)] px-4 py-2.5 text-center">
-                    <FeatureValue value={row.premium} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="mx-auto w-full max-w-[860px] rounded-[8px] border border-[rgba(200,164,107,0.42)] bg-[#FFFDF8]/80 px-6 py-7 text-center shadow-[0_18px_45px_rgba(80,52,25,0.08)] sm:px-10 sm:py-9">
+          <p className="text-xs font-extrabold uppercase tracking-[0.08em] text-[#111111]">
+            Root &amp; Foil
+          </p>
+          <p className="mt-2 font-display text-[42px] font-bold leading-none text-[#111111] sm:text-[52px]">
+            {MONTHLY_PRICE}
+            <span className="ml-1 text-base font-bold text-[#6B625A]">/month</span>
+          </p>
+          <p className="mx-auto mt-4 max-w-[520px] text-sm leading-7 text-[#4F4A45]">
+            The complete business platform for independent stylists and barbers.
+          </p>
+          <p className="mt-3 text-sm font-bold text-[#1F1A17]">
+            Every member gets the complete product.
+          </p>
+          <div className="mt-7 h-px bg-[rgba(200,164,107,0.42)]" />
+          <ul className="mt-7 grid gap-3 text-left sm:grid-cols-2 sm:gap-x-8">
+            {includedFeatures.map((feature) => (
+              <li key={feature} className="flex gap-3 text-[13px] font-bold leading-5 text-[#4F4A45]">
+                <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-brand text-[11px] font-extrabold leading-none text-white" aria-hidden="true">
+                  ✓
+                </span>
+                <span>{feature}</span>
+              </li>
+            ))}
+          </ul>
+          <MarketingButton onClick={onJoinWaitlist} className="mt-8 w-full sm:w-auto">
+            Join Waitlist
+          </MarketingButton>
         </div>
       </div>
     </section>
@@ -514,10 +456,12 @@ function HomeFinalCta({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
       <div className="mx-auto flex max-w-[980px] flex-col gap-6 rounded-[8px] border border-[rgba(200,164,107,0.45)] bg-[#FFFDF8]/75 px-6 py-7 text-[#111111] shadow-[0_18px_45px_rgba(80,52,25,0.08)] sm:flex-row sm:items-center sm:justify-between sm:px-10">
         <div>
           <h2 className="font-display text-[28px] font-bold leading-tight tracking-normal text-[#111111] sm:text-[34px]">
-            Ready to run your business like a pro?
+            One business deserves one complete system.
           </h2>
           <p className="mt-2 text-sm leading-7 text-[#4F4A45]">
-            Growth starts at the roots.
+            Run your clients, bookings, formulas, follow-ups, and growth
+            without piecing together separate tools or paying to unlock the
+            features you need.
           </p>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row">
@@ -528,10 +472,10 @@ function HomeFinalCta({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
             Join Waitlist
           </MarketingButton>
           <Link
-            href="#pricing"
+            href="#product"
             className="inline-flex h-11 w-full items-center justify-center rounded-[8px] border border-[#B07A3E] bg-transparent px-6 font-display text-sm font-semibold text-[#4A3728] transition-colors hover:bg-[rgba(200,164,107,0.10)] focus:outline-none focus:ring-2 focus:ring-brand-gold/35 focus:ring-offset-2 focus:ring-offset-[#FFFDF8] sm:w-auto"
           >
-            View Plans
+            See What&apos;s Included
           </Link>
         </div>
       </div>
@@ -954,6 +898,7 @@ export default function HomePage() {
     <main className="min-h-screen bg-[#F6F1E8] text-[#111111]">
       <HomeHero onJoinWaitlist={openWaitlist} />
       <HomeProductPillars />
+      <HomePhilosophy />
       <HomePricing onJoinWaitlist={openWaitlist} />
       <HomeFinalCta onJoinWaitlist={openWaitlist} />
       <HomeFooter />
