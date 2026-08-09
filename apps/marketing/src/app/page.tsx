@@ -252,9 +252,10 @@ function HomeHero({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
 
           <p className="mt-5 max-w-[520px] text-[16px] leading-7 text-[#4F4A45] sm:text-[17px]">
             Root &amp; Foil helps you stay booked, remember every client detail, and
-            understand your business without juggling texts, notes, screenshots,
-            or spreadsheets. We are built exclusively for independent hair pros,
-            bringing only the tools that actually matter.
+            understand your business. We chose to build only for independent hair
+            professionals so we can focus on the tools you actually need and leave
+            out the complexity you don&apos;t. The result is a more tailored, more
+            personalized, more useful product
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -300,7 +301,7 @@ function HomeProductPillars() {
       <div className="mx-auto max-w-[1240px]">
         <div className="mx-auto max-w-[860px] text-center">
           <h2 className="font-display text-[38px] font-bold leading-[1.02] tracking-normal sm:text-[48px] lg:text-[56px]">
-            Everything you need to build from the roots up.
+            Everything you need to grow.
           </h2>
           <p className="mx-auto mt-5 max-w-[720px] text-[15px] leading-7 text-[#4F4A45] sm:text-base">
             Root &amp; Foil brings your clients, booking, formulas, follow-ups, and
@@ -376,7 +377,7 @@ function HomePricing({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
       <div className="mx-auto flex max-w-[1180px] flex-col gap-8">
         <div className="mx-auto max-w-[920px] text-center">
           <h2 className="mt-4 font-display text-[clamp(25px,5vw,46px)] font-bold leading-[1.02] tracking-normal">
-            Everything your business needs. One straightforward price.
+            One straightforward price.
           </h2>
           <p className="mx-auto mt-5 max-w-[640px] text-sm leading-7 text-[#6B625A]">
             We believe every member deserves the best product we can make. So
