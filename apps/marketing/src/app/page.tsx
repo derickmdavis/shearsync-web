@@ -252,10 +252,9 @@ function HomeHero({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
 
           <p className="mt-5 max-w-[520px] text-[16px] leading-7 text-[#4F4A45] sm:text-[17px]">
             Root &amp; Foil helps you stay booked, remember every client detail, and
-            understand your business. We chose to build only for independent hair
-            professionals so we can focus on the tools you actually need and leave
-            out the complexity you don&apos;t. The result is a more tailored, more
-            personalized, more useful product
+            understand your business. Built only for independent hair
+            professionals, Root &amp; Foil gives you the tools you need without the
+            complexity you don&apos;t, at a price that makes sense.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -386,9 +385,6 @@ function HomePricing({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
         </div>
 
         <div className="mx-auto w-full max-w-[860px] rounded-[8px] border border-[rgba(200,164,107,0.42)] bg-[#FFFDF8]/80 px-6 py-7 text-center shadow-[0_18px_45px_rgba(80,52,25,0.08)] sm:px-10 sm:py-9">
-          <p className="text-xs font-extrabold uppercase tracking-[0.08em] text-[#111111]">
-            Root &amp; Foil
-          </p>
           <p className="mt-2 font-display text-[42px] font-bold leading-none text-[#111111] sm:text-[52px]">
             {MONTHLY_PRICE}
             <span className="ml-1 text-base font-bold text-[#6B625A]">/month</span>
