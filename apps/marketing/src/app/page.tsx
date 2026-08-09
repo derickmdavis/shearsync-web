@@ -11,7 +11,7 @@ import {
   useState,
 } from "react";
 
-const MONTHLY_PRICE = "{{MONTHLY_PRICE}}";
+const MONTHLY_PRICE = "$25";
 const loginHref = getWebAppUrl("/login");
 
 const productPillars = [
@@ -471,12 +471,6 @@ function HomeFinalCta({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
           >
             Join Waitlist
           </MarketingButton>
-          <Link
-            href="#product"
-            className="inline-flex h-11 w-full items-center justify-center rounded-[8px] border border-[#B07A3E] bg-transparent px-6 font-display text-sm font-semibold text-[#4A3728] transition-colors hover:bg-[rgba(200,164,107,0.10)] focus:outline-none focus:ring-2 focus:ring-brand-gold/35 focus:ring-offset-2 focus:ring-offset-[#FFFDF8] sm:w-auto"
-          >
-            See What&apos;s Included
-          </Link>
         </div>
       </div>
     </section>
