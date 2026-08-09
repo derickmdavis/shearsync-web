@@ -383,13 +383,16 @@ function HomePhilosophy() {
           One business. One product. One philosophy.
         </h2>
         <p className="mx-auto mt-5 max-w-[720px] text-[15px] leading-7 text-[#4F4A45] sm:text-base">
-          Independent stylists should not have to choose which parts of their
-          business deserve support. Root &amp; Foil gives every member the complete
-          product because booking, client relationships, organization, and
-          growth all work better together.
+          Root &amp; Foil is built exclusively for independent hair professionals.
+          That focus lets us build deeply for the way you actually work instead
+          of trying to serve every kind of business.
+          <br />
+          <br />
+          And we believe every member deserves the best product we can make. So
+          there are no feature tiers and no watered-down plans.
         </p>
         <p className="mt-5 text-sm font-bold leading-7 text-[#4F4A45]">
-          You run one business. You should not need three software plans to run it.
+          The best version of Root &amp; Foil is the only version we sell.
         </p>
       </div>
     </section>
@@ -456,7 +459,7 @@ function HomeFinalCta({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
       <div className="mx-auto flex max-w-[980px] flex-col gap-6 rounded-[8px] border border-[rgba(200,164,107,0.45)] bg-[#FFFDF8]/75 px-6 py-7 text-[#111111] shadow-[0_18px_45px_rgba(80,52,25,0.08)] sm:flex-row sm:items-center sm:justify-between sm:px-10">
         <div>
           <h2 className="font-display text-[28px] font-bold leading-tight tracking-normal text-[#111111] sm:text-[34px]">
-            One business deserves one complete system.
+            See why others are swtiching
           </h2>
           <p className="mt-2 text-sm leading-7 text-[#4F4A45]">
             Run your clients, bookings, formulas, follow-ups, and growth
@@ -467,7 +470,7 @@ function HomeFinalCta({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
         <div className="flex flex-col gap-3 sm:flex-row">
           <MarketingButton
             onClick={onJoinWaitlist}
-            className="w-full sm:w-auto"
+            className="w-full shrink-0 whitespace-nowrap sm:w-auto"
           >
             Join Waitlist
           </MarketingButton>
