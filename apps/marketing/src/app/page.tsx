@@ -246,9 +246,10 @@ function HomeHero({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
           </h1>
 
           <p className="mt-6 max-w-[520px] text-[16px] leading-7 text-[#4F4A45] sm:text-[17px]">
-            Root &amp; Foil brings booking, client relationships, formulas,
-            follow-ups, and business insights together in one complete system
-            built for independent hair professionals.
+            Root &amp; Foil gives independent stylists the tools to strengthen the
+            relationships and routines behind their business, from booking and
+            rebooking to thoughtful client nudges and insights that show what&apos;s
+            driving growth.
           </p>
 
           <p className="mt-7 flex max-w-[560px] items-center gap-3 text-xs font-bold leading-5 text-[#4F4A45] sm:text-[13px]">
@@ -267,7 +268,7 @@ function HomeHero({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
             <MarketingLink
               href="#product"
               variant="secondary"
-              className="w-full sm:w-auto"
+              className="w-full !font-sans !text-sm !font-semibold sm:w-auto"
             >
               See What&apos;s Included
             </MarketingLink>
@@ -376,11 +377,8 @@ function HomePhilosophy() {
       className="border-t border-[rgba(200,164,107,0.30)] bg-transparent px-5 py-20 text-[#111111] sm:px-8 sm:py-24 lg:py-28"
     >
       <div className="mx-auto max-w-[860px] text-center">
-        <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-brand">
-          Why Root &amp; Foil
-        </p>
         <h2 className="mt-4 font-display text-[38px] font-bold leading-[1.02] tracking-normal sm:text-[48px] lg:text-[56px]">
-          One business. One product. One philosophy.
+          Why Root &amp; Foil
         </h2>
         <p className="mx-auto mt-5 max-w-[720px] text-[15px] leading-7 text-[#4F4A45] sm:text-base">
           Root &amp; Foil is built exclusively for independent hair professionals.
@@ -404,12 +402,9 @@ function HomePricing({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
     <section
       id="pricing"
       className="bg-transparent px-5 py-10 text-[#111111] sm:px-8 sm:py-14"
-    >
+      >
       <div className="mx-auto flex max-w-[1180px] flex-col gap-8">
         <div className="mx-auto max-w-[920px] text-center">
-          <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-brand">
-            Simple pricing
-          </p>
           <h2 className="mt-4 font-display text-[clamp(25px,5vw,46px)] font-bold leading-[1.02] tracking-normal">
             Everything your business needs. One straightforward price.
           </h2>
