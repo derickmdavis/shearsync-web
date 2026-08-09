@@ -18,11 +18,12 @@ const productPillars = [
   {
     icon: "/assets/icons/icon-calendar-bronze.svg",
     title: "Stay booked.",
-    body: "Simple, reliable booking tools that make it easy for clients to schedule, reschedule, and return.",
+    body: "Make it effortless for clients to book and come back.",
     bullets: [
       "Online booking that’s always open",
       "Automated reminders that reduce no-shows",
       "Waitlist support to fill last-minute openings",
+      "Re-book nudges to keep clients coming back",
     ],
     screenshot: "/assets/home/root-and-foil-phone-calendar.png",
     alt: "Root & Foil calendar screen showing appointments, open time, and booking controls",
@@ -30,11 +31,11 @@ const productPillars = [
   {
     icon: "/assets/icons/icon-client-bronze.svg",
     title: "Remember every client.",
-    body: "Keep notes, structured color formulas, preferences, photos, and appointment history in one clean profile so every appointment feels personal, consistent, and professional.",
+    body: "Give every client a personal, consistent experience",
     bullets: [
       "Client notes, preferences, and service history",
       "Color formulas for roots, toners, lighteners, developers, and more",
-      "Before-and-after photos in one profile",
+      "Before-and-after photos tied to each client",
       "Appointment history and rebooking patterns",
     ],
     screenshot: "/assets/home/root-and-foil-phone-clients.png",
@@ -42,10 +43,10 @@ const productPillars = [
   },
   {
     icon: "/assets/icons/icon-analytics-bronze.svg",
-    title: "Know what’s working.",
+    title: "Grow with clarity",
     body: "Understand your numbers, client behavior, and trends so you can make smarter decisions and grow with confidence.",
     bullets: [
-      "Revenue, rebooking rate, and client retention",
+      "Revenue, retention, and re-booking at a glance",
       "Average ticket, top services, and add-ons",
       "Trends and insights to guide your next move",
     ],
@@ -252,12 +253,6 @@ function HomeHero({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
             driving growth.
           </p>
 
-          <p className="mt-7 flex max-w-[560px] items-center gap-3 text-xs font-bold leading-5 text-[#4F4A45] sm:text-[13px]">
-            <span className="sm:whitespace-nowrap">
-              One complete system for your clients, schedule, and growth.
-            </span>
-          </p>
-
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <MarketingButton
               onClick={onJoinWaitlist}
@@ -370,33 +365,6 @@ function HomeProductPillars() {
   );
 }
 
-function HomePhilosophy() {
-  return (
-    <section
-      id="philosophy"
-      className="border-t border-[rgba(200,164,107,0.30)] bg-transparent px-5 py-20 text-[#111111] sm:px-8 sm:py-24 lg:py-28"
-    >
-      <div className="mx-auto max-w-[860px] text-center">
-        <h2 className="mt-4 font-display text-[38px] font-bold leading-[1.02] tracking-normal sm:text-[48px] lg:text-[56px]">
-          Why Root &amp; Foil
-        </h2>
-        <p className="mx-auto mt-5 max-w-[720px] text-[15px] leading-7 text-[#4F4A45] sm:text-base">
-          Root &amp; Foil is built exclusively for independent hair professionals.
-          That focus lets us build deeply for the way you actually work instead
-          of trying to serve every kind of business.
-          <br />
-          <br />
-          And we believe every member deserves the best product we can make. So
-          there are no feature tiers and no watered-down plans.
-        </p>
-        <p className="mt-5 text-sm font-bold leading-7 text-[#4F4A45]">
-          The best version of Root &amp; Foil is the only version we sell.
-        </p>
-      </div>
-    </section>
-  );
-}
-
 function HomePricing({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
   return (
     <section
@@ -409,8 +377,8 @@ function HomePricing({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
             Everything your business needs. One straightforward price.
           </h2>
           <p className="mx-auto mt-5 max-w-[640px] text-sm leading-7 text-[#6B625A]">
-            No feature gates, confusing upgrades, or limits designed to push
-            you into a more expensive plan.
+            We believe every member deserves the best product we can make. So
+            there are no feature tiers and no watered-down plans.
           </p>
         </div>
 
@@ -426,7 +394,7 @@ function HomePricing({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
             The complete business platform for independent stylists and barbers.
           </p>
           <p className="mt-3 text-sm font-bold text-[#1F1A17]">
-            Every member gets the complete product.
+            The best version of Root &amp; Foil is the only version we sell.
           </p>
           <div className="mt-7 h-px bg-[rgba(200,164,107,0.42)]" />
           <ul className="mt-7 grid gap-3 text-left sm:grid-cols-2 sm:gap-x-8">
@@ -440,33 +408,6 @@ function HomePricing({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
             ))}
           </ul>
           <MarketingButton onClick={onJoinWaitlist} className="mt-8 w-full sm:w-auto">
-            Join Waitlist
-          </MarketingButton>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function HomeFinalCta({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
-  return (
-    <section className="bg-transparent px-5 pb-14 pt-2 text-[#111111] sm:px-8 sm:pb-16">
-      <div className="mx-auto flex max-w-[980px] flex-col gap-6 rounded-[8px] border border-[rgba(200,164,107,0.45)] bg-[#FFFDF8]/75 px-6 py-7 text-[#111111] shadow-[0_18px_45px_rgba(80,52,25,0.08)] sm:flex-row sm:items-center sm:justify-between sm:px-10">
-        <div>
-          <h2 className="font-display text-[28px] font-bold leading-tight tracking-normal text-[#111111] sm:text-[34px]">
-            See why others are swtiching
-          </h2>
-          <p className="mt-2 text-sm leading-7 text-[#4F4A45]">
-            Run your clients, bookings, formulas, follow-ups, and growth
-            without piecing together separate tools or paying to unlock the
-            features you need.
-          </p>
-        </div>
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <MarketingButton
-            onClick={onJoinWaitlist}
-            className="w-full shrink-0 whitespace-nowrap sm:w-auto"
-          >
             Join Waitlist
           </MarketingButton>
         </div>
@@ -890,9 +831,7 @@ export default function HomePage() {
     <main className="min-h-screen bg-[#F6F1E8] text-[#111111]">
       <HomeHero onJoinWaitlist={openWaitlist} />
       <HomeProductPillars />
-      <HomePhilosophy />
       <HomePricing onJoinWaitlist={openWaitlist} />
-      <HomeFinalCta onJoinWaitlist={openWaitlist} />
       <HomeFooter />
       <WaitlistModal open={waitlistOpen} onClose={closeWaitlist} />
     </main>
