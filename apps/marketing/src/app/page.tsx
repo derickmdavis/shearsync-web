@@ -18,7 +18,7 @@ const productPillars = [
   {
     icon: "/assets/icons/icon-calendar-bronze.svg",
     title: "Stay booked.",
-    body: "Make it effortless for clients to book and come back.",
+    body: "Make it effortless for clients to book and keep coming back",
     bullets: [
       "Online booking that’s always open",
       "Automated reminders that reduce no-shows",
@@ -44,7 +44,7 @@ const productPillars = [
   {
     icon: "/assets/icons/icon-analytics-bronze.svg",
     title: "Grow with clarity",
-    body: "Understand your numbers, client behavior, and trends so you can make smarter decisions and grow with confidence.",
+    body: "Understand your client behavior and trends so you can grow with confidence.",
     bullets: [
       "Revenue, retention, and re-booking at a glance",
       "Average ticket, top services, and add-ons",
@@ -246,11 +246,15 @@ function HomeHero({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
             Growth starts at the roots.
           </h1>
 
-          <p className="mt-6 max-w-[520px] text-[16px] leading-7 text-[#4F4A45] sm:text-[17px]">
-            Root &amp; Foil gives independent stylists the tools to strengthen the
-            relationships and routines behind their business, from booking and
-            rebooking to thoughtful client nudges and insights that show what&apos;s
-            driving growth.
+          <h2 className="mt-5 max-w-[520px] font-display text-[28px] font-bold leading-tight text-brand sm:text-[32px]">
+            You built the roots - we add the lift.
+          </h2>
+
+          <p className="mt-5 max-w-[520px] text-[16px] leading-7 text-[#4F4A45] sm:text-[17px]">
+            Root &amp; Foil helps you stay booked, remember every client detail, and
+            understand your business without juggling texts, notes, screenshots,
+            or spreadsheets. We are built exclusively for independent hair pros,
+            bringing only the tools that actually matter.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -296,14 +300,12 @@ function HomeProductPillars() {
       <div className="mx-auto max-w-[1240px]">
         <div className="mx-auto max-w-[860px] text-center">
           <h2 className="font-display text-[38px] font-bold leading-[1.02] tracking-normal sm:text-[48px] lg:text-[56px]">
-            Everything behind your chair,
-            <br />
-            finally in one place.
+            Everything you need to build from the roots up.
           </h2>
           <p className="mx-auto mt-5 max-w-[720px] text-[15px] leading-7 text-[#4F4A45] sm:text-base">
-            Root &amp; Foil helps you stay booked, remember every client detail,
-            and understand your business without juggling texts, notes,
-            screenshots, or spreadsheets.
+            Root &amp; Foil brings your clients, booking, formulas, follow-ups, and
+            business insights together in one focused system designed to help
+            independent hair professionals grow.
           </p>
         </div>
 
