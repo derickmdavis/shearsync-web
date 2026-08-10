@@ -74,12 +74,14 @@ const includedFeatureColumns = [
     "Client profiles & history",
     "Formula notes & photos",
     "Automated follow-ups",
+    "SMS Appt. reminders",
   ],
   [
     "Business insights & reporting",
     "Rebooking nudges",
     "Referral tracking",
     "Calendar sync",
+    "Custom email campaigns",
     "And more",
   ],
 ];
@@ -306,7 +308,7 @@ function HomeProductPillars() {
     >
       <div className="mx-auto max-w-[1240px]">
         <div className="mx-auto max-w-[860px] text-center">
-          <h2 className="font-display text-[38px] font-bold leading-[1.02] tracking-normal sm:text-[48px] lg:text-[56px]">
+          <h2 className="whitespace-nowrap font-display text-[clamp(19px,6vw,38px)] font-bold leading-[1.02] tracking-[-0.01em] sm:text-[48px] lg:text-[56px]">
             Everything you need to grow.
           </h2>
           <p className="mx-auto mt-5 max-w-[720px] text-[15px] leading-7 text-[#4F4A45] sm:text-base">
@@ -416,10 +418,7 @@ function PhilosophyMessage({ index }: { index: number }) {
       <>
         <h3 className="font-display text-[27px] font-bold leading-[1.05] text-[#111111] sm:text-[30px]">We chose to focus.</h3>
         <p className="mt-4 text-sm leading-7 text-[#4F4A45]">
-          Root &amp; Foil is built specifically for independent hair professionals.
-          <br />
-          Not restaurants. Not gyms.
-          <br />
+          Root &amp; Foil is built specifically for independent hair professionals. Not nail techs. Not med spas. Not gyms.{" "}
           <span className="font-bold text-brand">Just yours.</span>
         </p>
       </>
@@ -491,10 +490,10 @@ function HomePricing({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
                   aria-selected={selected}
                   aria-controls="philosophy-panel"
                   onClick={() => setActivePhilosophy(index)}
-                  className={`flex min-h-12 items-center justify-center gap-1 rounded-full px-1 text-[11px] font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-brand/35 ${selected ? "border border-[rgba(176,122,62,0.32)] bg-[#FFFDF8] text-brand" : "text-[#4F4A45]"}`}
+                  className={`flex min-h-12 items-center justify-center gap-0.5 rounded-full px-0.5 text-[10px] font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-brand/35 sm:gap-1 sm:px-1 sm:text-[11px] ${selected ? "border border-[rgba(176,122,62,0.32)] bg-[#FFFDF8] text-brand" : "text-[#4F4A45]"}`}
                 >
                   <span className="shrink-0"><PhilosophyIcon type={item.icon} /></span>
-                  <span className="leading-tight">{item.label}</span>
+                  <span className="whitespace-nowrap leading-tight">{item.label}</span>
                 </button>
               );
             })}
