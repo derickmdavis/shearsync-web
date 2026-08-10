@@ -56,16 +56,16 @@ describe("HomePage waitlist modal", () => {
     render(<HomePage />);
 
     const focusedTab = screen.getByRole("tab", { name: "Focused" });
-    const builtForYouTab = screen.getByRole("tab", { name: "Built for you" });
-    const noUpgradesTab = screen.getByRole("tab", { name: "No upgrades" });
+    const tailoredTab = screen.getByRole("tab", { name: "Tailored" });
+    const includedTab = screen.getByRole("tab", { name: "Included" });
 
     expect(focusedTab.getAttribute("aria-selected")).toBe("true");
-    expect(builtForYouTab.getAttribute("aria-selected")).toBe("false");
-    expect(noUpgradesTab.getAttribute("aria-selected")).toBe("false");
+    expect(tailoredTab.getAttribute("aria-selected")).toBe("false");
+    expect(includedTab.getAttribute("aria-selected")).toBe("false");
 
-    fireEvent.click(noUpgradesTab);
+    fireEvent.click(includedTab);
 
-    expect(noUpgradesTab.getAttribute("aria-selected")).toBe("true");
+    expect(includedTab.getAttribute("aria-selected")).toBe("true");
     expect(screen.getAllByText("Our best ideas aren't upgrades.").length).toBeGreaterThan(0);
   });
 });

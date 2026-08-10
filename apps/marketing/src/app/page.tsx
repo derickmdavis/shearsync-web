@@ -57,8 +57,8 @@ const productPillars = [
 
 const philosophyItems = [
   { label: "Focused", icon: "user" },
-  { label: "Built for you", icon: "sparkle" },
-  { label: "No upgrades", icon: "heart" },
+  { label: "Tailored", icon: "sparkle" },
+  { label: "Included", icon: "heart" },
 ] as const;
 
 const corePricingItems = [
