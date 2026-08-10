@@ -518,7 +518,7 @@ function HomePricing({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
         <div className="mt-12 overflow-hidden rounded-[18px] border border-[rgba(200,164,107,0.48)] bg-[#FFFDF8]/75 sm:mt-16">
           <div className="grid lg:grid-cols-[0.86fr_1.14fr]">
             <div className="px-6 py-8 sm:px-10 sm:py-10 lg:px-12 lg:py-12">
-              <h2 className="font-display text-[34px] font-bold leading-[1.02] text-[#111111] sm:text-[42px]">One straightforward price.</h2>
+              <h2 className="whitespace-nowrap font-display text-[clamp(26px,7.5vw,34px)] font-bold leading-[1.02] tracking-[-0.01em] text-[#111111] sm:text-[42px]">One straightforward price.</h2>
               <div className="mt-6 flex items-end gap-2">
                 <span className="font-display text-[68px] font-bold leading-none text-brand sm:text-[82px]">{MONTHLY_PRICE}</span>
                 <span className="pb-2 text-base font-bold text-[#1F1A17]">/month</span>
@@ -535,7 +535,7 @@ function HomePricing({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
             </div>
 
             <div className="border-t border-[rgba(200,164,107,0.38)] px-6 py-8 sm:px-10 sm:py-10 lg:border-l lg:border-t-0 lg:px-12 lg:py-12">
-              <h3 className="max-w-[390px] font-display text-[28px] font-bold leading-[1.08] text-[#111111] sm:text-[34px]">Everything you need to run and grow your hair business.</h3>
+              <h3 className="max-w-[390px] font-display text-[28px] font-bold leading-[1.08] text-[#111111] sm:text-[34px]">The tools that help your business grow.</h3>
               <div className="mt-7 grid grid-cols-2 gap-x-4 gap-y-4 sm:gap-x-8">
                 {includedFeatureColumns.map((column, columnIndex) => (
                   <ul key={columnIndex} className="grid content-start gap-4">
