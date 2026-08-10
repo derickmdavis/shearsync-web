@@ -55,20 +55,33 @@ const productPillars = [
   },
 ];
 
-const includedFeatures = [
-  "Online booking",
-  "Client profiles and appointment history",
-  "Structured formula tracking",
-  "Client notes, preferences, and photos",
-  "Appointment confirmations and reminders",
-  "Waitlist management",
-  "Rebooking tools",
-  "Campaigns and automations",
-  "Revenue and business insights",
-  "Calendar integration",
-  "QR booking tools",
-  "Business recap and reporting",
-  "Customer support",
+const philosophyItems = [
+  { label: "Focused", icon: "user" },
+  { label: "Built for you", icon: "sparkle" },
+  { label: "No upgrades", icon: "heart" },
+] as const;
+
+const corePricingItems = [
+  "Every feature included",
+  "No tiers, no add-ons",
+  "Cancel anytime",
+];
+
+const includedFeatureColumns = [
+  [
+    "Online booking & custom rules",
+    "Waitlist",
+    "Client profiles & history",
+    "Formula notes & photos",
+    "Automated follow-ups",
+  ],
+  [
+    "Business insights & reporting",
+    "Rebooking nudges",
+    "Referral tracking",
+    "Calendar sync",
+    "And more",
+  ],
 ];
 
 const footerGroups = [
@@ -170,12 +183,12 @@ function BrandLogo() {
       aria-label="Root & Foil"
     >
       <Image
-        src="/assets/brand/root-and-foil-logo.svg"
+        src="/assets/brand/root-and-foil-navigation-logo.png"
         alt="Root & Foil"
-        width={2120}
-        height={414}
+        width={952}
+        height={1094}
         priority
-        className="h-8 w-auto object-contain sm:h-9"
+        className="h-11 w-auto object-contain sm:h-12"
       />
     </Link>
   );
@@ -195,12 +208,6 @@ function HomeNav({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
           className="font-display text-xs font-semibold text-[#1F1A17] transition-colors hover:text-brand sm:text-sm"
         >
           Product
-        </Link>
-        <Link
-          href="#philosophy"
-          className="hidden font-display text-xs font-semibold text-[#1F1A17] transition-colors hover:text-brand sm:inline sm:text-sm"
-        >
-          Why Root &amp; Foil
         </Link>
         <Link
           href="#pricing"
@@ -246,7 +253,7 @@ function HomeHero({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
             Growth starts at the roots.
           </h1>
 
-          <h2 className="mt-5 max-w-[520px] font-display text-[28px] font-bold leading-tight text-brand sm:text-[32px]">
+          <h2 className="mt-5 max-w-[520px] whitespace-nowrap font-display text-[clamp(16px,4.8vw,28px)] font-bold leading-tight tracking-[-0.01em] text-brand sm:text-[32px]">
             You built the roots - we add the lift.
           </h2>
 
@@ -367,48 +374,188 @@ function HomeProductPillars() {
   );
 }
 
-function HomePricing({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
+function PhilosophyIcon({ type }: { type: (typeof philosophyItems)[number]["icon"] }) {
+  const className = "h-6 w-6";
+
+  if (type === "user") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className={className} aria-hidden="true">
+        <circle cx="12" cy="8" r="4" />
+        <path d="M4.5 20c.8-4.1 3.3-6.2 7.5-6.2s6.7 2.1 7.5 6.2" />
+      </svg>
+    );
+  }
+
+  if (type === "sparkle") {
+    return (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className={className} aria-hidden="true">
+        <path d="m12 2 1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8L12 2Z" />
+        <path d="m19 3 .6 2.1L22 6l-2.4.9L19 9l-.6-2.1L16 6l2.4-.9L19 3Z" />
+      </svg>
+    );
+  }
+
   return (
-    <section
-      id="pricing"
-      className="bg-transparent px-5 py-10 text-[#111111] sm:px-8 sm:py-14"
-      >
-      <div className="mx-auto flex max-w-[1180px] flex-col gap-8">
-        <div className="mx-auto max-w-[920px] text-center">
-          <h2 className="mt-4 font-display text-[clamp(25px,5vw,46px)] font-bold leading-[1.02] tracking-normal">
-            One straightforward price.
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className={className} aria-hidden="true">
+      <path d="M20.8 4.9a5.2 5.2 0 0 0-7.4 0L12 6.3l-1.4-1.4a5.2 5.2 0 0 0-7.4 7.4L12 21l8.8-8.7a5.2 5.2 0 0 0 0-7.4Z" />
+    </svg>
+  );
+}
+
+function CheckIcon() {
+  return (
+    <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full border border-brand text-[11px] font-bold leading-none text-brand" aria-hidden="true">
+      ✓
+    </span>
+  );
+}
+
+function PhilosophyMessage({ index }: { index: number }) {
+  if (index === 0) {
+    return (
+      <>
+        <h3 className="font-display text-[27px] font-bold leading-[1.05] text-[#111111] sm:text-[30px]">We chose to focus.</h3>
+        <p className="mt-4 text-sm leading-7 text-[#4F4A45]">
+          Root &amp; Foil is built specifically for independent hair professionals.
+          <br />
+          Not restaurants. Not gyms.
+          <br />
+          <span className="font-bold text-brand">Just yours.</span>
+        </p>
+      </>
+    );
+  }
+
+  if (index === 1) {
+    return (
+      <>
+        <h3 className="font-display text-[27px] font-bold leading-[1.05] text-[#111111] sm:text-[30px]">Every decision starts with you.</h3>
+        <p className="mt-4 text-sm leading-7 text-[#4F4A45]">
+          We build with one question in mind:{" "}
+          <span className="font-bold text-brand">Will this make it easier to run and grow</span>{" "}
+          an independent hair business?
+        </p>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <h3 className="font-display text-[27px] font-bold leading-[1.05] text-[#111111] sm:text-[30px]">Our best ideas aren&apos;t upgrades.</h3>
+      <p className="mt-4 text-sm leading-7 text-[#4F4A45]">
+        When Root &amp; Foil gets better, every member gets the{" "}
+        <span className="font-bold text-brand">better</span> product.
+      </p>
+    </>
+  );
+}
+
+function HomePricing({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
+  const [activePhilosophy, setActivePhilosophy] = useState(0);
+
+  return (
+    <section id="pricing" className="border-t border-[rgba(200,164,107,0.30)] bg-transparent px-5 py-20 text-[#111111] sm:px-8 sm:py-24 lg:py-28">
+      <div className="mx-auto max-w-[1180px]">
+        <div className="mx-auto max-w-[860px] text-center">
+          <h2 className="font-display text-[38px] font-bold leading-[1.02] tracking-normal sm:text-[48px] lg:text-[56px]">
+            Why Root &amp; Foil feels <span className="text-brand">different.</span>
           </h2>
-          <p className="mx-auto mt-5 max-w-[640px] text-sm leading-7 text-[#6B625A]">
-            We believe every member deserves the best product we can make. So
-            there are no feature tiers and no watered-down plans.
+          <p className="mx-auto mt-5 max-w-[780px] text-[15px] leading-7 text-[#4F4A45] sm:text-base">
+            We chose to focus so we can build what independent hair professionals actually need and leave out the rest.
           </p>
         </div>
 
-        <div className="mx-auto w-full max-w-[860px] rounded-[8px] border border-[rgba(200,164,107,0.42)] bg-[#FFFDF8]/80 px-6 py-7 text-center shadow-[0_18px_45px_rgba(80,52,25,0.08)] sm:px-10 sm:py-9">
-          <p className="mt-2 font-display text-[42px] font-bold leading-none text-[#111111] sm:text-[52px]">
-            {MONTHLY_PRICE}
-            <span className="ml-1 text-base font-bold text-[#6B625A]">/month</span>
-          </p>
-          <p className="mx-auto mt-4 max-w-[520px] text-sm leading-7 text-[#4F4A45]">
-            The complete business platform for independent stylists and barbers.
-          </p>
-          <p className="mt-3 text-sm font-bold text-[#1F1A17]">
-            The best version of Root &amp; Foil is the only version we sell.
-          </p>
-          <div className="mt-7 h-px bg-[rgba(200,164,107,0.42)]" />
-          <ul className="mt-7 grid gap-3 text-left sm:grid-cols-2 sm:gap-x-8">
-            {includedFeatures.map((feature) => (
-              <li key={feature} className="flex gap-3 text-[13px] font-bold leading-5 text-[#4F4A45]">
-                <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-brand text-[11px] font-extrabold leading-none text-white" aria-hidden="true">
-                  ✓
-                </span>
-                <span>{feature}</span>
-              </li>
-            ))}
-          </ul>
-          <MarketingButton onClick={onJoinWaitlist} className="mt-8 w-full sm:w-auto">
-            Join Waitlist
-          </MarketingButton>
+        <div className="mt-12 hidden lg:grid lg:grid-cols-3 lg:divide-x lg:divide-[rgba(200,164,107,0.38)]">
+          {philosophyItems.map((item, index) => (
+            <article key={item.label} className="px-10 text-center first:pl-0 last:pr-0">
+              <div className="mx-auto grid h-[82px] w-[82px] place-items-center rounded-full border border-[rgba(176,122,62,0.12)] bg-[rgba(214,168,90,0.12)] text-brand">
+                <PhilosophyIcon type={item.icon} />
+              </div>
+              <div className="mx-auto mt-6 max-w-[270px]">
+                <PhilosophyMessage index={index} />
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <div className="mt-9 lg:hidden">
+          <div className="grid grid-cols-3 overflow-hidden rounded-full border border-[rgba(176,122,62,0.38)] p-1" role="tablist" aria-label="Why Root & Foil feels different">
+            {philosophyItems.map((item, index) => {
+              const selected = activePhilosophy === index;
+              return (
+                <button
+                  key={item.label}
+                  type="button"
+                  role="tab"
+                  id={`philosophy-tab-${index}`}
+                  aria-selected={selected}
+                  aria-controls="philosophy-panel"
+                  onClick={() => setActivePhilosophy(index)}
+                  className={`flex min-h-12 items-center justify-center gap-1 rounded-full px-1 text-[11px] font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-brand/35 ${selected ? "border border-[rgba(176,122,62,0.32)] bg-[#FFFDF8] text-brand" : "text-[#4F4A45]"}`}
+                >
+                  <span className="shrink-0"><PhilosophyIcon type={item.icon} /></span>
+                  <span className="leading-tight">{item.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          <article id="philosophy-panel" role="tabpanel" aria-labelledby={`philosophy-tab-${activePhilosophy}`} className="mt-5 rounded-[20px] border border-[rgba(200,164,107,0.32)] bg-[#FFFDF8]/50 px-6 py-8 text-center sm:px-10">
+            <div className="mx-auto grid h-16 w-16 place-items-center rounded-full border border-[rgba(176,122,62,0.12)] bg-[rgba(214,168,90,0.12)] text-brand">
+              <PhilosophyIcon type={philosophyItems[activePhilosophy].icon} />
+            </div>
+            <div className="mx-auto mt-5 max-w-[360px]">
+              <PhilosophyMessage index={activePhilosophy} />
+            </div>
+            <div className="mt-6 flex justify-center gap-3" aria-label={`Showing ${philosophyItems[activePhilosophy].label}`}>
+              {philosophyItems.map((item, index) => (
+                <span key={item.label} className={`h-2 w-2 rounded-full ${index === activePhilosophy ? "bg-brand" : "bg-[#DDD6CF]"}`} aria-hidden="true" />
+              ))}
+            </div>
+          </article>
+        </div>
+
+        <div className="mt-12 overflow-hidden rounded-[18px] border border-[rgba(200,164,107,0.48)] bg-[#FFFDF8]/75 sm:mt-16">
+          <div className="grid lg:grid-cols-[0.86fr_1.14fr]">
+            <div className="px-6 py-8 sm:px-10 sm:py-10 lg:px-12 lg:py-12">
+              <h2 className="font-display text-[34px] font-bold leading-[1.02] text-[#111111] sm:text-[42px]">One straightforward price.</h2>
+              <div className="mt-6 flex items-end gap-2">
+                <span className="font-display text-[68px] font-bold leading-none text-brand sm:text-[82px]">{MONTHLY_PRICE}</span>
+                <span className="pb-2 text-base font-bold text-[#1F1A17]">/month</span>
+              </div>
+              <div className="mt-6 h-px w-36 bg-[rgba(200,164,107,0.62)]" />
+              <ul className="mt-7 grid gap-4">
+                {corePricingItems.map((item) => (
+                  <li key={item} className="flex items-center gap-3 text-sm font-medium text-[#4F4A45]">
+                    <CheckIcon />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="border-t border-[rgba(200,164,107,0.38)] px-6 py-8 sm:px-10 sm:py-10 lg:border-l lg:border-t-0 lg:px-12 lg:py-12">
+              <h3 className="max-w-[390px] font-display text-[28px] font-bold leading-[1.08] text-[#111111] sm:text-[34px]">Everything you need to run and grow your hair business.</h3>
+              <div className="mt-7 grid grid-cols-2 gap-x-4 gap-y-4 sm:gap-x-8">
+                {includedFeatureColumns.map((column, columnIndex) => (
+                  <ul key={columnIndex} className="grid content-start gap-4">
+                    {column.map((feature) => (
+                      <li key={feature} className="flex items-start gap-2 text-[11px] font-medium leading-5 text-[#4F4A45] sm:gap-3 sm:text-sm">
+                        <CheckIcon />
+                        <span>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="px-6 pb-8 sm:px-10 sm:pb-10 lg:pb-12">
+            <MarketingButton onClick={onJoinWaitlist} className="h-14 w-full !border-[#111111] !bg-[#111111] !px-8 !font-sans !text-base !text-white !shadow-none hover:!bg-[#2A2522] sm:mx-auto sm:w-[352px]">
+              Join the waitlist
+            </MarketingButton>
+          </div>
         </div>
       </div>
     </section>

@@ -51,4 +51,21 @@ describe("HomePage waitlist modal", () => {
 
     expect(screen.queryByRole("dialog")).toBeNull();
   });
+
+  it("switches the mobile philosophy message from the accessible selector", () => {
+    render(<HomePage />);
+
+    const focusedTab = screen.getByRole("tab", { name: "Focused" });
+    const builtForYouTab = screen.getByRole("tab", { name: "Built for you" });
+    const noUpgradesTab = screen.getByRole("tab", { name: "No upgrades" });
+
+    expect(focusedTab.getAttribute("aria-selected")).toBe("true");
+    expect(builtForYouTab.getAttribute("aria-selected")).toBe("false");
+    expect(noUpgradesTab.getAttribute("aria-selected")).toBe("false");
+
+    fireEvent.click(noUpgradesTab);
+
+    expect(noUpgradesTab.getAttribute("aria-selected")).toBe("true");
+    expect(screen.getAllByText("Our best ideas aren't upgrades.").length).toBeGreaterThan(0);
+  });
 });
