@@ -211,18 +211,18 @@ function BarberButton({ href, children, variant = "primary", className = "" }) {
         columnNumber: 5
     }, this);
 }
-function BarberLogo() {
+function BarberLogo({ className = "" }) {
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
         href: "#top",
-        className: "shrink-0 focus:outline-none focus:ring-2 focus:ring-brand-gold/40",
+        className: `shrink-0 focus:outline-none focus:ring-2 focus:ring-brand-gold/40 ${className}`,
         "aria-label": "Root & Foil",
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
-            src: "/assets/brand/root-and-foil-dark-logo.png",
+            src: "/assets/brand/root-foil-roots-mark.svg",
             alt: "Root & Foil",
-            width: 1137,
-            height: 1132,
+            width: 147,
+            height: 147,
             priority: true,
-            className: "h-11 w-auto object-contain mix-blend-screen sm:h-12"
+            className: "h-11 w-11 object-contain lg:h-14 lg:w-14"
         }, void 0, false, {
             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
             lineNumber: 139,
@@ -235,65 +235,170 @@ function BarberLogo() {
     }, this);
 }
 function BarberNav() {
+    const [menuOpen, setMenuOpen] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("nav", {
-        className: "relative z-20 mx-auto flex max-w-[1180px] flex-col items-start justify-between gap-4 px-5 py-5 sm:h-[76px] sm:flex-row sm:items-center sm:px-8 sm:py-0",
+        className: "relative z-20 mx-auto flex h-[76px] max-w-[1180px] items-center justify-between px-5 sm:px-8 lg:h-[84px]",
         "aria-label": "Primary",
         children: [
-            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(BarberLogo, {}, void 0, false, {
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(BarberLogo, {
+                className: "lg:hidden"
+            }, void 0, false, {
                 fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                lineNumber: 157,
+                lineNumber: 159,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-start sm:gap-6",
+                className: "ml-auto hidden items-center gap-8 lg:flex",
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
                         href: "#features",
-                        className: "text-xs font-extrabold text-white/84 transition-colors hover:text-brand-gold sm:text-sm",
+                        className: "text-sm font-extrabold text-white/84 transition-colors hover:text-brand-gold",
                         children: "Product"
                     }, void 0, false, {
                         fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                        lineNumber: 160,
+                        lineNumber: 162,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
                         href: "#pricing",
-                        className: "text-xs font-extrabold text-white/84 transition-colors hover:text-brand-gold sm:text-sm",
+                        className: "text-sm font-extrabold text-white/84 transition-colors hover:text-brand-gold",
                         children: "Pricing"
                     }, void 0, false, {
                         fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                        lineNumber: 166,
+                        lineNumber: 168,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
                         href: loginHref,
-                        className: "text-xs font-extrabold text-white/84 transition-colors hover:text-brand-gold sm:text-sm",
+                        className: "text-sm font-extrabold text-white/84 transition-colors hover:text-brand-gold",
                         children: "Login"
                     }, void 0, false, {
                         fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                        lineNumber: 172,
-                        columnNumber: 9
-                    }, this),
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(BarberButton, {
-                        href: signUpHref,
-                        variant: "nav",
-                        className: "h-9 px-4 text-xs sm:h-10 sm:px-5 sm:text-sm",
-                        children: "Join Waitlist"
-                    }, void 0, false, {
-                        fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                        lineNumber: 178,
+                        lineNumber: 174,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                lineNumber: 159,
+                lineNumber: 161,
                 columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "ml-auto flex items-center gap-2 lg:ml-8",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(BarberButton, {
+                        href: signUpHref,
+                        variant: "nav",
+                        className: "h-9 px-3 text-xs sm:px-4 lg:h-10 lg:px-5 lg:text-sm",
+                        children: "Join Waitlist"
+                    }, void 0, false, {
+                        fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
+                        lineNumber: 183,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                        type: "button",
+                        "aria-label": menuOpen ? "Close navigation" : "Open navigation",
+                        "aria-expanded": menuOpen,
+                        "aria-controls": "barber-mobile-navigation",
+                        onClick: ()=>setMenuOpen((open)=>!open),
+                        className: "inline-flex h-11 w-11 items-center justify-center rounded-md text-white transition-colors hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-brand-gold/45 lg:hidden",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                className: "sr-only",
+                                children: "Menu"
+                            }, void 0, false, {
+                                fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
+                                lineNumber: 198,
+                                columnNumber: 11
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                className: "grid gap-1.5",
+                                "aria-hidden": "true",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                        className: "h-0.5 w-5 bg-current"
+                                    }, void 0, false, {
+                                        fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
+                                        lineNumber: 200,
+                                        columnNumber: 13
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                        className: "h-0.5 w-5 bg-current"
+                                    }, void 0, false, {
+                                        fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
+                                        lineNumber: 201,
+                                        columnNumber: 13
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                        className: "h-0.5 w-5 bg-current"
+                                    }, void 0, false, {
+                                        fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
+                                        lineNumber: 202,
+                                        columnNumber: 13
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
+                                lineNumber: 199,
+                                columnNumber: 11
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
+                        lineNumber: 190,
+                        columnNumber: 9
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
+                lineNumber: 182,
+                columnNumber: 7
+            }, this),
+            menuOpen && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                id: "barber-mobile-navigation",
+                className: "absolute left-5 right-5 top-[68px] grid rounded-lg border border-[#C8A46B]/55 bg-[#FFFDF8] p-3 shadow-[0_18px_42px_rgba(0,0,0,0.38)] sm:left-8 sm:right-8 lg:hidden",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                        href: "#features",
+                        onClick: ()=>setMenuOpen(false),
+                        className: "rounded-md px-4 py-3 text-sm font-extrabold text-[#1F1A17] hover:bg-[#F6F1E8]",
+                        children: "Product"
+                    }, void 0, false, {
+                        fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
+                        lineNumber: 212,
+                        columnNumber: 11
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                        href: "#pricing",
+                        onClick: ()=>setMenuOpen(false),
+                        className: "rounded-md px-4 py-3 text-sm font-extrabold text-[#1F1A17] hover:bg-[#F6F1E8]",
+                        children: "Pricing"
+                    }, void 0, false, {
+                        fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
+                        lineNumber: 213,
+                        columnNumber: 11
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                        href: loginHref,
+                        onClick: ()=>setMenuOpen(false),
+                        className: "rounded-md px-4 py-3 text-sm font-extrabold text-[#1F1A17] hover:bg-[#F6F1E8]",
+                        children: "Login"
+                    }, void 0, false, {
+                        fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
+                        lineNumber: 214,
+                        columnNumber: 11
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
+                lineNumber: 208,
+                columnNumber: 9
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-        lineNumber: 153,
+        lineNumber: 155,
         columnNumber: 5
     }, this);
 }
@@ -311,12 +416,12 @@ function PhoneScreenshot({ src, alt, className = "" }) {
             className: "object-contain"
         }, void 0, false, {
             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-            lineNumber: 206,
+            lineNumber: 237,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-        lineNumber: 200,
+        lineNumber: 231,
         columnNumber: 5
     }, this);
 }
@@ -329,26 +434,38 @@ function BarberHero() {
                 className: "absolute inset-0 bg-[radial-gradient(circle_at_72%_18%,rgba(214,168,90,0.2),transparent_28%),linear-gradient(110deg,#050505_0%,#111111_44%,#1C1C1E_100%)]"
             }, void 0, false, {
                 fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                lineNumber: 223,
+                lineNumber: 254,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(BarberNav, {}, void 0, false, {
                 fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                lineNumber: 224,
+                lineNumber: 255,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "relative z-10 mx-auto grid max-w-[1180px] gap-8 px-5 pb-12 pt-7 sm:px-8 lg:min-h-[610px] lg:grid-cols-[0.86fr_1.14fr] lg:items-center lg:pb-0 lg:pt-0",
+                className: "relative z-10 mx-auto grid max-w-[1180px] gap-8 px-5 pb-14 pt-7 sm:px-8 lg:min-h-[610px] lg:grid-cols-[0.86fr_1.14fr] lg:items-center lg:pb-0 lg:pt-0",
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "max-w-[640px]",
+                        className: "max-w-[640px] lg:pb-8",
                         children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                                src: "/assets/brand/root-foil-full-logo-transparent.png",
+                                alt: "Root & Foil",
+                                width: 1169,
+                                height: 1157,
+                                priority: true,
+                                className: "mx-auto mb-5 w-[210px] object-contain lg:mx-0 lg:mb-6 lg:w-[220px]"
+                            }, void 0, false, {
+                                fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
+                                lineNumber: 259,
+                                columnNumber: 11
+                            }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                 className: "inline-flex items-center gap-2 rounded-[4px] border border-brand/80 bg-black/20 px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.12em] text-[#FAF7F2]",
                                 children: "DESIGNED FOR INDEPENDENT STYLISTS AND BARBERS"
                             }, void 0, false, {
                                 fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                lineNumber: 228,
+                                lineNumber: 267,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
@@ -356,7 +473,7 @@ function BarberHero() {
                                 children: "Growth starts at the roots."
                             }, void 0, false, {
                                 fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                lineNumber: 232,
+                                lineNumber: 271,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
@@ -364,15 +481,15 @@ function BarberHero() {
                                 children: "The business side of barbering"
                             }, void 0, false, {
                                 fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                lineNumber: 236,
+                                lineNumber: 275,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                 className: "mt-6 max-w-[520px] text-[16px] leading-7 text-white/76 sm:text-[17px]",
-                                children: "Root & Foil helps you stay booked, remember every client detail, and understand your business. Built only for independent hair professionals, Root & Foil gives you the tools you need without the complexity you don't, at a price that makes sense."
+                                children: "Root & Foil helps you stay booked, remember every client, and understand your business. You get the tools you need without the complexity you don't, at a price that makes sense"
                             }, void 0, false, {
                                 fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                lineNumber: 240,
+                                lineNumber: 279,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -384,7 +501,7 @@ function BarberHero() {
                                         children: "Join Waitlist"
                                     }, void 0, false, {
                                         fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                        lineNumber: 248,
+                                        lineNumber: 286,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(BarberButton, {
@@ -394,23 +511,23 @@ function BarberHero() {
                                         children: "See What's Included"
                                     }, void 0, false, {
                                         fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                        lineNumber: 251,
+                                        lineNumber: 289,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                lineNumber: 247,
+                                lineNumber: 285,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                        lineNumber: 227,
+                        lineNumber: 258,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "relative -mr-5 min-h-[390px] sm:-mr-8 sm:min-h-[500px] lg:-mr-[calc((100vw-1180px)/2)] lg:h-[610px] lg:min-h-0 lg:self-end",
+                        className: "relative -mr-5 min-h-[390px] sm:-mr-8 sm:min-h-[500px] lg:-mr-[calc((100vw-1180px)/2)] lg:-mt-8 lg:h-[712px] lg:min-h-0 lg:self-end",
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
                                 src: "/assets/home/hero-barber-standing.webp",
@@ -418,35 +535,39 @@ function BarberHero() {
                                 fill: true,
                                 priority: true,
                                 sizes: "(min-width: 1180px) 660px, (min-width: 1024px) 56vw, 100vw",
-                                className: "object-cover object-[72%_center]"
+                                className: "object-cover object-[72%_center]",
+                                style: {
+                                    maskImage: "linear-gradient(to bottom, transparent 0, black 96px)",
+                                    WebkitMaskImage: "linear-gradient(to bottom, transparent 0, black 96px)"
+                                }
                             }, void 0, false, {
                                 fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                lineNumber: 264,
+                                lineNumber: 302,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 className: "absolute inset-0 bg-[linear-gradient(90deg,#111111_0%,rgba(17,17,17,0.82)_18%,rgba(17,17,17,0.16)_58%,rgba(17,17,17,0.5)_100%),linear-gradient(180deg,rgba(17,17,17,0.1)_0%,#111111_100%)]"
                             }, void 0, false, {
                                 fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                lineNumber: 272,
+                                lineNumber: 314,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                        lineNumber: 262,
+                        lineNumber: 300,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                lineNumber: 226,
+                lineNumber: 257,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-        lineNumber: 219,
+        lineNumber: 250,
         columnNumber: 5
     }, this);
 }
@@ -465,7 +586,7 @@ function BarberValueCards() {
                             children: "Everything you need to grow."
                         }, void 0, false, {
                             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                            lineNumber: 287,
+                            lineNumber: 329,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -473,13 +594,13 @@ function BarberValueCards() {
                             children: "Root & Foil brings your clients, booking, formulas, follow-ups, and business insights together in one focused system designed to help independent hair professionals grow."
                         }, void 0, false, {
                             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                            lineNumber: 290,
+                            lineNumber: 332,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                    lineNumber: 286,
+                    lineNumber: 328,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -499,12 +620,12 @@ function BarberValueCards() {
                                             "aria-hidden": "true"
                                         }, void 0, false, {
                                             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                            lineNumber: 305,
+                                            lineNumber: 347,
                                             columnNumber: 19
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                        lineNumber: 304,
+                                        lineNumber: 346,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
@@ -512,7 +633,7 @@ function BarberValueCards() {
                                         children: card.title
                                     }, void 0, false, {
                                         fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                        lineNumber: 307,
+                                        lineNumber: 349,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -520,14 +641,14 @@ function BarberValueCards() {
                                         children: card.body
                                     }, void 0, false, {
                                         fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                        lineNumber: 308,
+                                        lineNumber: 350,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "mt-6 h-px w-12 bg-brand-gold"
                                     }, void 0, false, {
                                         fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                        lineNumber: 309,
+                                        lineNumber: 351,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("ul", {
@@ -541,25 +662,25 @@ function BarberValueCards() {
                                                         children: "✓"
                                                     }, void 0, false, {
                                                         fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                                        lineNumber: 313,
+                                                        lineNumber: 355,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                         children: bullet
                                                     }, void 0, false, {
                                                         fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                                        lineNumber: 314,
+                                                        lineNumber: 356,
                                                         columnNumber: 23
                                                     }, this)
                                                 ]
                                             }, bullet, true, {
                                                 fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                                lineNumber: 312,
+                                                lineNumber: 354,
                                                 columnNumber: 21
                                             }, this))
                                     }, void 0, false, {
                                         fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                        lineNumber: 310,
+                                        lineNumber: 352,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -573,39 +694,39 @@ function BarberValueCards() {
                                             className: "h-auto max-h-[360px] w-auto object-contain sm:max-h-[380px] lg:max-h-[410px]"
                                         }, void 0, false, {
                                             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                            lineNumber: 319,
+                                            lineNumber: 361,
                                             columnNumber: 19
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                        lineNumber: 318,
+                                        lineNumber: 360,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                lineNumber: 303,
+                                lineNumber: 345,
                                 columnNumber: 15
                             }, this)
                         }, card.icon, false, {
                             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                            lineNumber: 299,
+                            lineNumber: 341,
                             columnNumber: 13
                         }, this))
                 }, void 0, false, {
                     fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                    lineNumber: 297,
+                    lineNumber: 339,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-            lineNumber: 285,
+            lineNumber: 327,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-        lineNumber: 281,
+        lineNumber: 323,
         columnNumber: 5
     }, this);
 }
@@ -622,7 +743,7 @@ function BarberCommandCenter() {
                             children: "All-in-one business hub"
                         }, void 0, false, {
                             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                            lineNumber: 335,
+                            lineNumber: 377,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
@@ -631,14 +752,14 @@ function BarberCommandCenter() {
                                 "A cleaner command",
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("br", {}, void 0, false, {
                                     fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                    lineNumber: 340,
+                                    lineNumber: 382,
                                     columnNumber: 13
                                 }, this),
                                 "center for your chair."
                             ]
                         }, void 0, true, {
                             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                            lineNumber: 338,
+                            lineNumber: 380,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -646,7 +767,7 @@ function BarberCommandCenter() {
                             children: "Stop juggling apps, texts, and screenshots. DripDesk gives you everything you need to run your business — in one simple place."
                         }, void 0, false, {
                             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                            lineNumber: 343,
+                            lineNumber: 385,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("ul", {
@@ -663,31 +784,31 @@ function BarberCommandCenter() {
                                             className: "mt-0.5 h-5 w-5 shrink-0"
                                         }, void 0, false, {
                                             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                            lineNumber: 352,
+                                            lineNumber: 394,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                             children: bullet
                                         }, void 0, false, {
                                             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                            lineNumber: 360,
+                                            lineNumber: 402,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, bullet, true, {
                                     fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                    lineNumber: 351,
+                                    lineNumber: 393,
                                     columnNumber: 15
                                 }, this))
                         }, void 0, false, {
                             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                            lineNumber: 349,
+                            lineNumber: 391,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                    lineNumber: 334,
+                    lineNumber: 376,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -699,7 +820,7 @@ function BarberCommandCenter() {
                             className: "sm:-ml-0 lg:translate-y-8"
                         }, void 0, false, {
                             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                            lineNumber: 367,
+                            lineNumber: 409,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(PhoneScreenshot, {
@@ -708,7 +829,7 @@ function BarberCommandCenter() {
                             className: "sm:-ml-8 lg:z-10"
                         }, void 0, false, {
                             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                            lineNumber: 373,
+                            lineNumber: 415,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(PhoneScreenshot, {
@@ -717,24 +838,24 @@ function BarberCommandCenter() {
                             className: "sm:-ml-8 lg:translate-y-8"
                         }, void 0, false, {
                             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                            lineNumber: 379,
+                            lineNumber: 421,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                    lineNumber: 366,
+                    lineNumber: 408,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-            lineNumber: 333,
+            lineNumber: 375,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-        lineNumber: 332,
+        lineNumber: 374,
         columnNumber: 5
     }, this);
 }
@@ -747,7 +868,7 @@ function BarberPricing() {
                     children: "We chose to focus."
                 }, void 0, false, {
                     fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                    lineNumber: 393,
+                    lineNumber: 435,
                     columnNumber: 7
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -757,13 +878,13 @@ function BarberPricing() {
                             children: "Just yours."
                         }, void 0, false, {
                             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                            lineNumber: 393,
+                            lineNumber: 435,
                             columnNumber: 151
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                    lineNumber: 393,
+                    lineNumber: 435,
                     columnNumber: 34
                 }, this)
             ]
@@ -774,7 +895,7 @@ function BarberPricing() {
                     children: "Every decision starts with you."
                 }, void 0, false, {
                     fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                    lineNumber: 394,
+                    lineNumber: 436,
                     columnNumber: 7
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -784,14 +905,14 @@ function BarberPricing() {
                             children: "Will this make it easier to run and grow"
                         }, void 0, false, {
                             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                            lineNumber: 394,
+                            lineNumber: 436,
                             columnNumber: 86
                         }, this),
                         " an independent hair business?"
                     ]
                 }, void 0, true, {
                     fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                    lineNumber: 394,
+                    lineNumber: 436,
                     columnNumber: 47
                 }, this)
             ]
@@ -802,7 +923,7 @@ function BarberPricing() {
                     children: "Our best ideas aren't upgrades."
                 }, void 0, false, {
                     fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                    lineNumber: 395,
+                    lineNumber: 437,
                     columnNumber: 7
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -812,14 +933,14 @@ function BarberPricing() {
                             children: "better"
                         }, void 0, false, {
                             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                            lineNumber: 395,
+                            lineNumber: 437,
                             columnNumber: 111
                         }, this),
                         " product."
                     ]
                 }, void 0, true, {
                     fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                    lineNumber: 395,
+                    lineNumber: 437,
                     columnNumber: 52
                 }, this)
             ]
@@ -837,33 +958,33 @@ function BarberPricing() {
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
                             className: "font-display text-[38px] font-bold leading-[1.02] text-[#FAF7F2] sm:text-[48px] lg:text-[56px]",
                             children: [
-                                "Why Root & Foil feels ",
+                                "Why Root & ",
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                     className: "text-brand-gold",
-                                    children: "different."
+                                    children: "Foil"
                                 }, void 0, false, {
                                     fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                    lineNumber: 399,
-                                    columnNumber: 195
+                                    lineNumber: 441,
+                                    columnNumber: 184
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                            lineNumber: 399,
+                            lineNumber: 441,
                             columnNumber: 58
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                             className: "mx-auto mt-5 max-w-[780px] text-[15px] leading-7 text-white/66 sm:text-base",
-                            children: "We chose to focus so we can build what independent hair professionals actually need and leave out the rest."
+                            children: "We chose to focus."
                         }, void 0, false, {
                             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                            lineNumber: 399,
-                            columnNumber: 251
+                            lineNumber: 441,
+                            columnNumber: 234
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                    lineNumber: 399,
+                    lineNumber: 441,
                     columnNumber: 7
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -880,7 +1001,7 @@ function BarberPricing() {
                                     ][index]
                                 }, void 0, false, {
                                     fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                    lineNumber: 400,
+                                    lineNumber: 442,
                                     columnNumber: 194
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -888,18 +1009,18 @@ function BarberPricing() {
                                     children: message
                                 }, void 0, false, {
                                     fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                    lineNumber: 400,
+                                    lineNumber: 442,
                                     columnNumber: 362
                                 }, this)
                             ]
                         }, index, true, {
                             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                            lineNumber: 400,
+                            lineNumber: 442,
                             columnNumber: 122
                         }, this))
                 }, void 0, false, {
                     fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                    lineNumber: 400,
+                    lineNumber: 442,
                     columnNumber: 7
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -917,12 +1038,12 @@ function BarberPricing() {
                                     children: item.label
                                 }, item.label, false, {
                                     fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                    lineNumber: 401,
+                                    lineNumber: 443,
                                     columnNumber: 163
                                 }, this))
                         }, void 0, false, {
                             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                            lineNumber: 401,
+                            lineNumber: 443,
                             columnNumber: 39
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("article", {
@@ -935,24 +1056,24 @@ function BarberPricing() {
                                             className: `h-2 w-2 rounded-full ${index === active ? "bg-brand-gold" : "bg-white/20"}`
                                         }, item.label, false, {
                                             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                            lineNumber: 401,
+                                            lineNumber: 443,
                                             columnNumber: 843
                                         }, this))
                                 }, void 0, false, {
                                     fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                    lineNumber: 401,
+                                    lineNumber: 443,
                                     columnNumber: 760
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                            lineNumber: 401,
+                            lineNumber: 443,
                             columnNumber: 477
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                    lineNumber: 401,
+                    lineNumber: 443,
                     columnNumber: 7
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -969,7 +1090,7 @@ function BarberPricing() {
                                             children: "One straightforward price."
                                         }, void 0, false, {
                                             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                            lineNumber: 402,
+                                            lineNumber: 444,
                                             columnNumber: 220
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -980,7 +1101,7 @@ function BarberPricing() {
                                                     children: MONTHLY_PRICE
                                                 }, void 0, false, {
                                                     fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                                    lineNumber: 402,
+                                                    lineNumber: 444,
                                                     columnNumber: 411
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -988,20 +1109,20 @@ function BarberPricing() {
                                                     children: "/month"
                                                 }, void 0, false, {
                                                     fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                                    lineNumber: 402,
+                                                    lineNumber: 444,
                                                     columnNumber: 530
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                            lineNumber: 402,
+                                            lineNumber: 444,
                                             columnNumber: 368
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                             className: "mt-6 h-px w-36 bg-brand/70"
                                         }, void 0, false, {
                                             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                            lineNumber: 402,
+                                            lineNumber: 444,
                                             columnNumber: 582
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("ul", {
@@ -1014,25 +1135,25 @@ function BarberPricing() {
                                                             children: "✓"
                                                         }, void 0, false, {
                                                             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                                            lineNumber: 402,
+                                                            lineNumber: 444,
                                                             columnNumber: 747
                                                         }, this),
                                                         item
                                                     ]
                                                 }, item, true, {
                                                     fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                                    lineNumber: 402,
+                                                    lineNumber: 444,
                                                     columnNumber: 687
                                                 }, this))
                                         }, void 0, false, {
                                             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                            lineNumber: 402,
+                                            lineNumber: 444,
                                             columnNumber: 627
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                    lineNumber: 402,
+                                    lineNumber: 444,
                                     columnNumber: 157
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1043,7 +1164,7 @@ function BarberPricing() {
                                             children: "The tools that help your business grow."
                                         }, void 0, false, {
                                             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                            lineNumber: 402,
+                                            lineNumber: 444,
                                             columnNumber: 927
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1058,69 +1179,69 @@ function BarberPricing() {
                                                                     children: "✓"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                                                    lineNumber: 402,
+                                                                    lineNumber: 444,
                                                                     columnNumber: 1308
                                                                 }, this),
                                                                 feature
                                                             ]
                                                         }, feature, true, {
                                                             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                                            lineNumber: 402,
+                                                            lineNumber: 444,
                                                             columnNumber: 1220
                                                         }, this))
                                                 }, i, false, {
                                                     fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                                    lineNumber: 402,
+                                                    lineNumber: 444,
                                                     columnNumber: 1150
                                                 }, this))
                                         }, void 0, false, {
                                             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                            lineNumber: 402,
+                                            lineNumber: 444,
                                             columnNumber: 1052
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                    lineNumber: 402,
+                                    lineNumber: 444,
                                     columnNumber: 813
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                            lineNumber: 402,
+                            lineNumber: 444,
                             columnNumber: 106
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             className: "px-6 pb-8 sm:px-10 sm:pb-10 lg:pb-12",
                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(BarberButton, {
                                 href: signUpHref,
-                                className: "h-14 w-full !border-[#FAF7F2] !bg-[#FAF7F2] !text-base !text-[#111111] hover:!bg-brand-gold sm:mx-auto sm:w-[352px]",
+                                className: "h-14 w-full !border-black !bg-black !text-base !text-white hover:!bg-[#2A2522] sm:mx-auto sm:w-[352px]",
                                 children: "Join the waitlist"
                             }, void 0, false, {
                                 fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                lineNumber: 402,
+                                lineNumber: 444,
                                 columnNumber: 1445
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                            lineNumber: 402,
+                            lineNumber: 444,
                             columnNumber: 1391
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                    lineNumber: 402,
+                    lineNumber: 444,
                     columnNumber: 7
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-            lineNumber: 398,
+            lineNumber: 440,
             columnNumber: 125
         }, this)
     }, void 0, false, {
         fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-        lineNumber: 398,
+        lineNumber: 440,
         columnNumber: 5
     }, this);
 }
@@ -1137,7 +1258,7 @@ function BarberFinalCta() {
                             className: "hidden h-16 w-9 rounded-full border border-brand/70 sm:block"
                         }, void 0, false, {
                             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                            lineNumber: 412,
+                            lineNumber: 454,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1147,7 +1268,7 @@ function BarberFinalCta() {
                                     children: "Ready to run your business like a pro?"
                                 }, void 0, false, {
                                     fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                    lineNumber: 414,
+                                    lineNumber: 456,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1155,19 +1276,19 @@ function BarberFinalCta() {
                                     children: "More bookings. Less stress. Real results."
                                 }, void 0, false, {
                                     fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                    lineNumber: 417,
+                                    lineNumber: 459,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                            lineNumber: 413,
+                            lineNumber: 455,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                    lineNumber: 411,
+                    lineNumber: 453,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1179,7 +1300,7 @@ function BarberFinalCta() {
                             children: "Get Started"
                         }, void 0, false, {
                             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                            lineNumber: 423,
+                            lineNumber: 465,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(BarberButton, {
@@ -1189,24 +1310,24 @@ function BarberFinalCta() {
                             children: "View Plans"
                         }, void 0, false, {
                             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                            lineNumber: 426,
+                            lineNumber: 468,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                    lineNumber: 422,
+                    lineNumber: 464,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-            lineNumber: 410,
+            lineNumber: 452,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-        lineNumber: 409,
+        lineNumber: 451,
         columnNumber: 5
     }, this);
 }
@@ -1220,7 +1341,7 @@ function BarberFooter() {
                     children: [
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(BarberLogo, {}, void 0, false, {
                             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                            lineNumber: 444,
+                            lineNumber: 486,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1228,13 +1349,13 @@ function BarberFooter() {
                             children: "Built for independent beauty pros. Designed to help you grow."
                         }, void 0, false, {
                             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                            lineNumber: 445,
+                            lineNumber: 487,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                    lineNumber: 443,
+                    lineNumber: 485,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1246,7 +1367,7 @@ function BarberFooter() {
                                     children: group.title
                                 }, void 0, false, {
                                     fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                    lineNumber: 453,
+                                    lineNumber: 495,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("ul", {
@@ -1258,28 +1379,28 @@ function BarberFooter() {
                                                 children: link.label
                                             }, void 0, false, {
                                                 fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                                lineNumber: 459,
+                                                lineNumber: 501,
                                                 columnNumber: 21
                                             }, this)
                                         }, link.label, false, {
                                             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                            lineNumber: 458,
+                                            lineNumber: 500,
                                             columnNumber: 19
                                         }, this))
                                 }, void 0, false, {
                                     fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                                    lineNumber: 456,
+                                    lineNumber: 498,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, group.title, true, {
                             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                            lineNumber: 452,
+                            lineNumber: 494,
                             columnNumber: 13
                         }, this))
                 }, void 0, false, {
                     fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                    lineNumber: 450,
+                    lineNumber: 492,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1288,25 +1409,25 @@ function BarberFooter() {
                         "© 2026 Root & Foil",
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("br", {}, void 0, false, {
                             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                            lineNumber: 474,
+                            lineNumber: 516,
                             columnNumber: 11
                         }, this),
                         "All rights reserved."
                     ]
                 }, void 0, true, {
                     fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                    lineNumber: 472,
+                    lineNumber: 514,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-            lineNumber: 442,
+            lineNumber: 484,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-        lineNumber: 441,
+        lineNumber: 483,
         columnNumber: 5
     }, this);
 }
@@ -1316,28 +1437,28 @@ function BarberLandingPage() {
         children: [
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(BarberHero, {}, void 0, false, {
                 fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                lineNumber: 485,
+                lineNumber: 527,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(BarberValueCards, {}, void 0, false, {
                 fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                lineNumber: 486,
+                lineNumber: 528,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(BarberPricing, {}, void 0, false, {
                 fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                lineNumber: 487,
+                lineNumber: 529,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(BarberFooter, {}, void 0, false, {
                 fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-                lineNumber: 488,
+                lineNumber: 530,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/apps/marketing/src/app/barber/page.tsx",
-        lineNumber: 484,
+        lineNumber: 526,
         columnNumber: 5
     }, this);
 }

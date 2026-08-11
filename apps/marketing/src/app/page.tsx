@@ -177,60 +177,91 @@ function MarketingButton({
   );
 }
 
-function BrandLogo() {
+function BrandLogo({ className = "" }: { className?: string }) {
   return (
     <Link
       href="#top"
-      className="shrink-0 focus:outline-none focus:ring-2 focus:ring-brand/35"
+      className={`shrink-0 focus:outline-none focus:ring-2 focus:ring-brand/35 ${className}`}
       aria-label="Root & Foil"
     >
       <Image
-        src="/assets/brand/root-and-foil-navigation-logo.png"
+        src="/assets/brand/root-foil-roots-mark.svg"
         alt="Root & Foil"
-        width={952}
-        height={1094}
+        width={147}
+        height={147}
         priority
-        className="h-11 w-auto object-contain sm:h-12"
+        className="h-11 w-11 object-contain lg:h-12 lg:w-12"
       />
     </Link>
   );
 }
 
 function HomeNav({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+
   return (
     <nav
-      className="relative z-20 mx-auto flex max-w-[1180px] flex-col items-start justify-between gap-4 px-5 py-5 sm:h-[76px] sm:flex-row sm:items-center sm:px-8 sm:py-0"
+      className="relative z-20 mx-auto flex h-[76px] max-w-[1180px] items-center justify-between px-5 sm:px-8 lg:h-[84px]"
       aria-label="Primary"
     >
-      <BrandLogo />
+      <BrandLogo className="lg:hidden" />
 
-      <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-start sm:gap-6">
+      <div className="ml-auto hidden items-center gap-8 lg:flex">
         <Link
           href="#product"
-          className="font-display text-xs font-semibold text-[#1F1A17] transition-colors hover:text-brand sm:text-sm"
+          className="font-display text-sm font-semibold text-[#1F1A17] transition-colors hover:text-brand"
         >
           Product
         </Link>
         <Link
           href="#pricing"
-          className="font-display text-xs font-semibold text-[#1F1A17] transition-colors hover:text-brand sm:text-sm"
+          className="font-display text-sm font-semibold text-[#1F1A17] transition-colors hover:text-brand"
         >
           Pricing
         </Link>
         <Link
           href={loginHref}
-          className="font-display text-xs font-semibold text-[#1F1A17] transition-colors hover:text-brand sm:text-sm"
+          className="font-display text-sm font-semibold text-[#1F1A17] transition-colors hover:text-brand"
         >
           Login
         </Link>
+      </div>
+
+      <div className="ml-auto flex items-center gap-2 lg:ml-8">
         <MarketingButton
           onClick={onJoinWaitlist}
           variant="nav"
-          className="h-9 px-4 text-xs sm:h-10 sm:px-5 sm:text-sm"
+          className="h-9 px-3 text-xs sm:px-4 lg:h-10 lg:px-5 lg:text-sm"
         >
           Join Waitlist
         </MarketingButton>
+        <button
+          type="button"
+          aria-label={menuOpen ? "Close navigation" : "Open navigation"}
+          aria-expanded={menuOpen}
+          aria-controls="home-mobile-navigation"
+          onClick={() => setMenuOpen((open) => !open)}
+          className="inline-flex h-11 w-11 items-center justify-center rounded-md text-[#1F1A17] transition-colors hover:bg-black/5 focus:outline-none focus:ring-2 focus:ring-brand/35 lg:hidden"
+        >
+          <span className="sr-only">Menu</span>
+          <span className="grid gap-1.5" aria-hidden="true">
+            <span className="h-0.5 w-5 bg-current" />
+            <span className="h-0.5 w-5 bg-current" />
+            <span className="h-0.5 w-5 bg-current" />
+          </span>
+        </button>
       </div>
+
+      {menuOpen && (
+        <div
+          id="home-mobile-navigation"
+          className="absolute left-5 right-5 top-[68px] grid rounded-lg border border-[#C8A46B]/55 bg-[#FFFDF8] p-3 shadow-[0_18px_42px_rgba(17,17,17,0.14)] sm:left-8 sm:right-8 lg:hidden"
+        >
+          <Link href="#product" onClick={() => setMenuOpen(false)} className="rounded-md px-4 py-3 font-display text-sm font-semibold text-[#1F1A17] hover:bg-[#F6F1E8]">Product</Link>
+          <Link href="#pricing" onClick={() => setMenuOpen(false)} className="rounded-md px-4 py-3 font-display text-sm font-semibold text-[#1F1A17] hover:bg-[#F6F1E8]">Pricing</Link>
+          <Link href={loginHref} onClick={() => setMenuOpen(false)} className="rounded-md px-4 py-3 font-display text-sm font-semibold text-[#1F1A17] hover:bg-[#F6F1E8]">Login</Link>
+        </div>
+      )}
     </nav>
   );
 }
@@ -245,8 +276,16 @@ function HomeHero({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
       <div className="absolute inset-0 bg-[linear-gradient(120deg,transparent_0%,rgba(255,255,255,0.32)_44%,transparent_56%),linear-gradient(300deg,transparent_0%,rgba(200,164,107,0.12)_42%,transparent_65%)] opacity-60" />
       <HomeNav onJoinWaitlist={onJoinWaitlist} />
 
-      <div className="relative z-10 mx-auto grid max-w-[1180px] gap-8 px-5 pb-12 pt-7 sm:px-8 lg:min-h-[610px] lg:grid-cols-[0.86fr_1.14fr] lg:items-center lg:pb-0 lg:pt-0">
-        <div className="max-w-[560px]">
+      <div className="relative z-10 mx-auto grid max-w-[1180px] gap-8 px-5 pb-14 pt-7 sm:px-8 lg:min-h-[610px] lg:grid-cols-[0.86fr_1.14fr] lg:items-center lg:pb-0 lg:pt-0">
+        <div className="max-w-[560px] lg:-translate-y-6 lg:pb-8">
+          <Image
+            src="/assets/brand/root-foil-full-logo-light.png"
+            alt="Root & Foil"
+            width={1536}
+            height={1024}
+            priority
+            className="mx-auto mb-5 w-[300px] object-contain sm:w-[320px] lg:mx-0 lg:mb-5 lg:w-[260px]"
+          />
           <p className="inline-flex items-center gap-2 rounded-[4px] border border-[#C8A46B] bg-[#FFFDF8]/35 px-3 py-1 text-[9px] font-extrabold uppercase tracking-[0.07em] text-brand sm:whitespace-nowrap">
             Designed for independent stylists and barbers
           </p>
@@ -259,11 +298,10 @@ function HomeHero({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
             You built the roots - we add the lift.
           </h2>
 
-          <p className="mt-5 max-w-[520px] text-[16px] leading-7 text-[#4F4A45] sm:text-[17px]">
-            Root &amp; Foil helps you stay booked, remember every client detail, and
-            understand your business. Built only for independent hair
-            professionals, Root &amp; Foil gives you the tools you need without the
-            complexity you don&apos;t, at a price that makes sense.
+          <p className="mt-5 max-w-[520px] text-[16px] leading-7 text-[#4F4A45] sm:text-[17px] lg:mt-8 lg:max-w-[500px]">
+            Root &amp; Foil helps you stay booked, remember every client, and
+            understand your business. You get the tools you need without the
+            complexity you don&apos;t, at a price that makes sense
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -284,7 +322,7 @@ function HomeHero({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
 
         </div>
 
-        <div className="relative -mr-5 min-h-[390px] sm:-mr-8 sm:min-h-[500px] lg:-mr-[calc((100vw-1180px)/2)] lg:h-[610px] lg:min-h-0 lg:self-end">
+        <div className="relative -mr-5 min-h-[390px] sm:-mr-8 sm:min-h-[500px] lg:-mr-[calc((100vw-1180px)/2)] lg:-mt-8 lg:h-[712px] lg:min-h-0 lg:self-end">
           <Image
             src="/marketing/stylist-hero.png"
             alt="Female stylist using a tablet in a salon"
@@ -292,8 +330,12 @@ function HomeHero({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
             priority
             sizes="(min-width: 1180px) 660px, (min-width: 1024px) 56vw, 100vw"
             className="object-cover object-[58%_center]"
+            style={{
+              maskImage: "linear-gradient(to bottom, transparent 0, black 96px)",
+              WebkitMaskImage: "linear-gradient(to bottom, transparent 0, black 96px)",
+            }}
           />
-          <div className="absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-[#F6F1E8] via-[#F6F1E8]/72 to-transparent" />
+          <div className="absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-[#F6F1E8] via-[#F6F1E8]/72 to-transparent lg:w-[38%] lg:from-[#F6F1E8]/90 lg:via-[#F6F1E8]/45" />
         </div>
       </div>
     </section>
@@ -308,13 +350,11 @@ function HomeProductPillars() {
     >
       <div className="mx-auto max-w-[1240px]">
         <div className="mx-auto max-w-[860px] text-center">
-          <h2 className="whitespace-nowrap font-display text-[clamp(19px,6vw,38px)] font-bold leading-[1.02] tracking-[-0.01em] sm:text-[48px] lg:text-[56px]">
-            Everything you need to grow.
+          <h2 className="whitespace-nowrap font-display text-[38px] font-bold leading-[1.02] tracking-[-0.01em] sm:text-[48px] lg:text-[56px]">
+            What do you <span className="text-brand">get?</span>
           </h2>
           <p className="mx-auto mt-5 max-w-[720px] text-[15px] leading-7 text-[#4F4A45] sm:text-base">
-            Root &amp; Foil brings your clients, booking, formulas, follow-ups, and
-            business insights together in one focused system designed to help
-            independent hair professionals grow.
+            Everything you need to grow.
           </p>
         </div>
 
@@ -457,10 +497,10 @@ function HomePricing({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
       <div className="mx-auto max-w-[1180px]">
         <div className="mx-auto max-w-[860px] text-center">
           <h2 className="font-display text-[38px] font-bold leading-[1.02] tracking-normal sm:text-[48px] lg:text-[56px]">
-            Why Root &amp; Foil feels <span className="text-brand">different.</span>
+            Why Root &amp; <span className="text-brand">Foil</span>
           </h2>
           <p className="mx-auto mt-5 max-w-[780px] text-[15px] leading-7 text-[#4F4A45] sm:text-base">
-            We chose to focus so we can build what independent hair professionals actually need and leave out the rest.
+            We chose to focus.
           </p>
         </div>
 
