@@ -454,7 +454,7 @@ function PhilosophyMessage({ index }: { index: number }) {
   if (index === 0) {
     return (
       <>
-        <h3 className="font-display text-[27px] font-bold leading-[1.05] text-[#111111] sm:text-[30px]">We chose to focus.</h3>
+        <h3 className="font-display text-[27px] font-bold leading-[1.05] text-[#111111] sm:text-[30px]">The simpler way to run your business.</h3>
         <p className="mt-4 text-sm leading-7 text-[#4F4A45]">
           An intuitive experience that makes running your business and booking with you feel effortless.
         </p>
@@ -467,8 +467,7 @@ function PhilosophyMessage({ index }: { index: number }) {
       <>
         <h3 className="font-display text-[27px] font-bold leading-[1.05] text-[#111111] sm:text-[30px]">Every decision starts with you.</h3>
         <p className="mt-4 text-sm leading-7 text-[#4F4A45]">
-          Built specifically for independent hair professionals, with the tools, workflows, and insights that actually matter. Nothing generic. Not every appointment business.{" "}
-          <span className="font-bold text-brand">Just yours.</span>
+          Built specifically for independent hair professionals with the tools, workflows, and insights that actually matter. Nothing generic. Nothing you don&apos;t need.
         </p>
       </>
     );

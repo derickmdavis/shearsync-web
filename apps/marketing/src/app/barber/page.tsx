@@ -430,8 +430,8 @@ function BarberCommandCenter() {
 function BarberPricing() {
   const [active, setActive] = useState(0);
   const messages = [
-    <><h3>We chose to focus.</h3><p>An intuitive experience that makes running your business and booking with you feel effortless.</p></>,
-    <><h3>Every decision starts with you.</h3><p>Built specifically for independent hair professionals, with the tools, workflows, and insights that actually matter. Nothing generic. Not every appointment business. <strong>Just yours.</strong></p></>,
+    <><h3>The simpler way to run your business.</h3><p>An intuitive experience that makes running your business and booking with you feel effortless.</p></>,
+    <><h3>Every decision starts with you.</h3><p>Built specifically for independent hair professionals with the tools, workflows, and insights that actually matter. Nothing generic. Nothing you don&apos;t need.</p></>,
     <><h3>Our best ideas aren&apos;t upgrades.</h3><p>One experience. One price. Every feature. No locked tools or complicated tiers; you always get the full power of Root &amp; Foil.</p></>,
   ];
   return (
