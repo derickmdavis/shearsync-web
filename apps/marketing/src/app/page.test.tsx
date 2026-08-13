@@ -55,9 +55,9 @@ describe("HomePage waitlist modal", () => {
   it("switches the mobile philosophy message from the accessible selector", () => {
     render(<HomePage />);
 
-    const focusedTab = screen.getByRole("tab", { name: "Focused" });
+    const focusedTab = screen.getByRole("tab", { name: "Simple" });
     const tailoredTab = screen.getByRole("tab", { name: "Tailored" });
-    const includedTab = screen.getByRole("tab", { name: "Included" });
+    const includedTab = screen.getByRole("tab", { name: "All-Access" });
 
     expect(focusedTab.getAttribute("aria-selected")).toBe("true");
     expect(tailoredTab.getAttribute("aria-selected")).toBe("false");

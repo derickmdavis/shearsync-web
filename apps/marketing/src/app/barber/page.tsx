@@ -16,12 +16,11 @@ const barberValueCards = [
     title: "Stay booked.",
     body: "Make it effortless for clients to book and keep coming back",
     bullets: [
-      "Online booking that’s always open",
-      "Automated reminders that reduce no-shows",
-      "Waitlist support to fill last-minute openings",
-      "Re-book nudges to keep clients coming back",
+      "24/7 online booking that works around your schedule.",
+      "Automated reminders to reduce no-shows",
+      "Smart outreach nudges + waitlists to keep your chair full",
     ],
-    screenshot: "/assets/home/root-and-foil-phone-calendar.png",
+    screenshot: "/assets/home/root-foil-calendar-iphone-refined.png",
     alt: "Root & Foil calendar screen showing appointments, open time, and booking controls",
   },
   {
@@ -29,32 +28,31 @@ const barberValueCards = [
     title: "Remember every client.",
     body: "Give every client a personal, consistent experience",
     bullets: [
-      "Client notes, preferences, and service history",
-      "Color formulas for roots, toners, lighteners, developers, and more",
-      "Before-and-after photos tied to each client",
-      "Appointment history and rebooking patterns",
+      "Notes, preferences, photos + complete service history",
+      "Color formulas saved to each client profile",
+      "Appointment history and rebooking patterns at a glance",
     ],
-    screenshot: "/assets/home/root-and-foil-phone-clients.png",
+    screenshot: "/assets/home/root-foil-clients-iphone-refined.png",
     alt: "Root & Foil clients screen showing client list, notes, and client history",
   },
   {
     icon: "/assets/icons/icon-analytics-bronze.svg",
-    title: "Grow with clarity",
+    title: "Grow with clarity.",
     body: "Understand your client behavior and trends so you can grow with confidence.",
     bullets: [
-      "Revenue, retention, and re-booking at a glance",
-      "Average ticket, top services, and add-ons",
-      "Trends and insights to guide your next move",
+      "Client insights — retention, rebooking, and visit patterns",
+      "Revenue insights — average ticket, top services, and trends",
+      "Scheduling insights — booking patterns, gaps, and opportunities",
     ],
-    screenshot: "/assets/home/root-and-foil-phone-insights.png",
+    screenshot: "/assets/home/root-foil-insights-iphone-refined.png",
     alt: "Root & Foil dashboard screen showing business snapshot and revenue insights",
   },
 ];
 
 const philosophyItems = [
-  { label: "Focused", icon: "user" },
+  { label: "Simple", icon: "user" },
   { label: "Tailored", icon: "sparkle" },
-  { label: "Included", icon: "heart" },
+  { label: "All-Access", icon: "heart" },
 ] as const;
 
 const corePricingItems = ["Every feature included", "No tiers, no add-ons", "Cancel anytime"];
@@ -432,13 +430,13 @@ function BarberCommandCenter() {
 function BarberPricing() {
   const [active, setActive] = useState(0);
   const messages = [
-    <><h3>We chose to focus.</h3><p>Root &amp; Foil is built specifically for independent hair professionals. Not nail techs. Not med spas. Not gyms. <strong>Just yours.</strong></p></>,
-    <><h3>Every decision starts with you.</h3><p>We build with one question in mind: <strong>Will this make it easier to run and grow</strong> an independent hair business?</p></>,
-    <><h3>Our best ideas aren&apos;t upgrades.</h3><p>When Root &amp; Foil gets better, every member gets the <strong>better</strong> product.</p></>,
+    <><h3>We chose to focus.</h3><p>An intuitive experience that makes running your business and booking with you feel effortless.</p></>,
+    <><h3>Every decision starts with you.</h3><p>Built specifically for independent hair professionals, with the tools, workflows, and insights that actually matter. Nothing generic. Not every appointment business. <strong>Just yours.</strong></p></>,
+    <><h3>Our best ideas aren&apos;t upgrades.</h3><p>One experience. One price. Every feature. No locked tools or complicated tiers; you always get the full power of Root &amp; Foil.</p></>,
   ];
   return (
     <section id="pricing" className="border-t border-brand/20 bg-[#111111] px-5 py-20 text-white sm:px-8 sm:py-24 lg:py-28"><div className="mx-auto max-w-[1180px]">
-      <div className="mx-auto max-w-[860px] text-center"><h2 className="font-display text-[38px] font-bold leading-[1.02] text-[#FAF7F2] sm:text-[48px] lg:text-[56px]">Why Root &amp; <span className="text-brand-gold">Foil</span></h2><p className="mx-auto mt-5 max-w-[780px] text-[15px] leading-7 text-white/66 sm:text-base">We chose to focus.</p></div>
+      <div className="mx-auto max-w-[860px] text-center"><h2 className="font-display text-[38px] font-bold leading-[1.02] text-[#FAF7F2] sm:text-[48px] lg:text-[56px]">Why Root &amp; <span className="text-brand-gold">Foil</span></h2><p className="mx-auto mt-5 max-w-[780px] text-[15px] leading-7 text-white/66 sm:text-base">All the power. None of the bloat.</p></div>
       <div className="mt-12 hidden lg:grid lg:grid-cols-3 lg:divide-x lg:divide-brand/35">{messages.map((message,index)=><article key={index} className="px-10 text-center first:pl-0 last:pr-0"><div className="mx-auto grid h-[82px] w-[82px] place-items-center rounded-full border border-brand/25 bg-brand/10 text-3xl text-brand-gold">{["♙","✦","♡"][index]}</div><div className="mx-auto mt-6 max-w-[270px] [&_h3]:font-display [&_h3]:text-[27px] [&_h3]:font-bold [&_h3]:text-[#FAF7F2] [&_p]:mt-4 [&_p]:text-sm [&_p]:leading-7 [&_p]:text-white/66 [&_strong]:text-brand-gold">{message}</div></article>)}</div>
       <div className="mt-9 lg:hidden"><div className="grid grid-cols-3 rounded-full border border-brand/45 p-1" role="tablist">{philosophyItems.map((item,index)=><button key={item.label} type="button" role="tab" aria-selected={active===index} onClick={()=>setActive(index)} className={`min-h-12 rounded-full px-1 text-[10px] font-semibold whitespace-nowrap ${active===index?"border border-brand/45 bg-[#1C1C1E] text-brand-gold":"text-white/72"}`}>{item.label}</button>)}</div><article className="mt-5 rounded-[20px] border border-brand/30 bg-[#141414] px-6 py-8 text-center [&_h3]:font-display [&_h3]:text-[27px] [&_h3]:font-bold [&_h3]:text-[#FAF7F2] [&_p]:mt-4 [&_p]:text-sm [&_p]:leading-7 [&_p]:text-white/66 [&_strong]:text-brand-gold">{messages[active]}<div className="mt-6 flex justify-center gap-3">{philosophyItems.map((item,index)=><span key={item.label} className={`h-2 w-2 rounded-full ${index===active?"bg-brand-gold":"bg-white/20"}`}/>)}</div></article></div>
       <div className="mt-12 overflow-hidden rounded-[18px] border border-brand/45 bg-[#141414] sm:mt-16"><div className="grid lg:grid-cols-[0.86fr_1.14fr]"><div className="px-6 py-8 sm:px-10 sm:py-10 lg:px-12 lg:py-12"><h2 className="whitespace-nowrap font-display text-[clamp(26px,7.5vw,34px)] font-bold text-[#FAF7F2] sm:text-[42px]">One straightforward price.</h2><div className="mt-6 flex items-end gap-2"><span className="font-display text-[68px] font-bold leading-none text-brand-gold sm:text-[82px]">{MONTHLY_PRICE}</span><span className="pb-2 font-bold">/month</span></div><div className="mt-6 h-px w-36 bg-brand/70"/><ul className="mt-7 grid gap-4">{corePricingItems.map(item=><li key={item} className="flex gap-3 text-sm text-white/74"><span className="text-brand-gold">✓</span>{item}</li>)}</ul></div><div className="border-t border-brand/30 px-6 py-8 sm:px-10 sm:py-10 lg:border-l lg:border-t-0 lg:px-12 lg:py-12"><h3 className="font-display text-[28px] font-bold text-[#FAF7F2] sm:text-[34px]">The tools that help your business grow.</h3><div className="mt-7 grid grid-cols-2 gap-x-4 sm:gap-x-8">{includedFeatureColumns.map((column,i)=><ul key={i} className="grid content-start gap-4">{column.map(feature=><li key={feature} className="flex gap-2 text-[11px] leading-5 text-white/72 sm:text-sm"><span className="text-brand-gold">✓</span>{feature}</li>)}</ul>)}</div></div></div><div className="px-6 pb-8 sm:px-10 sm:pb-10 lg:pb-12"><BarberButton href={signUpHref} className="h-14 w-full !border-black !bg-black !text-base !text-white hover:!bg-[#2A2522] sm:mx-auto sm:w-[352px]">Join the waitlist</BarberButton></div></div>

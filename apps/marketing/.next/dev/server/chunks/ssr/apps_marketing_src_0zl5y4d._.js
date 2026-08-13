@@ -68,12 +68,11 @@ const productPillars = [
         title: "Stay booked.",
         body: "Make it effortless for clients to book and keep coming back",
         bullets: [
-            "Online booking that’s always open",
-            "Automated reminders that reduce no-shows",
-            "Waitlist support to fill last-minute openings",
-            "Re-book nudges to keep clients coming back"
+            "24/7 online booking that works around your schedule.",
+            "Automated reminders to reduce no-shows",
+            "Smart outreach nudges + waitlists to keep your chair full"
         ],
-        screenshot: "/assets/home/root-and-foil-phone-calendar.png",
+        screenshot: "/assets/home/root-foil-calendar-iphone-refined.png",
         alt: "Root & Foil calendar screen showing appointments, open time, and booking controls"
     },
     {
@@ -81,30 +80,29 @@ const productPillars = [
         title: "Remember every client.",
         body: "Give every client a personal, consistent experience",
         bullets: [
-            "Client notes, preferences, and service history",
-            "Color formulas for roots, toners, lighteners, developers, and more",
-            "Before-and-after photos tied to each client",
-            "Appointment history and rebooking patterns"
+            "Notes, preferences, photos + complete service history",
+            "Color formulas saved to each client profile",
+            "Appointment history and rebooking patterns at a glance"
         ],
-        screenshot: "/assets/home/root-and-foil-phone-clients.png",
+        screenshot: "/assets/home/root-foil-clients-iphone-refined.png",
         alt: "Root & Foil clients screen showing client list, notes, and client history"
     },
     {
         icon: "/assets/icons/icon-analytics-bronze.svg",
-        title: "Grow with clarity",
+        title: "Grow with clarity.",
         body: "Understand your client behavior and trends so you can grow with confidence.",
         bullets: [
-            "Revenue, retention, and re-booking at a glance",
-            "Average ticket, top services, and add-ons",
-            "Trends and insights to guide your next move"
+            "Client insights — retention, rebooking, and visit patterns",
+            "Revenue insights — average ticket, top services, and trends",
+            "Scheduling insights — booking patterns, gaps, and opportunities"
         ],
-        screenshot: "/assets/home/root-and-foil-phone-insights.png",
+        screenshot: "/assets/home/root-foil-insights-iphone-refined.png",
         alt: "Root & Foil dashboard screen showing business snapshot and revenue insights"
     }
 ];
 const philosophyItems = [
     {
-        label: "Focused",
+        label: "Simple",
         icon: "user"
     },
     {
@@ -112,7 +110,7 @@ const philosophyItems = [
         icon: "sparkle"
     },
     {
-        label: "Included",
+        label: "All-Access",
         icon: "heart"
     }
 ];
@@ -204,7 +202,7 @@ function MarketingLink({ href, children, variant = "primary", className = "" }) 
         children: children
     }, void 0, false, {
         fileName: "[project]/apps/marketing/src/app/page.tsx",
-        lineNumber: 135,
+        lineNumber: 133,
         columnNumber: 5
     }, this);
 }
@@ -224,7 +222,7 @@ function MarketingButton({ children, onClick, variant = "primary", className = "
         children: children
     }, void 0, false, {
         fileName: "[project]/apps/marketing/src/app/page.tsx",
-        lineNumber: 166,
+        lineNumber: 164,
         columnNumber: 5
     }, this);
 }
@@ -242,12 +240,12 @@ function BrandLogo({ className = "" }) {
             className: "h-11 w-11 object-contain lg:h-12 lg:w-12"
         }, void 0, false, {
             fileName: "[project]/apps/marketing/src/app/page.tsx",
-            lineNumber: 187,
+            lineNumber: 185,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/apps/marketing/src/app/page.tsx",
-        lineNumber: 182,
+        lineNumber: 180,
         columnNumber: 5
     }, this);
 }
@@ -261,7 +259,7 @@ function HomeNav({ onJoinWaitlist }) {
                 className: "lg:hidden"
             }, void 0, false, {
                 fileName: "[project]/apps/marketing/src/app/page.tsx",
-                lineNumber: 207,
+                lineNumber: 205,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -273,7 +271,7 @@ function HomeNav({ onJoinWaitlist }) {
                         children: "Product"
                     }, void 0, false, {
                         fileName: "[project]/apps/marketing/src/app/page.tsx",
-                        lineNumber: 210,
+                        lineNumber: 208,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
@@ -282,7 +280,7 @@ function HomeNav({ onJoinWaitlist }) {
                         children: "Pricing"
                     }, void 0, false, {
                         fileName: "[project]/apps/marketing/src/app/page.tsx",
-                        lineNumber: 216,
+                        lineNumber: 214,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
@@ -291,13 +289,13 @@ function HomeNav({ onJoinWaitlist }) {
                         children: "Login"
                     }, void 0, false, {
                         fileName: "[project]/apps/marketing/src/app/page.tsx",
-                        lineNumber: 222,
+                        lineNumber: 220,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/apps/marketing/src/app/page.tsx",
-                lineNumber: 209,
+                lineNumber: 207,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -310,7 +308,7 @@ function HomeNav({ onJoinWaitlist }) {
                         children: "Join Waitlist"
                     }, void 0, false, {
                         fileName: "[project]/apps/marketing/src/app/page.tsx",
-                        lineNumber: 231,
+                        lineNumber: 229,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -326,7 +324,7 @@ function HomeNav({ onJoinWaitlist }) {
                                 children: "Menu"
                             }, void 0, false, {
                                 fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                lineNumber: 246,
+                                lineNumber: 244,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -337,39 +335,39 @@ function HomeNav({ onJoinWaitlist }) {
                                         className: "h-0.5 w-5 bg-current"
                                     }, void 0, false, {
                                         fileName: "[project]/apps/marketing/src/app/page.tsx",
+                                        lineNumber: 246,
+                                        columnNumber: 13
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                        className: "h-0.5 w-5 bg-current"
+                                    }, void 0, false, {
+                                        fileName: "[project]/apps/marketing/src/app/page.tsx",
+                                        lineNumber: 247,
+                                        columnNumber: 13
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                        className: "h-0.5 w-5 bg-current"
+                                    }, void 0, false, {
+                                        fileName: "[project]/apps/marketing/src/app/page.tsx",
                                         lineNumber: 248,
-                                        columnNumber: 13
-                                    }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                        className: "h-0.5 w-5 bg-current"
-                                    }, void 0, false, {
-                                        fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                        lineNumber: 249,
-                                        columnNumber: 13
-                                    }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                        className: "h-0.5 w-5 bg-current"
-                                    }, void 0, false, {
-                                        fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                        lineNumber: 250,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                lineNumber: 247,
+                                lineNumber: 245,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/apps/marketing/src/app/page.tsx",
-                        lineNumber: 238,
+                        lineNumber: 236,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/apps/marketing/src/app/page.tsx",
-                lineNumber: 230,
+                lineNumber: 228,
                 columnNumber: 7
             }, this),
             menuOpen && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -383,7 +381,7 @@ function HomeNav({ onJoinWaitlist }) {
                         children: "Product"
                     }, void 0, false, {
                         fileName: "[project]/apps/marketing/src/app/page.tsx",
-                        lineNumber: 260,
+                        lineNumber: 258,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
@@ -393,7 +391,7 @@ function HomeNav({ onJoinWaitlist }) {
                         children: "Pricing"
                     }, void 0, false, {
                         fileName: "[project]/apps/marketing/src/app/page.tsx",
-                        lineNumber: 261,
+                        lineNumber: 259,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
@@ -403,19 +401,19 @@ function HomeNav({ onJoinWaitlist }) {
                         children: "Login"
                     }, void 0, false, {
                         fileName: "[project]/apps/marketing/src/app/page.tsx",
-                        lineNumber: 262,
+                        lineNumber: 260,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/apps/marketing/src/app/page.tsx",
-                lineNumber: 256,
+                lineNumber: 254,
                 columnNumber: 9
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/apps/marketing/src/app/page.tsx",
-        lineNumber: 203,
+        lineNumber: 201,
         columnNumber: 5
     }, this);
 }
@@ -428,21 +426,21 @@ function HomeHero({ onJoinWaitlist }) {
                 className: "absolute inset-0 bg-[radial-gradient(circle_at_12%_24%,rgba(232,211,163,0.42)_0%,rgba(232,211,163,0.12)_28%,transparent_54%),radial-gradient(circle_at_92%_18%,rgba(214,187,133,0.35)_0%,rgba(214,187,133,0.10)_34%,transparent_62%),linear-gradient(135deg,#F6F1E8_0%,#FFF8E8_48%,#F6F1E8_100%)]"
             }, void 0, false, {
                 fileName: "[project]/apps/marketing/src/app/page.tsx",
-                lineNumber: 275,
+                lineNumber: 273,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "absolute inset-0 bg-[linear-gradient(120deg,transparent_0%,rgba(255,255,255,0.32)_44%,transparent_56%),linear-gradient(300deg,transparent_0%,rgba(200,164,107,0.12)_42%,transparent_65%)] opacity-60"
             }, void 0, false, {
                 fileName: "[project]/apps/marketing/src/app/page.tsx",
-                lineNumber: 276,
+                lineNumber: 274,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(HomeNav, {
                 onJoinWaitlist: onJoinWaitlist
             }, void 0, false, {
                 fileName: "[project]/apps/marketing/src/app/page.tsx",
-                lineNumber: 277,
+                lineNumber: 275,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -460,7 +458,7 @@ function HomeHero({ onJoinWaitlist }) {
                                 className: "mx-auto mb-5 w-[300px] object-contain sm:w-[320px] lg:mx-0 lg:mb-5 lg:w-[260px]"
                             }, void 0, false, {
                                 fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                lineNumber: 281,
+                                lineNumber: 279,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -468,7 +466,7 @@ function HomeHero({ onJoinWaitlist }) {
                                 children: "Designed for independent stylists and barbers"
                             }, void 0, false, {
                                 fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                lineNumber: 289,
+                                lineNumber: 287,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
@@ -476,7 +474,7 @@ function HomeHero({ onJoinWaitlist }) {
                                 children: "Growth starts at the roots."
                             }, void 0, false, {
                                 fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                lineNumber: 293,
+                                lineNumber: 291,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
@@ -484,7 +482,7 @@ function HomeHero({ onJoinWaitlist }) {
                                 children: "You built the roots - we add the lift."
                             }, void 0, false, {
                                 fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                lineNumber: 297,
+                                lineNumber: 295,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -492,7 +490,7 @@ function HomeHero({ onJoinWaitlist }) {
                                 children: "Root & Foil helps you stay booked, remember every client, and understand your business. You get the tools you need without the complexity you don't, at a price that makes sense"
                             }, void 0, false, {
                                 fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                lineNumber: 301,
+                                lineNumber: 299,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -504,7 +502,7 @@ function HomeHero({ onJoinWaitlist }) {
                                         children: "Join Waitlist"
                                     }, void 0, false, {
                                         fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                        lineNumber: 308,
+                                        lineNumber: 306,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(MarketingLink, {
@@ -514,19 +512,19 @@ function HomeHero({ onJoinWaitlist }) {
                                         children: "See What's Included"
                                     }, void 0, false, {
                                         fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                        lineNumber: 314,
+                                        lineNumber: 312,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                lineNumber: 307,
+                                lineNumber: 305,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/apps/marketing/src/app/page.tsx",
-                        lineNumber: 280,
+                        lineNumber: 278,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -545,32 +543,32 @@ function HomeHero({ onJoinWaitlist }) {
                                 }
                             }, void 0, false, {
                                 fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                lineNumber: 326,
+                                lineNumber: 324,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 className: "absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-[#F6F1E8] via-[#F6F1E8]/72 to-transparent lg:w-[38%] lg:from-[#F6F1E8]/90 lg:via-[#F6F1E8]/45"
                             }, void 0, false, {
                                 fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                lineNumber: 338,
+                                lineNumber: 336,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/apps/marketing/src/app/page.tsx",
-                        lineNumber: 325,
+                        lineNumber: 323,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/apps/marketing/src/app/page.tsx",
-                lineNumber: 279,
+                lineNumber: 277,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/apps/marketing/src/app/page.tsx",
-        lineNumber: 271,
+        lineNumber: 269,
         columnNumber: 5
     }, this);
 }
@@ -593,13 +591,13 @@ function HomeProductPillars() {
                                     children: "get?"
                                 }, void 0, false, {
                                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                    lineNumber: 354,
+                                    lineNumber: 352,
                                     columnNumber: 25
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/apps/marketing/src/app/page.tsx",
-                            lineNumber: 353,
+                            lineNumber: 351,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -607,13 +605,13 @@ function HomeProductPillars() {
                             children: "Everything you need to grow."
                         }, void 0, false, {
                             fileName: "[project]/apps/marketing/src/app/page.tsx",
-                            lineNumber: 356,
+                            lineNumber: 354,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                    lineNumber: 352,
+                    lineNumber: 350,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -633,12 +631,12 @@ function HomeProductPillars() {
                                             "aria-hidden": "true"
                                         }, void 0, false, {
                                             fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                            lineNumber: 369,
+                                            lineNumber: 367,
                                             columnNumber: 19
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                        lineNumber: 368,
+                                        lineNumber: 366,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
@@ -646,7 +644,7 @@ function HomeProductPillars() {
                                         children: card.title
                                     }, void 0, false, {
                                         fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                        lineNumber: 377,
+                                        lineNumber: 375,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -654,14 +652,14 @@ function HomeProductPillars() {
                                         children: card.body
                                     }, void 0, false, {
                                         fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                        lineNumber: 380,
+                                        lineNumber: 378,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                         className: "mt-6 h-px w-12 bg-[#B07A3E]"
                                     }, void 0, false, {
                                         fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                        lineNumber: 383,
+                                        lineNumber: 381,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("ul", {
@@ -675,25 +673,25 @@ function HomeProductPillars() {
                                                         children: "✓"
                                                     }, void 0, false, {
                                                         fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                                        lineNumber: 390,
+                                                        lineNumber: 388,
                                                         columnNumber: 23
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                         children: bullet
                                                     }, void 0, false, {
                                                         fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                                        lineNumber: 396,
+                                                        lineNumber: 394,
                                                         columnNumber: 23
                                                     }, this)
                                                 ]
                                             }, bullet, true, {
                                                 fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                                lineNumber: 386,
+                                                lineNumber: 384,
                                                 columnNumber: 21
                                             }, this))
                                     }, void 0, false, {
                                         fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                        lineNumber: 384,
+                                        lineNumber: 382,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -707,39 +705,39 @@ function HomeProductPillars() {
                                             className: "h-auto max-h-[360px] w-auto object-contain sm:max-h-[380px] lg:max-h-[410px]"
                                         }, void 0, false, {
                                             fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                            lineNumber: 401,
+                                            lineNumber: 399,
                                             columnNumber: 19
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                        lineNumber: 400,
+                                        lineNumber: 398,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                lineNumber: 367,
+                                lineNumber: 365,
                                 columnNumber: 15
                             }, this)
                         }, card.title, false, {
                             fileName: "[project]/apps/marketing/src/app/page.tsx",
-                            lineNumber: 363,
+                            lineNumber: 361,
                             columnNumber: 13
                         }, this))
                 }, void 0, false, {
                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                    lineNumber: 361,
+                    lineNumber: 359,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/apps/marketing/src/app/page.tsx",
-            lineNumber: 351,
+            lineNumber: 349,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/apps/marketing/src/app/page.tsx",
-        lineNumber: 347,
+        lineNumber: 345,
         columnNumber: 5
     }, this);
 }
@@ -760,20 +758,20 @@ function PhilosophyIcon({ type }) {
                     r: "4"
                 }, void 0, false, {
                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                    lineNumber: 425,
+                    lineNumber: 423,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
                     d: "M4.5 20c.8-4.1 3.3-6.2 7.5-6.2s6.7 2.1 7.5 6.2"
                 }, void 0, false, {
                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                    lineNumber: 426,
+                    lineNumber: 424,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/apps/marketing/src/app/page.tsx",
-            lineNumber: 424,
+            lineNumber: 422,
             columnNumber: 7
         }, this);
     }
@@ -790,20 +788,20 @@ function PhilosophyIcon({ type }) {
                     d: "m12 2 1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8L12 2Z"
                 }, void 0, false, {
                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                    lineNumber: 434,
+                    lineNumber: 432,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
                     d: "m19 3 .6 2.1L22 6l-2.4.9L19 9l-.6-2.1L16 6l2.4-.9L19 3Z"
                 }, void 0, false, {
                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                    lineNumber: 435,
+                    lineNumber: 433,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/apps/marketing/src/app/page.tsx",
-            lineNumber: 433,
+            lineNumber: 431,
             columnNumber: 7
         }, this);
     }
@@ -818,12 +816,12 @@ function PhilosophyIcon({ type }) {
             d: "M20.8 4.9a5.2 5.2 0 0 0-7.4 0L12 6.3l-1.4-1.4a5.2 5.2 0 0 0-7.4 7.4L12 21l8.8-8.7a5.2 5.2 0 0 0 0-7.4Z"
         }, void 0, false, {
             fileName: "[project]/apps/marketing/src/app/page.tsx",
-            lineNumber: 442,
+            lineNumber: 440,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/apps/marketing/src/app/page.tsx",
-        lineNumber: 441,
+        lineNumber: 439,
         columnNumber: 5
     }, this);
 }
@@ -834,7 +832,7 @@ function CheckIcon() {
         children: "✓"
     }, void 0, false, {
         fileName: "[project]/apps/marketing/src/app/page.tsx",
-        lineNumber: 449,
+        lineNumber: 447,
         columnNumber: 5
     }, this);
 }
@@ -847,26 +845,15 @@ function PhilosophyMessage({ index }) {
                     children: "We chose to focus."
                 }, void 0, false, {
                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                    lineNumber: 459,
+                    lineNumber: 457,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                     className: "mt-4 text-sm leading-7 text-[#4F4A45]",
-                    children: [
-                        "Root & Foil is built specifically for independent hair professionals. Not nail techs. Not med spas. Not gyms.",
-                        " ",
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                            className: "font-bold text-brand",
-                            children: "Just yours."
-                        }, void 0, false, {
-                            fileName: "[project]/apps/marketing/src/app/page.tsx",
-                            lineNumber: 462,
-                            columnNumber: 11
-                        }, this)
-                    ]
-                }, void 0, true, {
+                    children: "An intuitive experience that makes running your business and booking with you feel effortless."
+                }, void 0, false, {
                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                    lineNumber: 460,
+                    lineNumber: 458,
                     columnNumber: 9
                 }, this)
             ]
@@ -880,28 +867,26 @@ function PhilosophyMessage({ index }) {
                     children: "Every decision starts with you."
                 }, void 0, false, {
                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                    lineNumber: 471,
+                    lineNumber: 468,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                     className: "mt-4 text-sm leading-7 text-[#4F4A45]",
                     children: [
-                        "We build with one question in mind:",
+                        "Built specifically for independent hair professionals, with the tools, workflows, and insights that actually matter. Nothing generic. Not every appointment business.",
                         " ",
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                             className: "font-bold text-brand",
-                            children: "Will this make it easier to run and grow"
+                            children: "Just yours."
                         }, void 0, false, {
                             fileName: "[project]/apps/marketing/src/app/page.tsx",
-                            lineNumber: 474,
+                            lineNumber: 471,
                             columnNumber: 11
-                        }, this),
-                        " ",
-                        "an independent hair business?"
+                        }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                    lineNumber: 472,
+                    lineNumber: 469,
                     columnNumber: 9
                 }, this)
             ]
@@ -914,27 +899,15 @@ function PhilosophyMessage({ index }) {
                 children: "Our best ideas aren't upgrades."
             }, void 0, false, {
                 fileName: "[project]/apps/marketing/src/app/page.tsx",
-                lineNumber: 483,
+                lineNumber: 479,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                 className: "mt-4 text-sm leading-7 text-[#4F4A45]",
-                children: [
-                    "When Root & Foil gets better, every member gets the",
-                    " ",
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                        className: "font-bold text-brand",
-                        children: "better"
-                    }, void 0, false, {
-                        fileName: "[project]/apps/marketing/src/app/page.tsx",
-                        lineNumber: 486,
-                        columnNumber: 9
-                    }, this),
-                    " product."
-                ]
-            }, void 0, true, {
+                children: "One experience. One price. Every feature. No locked tools or complicated tiers; you always get the full power of Root & Foil."
+            }, void 0, false, {
                 fileName: "[project]/apps/marketing/src/app/page.tsx",
-                lineNumber: 484,
+                lineNumber: 480,
                 columnNumber: 7
             }, this)
         ]
@@ -960,27 +933,27 @@ function HomePricing({ onJoinWaitlist }) {
                                     children: "Foil"
                                 }, void 0, false, {
                                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                    lineNumber: 500,
+                                    lineNumber: 495,
                                     columnNumber: 28
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/apps/marketing/src/app/page.tsx",
-                            lineNumber: 499,
+                            lineNumber: 494,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                             className: "mx-auto mt-5 max-w-[780px] text-[15px] leading-7 text-[#4F4A45] sm:text-base",
-                            children: "We chose to focus."
+                            children: "All the power; None of the bloat"
                         }, void 0, false, {
                             fileName: "[project]/apps/marketing/src/app/page.tsx",
-                            lineNumber: 502,
+                            lineNumber: 497,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                    lineNumber: 498,
+                    lineNumber: 493,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -994,12 +967,12 @@ function HomePricing({ onJoinWaitlist }) {
                                         type: item.icon
                                     }, void 0, false, {
                                         fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                        lineNumber: 511,
+                                        lineNumber: 506,
                                         columnNumber: 17
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                    lineNumber: 510,
+                                    lineNumber: 505,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1008,23 +981,23 @@ function HomePricing({ onJoinWaitlist }) {
                                         index: index
                                     }, void 0, false, {
                                         fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                        lineNumber: 514,
+                                        lineNumber: 509,
                                         columnNumber: 17
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                    lineNumber: 513,
+                                    lineNumber: 508,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, item.label, true, {
                             fileName: "[project]/apps/marketing/src/app/page.tsx",
-                            lineNumber: 509,
+                            lineNumber: 504,
                             columnNumber: 13
                         }, this))
                 }, void 0, false, {
                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                    lineNumber: 507,
+                    lineNumber: 502,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1051,12 +1024,12 @@ function HomePricing({ onJoinWaitlist }) {
                                                 type: item.icon
                                             }, void 0, false, {
                                                 fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                                lineNumber: 535,
+                                                lineNumber: 530,
                                                 columnNumber: 46
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                            lineNumber: 535,
+                                            lineNumber: 530,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1064,19 +1037,19 @@ function HomePricing({ onJoinWaitlist }) {
                                             children: item.label
                                         }, void 0, false, {
                                             fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                            lineNumber: 536,
+                                            lineNumber: 531,
                                             columnNumber: 19
                                         }, this)
                                     ]
                                 }, item.label, true, {
                                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                    lineNumber: 525,
+                                    lineNumber: 520,
                                     columnNumber: 17
                                 }, this);
                             })
                         }, void 0, false, {
                             fileName: "[project]/apps/marketing/src/app/page.tsx",
-                            lineNumber: 521,
+                            lineNumber: 516,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("article", {
@@ -1091,12 +1064,12 @@ function HomePricing({ onJoinWaitlist }) {
                                         type: philosophyItems[activePhilosophy].icon
                                     }, void 0, false, {
                                         fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                        lineNumber: 544,
+                                        lineNumber: 539,
                                         columnNumber: 15
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                    lineNumber: 543,
+                                    lineNumber: 538,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1105,12 +1078,12 @@ function HomePricing({ onJoinWaitlist }) {
                                         index: activePhilosophy
                                     }, void 0, false, {
                                         fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                        lineNumber: 547,
+                                        lineNumber: 542,
                                         columnNumber: 15
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                    lineNumber: 546,
+                                    lineNumber: 541,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1121,24 +1094,24 @@ function HomePricing({ onJoinWaitlist }) {
                                             "aria-hidden": "true"
                                         }, item.label, false, {
                                             fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                            lineNumber: 551,
+                                            lineNumber: 546,
                                             columnNumber: 17
                                         }, this))
                                 }, void 0, false, {
                                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                    lineNumber: 549,
+                                    lineNumber: 544,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/apps/marketing/src/app/page.tsx",
-                            lineNumber: 542,
+                            lineNumber: 537,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                    lineNumber: 520,
+                    lineNumber: 515,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1155,7 +1128,7 @@ function HomePricing({ onJoinWaitlist }) {
                                             children: "One straightforward price."
                                         }, void 0, false, {
                                             fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                            lineNumber: 560,
+                                            lineNumber: 555,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1166,7 +1139,7 @@ function HomePricing({ onJoinWaitlist }) {
                                                     children: MONTHLY_PRICE
                                                 }, void 0, false, {
                                                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                                    lineNumber: 562,
+                                                    lineNumber: 557,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1174,20 +1147,20 @@ function HomePricing({ onJoinWaitlist }) {
                                                     children: "/month"
                                                 }, void 0, false, {
                                                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                                    lineNumber: 563,
+                                                    lineNumber: 558,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                            lineNumber: 561,
+                                            lineNumber: 556,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                             className: "mt-6 h-px w-36 bg-[rgba(200,164,107,0.62)]"
                                         }, void 0, false, {
                                             fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                            lineNumber: 565,
+                                            lineNumber: 560,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("ul", {
@@ -1197,31 +1170,31 @@ function HomePricing({ onJoinWaitlist }) {
                                                     children: [
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(CheckIcon, {}, void 0, false, {
                                                             fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                                            lineNumber: 569,
+                                                            lineNumber: 564,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                             children: item
                                                         }, void 0, false, {
                                                             fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                                            lineNumber: 570,
+                                                            lineNumber: 565,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, item, true, {
                                                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                                    lineNumber: 568,
+                                                    lineNumber: 563,
                                                     columnNumber: 19
                                                 }, this))
                                         }, void 0, false, {
                                             fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                            lineNumber: 566,
+                                            lineNumber: 561,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                    lineNumber: 559,
+                                    lineNumber: 554,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1232,7 +1205,7 @@ function HomePricing({ onJoinWaitlist }) {
                                             children: "The tools that help your business grow."
                                         }, void 0, false, {
                                             fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                            lineNumber: 577,
+                                            lineNumber: 572,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1244,42 +1217,42 @@ function HomePricing({ onJoinWaitlist }) {
                                                             children: [
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(CheckIcon, {}, void 0, false, {
                                                                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                                                    lineNumber: 583,
+                                                                    lineNumber: 578,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                     children: feature
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                                                    lineNumber: 584,
+                                                                    lineNumber: 579,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, feature, true, {
                                                             fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                                            lineNumber: 582,
+                                                            lineNumber: 577,
                                                             columnNumber: 23
                                                         }, this))
                                                 }, columnIndex, false, {
                                                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                                    lineNumber: 580,
+                                                    lineNumber: 575,
                                                     columnNumber: 19
                                                 }, this))
                                         }, void 0, false, {
                                             fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                            lineNumber: 578,
+                                            lineNumber: 573,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                    lineNumber: 576,
+                                    lineNumber: 571,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/apps/marketing/src/app/page.tsx",
-                            lineNumber: 558,
+                            lineNumber: 553,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1290,29 +1263,29 @@ function HomePricing({ onJoinWaitlist }) {
                                 children: "Join the waitlist"
                             }, void 0, false, {
                                 fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                lineNumber: 594,
+                                lineNumber: 589,
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/apps/marketing/src/app/page.tsx",
-                            lineNumber: 593,
+                            lineNumber: 588,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                    lineNumber: 557,
+                    lineNumber: 552,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/apps/marketing/src/app/page.tsx",
-            lineNumber: 497,
+            lineNumber: 492,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/apps/marketing/src/app/page.tsx",
-        lineNumber: 496,
+        lineNumber: 491,
         columnNumber: 5
     }, this);
 }
@@ -1442,12 +1415,12 @@ function WaitlistModal({ open, onClose }) {
                     children: "×"
                 }, void 0, false, {
                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                    lineNumber: 759,
+                    lineNumber: 754,
                     columnNumber: 9
                 }, this),
                 submitted ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(WaitlistSuccessState, {}, void 0, false, {
                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                    lineNumber: 770,
+                    lineNumber: 765,
                     columnNumber: 11
                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                     className: "grid lg:grid-cols-[1.02fr_0.98fr]",
@@ -1464,7 +1437,7 @@ function WaitlistModal({ open, onClose }) {
                                     className: "h-9 w-auto object-contain sm:h-12"
                                 }, void 0, false, {
                                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                    lineNumber: 774,
+                                    lineNumber: 769,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
@@ -1478,13 +1451,13 @@ function WaitlistModal({ open, onClose }) {
                                             children: "early access"
                                         }, void 0, false, {
                                             fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                            lineNumber: 787,
+                                            lineNumber: 782,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                    lineNumber: 782,
+                                    lineNumber: 777,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1492,7 +1465,7 @@ function WaitlistModal({ open, onClose }) {
                                     children: "Root & Foil is opening to a small group of independent stylists and barbers before public launch."
                                 }, void 0, false, {
                                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                    lineNumber: 789,
+                                    lineNumber: 784,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1500,7 +1473,7 @@ function WaitlistModal({ open, onClose }) {
                                     children: "Join the list and we'll reach out when we're ready."
                                 }, void 0, false, {
                                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                    lineNumber: 793,
+                                    lineNumber: 788,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("ul", {
@@ -1518,32 +1491,32 @@ function WaitlistModal({ open, onClose }) {
                                                     children: "✓"
                                                 }, void 0, false, {
                                                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                                    lineNumber: 807,
+                                                    lineNumber: 802,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                     children: item
                                                 }, void 0, false, {
                                                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                                    lineNumber: 813,
+                                                    lineNumber: 808,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, item, true, {
                                             fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                            lineNumber: 803,
+                                            lineNumber: 798,
                                             columnNumber: 19
                                         }, this))
                                 }, void 0, false, {
                                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                    lineNumber: 797,
+                                    lineNumber: 792,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     className: "mt-6 h-px w-20 bg-[#D6A85A] sm:mt-9"
                                 }, void 0, false, {
                                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                    lineNumber: 818,
+                                    lineNumber: 813,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1551,13 +1524,13 @@ function WaitlistModal({ open, onClose }) {
                                     children: "Thank you for your interest!"
                                 }, void 0, false, {
                                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                    lineNumber: 819,
+                                    lineNumber: 814,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/apps/marketing/src/app/page.tsx",
-                            lineNumber: 773,
+                            lineNumber: 768,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1567,7 +1540,7 @@ function WaitlistModal({ open, onClose }) {
                                     className: "absolute inset-0 bg-[radial-gradient(circle_at_76%_18%,rgba(214,168,90,0.24),transparent_30%),linear-gradient(160deg,rgba(250,247,242,0.82),rgba(255,255,255,0.96))]"
                                 }, void 0, false, {
                                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                    lineNumber: 825,
+                                    lineNumber: 820,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1595,7 +1568,7 @@ function WaitlistModal({ open, onClose }) {
                                                 }
                                             }, void 0, false, {
                                                 fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                                lineNumber: 828,
+                                                lineNumber: 823,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(WaitlistField, {
@@ -1617,7 +1590,7 @@ function WaitlistModal({ open, onClose }) {
                                                 }
                                             }, void 0, false, {
                                                 fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                                lineNumber: 845,
+                                                lineNumber: 840,
                                                 columnNumber: 19
                                             }, this),
                                             errors.form ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1625,7 +1598,7 @@ function WaitlistModal({ open, onClose }) {
                                                 children: errors.form
                                             }, void 0, false, {
                                                 fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                                lineNumber: 865,
+                                                lineNumber: 860,
                                                 columnNumber: 21
                                             }, this) : null,
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1635,7 +1608,7 @@ function WaitlistModal({ open, onClose }) {
                                                 children: submitting ? "Joining..." : "Join the waitlist"
                                             }, void 0, false, {
                                                 fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                                lineNumber: 870,
+                                                lineNumber: 865,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1643,41 +1616,41 @@ function WaitlistModal({ open, onClose }) {
                                                 children: "We respect your privacy. We'll only use your email for Root & Foil updates."
                                             }, void 0, false, {
                                                 fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                                lineNumber: 878,
+                                                lineNumber: 873,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                        lineNumber: 827,
+                                        lineNumber: 822,
                                         columnNumber: 17
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                    lineNumber: 826,
+                                    lineNumber: 821,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/apps/marketing/src/app/page.tsx",
-                            lineNumber: 824,
+                            lineNumber: 819,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                    lineNumber: 772,
+                    lineNumber: 767,
                     columnNumber: 11
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/apps/marketing/src/app/page.tsx",
-            lineNumber: 752,
+            lineNumber: 747,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/apps/marketing/src/app/page.tsx",
-        lineNumber: 744,
+        lineNumber: 739,
         columnNumber: 5
     }, this);
 }
@@ -1690,7 +1663,7 @@ function WaitlistField({ id, label, value, placeholder, onChange, autoComplete, 
                 children: label
             }, void 0, false, {
                 fileName: "[project]/apps/marketing/src/app/page.tsx",
-                lineNumber: 913,
+                lineNumber: 908,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1705,7 +1678,7 @@ function WaitlistField({ id, label, value, placeholder, onChange, autoComplete, 
                 className: "mt-2 h-12 w-full rounded-[8px] border border-[rgba(176,122,62,0.28)] bg-white px-4 text-sm text-[#111111] shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] outline-none transition placeholder:text-[#8A7E72] focus:border-[#B7793D] focus:ring-4 focus:ring-[#D6A85A]/20"
             }, void 0, false, {
                 fileName: "[project]/apps/marketing/src/app/page.tsx",
-                lineNumber: 919,
+                lineNumber: 914,
                 columnNumber: 7
             }, this),
             error ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1714,13 +1687,13 @@ function WaitlistField({ id, label, value, placeholder, onChange, autoComplete, 
                 children: error
             }, void 0, false, {
                 fileName: "[project]/apps/marketing/src/app/page.tsx",
-                lineNumber: 931,
+                lineNumber: 926,
                 columnNumber: 9
             }, this) : null
         ]
     }, void 0, true, {
         fileName: "[project]/apps/marketing/src/app/page.tsx",
-        lineNumber: 912,
+        lineNumber: 907,
         columnNumber: 5
     }, this);
 }
@@ -1732,7 +1705,7 @@ function WaitlistSuccessState() {
                 className: "absolute -bottom-24 -left-20 h-64 w-64 rounded-full bg-[#D6A85A]/12 blur-3xl"
             }, void 0, false, {
                 fileName: "[project]/apps/marketing/src/app/page.tsx",
-                lineNumber: 942,
+                lineNumber: 937,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1743,7 +1716,7 @@ function WaitlistSuccessState() {
                         children: "✓"
                     }, void 0, false, {
                         fileName: "[project]/apps/marketing/src/app/page.tsx",
-                        lineNumber: 944,
+                        lineNumber: 939,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
@@ -1752,7 +1725,7 @@ function WaitlistSuccessState() {
                         children: "You're on the list!"
                     }, void 0, false, {
                         fileName: "[project]/apps/marketing/src/app/page.tsx",
-                        lineNumber: 947,
+                        lineNumber: 942,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1760,7 +1733,7 @@ function WaitlistSuccessState() {
                         children: "Thanks - we'll be in touch when early access to Root & Foil is ready."
                     }, void 0, false, {
                         fileName: "[project]/apps/marketing/src/app/page.tsx",
-                        lineNumber: 953,
+                        lineNumber: 948,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1769,19 +1742,19 @@ function WaitlistSuccessState() {
                         children: "✉"
                     }, void 0, false, {
                         fileName: "[project]/apps/marketing/src/app/page.tsx",
-                        lineNumber: 956,
+                        lineNumber: 951,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/apps/marketing/src/app/page.tsx",
-                lineNumber: 943,
+                lineNumber: 938,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/apps/marketing/src/app/page.tsx",
-        lineNumber: 941,
+        lineNumber: 936,
         columnNumber: 5
     }, this);
 }
@@ -1795,7 +1768,7 @@ function HomeFooter() {
                     children: [
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(BrandLogo, {}, void 0, false, {
                             fileName: "[project]/apps/marketing/src/app/page.tsx",
-                            lineNumber: 972,
+                            lineNumber: 967,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1803,13 +1776,13 @@ function HomeFooter() {
                             children: "Built for independent beauty pros. Designed to help you grow."
                         }, void 0, false, {
                             fileName: "[project]/apps/marketing/src/app/page.tsx",
-                            lineNumber: 973,
+                            lineNumber: 968,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                    lineNumber: 971,
+                    lineNumber: 966,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1821,7 +1794,7 @@ function HomeFooter() {
                                     children: group.title
                                 }, void 0, false, {
                                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                    lineNumber: 981,
+                                    lineNumber: 976,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("ul", {
@@ -1833,28 +1806,28 @@ function HomeFooter() {
                                                 children: link.label
                                             }, void 0, false, {
                                                 fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                                lineNumber: 987,
+                                                lineNumber: 982,
                                                 columnNumber: 21
                                             }, this)
                                         }, link.label, false, {
                                             fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                            lineNumber: 986,
+                                            lineNumber: 981,
                                             columnNumber: 19
                                         }, this))
                                 }, void 0, false, {
                                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                                    lineNumber: 984,
+                                    lineNumber: 979,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, group.title, true, {
                             fileName: "[project]/apps/marketing/src/app/page.tsx",
-                            lineNumber: 980,
+                            lineNumber: 975,
                             columnNumber: 13
                         }, this))
                 }, void 0, false, {
                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                    lineNumber: 978,
+                    lineNumber: 973,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1863,25 +1836,25 @@ function HomeFooter() {
                         "© 2026 Root & Foil",
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("br", {}, void 0, false, {
                             fileName: "[project]/apps/marketing/src/app/page.tsx",
-                            lineNumber: 1002,
+                            lineNumber: 997,
                             columnNumber: 11
                         }, this),
                         "All rights reserved."
                     ]
                 }, void 0, true, {
                     fileName: "[project]/apps/marketing/src/app/page.tsx",
-                    lineNumber: 1000,
+                    lineNumber: 995,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/apps/marketing/src/app/page.tsx",
-            lineNumber: 970,
+            lineNumber: 965,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/apps/marketing/src/app/page.tsx",
-        lineNumber: 969,
+        lineNumber: 964,
         columnNumber: 5
     }, this);
 }
@@ -1896,24 +1869,24 @@ function HomePage() {
                 onJoinWaitlist: openWaitlist
             }, void 0, false, {
                 fileName: "[project]/apps/marketing/src/app/page.tsx",
-                lineNumber: 1017,
+                lineNumber: 1012,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(HomeProductPillars, {}, void 0, false, {
                 fileName: "[project]/apps/marketing/src/app/page.tsx",
-                lineNumber: 1018,
+                lineNumber: 1013,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(HomePricing, {
                 onJoinWaitlist: openWaitlist
             }, void 0, false, {
                 fileName: "[project]/apps/marketing/src/app/page.tsx",
-                lineNumber: 1019,
+                lineNumber: 1014,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(HomeFooter, {}, void 0, false, {
                 fileName: "[project]/apps/marketing/src/app/page.tsx",
-                lineNumber: 1020,
+                lineNumber: 1015,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(WaitlistModal, {
@@ -1921,13 +1894,13 @@ function HomePage() {
                 onClose: closeWaitlist
             }, void 0, false, {
                 fileName: "[project]/apps/marketing/src/app/page.tsx",
-                lineNumber: 1021,
+                lineNumber: 1016,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/apps/marketing/src/app/page.tsx",
-        lineNumber: 1016,
+        lineNumber: 1011,
         columnNumber: 5
     }, this);
 }

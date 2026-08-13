@@ -20,12 +20,11 @@ const productPillars = [
     title: "Stay booked.",
     body: "Make it effortless for clients to book and keep coming back",
     bullets: [
-      "Online booking that’s always open",
-      "Automated reminders that reduce no-shows",
-      "Waitlist support to fill last-minute openings",
-      "Re-book nudges to keep clients coming back",
+      "24/7 online booking that works around your schedule.",
+      "Automated reminders to reduce no-shows",
+      "Smart outreach nudges + waitlists to keep your chair full",
     ],
-    screenshot: "/assets/home/root-and-foil-phone-calendar.png",
+    screenshot: "/assets/home/root-foil-calendar-iphone-refined.png",
     alt: "Root & Foil calendar screen showing appointments, open time, and booking controls",
   },
   {
@@ -33,32 +32,31 @@ const productPillars = [
     title: "Remember every client.",
     body: "Give every client a personal, consistent experience",
     bullets: [
-      "Client notes, preferences, and service history",
-      "Color formulas for roots, toners, lighteners, developers, and more",
-      "Before-and-after photos tied to each client",
-      "Appointment history and rebooking patterns",
+      "Notes, preferences, photos + complete service history",
+      "Color formulas saved to each client profile",
+      "Appointment history and rebooking patterns at a glance",
     ],
-    screenshot: "/assets/home/root-and-foil-phone-clients.png",
+    screenshot: "/assets/home/root-foil-clients-iphone-refined.png",
     alt: "Root & Foil clients screen showing client list, notes, and client history",
   },
   {
     icon: "/assets/icons/icon-analytics-bronze.svg",
-    title: "Grow with clarity",
+    title: "Grow with clarity.",
     body: "Understand your client behavior and trends so you can grow with confidence.",
     bullets: [
-      "Revenue, retention, and re-booking at a glance",
-      "Average ticket, top services, and add-ons",
-      "Trends and insights to guide your next move",
+      "Client insights — retention, rebooking, and visit patterns",
+      "Revenue insights — average ticket, top services, and trends",
+      "Scheduling insights — booking patterns, gaps, and opportunities",
     ],
-    screenshot: "/assets/home/root-and-foil-phone-insights.png",
+    screenshot: "/assets/home/root-foil-insights-iphone-refined.png",
     alt: "Root & Foil dashboard screen showing business snapshot and revenue insights",
   },
 ];
 
 const philosophyItems = [
-  { label: "Focused", icon: "user" },
+  { label: "Simple", icon: "user" },
   { label: "Tailored", icon: "sparkle" },
-  { label: "Included", icon: "heart" },
+  { label: "All-Access", icon: "heart" },
 ] as const;
 
 const corePricingItems = [
@@ -458,8 +456,7 @@ function PhilosophyMessage({ index }: { index: number }) {
       <>
         <h3 className="font-display text-[27px] font-bold leading-[1.05] text-[#111111] sm:text-[30px]">We chose to focus.</h3>
         <p className="mt-4 text-sm leading-7 text-[#4F4A45]">
-          Root &amp; Foil is built specifically for independent hair professionals. Not nail techs. Not med spas. Not gyms.{" "}
-          <span className="font-bold text-brand">Just yours.</span>
+          An intuitive experience that makes running your business and booking with you feel effortless.
         </p>
       </>
     );
@@ -470,9 +467,8 @@ function PhilosophyMessage({ index }: { index: number }) {
       <>
         <h3 className="font-display text-[27px] font-bold leading-[1.05] text-[#111111] sm:text-[30px]">Every decision starts with you.</h3>
         <p className="mt-4 text-sm leading-7 text-[#4F4A45]">
-          We build with one question in mind:{" "}
-          <span className="font-bold text-brand">Will this make it easier to run and grow</span>{" "}
-          an independent hair business?
+          Built specifically for independent hair professionals, with the tools, workflows, and insights that actually matter. Nothing generic. Not every appointment business.{" "}
+          <span className="font-bold text-brand">Just yours.</span>
         </p>
       </>
     );
@@ -482,8 +478,7 @@ function PhilosophyMessage({ index }: { index: number }) {
     <>
       <h3 className="font-display text-[27px] font-bold leading-[1.05] text-[#111111] sm:text-[30px]">Our best ideas aren&apos;t upgrades.</h3>
       <p className="mt-4 text-sm leading-7 text-[#4F4A45]">
-        When Root &amp; Foil gets better, every member gets the{" "}
-        <span className="font-bold text-brand">better</span> product.
+        One experience. One price. Every feature. No locked tools or complicated tiers; you always get the full power of Root &amp; Foil.
       </p>
     </>
   );
@@ -500,7 +495,7 @@ function HomePricing({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
             Why Root &amp; <span className="text-brand">Foil</span>
           </h2>
           <p className="mx-auto mt-5 max-w-[780px] text-[15px] leading-7 text-[#4F4A45] sm:text-base">
-            We chose to focus.
+            All the power. None of the bloat.
           </p>
         </div>
 
