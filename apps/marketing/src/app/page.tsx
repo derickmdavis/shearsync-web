@@ -601,7 +601,7 @@ type WaitlistErrors = {
   form?: string;
 };
 
-function WaitlistModal({
+export function WaitlistModal({
   open,
   onClose,
 }: {
@@ -771,7 +771,7 @@ function WaitlistModal({
                 width={1536}
                 height={1024}
                 aria-hidden="true"
-                className="h-9 w-auto object-contain sm:h-12"
+                className="h-[6.75rem] w-auto object-contain sm:h-36"
               />
               <h2
                 id="waitlist-title"

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { type ReactNode, useState } from "react";
+import { WaitlistModal } from "@/src/app/page";
 import { getWebAppUrl } from "@/src/lib/urls";
 
 const loginHref = getWebAppUrl("/login");
@@ -96,11 +97,13 @@ const footerGroups = [
 
 function BarberButton({
   href,
+  onClick,
   children,
   variant = "primary",
   className = "",
 }: {
-  href: string;
+  href?: string;
+  onClick?: () => void;
   children: ReactNode;
   variant?: "primary" | "secondary" | "nav";
   className?: string;
@@ -113,14 +116,24 @@ function BarberButton({
     nav: "border border-brand bg-gradient-to-b from-[#C9823F] to-brand text-white hover:border-brand-gold hover:from-brand-gold hover:to-brand",
   };
 
+  const classNameValue = [
+    "inline-flex h-11 items-center justify-center rounded-[8px] px-6 text-sm font-extrabold transition-colors focus:outline-none focus:ring-2 focus:ring-brand-gold/45 focus:ring-offset-2 focus:ring-offset-[#111111]",
+    styles[variant],
+    className,
+  ].join(" ");
+
+  if (onClick) {
+    return (
+      <button type="button" onClick={onClick} className={classNameValue}>
+        {children}
+      </button>
+    );
+  }
+
   return (
     <Link
-      href={href}
-      className={[
-        "inline-flex h-11 items-center justify-center rounded-[8px] px-6 text-sm font-extrabold transition-colors focus:outline-none focus:ring-2 focus:ring-brand-gold/45 focus:ring-offset-2 focus:ring-offset-[#111111]",
-        styles[variant],
-        className,
-      ].join(" ")}
+      href={href ?? "#"}
+      className={classNameValue}
     >
       {children}
     </Link>
@@ -146,7 +159,7 @@ function BarberLogo({ className = "" }: { className?: string }) {
   );
 }
 
-function BarberNav() {
+function BarberNav({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -179,7 +192,7 @@ function BarberNav() {
 
       <div className="ml-auto flex items-center gap-2 lg:ml-8">
         <BarberButton
-          href={signUpHref}
+          onClick={onJoinWaitlist}
           variant="nav"
           className="h-9 px-3 text-xs sm:px-4 lg:h-10 lg:px-5 lg:text-sm"
         >
@@ -243,14 +256,14 @@ function PhoneScreenshot({
   );
 }
 
-function BarberHero() {
+function BarberHero({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
   return (
     <section
       id="top"
       className="relative isolate overflow-hidden bg-[#111111] text-white"
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_18%,rgba(214,168,90,0.2),transparent_28%),linear-gradient(110deg,#050505_0%,#111111_44%,#1C1C1E_100%)]" />
-      <BarberNav />
+      <BarberNav onJoinWaitlist={onJoinWaitlist} />
 
       <div className="relative z-10 mx-auto grid max-w-[1180px] gap-8 px-5 pb-14 pt-7 sm:px-8 lg:min-h-[610px] lg:grid-cols-[0.86fr_1.14fr] lg:items-center lg:pb-0 lg:pt-0">
         <div className="max-w-[640px] lg:pb-8">
@@ -281,7 +294,7 @@ function BarberHero() {
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <BarberButton href={signUpHref} className="w-full sm:w-auto">
+            <BarberButton onClick={onJoinWaitlist} className="w-full sm:w-auto">
               Join Waitlist
             </BarberButton>
             <BarberButton
@@ -427,7 +440,7 @@ function BarberCommandCenter() {
   );
 }
 
-function BarberPricing() {
+function BarberPricing({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
   const [active, setActive] = useState(0);
   const messages = [
     <><h3>The simpler way to run your business.</h3><p>An intuitive experience that makes running your business and booking with you feel effortless.</p></>,
@@ -439,7 +452,7 @@ function BarberPricing() {
       <div className="mx-auto max-w-[860px] text-center"><h2 className="font-display text-[38px] font-bold leading-[1.02] text-[#FAF7F2] sm:text-[48px] lg:text-[56px]">Why Root &amp; <span className="text-brand-gold">Foil</span></h2><p className="mx-auto mt-5 max-w-[780px] text-[15px] leading-7 text-white/66 sm:text-base">All the power. None of the bloat.</p></div>
       <div className="mt-12 hidden lg:grid lg:grid-cols-3 lg:divide-x lg:divide-brand/35">{messages.map((message,index)=><article key={index} className="px-10 text-center first:pl-0 last:pr-0"><div className="mx-auto grid h-[82px] w-[82px] place-items-center rounded-full border border-brand/25 bg-brand/10 text-3xl text-brand-gold">{["♙","✦","♡"][index]}</div><div className="mx-auto mt-6 max-w-[270px] [&_h3]:font-display [&_h3]:text-[27px] [&_h3]:font-bold [&_h3]:text-[#FAF7F2] [&_p]:mt-4 [&_p]:text-sm [&_p]:leading-7 [&_p]:text-white/66 [&_strong]:text-brand-gold">{message}</div></article>)}</div>
       <div className="mt-9 lg:hidden"><div className="grid grid-cols-3 rounded-full border border-brand/45 p-1" role="tablist">{philosophyItems.map((item,index)=><button key={item.label} type="button" role="tab" aria-selected={active===index} onClick={()=>setActive(index)} className={`min-h-12 rounded-full px-1 text-[10px] font-semibold whitespace-nowrap ${active===index?"border border-brand/45 bg-[#1C1C1E] text-brand-gold":"text-white/72"}`}>{item.label}</button>)}</div><article className="mt-5 rounded-[20px] border border-brand/30 bg-[#141414] px-6 py-8 text-center [&_h3]:font-display [&_h3]:text-[27px] [&_h3]:font-bold [&_h3]:text-[#FAF7F2] [&_p]:mt-4 [&_p]:text-sm [&_p]:leading-7 [&_p]:text-white/66 [&_strong]:text-brand-gold">{messages[active]}<div className="mt-6 flex justify-center gap-3">{philosophyItems.map((item,index)=><span key={item.label} className={`h-2 w-2 rounded-full ${index===active?"bg-brand-gold":"bg-white/20"}`}/>)}</div></article></div>
-      <div className="mt-12 overflow-hidden rounded-[18px] border border-brand/45 bg-[#141414] sm:mt-16"><div className="grid lg:grid-cols-[0.86fr_1.14fr]"><div className="px-6 py-8 sm:px-10 sm:py-10 lg:px-12 lg:py-12"><h2 className="whitespace-nowrap font-display text-[clamp(26px,7.5vw,34px)] font-bold text-[#FAF7F2] sm:text-[42px]">One straightforward price.</h2><div className="mt-6 flex items-end gap-2"><span className="font-display text-[68px] font-bold leading-none text-brand-gold sm:text-[82px]">{MONTHLY_PRICE}</span><span className="pb-2 font-bold">/month</span></div><div className="mt-6 h-px w-36 bg-brand/70"/><ul className="mt-7 grid gap-4">{corePricingItems.map(item=><li key={item} className="flex gap-3 text-sm text-white/74"><span className="text-brand-gold">✓</span>{item}</li>)}</ul></div><div className="border-t border-brand/30 px-6 py-8 sm:px-10 sm:py-10 lg:border-l lg:border-t-0 lg:px-12 lg:py-12"><h3 className="font-display text-[28px] font-bold text-[#FAF7F2] sm:text-[34px]">The tools that help your business grow.</h3><div className="mt-7 grid grid-cols-2 gap-x-4 sm:gap-x-8">{includedFeatureColumns.map((column,i)=><ul key={i} className="grid content-start gap-4">{column.map(feature=><li key={feature} className="flex gap-2 text-[11px] leading-5 text-white/72 sm:text-sm"><span className="text-brand-gold">✓</span>{feature}</li>)}</ul>)}</div></div></div><div className="px-6 pb-8 sm:px-10 sm:pb-10 lg:pb-12"><BarberButton href={signUpHref} className="h-14 w-full !border-black !bg-black !text-base !text-white hover:!bg-[#2A2522] sm:mx-auto sm:w-[352px]">Join the waitlist</BarberButton></div></div>
+      <div className="mt-12 overflow-hidden rounded-[18px] border border-brand/45 bg-[#141414] sm:mt-16"><div className="grid lg:grid-cols-[0.86fr_1.14fr]"><div className="px-6 py-8 sm:px-10 sm:py-10 lg:px-12 lg:py-12"><h2 className="whitespace-nowrap font-display text-[clamp(26px,7.5vw,34px)] font-bold text-[#FAF7F2] sm:text-[42px]">One straightforward price.</h2><div className="mt-6 flex items-end gap-2"><span className="font-display text-[68px] font-bold leading-none text-brand-gold sm:text-[82px]">{MONTHLY_PRICE}</span><span className="pb-2 font-bold">/month</span></div><div className="mt-6 h-px w-36 bg-brand/70"/><ul className="mt-7 grid gap-4">{corePricingItems.map(item=><li key={item} className="flex gap-3 text-sm text-white/74"><span className="text-brand-gold">✓</span>{item}</li>)}</ul></div><div className="border-t border-brand/30 px-6 py-8 sm:px-10 sm:py-10 lg:border-l lg:border-t-0 lg:px-12 lg:py-12"><h3 className="font-display text-[28px] font-bold text-[#FAF7F2] sm:text-[34px]">The tools that help your business grow.</h3><div className="mt-7 grid grid-cols-2 gap-x-4 sm:gap-x-8">{includedFeatureColumns.map((column,i)=><ul key={i} className="grid content-start gap-4">{column.map(feature=><li key={feature} className="flex gap-2 text-[11px] leading-5 text-white/72 sm:text-sm"><span className="text-brand-gold">✓</span>{feature}</li>)}</ul>)}</div></div></div><div className="px-6 pb-8 sm:px-10 sm:pb-10 lg:pb-12"><BarberButton onClick={onJoinWaitlist} className="h-14 w-full !border-black !bg-black !text-base !text-white hover:!bg-[#2A2522] sm:mx-auto sm:w-[352px]">Join the waitlist</BarberButton></div></div>
     </div></section>
   );
 }
@@ -520,12 +533,15 @@ function BarberFooter() {
 }
 
 export default function BarberLandingPage() {
+  const [waitlistOpen, setWaitlistOpen] = useState(false);
+
   return (
     <main className="min-h-screen bg-[#111111] text-white">
-      <BarberHero />
+      <BarberHero onJoinWaitlist={() => setWaitlistOpen(true)} />
       <BarberValueCards />
-      <BarberPricing />
+      <BarberPricing onJoinWaitlist={() => setWaitlistOpen(true)} />
       <BarberFooter />
+      <WaitlistModal open={waitlistOpen} onClose={() => setWaitlistOpen(false)} />
     </main>
   );
 }
