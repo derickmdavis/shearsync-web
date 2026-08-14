@@ -118,7 +118,7 @@ export default function AboutPage() {
           <div className="mt-10 grid gap-8 border-t border-[rgba(200,164,107,0.45)] pt-8 sm:grid-cols-[1fr_1.2fr] sm:gap-12">
             <div>
               <p className="text-xs font-extrabold uppercase tracking-[0.16em] text-[#8A5528]">
-                Founder
+                Founders
               </p>
               <p className="mt-3 text-base leading-7 text-[#4F4A45]">
                 Derick &amp; Katie Davis are the founders and operators of Root

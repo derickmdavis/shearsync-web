@@ -195,8 +195,6 @@ function BrandLogo({ className = "" }: { className?: string }) {
 }
 
 function HomeNav({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
-  const [menuOpen, setMenuOpen] = useState(false);
-
   return (
     <nav
       className="relative z-20 mx-auto flex h-[76px] max-w-[1180px] items-center justify-between px-5 sm:px-8 lg:h-[84px]"
@@ -204,28 +202,7 @@ function HomeNav({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
     >
       <BrandLogo className="lg:hidden" />
 
-      <div className="ml-auto hidden items-center gap-8 lg:flex">
-        <Link
-          href="#product"
-          className="font-display text-sm font-semibold text-[#1F1A17] transition-colors hover:text-brand"
-        >
-          Product
-        </Link>
-        <Link
-          href="#pricing"
-          className="font-display text-sm font-semibold text-[#1F1A17] transition-colors hover:text-brand"
-        >
-          Pricing
-        </Link>
-        <Link
-          href={loginHref}
-          className="font-display text-sm font-semibold text-[#1F1A17] transition-colors hover:text-brand"
-        >
-          Login
-        </Link>
-      </div>
-
-      <div className="ml-auto flex items-center gap-2 lg:ml-8">
+      <div className="ml-auto flex items-center">
         <MarketingButton
           onClick={onJoinWaitlist}
           variant="nav"
@@ -233,33 +210,7 @@ function HomeNav({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
         >
           Join Waitlist
         </MarketingButton>
-        <button
-          type="button"
-          aria-label={menuOpen ? "Close navigation" : "Open navigation"}
-          aria-expanded={menuOpen}
-          aria-controls="home-mobile-navigation"
-          onClick={() => setMenuOpen((open) => !open)}
-          className="inline-flex h-11 w-11 items-center justify-center rounded-md text-[#1F1A17] transition-colors hover:bg-black/5 focus:outline-none focus:ring-2 focus:ring-brand/35 lg:hidden"
-        >
-          <span className="sr-only">Menu</span>
-          <span className="grid gap-1.5" aria-hidden="true">
-            <span className="h-0.5 w-5 bg-current" />
-            <span className="h-0.5 w-5 bg-current" />
-            <span className="h-0.5 w-5 bg-current" />
-          </span>
-        </button>
       </div>
-
-      {menuOpen && (
-        <div
-          id="home-mobile-navigation"
-          className="absolute left-5 right-5 top-[68px] grid rounded-lg border border-[#C8A46B]/55 bg-[#FFFDF8] p-3 shadow-[0_18px_42px_rgba(17,17,17,0.14)] sm:left-8 sm:right-8 lg:hidden"
-        >
-          <Link href="#product" onClick={() => setMenuOpen(false)} className="rounded-md px-4 py-3 font-display text-sm font-semibold text-[#1F1A17] hover:bg-[#F6F1E8]">Product</Link>
-          <Link href="#pricing" onClick={() => setMenuOpen(false)} className="rounded-md px-4 py-3 font-display text-sm font-semibold text-[#1F1A17] hover:bg-[#F6F1E8]">Pricing</Link>
-          <Link href={loginHref} onClick={() => setMenuOpen(false)} className="rounded-md px-4 py-3 font-display text-sm font-semibold text-[#1F1A17] hover:bg-[#F6F1E8]">Login</Link>
-        </div>
-      )}
     </nav>
   );
 }

@@ -160,8 +160,6 @@ function BarberLogo({ className = "" }: { className?: string }) {
 }
 
 function BarberNav({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
-  const [menuOpen, setMenuOpen] = useState(false);
-
   return (
     <nav
       className="relative z-20 mx-auto flex h-[76px] max-w-[1180px] items-center justify-between px-5 sm:px-8 lg:h-[84px]"
@@ -169,28 +167,7 @@ function BarberNav({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
     >
       <BarberLogo className="lg:hidden" />
 
-      <div className="ml-auto hidden items-center gap-8 lg:flex">
-        <Link
-          href="#features"
-          className="text-sm font-extrabold text-white/84 transition-colors hover:text-brand-gold"
-        >
-          Product
-        </Link>
-        <Link
-          href="#pricing"
-          className="text-sm font-extrabold text-white/84 transition-colors hover:text-brand-gold"
-        >
-          Pricing
-        </Link>
-        <Link
-          href={loginHref}
-          className="text-sm font-extrabold text-white/84 transition-colors hover:text-brand-gold"
-        >
-          Login
-        </Link>
-      </div>
-
-      <div className="ml-auto flex items-center gap-2 lg:ml-8">
+      <div className="ml-auto flex items-center">
         <BarberButton
           onClick={onJoinWaitlist}
           variant="nav"
@@ -198,33 +175,7 @@ function BarberNav({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
         >
           Join Waitlist
         </BarberButton>
-        <button
-          type="button"
-          aria-label={menuOpen ? "Close navigation" : "Open navigation"}
-          aria-expanded={menuOpen}
-          aria-controls="barber-mobile-navigation"
-          onClick={() => setMenuOpen((open) => !open)}
-          className="inline-flex h-11 w-11 items-center justify-center rounded-md text-white transition-colors hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-brand-gold/45 lg:hidden"
-        >
-          <span className="sr-only">Menu</span>
-          <span className="grid gap-1.5" aria-hidden="true">
-            <span className="h-0.5 w-5 bg-current" />
-            <span className="h-0.5 w-5 bg-current" />
-            <span className="h-0.5 w-5 bg-current" />
-          </span>
-        </button>
       </div>
-
-      {menuOpen && (
-        <div
-          id="barber-mobile-navigation"
-          className="absolute left-5 right-5 top-[68px] grid rounded-lg border border-[#C8A46B]/55 bg-[#FFFDF8] p-3 shadow-[0_18px_42px_rgba(0,0,0,0.38)] sm:left-8 sm:right-8 lg:hidden"
-        >
-          <Link href="#features" onClick={() => setMenuOpen(false)} className="rounded-md px-4 py-3 text-sm font-extrabold text-[#1F1A17] hover:bg-[#F6F1E8]">Product</Link>
-          <Link href="#pricing" onClick={() => setMenuOpen(false)} className="rounded-md px-4 py-3 text-sm font-extrabold text-[#1F1A17] hover:bg-[#F6F1E8]">Pricing</Link>
-          <Link href={loginHref} onClick={() => setMenuOpen(false)} className="rounded-md px-4 py-3 text-sm font-extrabold text-[#1F1A17] hover:bg-[#F6F1E8]">Login</Link>
-        </div>
-      )}
     </nav>
   );
 }
