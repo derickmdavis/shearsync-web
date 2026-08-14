@@ -766,10 +766,10 @@ function WaitlistModal({
           <div className="grid lg:grid-cols-[1.02fr_0.98fr]">
             <div className="relative overflow-hidden bg-[radial-gradient(circle_at_18%_8%,rgba(214,168,90,0.25),transparent_32%),linear-gradient(145deg,#FFFDF8_0%,#FAF7F2_100%)] px-5 pb-6 pt-14 sm:px-10 sm:py-9 lg:px-12 lg:py-12">
               <Image
-                src="/assets/brand/root-and-foil-chair-mark.png"
+                src="/assets/brand/root-foil-waitlist-logo.png"
                 alt=""
-                width={416}
-                height={473}
+                width={1536}
+                height={1024}
                 aria-hidden="true"
                 className="h-9 w-auto object-contain sm:h-12"
               />
