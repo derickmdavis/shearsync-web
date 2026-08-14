@@ -777,41 +777,15 @@ function WaitlistModal({
                 id="waitlist-title"
                 className="mt-5 max-w-[360px] font-display text-[38px] font-bold leading-[0.95] tracking-normal text-[#111111] sm:mt-7 sm:text-[58px]"
               >
-                Request{" "}
-                <span className="text-[#B7793D]">early access</span>
+                Get <span className="text-[#B7793D]">early access</span>
               </h2>
               <p className="mt-4 max-w-[420px] text-sm leading-6 text-[#4F4A45] sm:mt-6 sm:text-[15px] sm:leading-7">
-                Root & Foil is opening to a small group of independent stylists
-                and barbers before public launch.
+                Root & Foil is opening first to a small group of independent
+                stylists and barbers.
               </p>
-              <p className="mt-3 max-w-[420px] text-sm font-bold leading-6 text-[#1C1C1E] sm:mt-4">
-                Join the list and we&apos;ll reach out when we&apos;re ready.
-              </p>
-
-              <ul className="mt-5 grid gap-3 sm:mt-8 sm:gap-4">
-                {[
-                  "Built for independent stylists & barbers",
-                  "Simple to use. Powerful results.",
-                  "Be among the first to get access",
-                ].map((item) => (
-                  <li
-                    key={item}
-                    className="flex items-start gap-3 text-sm font-bold leading-5 text-[#4F4A45] sm:items-center"
-                  >
-                    <span
-                      aria-hidden="true"
-                      className="grid h-6 w-6 shrink-0 place-items-center rounded-full border border-[#D6A85A] bg-[#D6A85A]/15 text-sm leading-none text-[#B7793D]"
-                    >
-                      ✓
-                    </span>
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <div className="mt-6 h-px w-20 bg-[#D6A85A] sm:mt-9" />
-              <p className="mt-3 text-xs font-extrabold uppercase tracking-[0.16em] text-[#B7793D] sm:mt-4">
-                Thank you for your interest!
+              <p className="mt-3 max-w-[420px] text-sm leading-6 text-[#4F4A45] sm:mt-4 sm:text-[15px] sm:leading-7">
+                Be among the first to experience a simpler way to book, manage,
+                and grow your business.
               </p>
             </div>
 
@@ -866,12 +840,11 @@ function WaitlistModal({
                     disabled={submitting}
                     className="mt-1 inline-flex h-12 w-full items-center justify-center rounded-[8px] border border-[rgba(138,85,40,0.65)] bg-gradient-to-b from-[#C98A44] via-[#B07A3E] to-[#A96A32] px-6 font-display text-sm font-semibold text-white shadow-[0_18px_38px_rgba(176,122,62,0.20)] transition hover:border-brand-dark hover:from-[#B97939] hover:to-[#996534] focus:outline-none focus:ring-2 focus:ring-brand/35 focus:ring-offset-2 focus:ring-offset-[#FFFDF8] disabled:cursor-not-allowed disabled:opacity-70"
                   >
-                    {submitting ? "Joining..." : "Join the waitlist"}
+                    {submitting ? "Joining..." : "GET EARLY ACCESS"}
                   </button>
 
                   <p className="text-center text-xs leading-5 text-[#6B7280]">
-                    We respect your privacy. We&apos;ll only use your email for
-                    Root & Foil updates.
+                    We&apos;ll be in touch when early access opens.
                   </p>
                 </form>
               </div>

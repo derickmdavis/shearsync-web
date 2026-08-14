@@ -42,7 +42,18 @@ describe("HomePage waitlist modal", () => {
 
     expect(screen.getByRole("dialog")).toBeTruthy();
     expect(
-      screen.getByText("Join the list and we'll reach out when we're ready."),
+      screen.getByText(
+        "Root & Foil is opening first to a small group of independent stylists and barbers.",
+      ),
+    ).toBeTruthy();
+    expect(
+      screen.getByText(
+        "Be among the first to experience a simpler way to book, manage, and grow your business.",
+      ),
+    ).toBeTruthy();
+    expect(screen.getByRole("button", { name: "GET EARLY ACCESS" })).toBeTruthy();
+    expect(
+      screen.getByText("We'll be in touch when early access opens."),
     ).toBeTruthy();
     expect(screen.queryByText("Private beta")).toBeNull();
     expect(screen.queryByText(/No account is created/i)).toBeNull();
