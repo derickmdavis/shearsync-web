@@ -8,18 +8,22 @@
   "scripts": {
     "dev:marketing": "npm run dev --workspace=@rootfoil/marketing",
     "dev:web": "npm run dev --workspace=@rootfoil/web",
+    "dev:ops": "npm run dev --workspace=@rootfoil/ops",
     "build:marketing": "npm run build --workspace=@rootfoil/marketing",
     "build:web": "npm run build --workspace=@rootfoil/web",
+    "build:ops": "npm run build --workspace=@rootfoil/ops",
     "lint:marketing": "npm run lint --workspace=@rootfoil/marketing",
     "lint:web": "npm run lint --workspace=@rootfoil/web",
+    "lint:ops": "npm run lint --workspace=@rootfoil/ops",
     "test:marketing": "npm run test --workspace=@rootfoil/marketing",
     "test:web": "npm run test --workspace=@rootfoil/web",
     "typecheck:marketing": "npm run typecheck --workspace=@rootfoil/marketing",
     "typecheck:web": "npm run typecheck --workspace=@rootfoil/web",
-    "build": "npm run build:marketing && npm run build:web",
-    "lint": "npm run lint:marketing && npm run lint:web",
+    "typecheck:ops": "npm run typecheck --workspace=@rootfoil/ops",
+    "build": "npm run build:marketing && npm run build:web && npm run build:ops",
+    "lint": "npm run lint:marketing && npm run lint:web && npm run lint:ops",
     "test": "npm run test:marketing && npm run test:web",
-    "typecheck": "npm run typecheck:marketing && npm run typecheck:web"
+    "typecheck": "npm run typecheck:marketing && npm run typecheck:web && npm run typecheck:ops"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
