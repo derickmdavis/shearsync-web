@@ -54,6 +54,12 @@
       "namedRegex": "^/automations(?:/)?$"
     },
     {
+      "page": "/content",
+      "regex": "^/content(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/content(?:/)?$"
+    },
+    {
       "page": "/health",
       "regex": "^/health(?:/)?$",
       "routeKeys": {},
@@ -82,6 +88,12 @@
       "regex": "^/settings(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/settings(?:/)?$"
+    },
+    {
+      "page": "/support",
+      "regex": "^/support(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/support(?:/)?$"
     }
   ],
   "dataRoutes": [],

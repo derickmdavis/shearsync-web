@@ -3,10 +3,12 @@
   "/_not-found/page": "/_not-found",
   "/accounts/page": "/accounts",
   "/automations/page": "/automations",
+  "/content/page": "/content",
   "/health/page": "/health",
   "/insights/page": "/insights",
   "/messaging/page": "/messaging",
   "/page": "/",
   "/revenue/page": "/revenue",
-  "/settings/page": "/settings"
+  "/settings/page": "/settings",
+  "/support/page": "/support"
 }
