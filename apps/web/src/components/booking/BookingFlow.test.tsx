@@ -605,7 +605,75 @@ describe("BookingFlow", () => {
           guest_email: "jane@example.com",
           guest_phone: "(720) 555-0103",
           booking_context_token: "token-final",
+          sms_opt_in: false,
         }),
+        expect.objectContaining({ idempotencyKey: expect.any(String) }),
+      );
+    });
+  });
+
+  it("shows an optional appointment-text opt-in below the booking button", async () => {
+    const {
+      createPublicBooking,
+      createPublicBookingIntake,
+      getPublicAvailability,
+      getPublicServices,
+      getPublicSlots,
+    } = setupMockReferences();
+
+    createPublicBookingIntake.mockResolvedValue(
+      createIntake({ bookingContextToken: "token-sms-opt-in" }),
+    );
+    getPublicServices.mockResolvedValue([createService("service-1", "Haircut")]);
+    getPublicAvailability.mockResolvedValue({
+      dates: ["2026-07-15"],
+      timezone: "America/Denver",
+    });
+    getPublicSlots.mockResolvedValue({
+      date: "2026-07-15",
+      timezone: "America/Denver",
+      service: {
+        id: "service-1",
+        name: "Haircut",
+        durationMinutes: 60,
+        price: 95,
+      },
+      slots: [
+        {
+          start: "2026-07-15T09:00:00-06:00",
+          end: "2026-07-15T10:00:00-06:00",
+        },
+      ],
+    });
+    createPublicBooking.mockResolvedValue(createBookingConfirmation());
+
+    render(<BookingFlow slug="maya-johnson" stylist={baseStylist} />);
+
+    await openServicesStep();
+    fireEvent.click(screen.getByRole("button", { name: /Haircut/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+
+    await screen.findByText("Choose a date & time");
+    fireEvent.click(await screen.findByRole("button", { name: /9:00/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+
+    const smsOptIn = await screen.findByRole("checkbox", {
+      name: /I agree to receive appointment-related text messages/i,
+    });
+    expect(smsOptIn.checked).toBe(false);
+
+    fireEvent.click(smsOptIn);
+    expect(smsOptIn.checked).toBe(true);
+
+    expect(screen.getByRole("link", { name: "Terms of Service" }).getAttribute("href")).toBe(
+      "http://localhost:3000/terms-of-service",
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /Book Appointment/i }));
+
+    await waitFor(() => {
+      expect(createPublicBooking).toHaveBeenCalledWith(
+        expect.objectContaining({ sms_opt_in: true }),
         expect.objectContaining({ idempotencyKey: expect.any(String) }),
       );
     });

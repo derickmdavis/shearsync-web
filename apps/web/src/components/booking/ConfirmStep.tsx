@@ -5,6 +5,7 @@ import type {
   PublicSlot,
   PublicStylist,
 } from "@/src/lib/api";
+import { getMarketingOrigin } from "@/src/lib/config/public";
 import {
   buildSummaryName,
   formatServiceNames,
@@ -24,6 +25,7 @@ type ConfirmStepProps = {
   email: string;
   phone: string;
   notes: string;
+  smsOptIn: boolean;
   referencePhotoFile?: File | null;
   referencePhotoPreviewUrl?: string | null;
   submitting: boolean;
@@ -31,6 +33,7 @@ type ConfirmStepProps = {
   timezone?: string | null;
   bookingBehavior?: PublicBookingBehavior | null;
   onNotesChange: (value: string) => void;
+  onSmsOptInChange: (value: boolean) => void;
   onReferencePhotoSelect: (file: File) => void;
   onReferencePhotoRemove: () => void;
   onEdit: (step: number) => void;
@@ -45,6 +48,7 @@ export function ConfirmStep({
   email,
   phone,
   notes,
+  smsOptIn,
   referencePhotoFile,
   referencePhotoPreviewUrl,
   submitting,
@@ -52,6 +56,7 @@ export function ConfirmStep({
   timezone,
   bookingBehavior,
   onNotesChange,
+  onSmsOptInChange,
   onReferencePhotoSelect,
   onReferencePhotoRemove,
   onEdit,
@@ -67,6 +72,10 @@ export function ConfirmStep({
   const bookingPreviewMessage = bookingBehavior?.requiresApproval
     ? "New client appointments require approval."
     : bookingBehavior?.message;
+  const termsOfServiceHref = new URL(
+    "/terms-of-service",
+    getMarketingOrigin(),
+  ).toString();
 
   return (
     <div>
@@ -238,6 +247,29 @@ export function ConfirmStep({
         {submitting ? "Booking..." : "Book Appointment"}
         <ArrowIcon />
       </button>
+
+      <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-2xl border border-border bg-surface-warm p-4 text-left">
+        <input
+          type="checkbox"
+          name="appointment-sms-consent"
+          checked={smsOptIn}
+          disabled={submitting}
+          onChange={(event) => onSmsOptInChange(event.target.checked)}
+          className="mt-0.5 h-4 w-4 shrink-0 rounded border-border accent-brand focus:ring-2 focus:ring-brand/30 disabled:cursor-not-allowed"
+        />
+        <span className="text-xs leading-5 text-muted">
+          I agree to receive appointment-related text messages. Message
+          frequency varies. Message and data rates may apply. Reply STOP to opt
+          out or HELP for help. See our{" "}
+          <a
+            href={termsOfServiceHref}
+            className="font-semibold text-foreground underline decoration-brand/60 underline-offset-2 hover:text-brand"
+          >
+            Terms of Service
+          </a>
+          .
+        </span>
+      </label>
     </div>
   );
 

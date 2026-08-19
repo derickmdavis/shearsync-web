@@ -139,6 +139,7 @@ describe("public booking api helpers", () => {
       guest_email: "jane@example.com",
       guest_phone: "(720) 555-0103",
       booking_context_token: "token-4",
+      sms_opt_in: false,
     });
 
     expect(fetch).toHaveBeenCalledWith(
@@ -155,6 +156,7 @@ describe("public booking api helpers", () => {
           guest_email: "jane@example.com",
           guest_phone: "(720) 555-0103",
           booking_context_token: "token-4",
+          sms_opt_in: false,
         }),
       }),
     );

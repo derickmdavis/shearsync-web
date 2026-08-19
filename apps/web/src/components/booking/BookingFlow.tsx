@@ -155,6 +155,7 @@ export function BookingFlow({
   );
   const [currentStep, setCurrentStep] = useState(1);
   const [notes, setNotes] = useState("");
+  const [smsOptIn, setSmsOptIn] = useState(false);
   const [intakeState, setIntakeState] = useState<BookingIntakeState>({
     status: "idle",
   });
@@ -1285,6 +1286,7 @@ export function BookingFlow({
           guest_phone: phone.trim(),
           booking_context_token: bookingContextToken,
           referral_code: referralCodeRef.current || undefined,
+          sms_opt_in: smsOptIn,
           notes: buildBookingNotes(selectedServices, notes),
         },
         { idempotencyKey },
@@ -1364,6 +1366,7 @@ export function BookingFlow({
     setCurrentStep(1);
     setSelectedSlot(null);
     setNotes("");
+    setSmsOptIn(false);
     setConfirmError(null);
     setConfirmation(null);
     clearReferencePhotoSelection();
@@ -1550,6 +1553,7 @@ export function BookingFlow({
               email={email.trim()}
               phone={phone.trim()}
               notes={notes}
+              smsOptIn={smsOptIn}
               referencePhotoFile={referencePhotoFile}
               referencePhotoPreviewUrl={referencePhotoPreviewUrl}
               submitting={submitting}
@@ -1557,6 +1561,7 @@ export function BookingFlow({
               timezone={activeTimezone}
               bookingBehavior={intakeData?.bookingBehavior ?? null}
               onNotesChange={setNotes}
+              onSmsOptInChange={setSmsOptIn}
               onReferencePhotoSelect={handleReferencePhotoSelect}
               onReferencePhotoRemove={clearReferencePhotoSelection}
               onEdit={(step) => setCurrentStep(step)}
