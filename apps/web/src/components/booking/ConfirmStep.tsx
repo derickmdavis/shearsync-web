@@ -5,7 +5,6 @@ import type {
   PublicSlot,
   PublicStylist,
 } from "@/src/lib/api";
-import { getMarketingOrigin } from "@/src/lib/config/public";
 import {
   buildSummaryName,
   formatServiceNames,
@@ -72,11 +71,6 @@ export function ConfirmStep({
   const bookingPreviewMessage = bookingBehavior?.requiresApproval
     ? "New client appointments require approval."
     : bookingBehavior?.message;
-  const termsOfServiceHref = new URL(
-    "/terms-of-service",
-    getMarketingOrigin(),
-  ).toString();
-
   return (
     <div>
       <div>
@@ -238,17 +232,7 @@ export function ConfirmStep({
 
       {error ? <p className="mt-4 text-sm text-red-500">{error}</p> : null}
 
-      <button
-        type="button"
-        disabled={submitting}
-        onClick={onSubmit}
-        className="mt-5 flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-brand px-5 text-base font-semibold text-white shadow-[0_18px_32px_rgba(183,121,61,0.24)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark disabled:cursor-wait disabled:opacity-70"
-      >
-        {submitting ? "Booking..." : "Book Appointment"}
-        <ArrowIcon />
-      </button>
-
-      <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-2xl border border-border bg-surface-warm p-4 text-left">
+      <label className="mt-5 flex cursor-pointer items-start gap-3 rounded-2xl border border-border bg-surface-warm p-4 text-left">
         <input
           type="checkbox"
           name="appointment-sms-consent"
@@ -262,14 +246,31 @@ export function ConfirmStep({
           frequency varies. Message and data rates may apply. Reply STOP to opt
           out or HELP for help. See our{" "}
           <a
-            href={termsOfServiceHref}
+            href="https://www.rootfoil.com/terms-of-service"
             className="font-semibold text-foreground underline decoration-brand/60 underline-offset-2 hover:text-brand"
           >
             Terms of Service
           </a>
+          {" "}and{" "}
+          <a
+            href="https://www.rootfoil.com/privacy-policy"
+            className="font-semibold text-foreground underline decoration-brand/60 underline-offset-2 hover:text-brand"
+          >
+            Privacy Policy
+          </a>
           .
         </span>
       </label>
+
+      <button
+        type="button"
+        disabled={submitting}
+        onClick={onSubmit}
+        className="mt-4 flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-brand px-5 text-base font-semibold text-white shadow-[0_18px_32px_rgba(183,121,61,0.24)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark disabled:cursor-wait disabled:opacity-70"
+      >
+        {submitting ? "Booking..." : "Book Appointment"}
+        <ArrowIcon />
+      </button>
     </div>
   );
 

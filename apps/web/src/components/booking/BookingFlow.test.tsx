@@ -665,9 +665,12 @@ describe("BookingFlow", () => {
     fireEvent.click(smsOptIn);
     expect(smsOptIn.checked).toBe(true);
 
-    expect(screen.getByRole("link", { name: "Terms of Service" }).getAttribute("href")).toBe(
-      "http://localhost:3000/terms-of-service",
-    );
+    expect(
+      screen.getByRole("link", { name: "Terms of Service" }).getAttribute("href"),
+    ).toBe("https://www.rootfoil.com/terms-of-service");
+    expect(
+      screen.getByRole("link", { name: "Privacy Policy" }).getAttribute("href"),
+    ).toBe("https://www.rootfoil.com/privacy-policy");
 
     fireEvent.click(screen.getByRole("button", { name: /Book Appointment/i }));
 
