@@ -247,6 +247,8 @@ export function ConfirmStep({
           out or HELP for help. See our{" "}
           <a
             href="https://www.rootfoil.com/terms-of-service"
+            target="_blank"
+            rel="noreferrer"
             className="font-semibold text-foreground underline decoration-brand/60 underline-offset-2 hover:text-brand"
           >
             Terms of Service
@@ -254,6 +256,8 @@ export function ConfirmStep({
           {" "}and{" "}
           <a
             href="https://www.rootfoil.com/privacy-policy"
+            target="_blank"
+            rel="noreferrer"
             className="font-semibold text-foreground underline decoration-brand/60 underline-offset-2 hover:text-brand"
           >
             Privacy Policy

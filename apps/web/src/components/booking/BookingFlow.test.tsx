@@ -612,7 +612,7 @@ describe("BookingFlow", () => {
     });
   });
 
-  it("shows an optional appointment-text opt-in below the booking button", async () => {
+  it("shows an optional appointment-text opt-in above the booking button", async () => {
     const {
       createPublicBooking,
       createPublicBookingIntake,
@@ -669,8 +669,14 @@ describe("BookingFlow", () => {
       screen.getByRole("link", { name: "Terms of Service" }).getAttribute("href"),
     ).toBe("https://www.rootfoil.com/terms-of-service");
     expect(
+      screen.getByRole("link", { name: "Terms of Service" }).getAttribute("target"),
+    ).toBe("_blank");
+    expect(
       screen.getByRole("link", { name: "Privacy Policy" }).getAttribute("href"),
     ).toBe("https://www.rootfoil.com/privacy-policy");
+    expect(
+      screen.getByRole("link", { name: "Privacy Policy" }).getAttribute("target"),
+    ).toBe("_blank");
 
     fireEvent.click(screen.getByRole("button", { name: /Book Appointment/i }));
 
