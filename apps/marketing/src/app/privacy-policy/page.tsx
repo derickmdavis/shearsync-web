@@ -264,18 +264,18 @@ export default function PrivacyPolicyPage() {
             </h3>
             <PolicyParagraph>
               <strong className="text-[#111111]">
-                We do not share, sell, rent, or provide mobile phone numbers,
-                SMS opt-in data, or messaging consent information to third
-                parties or affiliates for marketing or promotional purposes.
+                We do not share, sell, rent, transfer, or provide mobile phone
+                numbers, SMS opt-in data, or messaging consent information to
+                third parties or affiliates for marketing or promotional
+                purposes.
               </strong>
             </PolicyParagraph>
             <PolicyParagraph>
-              We may provide mobile information to service providers that
-              perform services on our behalf, such as communications
-              infrastructure providers, solely as necessary to deliver and
-              operate the messaging service. These service providers are not
-              authorized to use that information for their own marketing
-              purposes.
+              We may disclose mobile information to service providers solely as
+              necessary to provide messaging services, such as SMS delivery
+              infrastructure. These providers may use the information only to
+              perform services for Root &amp; Foil and may not use or disclose it
+              for their own marketing or promotional purposes.
             </PolicyParagraph>
             <PolicyParagraph>
               SMS opt-in consent and related records are not transferred to
@@ -308,6 +308,19 @@ export default function PrivacyPolicyPage() {
             <h2 id="how-we-share-information" className={sectionTitleClassName}>
               5. How We Share Information
             </h2>
+            <h3 className={subsectionTitleClassName}>SMS DATA EXCLUSION</h3>
+            <PolicyParagraph>
+              Notwithstanding anything else in this Privacy Policy, mobile
+              phone numbers, text messaging originator opt-in data, SMS consent
+              records, and messaging consent information will not be shared,
+              sold, rented, transferred, or provided to third parties or
+              affiliates for marketing or promotional purposes.
+            </PolicyParagraph>
+            <PolicyParagraph>
+              The sharing categories described below expressly exclude SMS
+              opt-in and messaging consent data for marketing or promotional
+              use.
+            </PolicyParagraph>
             <PolicyParagraph>We do not sell personal information.</PolicyParagraph>
             <PolicyParagraph>
               We may share information in the following limited circumstances.
