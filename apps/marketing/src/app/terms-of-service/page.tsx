@@ -3,7 +3,8 @@ import type { ReactNode } from "react";
 
 export const metadata: Metadata = {
   title: "Terms of Service | Root & Foil",
-  description: "Read the terms that govern use of Root & Foil services.",
+  description:
+    "Read the Root & Foil Terms of Service, including the terms that apply to our services and SMS messaging consent.",
   robots: {
     index: true,
     follow: true,
@@ -285,9 +286,11 @@ export default function TermsOfServicePage() {
 
             <h3 className={subsectionTitleClassName}>Mobile Information</h3>
             <TermsParagraph>
-              Mobile phone numbers, SMS consent records, and SMS opt-in
-              information will not be sold, rented, or shared with third parties
-              or affiliates for their own marketing or promotional purposes.
+              <strong className="text-[#111111]">
+                We do not share, sell, rent, or provide mobile phone numbers,
+                SMS opt-in data, or messaging consent information to third
+                parties or affiliates for marketing or promotional purposes.
+              </strong>
             </TermsParagraph>
             <TermsParagraph>
               Information may be provided to communications providers and other
