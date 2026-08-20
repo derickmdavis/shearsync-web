@@ -4,6 +4,10 @@ import type { ReactNode } from "react";
 export const metadata: Metadata = {
   title: "Terms of Service | Root & Foil",
   description: "Read the terms that govern use of Root & Foil services.",
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 const sectionTitleClassName =

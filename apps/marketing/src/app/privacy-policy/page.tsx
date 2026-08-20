@@ -4,7 +4,11 @@ import type { ReactNode } from "react";
 export const metadata: Metadata = {
   title: "Privacy Policy | Root & Foil",
   description:
-    "Learn how Root & Foil collects, uses, discloses, and protects information.",
+    "Read the Root & Foil Privacy Policy, including how we collect, use, protect, and handle personal information and SMS messaging consent.",
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 const sectionTitleClassName =
@@ -260,10 +264,9 @@ export default function PrivacyPolicyPage() {
             </h3>
             <PolicyParagraph>
               <strong className="text-[#111111]">
-                Mobile phone numbers, SMS consent records, and SMS opt-in
-                information will not be sold, rented, or shared with third
-                parties or affiliates for their own marketing or promotional
-                purposes.
+                We do not share, sell, rent, or provide mobile phone numbers,
+                SMS opt-in data, or messaging consent information to third
+                parties or affiliates for marketing or promotional purposes.
               </strong>
             </PolicyParagraph>
             <PolicyParagraph>
