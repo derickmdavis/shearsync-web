@@ -76,16 +76,22 @@ async function forwardRequest(request: Request, context: RouteContext) {
         ? summarizeBookingRequest(requestBody)
         : undefined;
 
+    // Appointment link codes are bearer credentials. Do not include their path
+    // segment or full target URL in logs, even when the backend is failing.
+    const isAppointmentLinkRequest = path[0] === "appointment-links";
+
     console.error(
       `Public API proxy received 5xx response ${JSON.stringify({
-        path: `/api/public/${path.join("/")}`,
-        target: target.toString(),
+        path: isAppointmentLinkRequest
+          ? "/api/public/appointment-links/[redacted]"
+          : `/api/public/${path.join("/")}`,
+        target: isAppointmentLinkRequest ? "[redacted]" : target.toString(),
         method: request.method,
         status: response.status,
         requestSummary,
-        responseBody: redactAndTruncateLogText(
-          await response.clone().text(),
-        ),
+        responseBody: isAppointmentLinkRequest
+          ? "[redacted]"
+          : redactAndTruncateLogText(await response.clone().text()),
       })}`,
     );
   }

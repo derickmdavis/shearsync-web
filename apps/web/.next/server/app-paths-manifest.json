@@ -10,5 +10,6 @@
   "/favicon.ico/route": "app/favicon.ico/route.js",
   "/login/page": "app/login/page.js",
   "/manage/[shortCode]/page": "app/manage/[shortCode]/page.js",
+  "/page": "app/page.js",
   "/r/[referralCode]/page": "app/r/[referralCode]/page.js"
 }

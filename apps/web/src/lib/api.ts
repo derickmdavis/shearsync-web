@@ -464,7 +464,7 @@ export type PublicManagedAppointment = {
 
 export type AppointmentManageLinkSource = "legacy-token" | "short-code";
 
-type PublicAppointmentLinkResponse = {
+export type PublicAppointmentLinkResponse = {
   valid: boolean;
   reason?: string | null;
   message?: string | null;
@@ -1050,6 +1050,23 @@ export async function getManagedAppointment(
   return normalizeManagedAppointmentResponse(appointment);
 }
 
+/**
+ * Resolves a short public appointment link without treating a 200
+ * `{ valid: false }` response as a transport failure. The caller can render
+ * the deliberately non-specific expired-link state required for email links.
+ */
+export async function resolvePublicAppointmentLink(shortCode: string) {
+  return requestPublicApi<PublicAppointmentLinkResponse>(
+    getManagedAppointmentPath(shortCode, "short-code"),
+  );
+}
+
+export function normalizePublicAppointmentLink(
+  response: PublicAppointmentLinkResponse,
+) {
+  return normalizeManagedAppointmentResponse(response);
+}
+
 export async function cancelManagedAppointment(
   token: string,
   source: AppointmentManageLinkSource = "legacy-token",
@@ -1086,7 +1103,6 @@ export async function rescheduleManagedAppointment(
     source === "short-code"
       ? {
           newAppointmentDate: requestedDateTime,
-          service_id: body.service_id,
         }
       : {
           requested_datetime: requestedDateTime,

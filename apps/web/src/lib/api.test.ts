@@ -12,6 +12,7 @@ import {
   getPublicSlots,
   joinWaitlist,
   rescheduleManagedAppointment,
+  resolvePublicAppointmentLink,
   resolvePublicReferral,
 } from "@/src/lib/api";
 
@@ -356,7 +357,6 @@ describe("public booking api helpers", () => {
     await cancelManagedAppointment("short-1", "short-code");
     await rescheduleManagedAppointment("short-1", "short-code", {
       requested_datetime: "2026-06-22T19:00:00.000Z",
-      service_id: "service-2",
     });
 
     expect(fetch).toHaveBeenNthCalledWith(
@@ -371,7 +371,6 @@ describe("public booking api helpers", () => {
         method: "POST",
         body: JSON.stringify({
           newAppointmentDate: "2026-06-22T19:00:00.000Z",
-          service_id: "service-2",
         }),
       }),
     );
@@ -405,6 +404,27 @@ describe("public booking api helpers", () => {
         details: { reason: "expired" },
       }),
     );
+  });
+
+  it("returns valid-false short link responses for safe page handling", async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          data: {
+            valid: false,
+            reason: "expired",
+            message: "Internal backend wording is not displayed.",
+          },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+
+    await expect(resolvePublicAppointmentLink("expired1")).resolves.toEqual({
+      valid: false,
+      reason: "expired",
+      message: "Internal backend wording is not displayed.",
+    });
   });
 });
 

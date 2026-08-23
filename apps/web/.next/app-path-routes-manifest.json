@@ -10,5 +10,6 @@
   "/favicon.ico/route": "/favicon.ico",
   "/login/page": "/login",
   "/manage/[shortCode]/page": "/manage/[shortCode]",
+  "/page": "/",
   "/r/[referralCode]/page": "/r/[referralCode]"
 }

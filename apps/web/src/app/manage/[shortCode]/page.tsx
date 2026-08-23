@@ -1,4 +1,4 @@
-import { ManageAppointmentClient } from "@/src/components/appointments/ManageAppointmentClient";
+import { ShortCodeManageAppointmentClient } from "@/src/components/appointments/ShortCodeManageAppointmentClient";
 
 type ManageAppointmentPageProps = {
   params: Promise<{
@@ -14,7 +14,7 @@ export default async function ManageAppointmentPage(
   return (
     <main className="px-4 py-6 sm:px-6 sm:py-10">
       <div className="mx-auto w-full max-w-[430px]">
-        <ManageAppointmentClient token={shortCode} source="short-code" />
+        <ShortCodeManageAppointmentClient shortCode={shortCode} />
       </div>
     </main>
   );
