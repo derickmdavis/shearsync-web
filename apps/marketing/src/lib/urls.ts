@@ -1,7 +1,7 @@
 const LOCAL_MARKETING_ORIGIN = "http://localhost:3000";
 const LOCAL_WEB_APP_ORIGIN = "http://localhost:3001";
 const PRODUCTION_MARKETING_ORIGIN = "https://rootfoil.com";
-const PRODUCTION_WEB_APP_ORIGIN = "https://rootfoil.app";
+const PRODUCTION_WEB_APP_ORIGIN = "https://www.rootfoil.app";
 
 function getDefaultOrigin(localOrigin: string, productionOrigin: string) {
   return process.env.NODE_ENV === "production"

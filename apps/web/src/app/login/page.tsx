@@ -8,7 +8,7 @@ type LoginPageProps = {
 };
 
 function getAuthMode(mode?: string) {
-  if (mode === "sign-up" || mode === "reset" || mode === "update-password") {
+  if (mode === "sign-up" || mode === "reset") {
     return mode;
   }
 

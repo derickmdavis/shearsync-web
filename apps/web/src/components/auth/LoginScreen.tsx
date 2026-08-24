@@ -9,7 +9,7 @@ import {
 } from "@/src/lib/supabase";
 import { getAuthRecoveryUrl } from "@/src/lib/config/public";
 
-type AuthMode = "sign-in" | "sign-up" | "reset" | "update-password";
+type AuthMode = "sign-in" | "sign-up" | "reset";
 
 type LoginScreenProps = {
   initialMode: AuthMode;
@@ -29,7 +29,6 @@ export function LoginScreen({ initialMode, nextPath }: LoginScreenProps) {
   const [mode, setMode] = useState<AuthMode>(initialMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
   const [isBusy, setIsBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState(() =>
@@ -47,10 +46,6 @@ export function LoginScreen({ initialMode, nextPath }: LoginScreenProps) {
       return "Reset your password";
     }
 
-    if (mode === "update-password") {
-      return "Choose a new password";
-    }
-
     return "Welcome back";
   }, [mode]);
 
@@ -64,7 +59,7 @@ export function LoginScreen({ initialMode, nextPath }: LoginScreenProps) {
     const supabase = getSupabaseBrowserClient();
 
     void supabase.auth.getSession().then(({ data }) => {
-      if (data.session && mode !== "update-password") {
+      if (data.session && mode !== "reset") {
         router.replace(nextPath);
       }
     });
@@ -73,11 +68,11 @@ export function LoginScreen({ initialMode, nextPath }: LoginScreenProps) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "PASSWORD_RECOVERY") {
-        setMode("update-password");
+        router.replace("/reset-password");
         return;
       }
 
-      if (session && mode !== "update-password") {
+      if (session && mode !== "reset") {
         router.replace(nextPath);
       }
     });
@@ -103,31 +98,18 @@ export function LoginScreen({ initialMode, nextPath }: LoginScreenProps) {
       const supabase = getSupabaseBrowserClient();
 
       if (mode === "reset") {
-        // Use same-origin redirects so Supabase recovery links return to this
-        // frontend and preserve the sanitized next path.
+        // All recovery links return to the dedicated public callback route.
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: getAuthRecoveryUrl(nextPath),
+          redirectTo: getAuthRecoveryUrl(),
         });
 
         if (error) {
           throw error;
         }
 
-        setMessage("Password reset email sent.");
-        return;
-      }
-
-      if (mode === "update-password") {
-        const { error } = await supabase.auth.updateUser({
-          password: newPassword,
-        });
-
-        if (error) {
-          throw error;
-        }
-
-        setMessage("Password updated.");
-        router.replace(nextPath);
+        setMessage(
+          "If an account exists for that email, we’ve sent a password-reset link.",
+        );
         return;
       }
 
@@ -207,21 +189,19 @@ export function LoginScreen({ initialMode, nextPath }: LoginScreenProps) {
           </h2>
 
           <form onSubmit={handleSubmit} className="mt-6 grid gap-4">
-            {mode !== "update-password" ? (
-              <label className="block">
-                <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.08em] text-[#6B7280]">
-                  Email
-                </span>
-                <input
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  className="h-12 w-full rounded-2xl border border-border bg-white px-4 text-sm outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
-                  type="email"
-                  autoComplete="email"
-                  required
-                />
-              </label>
-            ) : null}
+            <label className="block">
+              <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.08em] text-[#6B7280]">
+                Email
+              </span>
+              <input
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                className="h-12 w-full rounded-2xl border border-border bg-white px-4 text-sm outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
+                type="email"
+                autoComplete="email"
+                required
+              />
+            </label>
 
             {mode === "sign-in" || mode === "sign-up" ? (
               <label className="block">
@@ -236,22 +216,6 @@ export function LoginScreen({ initialMode, nextPath }: LoginScreenProps) {
                   autoComplete={
                     mode === "sign-up" ? "new-password" : "current-password"
                   }
-                  required
-                />
-              </label>
-            ) : null}
-
-            {mode === "update-password" ? (
-              <label className="block">
-                <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.08em] text-[#6B7280]">
-                  New password
-                </span>
-                <input
-                  value={newPassword}
-                  onChange={(event) => setNewPassword(event.target.value)}
-                  className="h-12 w-full rounded-2xl border border-border bg-white px-4 text-sm outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
-                  type="password"
-                  autoComplete="new-password"
                   required
                 />
               </label>
@@ -280,9 +244,7 @@ export function LoginScreen({ initialMode, nextPath }: LoginScreenProps) {
                   ? "Create account"
                   : mode === "reset"
                     ? "Send reset email"
-                    : mode === "update-password"
-                      ? "Update password"
-                      : "Sign in"}
+                    : "Sign in"}
             </button>
           </form>
         </div>

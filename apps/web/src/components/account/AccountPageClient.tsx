@@ -35,6 +35,7 @@ import {
   getSupabaseBrowserClient,
   hasSupabaseBrowserConfig,
 } from "@/src/lib/supabase";
+import { isPasswordRecoveryInProgress } from "@/src/lib/auth/password-recovery";
 import { getAuthRecoveryUrl, getWebAppUrl } from "@/src/lib/config/public";
 import {
   AccountSideNav,
@@ -362,8 +363,22 @@ export function AccountPageClient() {
     let isActive = true;
     const supabase = getSupabaseBrowserClient();
 
+    // A recovery session can update a password but must not bootstrap product
+    // data. Keep the account API entirely paused until recovery finishes.
+    if (isPasswordRecoveryInProgress()) {
+      router.replace("/reset-password");
+      return () => {
+        isActive = false;
+      };
+    }
+
     void supabase.auth.getSession().then(({ data, error }) => {
       if (!isActive) {
+        return;
+      }
+
+      if (isPasswordRecoveryInProgress()) {
+        router.replace("/reset-password");
         return;
       }
 
@@ -379,8 +394,13 @@ export function AccountPageClient() {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       if (!isActive) {
+        return;
+      }
+
+      if (event === "PASSWORD_RECOVERY" || isPasswordRecoveryInProgress()) {
+        router.replace("/reset-password");
         return;
       }
 
@@ -409,7 +429,7 @@ export function AccountPageClient() {
       isActive = false;
       subscription.unsubscribe();
     };
-  }, [loadAccount]);
+  }, [loadAccount, router]);
 
   useEffect(() => {
     setCanNativeShare(
@@ -478,14 +498,17 @@ export function AccountPageClient() {
 
       if (authMode === "reset") {
         const { error } = await supabase.auth.resetPasswordForEmail(authEmail, {
-          redirectTo: getAuthRecoveryUrl("/account"),
+          redirectTo: getAuthRecoveryUrl(),
         });
 
         if (error) {
           throw error;
         }
 
-        showMessage("Password reset email sent.", setToast);
+        showMessage(
+          "If an account exists for that email, we’ve sent a password-reset link.",
+          setToast,
+        );
         return;
       }
 

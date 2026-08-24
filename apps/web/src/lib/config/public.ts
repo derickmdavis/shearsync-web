@@ -1,7 +1,9 @@
 const LOCAL_WEB_APP_ORIGIN = "http://localhost:3001";
 const LOCAL_MARKETING_ORIGIN = "http://localhost:3000";
 const LOCAL_BACKEND_API_ORIGIN = "http://localhost:3000";
-const PRODUCTION_WEB_APP_ORIGIN = "https://rootfoil.app";
+// The apex domain redirects to www in production, so callback URLs must use
+// the hostname that actually serves this Next.js application.
+const PRODUCTION_WEB_APP_ORIGIN = "https://www.rootfoil.app";
 const PRODUCTION_MARKETING_ORIGIN = "https://rootfoil.com";
 
 function getDefaultOrigin(localOrigin: string, productionOrigin: string) {
@@ -81,11 +83,6 @@ export function getWebAppUrl(path = "/") {
   return joinOriginAndPath(getWebAppOrigin(), path);
 }
 
-export function getAuthRecoveryUrl(nextPath: string) {
-  const params = new URLSearchParams({ mode: "update-password" });
-  if (nextPath) {
-    params.set("next", nextPath);
-  }
-
-  return getWebAppUrl(`/login?${params.toString()}`);
+export function getAuthRecoveryUrl() {
+  return getWebAppUrl("/reset-password");
 }

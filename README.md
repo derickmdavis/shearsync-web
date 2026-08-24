@@ -54,8 +54,8 @@ Create two Vercel projects from this repository later:
 | Application | Vercel root directory | Production domain |
 | --- | --- | --- |
 | Marketing | `apps/marketing` | `rootfoil.com` |
-| Customer web | `apps/web` | `rootfoil.app` |
+| Customer web | `apps/web` | `www.rootfoil.app` |
 
 The marketing project requires `NEXT_PUBLIC_MARKETING_URL`, `NEXT_PUBLIC_WEB_APP_URL`, and server-only `API_BASE_URL` for its waitlist proxy. The customer web project requires those public origins plus `NEXT_PUBLIC_API_BASE_URL`, server-only `API_BASE_URL`, `NEXT_PUBLIC_SUPABASE_URL`, and `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
 
-Production values should use `https://rootfoil.com`, `https://rootfoil.app`, and the separately deployed API origin (planned as `https://api.rootfoil.app`). The backend must later allow direct authenticated browser requests from `https://rootfoil.app`. Supabase allowed redirect URLs must include the customer web production and approved preview origins. Legacy-domain redirects are a separate deployment task.
+Production values should use `https://rootfoil.com`, `https://www.rootfoil.app`, and the separately deployed API origin (planned as `https://api.rootfoil.app`). The backend must later allow direct authenticated browser requests from `https://www.rootfoil.app`. Supabase allowed redirect URLs must include `https://www.rootfoil.app/reset-password` as the customer recovery callback, alongside approved preview origins. The apex domain may redirect to `www`, but it must not serve a different customer app.

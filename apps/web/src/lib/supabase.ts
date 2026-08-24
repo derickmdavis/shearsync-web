@@ -22,7 +22,15 @@ export function getSupabaseBrowserClient() {
 
   // Reuse one browser client so auth subscriptions and session storage are not
   // duplicated across account/login screens.
-  browserClient ??= createClient(supabaseUrl, supabaseAnonKey);
+  browserClient ??= createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      // Recovery URLs are consumed explicitly by /reset-password. Leaving
+      // automatic detection enabled would risk consuming an auth code twice.
+      detectSessionInUrl: false,
+    },
+  });
 
   return browserClient;
 }
