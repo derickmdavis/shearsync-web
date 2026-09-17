@@ -19,6 +19,9 @@ const SENSITIVE_LOG_KEYS = new Set([
   "reference_photo_upload_token",
   "reference_photo_upload_token_expires_at",
   "token",
+  "preview",
+  "preview_token",
+  "x-booking-preview-token",
 ]);
 const UNSAFE_PROXY_RESPONSE_HEADERS = new Set([
   "connection",
@@ -71,25 +74,30 @@ async function forwardRequest(request: Request, context: RouteContext) {
     // Log enough context to diagnose backend failures without dumping the full
     // booking payload. The response body may still contain backend diagnostics,
     // so production logging should be treated as sensitive.
+    const isSensitiveCapabilityRequest =
+      path[0] === "appointment-links" ||
+      path[0] === "booking-preview-sessions";
     const requestSummary =
-      path.join("/") === "bookings" && requestBody
+      !isSensitiveCapabilityRequest && path.join("/") === "bookings" && requestBody
         ? summarizeBookingRequest(requestBody)
         : undefined;
 
-    // Appointment link codes are bearer credentials. Do not include their path
-    // segment or full target URL in logs, even when the backend is failing.
-    const isAppointmentLinkRequest = path[0] === "appointment-links";
+    // Appointment link codes and preview tokens are bearer credentials. Do not
+    // include their path segment, target URL, request body, or response body in
+    // logs, even when the backend is failing.
 
     console.error(
       `Public API proxy received 5xx response ${JSON.stringify({
-        path: isAppointmentLinkRequest
-          ? "/api/public/appointment-links/[redacted]"
+        path: isSensitiveCapabilityRequest
+          ? `/api/public/${path[0]}/[redacted]`
           : `/api/public/${path.join("/")}`,
-        target: isAppointmentLinkRequest ? "[redacted]" : target.toString(),
+        target: isSensitiveCapabilityRequest ? "[redacted]" : target.toString(),
         method: request.method,
         status: response.status,
-        requestSummary,
-        responseBody: isAppointmentLinkRequest
+        requestSummary: isSensitiveCapabilityRequest
+          ? "[redacted]"
+          : requestSummary,
+        responseBody: isSensitiveCapabilityRequest
           ? "[redacted]"
           : redactAndTruncateLogText(await response.clone().text()),
       })}`,
@@ -147,16 +155,22 @@ function redactLogText(value: string) {
   try {
     return JSON.stringify(redactLogValue(JSON.parse(value)));
   } catch {
-    return value
-      .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, "[redacted-email]")
-      .replace(/\b(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b/g, "[redacted-phone]")
-      .replace(/\bBearer\s+[A-Za-z0-9._~+/=-]+/gi, "Bearer [redacted]");
+    return redactPreviewTokens(
+      value
+        .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, "[redacted-email]")
+        .replace(/\b(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b/g, "[redacted-phone]")
+        .replace(/\bBearer\s+[A-Za-z0-9._~+/=-]+/gi, "Bearer [redacted]"),
+    );
   }
 }
 
 function redactLogValue(value: unknown): unknown {
   if (Array.isArray(value)) {
     return value.map(redactLogValue);
+  }
+
+  if (typeof value === "string") {
+    return redactPreviewTokens(value);
   }
 
   if (!value || typeof value !== "object") {
@@ -171,38 +185,30 @@ function redactLogValue(value: unknown): unknown {
   );
 }
 
+function redactPreviewTokens(value: string) {
+  return value.replace(/\bPVW_[A-Za-z0-9._~-]+\b/g, "[redacted-preview-token]");
+}
+
+function publicProxyFailureResponse() {
+  // Fetch errors can serialize a caller URL containing a capability token.
+  return Response.json(
+    { error: { message: "Unable to reach the booking service." } },
+    { status: 502 },
+  );
+}
+
 export async function GET(request: Request, context: RouteContext) {
   try {
     return await forwardRequest(request, context);
-  } catch (error) {
-    return Response.json(
-      {
-        error: {
-          message:
-            error instanceof Error
-              ? error.message
-              : "Unable to reach the booking service.",
-        },
-      },
-      { status: 502 },
-    );
+  } catch {
+    return publicProxyFailureResponse();
   }
 }
 
 export async function POST(request: Request, context: RouteContext) {
   try {
     return await forwardRequest(request, context);
-  } catch (error) {
-    return Response.json(
-      {
-        error: {
-          message:
-            error instanceof Error
-              ? error.message
-              : "Unable to reach the booking service.",
-        },
-      },
-      { status: 502 },
-    );
+  } catch {
+    return publicProxyFailureResponse();
   }
 }

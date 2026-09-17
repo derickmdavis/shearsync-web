@@ -22,11 +22,21 @@ export const API_BASE_URL =
   typeof window === "undefined" ? getServerApiOrigin() : getBrowserApiOrigin();
 export const DEFAULT_FETCH_TIMEOUT_MS = 15000;
 
+// Preview URLs are short-lived bearer capabilities. This browser-memory value
+// is deliberately not persisted; while it is active, every public API request
+// carries the header that lets the backend reject protected mutations early.
+let activeBookingPreviewToken: string | null = null;
+
+export function setActiveBookingPreviewToken(token?: string | null) {
+  activeBookingPreviewToken = token?.trim() || null;
+}
+
 // The frontend API accepts both wrapped { data, error } responses and bare
 // payloads so it can tolerate older backend shapes during rollout.
 export type ApiEnvelope<T> = {
   data?: T;
   error?: {
+    code?: string;
     message?: string;
     details?: unknown;
   };
@@ -35,25 +45,36 @@ export type ApiEnvelope<T> = {
 export class ApiError extends Error {
   status: number;
   details?: unknown;
+  code?: string;
+  retryAfterSeconds?: number;
 
-  constructor(message: string, status: number, details?: unknown) {
+  constructor(
+    message: string,
+    status: number,
+    details?: unknown,
+    code?: string,
+    retryAfterSeconds?: number,
+  ) {
     super(message);
     this.name = "ApiError";
     this.status = status;
     this.details = details;
+    this.code = code;
+    this.retryAfterSeconds = retryAfterSeconds;
   }
 }
 
 export type ClientAudience = "all" | "new" | "returning";
 
 export type PublicStylistProfile = {
-  id: string;
+  id?: string;
   slug: string;
   display_name: string;
   bio?: string | null;
   cover_photo_url?: string | null;
   instagram?: string | null;
   booking_enabled: boolean;
+  booking_request_form_enabled?: boolean;
   business_name?: string | null;
   phone_number?: string | null;
   timezone?: string | null;
@@ -105,8 +126,10 @@ export type StylistSettingsProfile = {
   slug: string;
   display_name: string;
   bio: string | null;
+  instagram: string | null;
   cover_photo_url: string | null;
   booking_enabled: boolean;
+  booking_request_form_enabled: boolean;
   created_at: string;
   updated_at: string;
 };
@@ -114,9 +137,58 @@ export type StylistSettingsProfile = {
 export type StylistSettingsUpdate = {
   slug?: string;
   display_name?: string;
-  bio?: string;
-  cover_photo_url?: string;
+  bio?: string | null;
+  instagram?: string | null;
+  cover_photo_url?: string | null;
   booking_enabled?: boolean;
+  booking_request_form_enabled?: boolean;
+};
+
+export type BookingPreviewDraftOverrides = {
+  display_name?: string | null;
+  instagram?: string | null;
+  bio?: string | null;
+  booking_request_form_enabled?: boolean;
+};
+
+export type CreateBookingPreviewSessionInput = {
+  slug: string;
+  draft_overrides: BookingPreviewDraftOverrides;
+  client_context?: {
+    source: "booking-settings-preview";
+    schema_version: "booking_preview_draft.v1";
+  };
+};
+
+export type BookingPreviewSession = {
+  preview_session_id: string;
+  preview_url: string;
+  expires_at: string;
+  schema_version: "booking_preview_session.v1";
+};
+
+export type BookingPreviewContext = {
+  preview_mode: true;
+  expires_at: string;
+  slug: string;
+  profile: {
+    display_name: string | null;
+    bio: string | null;
+    instagram: string | null;
+    cover_photo_url: string | null;
+    business_name: string | null;
+    booking_enabled: boolean;
+    booking_request_form_enabled: boolean;
+  };
+  preview_capabilities: {
+    allow_public_reads: boolean;
+    allow_booking_submission: boolean;
+    allow_waitlist_submission: boolean;
+    allow_uploads: boolean;
+    allow_payments: boolean;
+    allow_analytics: boolean;
+  };
+  schema_version: "booking_preview_context.v1";
 };
 
 export type Customer = {
@@ -670,12 +742,36 @@ function extractApiErrorMessage(payload: unknown, fallback: string) {
   return fallback;
 }
 
+function getRetryAfterSeconds(response: Response) {
+  const value = response.headers.get("Retry-After")?.trim();
+
+  if (!value) {
+    return undefined;
+  }
+
+  const delaySeconds = Number(value);
+  if (Number.isFinite(delaySeconds) && delaySeconds > 0) {
+    return Math.ceil(delaySeconds);
+  }
+
+  const retryAt = Date.parse(value);
+  if (!Number.isNaN(retryAt)) {
+    return Math.max(1, Math.ceil((retryAt - Date.now()) / 1000));
+  }
+
+  return undefined;
+}
+
 async function requestPublicApi<T>(
   path: string,
   { init, preferProxy = true }: RequestOptions = {},
 ) {
   const baseUrl = getRequestBaseUrl(preferProxy);
   const headers = new Headers(init?.headers);
+
+  if (activeBookingPreviewToken) {
+    headers.set("X-Booking-Preview-Token", activeBookingPreviewToken);
+  }
 
   // Any request with a body is JSON by convention unless the caller explicitly
   // supplies a different Content-Type.
@@ -713,6 +809,10 @@ async function requestPublicApi<T>(
       payload && typeof payload === "object"
         ? (payload as ApiEnvelope<unknown>).error?.details
         : undefined,
+      payload && typeof payload === "object"
+        ? (payload as ApiEnvelope<unknown>).error?.code
+        : undefined,
+      getRetryAfterSeconds(response),
     );
   }
 
@@ -764,6 +864,10 @@ async function requestAuthenticatedApi<T>(
       payload && typeof payload === "object"
         ? (payload as ApiEnvelope<unknown>).error?.details
         : undefined,
+      payload && typeof payload === "object"
+        ? (payload as ApiEnvelope<unknown>).error?.code
+        : undefined,
+      getRetryAfterSeconds(response),
     );
   }
 
@@ -778,6 +882,17 @@ export async function getPublicStylist(slug: string) {
   return requestPublicApi<PublicStylist>(`/api/public/stylists/${slug}`, {
     preferProxy: false,
   });
+}
+
+export async function resolveBookingPreviewSession(
+  previewToken: string,
+  slug: string,
+) {
+  const search = new URLSearchParams({ slug });
+
+  return requestPublicApi<BookingPreviewContext>(
+    `/api/public/booking-preview-sessions/${encodeURIComponent(previewToken)}?${search.toString()}`,
+  );
 }
 
 export async function getPublicServices(
@@ -1163,6 +1278,22 @@ export async function updateStylistSettingsProfile(
     {
       init: {
         method: "PATCH",
+        body: JSON.stringify(body),
+      },
+    },
+  );
+}
+
+export async function createBookingPreviewSession(
+  accessToken: string,
+  body: CreateBookingPreviewSessionInput,
+) {
+  return requestAuthenticatedApi<BookingPreviewSession>(
+    "/api/settings/booking-preview-sessions",
+    accessToken,
+    {
+      init: {
+        method: "POST",
         body: JSON.stringify(body),
       },
     },

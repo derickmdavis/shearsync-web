@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 76, "column": 0}, "map": {"version":3,"sources":["file:///Users/derick/shearsync-booking-web/apps/web/src/proxy.ts"],"sourcesContent":["import { NextResponse, type NextRequest } from \"next/server\";\n\n// A preview URL contains a short-lived bearer capability. Apply these headers\n// to the document response itself so browsers and intermediary caches do not\n// retain or forward the capability before the client removes it from the URL.\nexport function proxy(request: NextRequest) {\n  const response = NextResponse.next();\n\n  if (request.nextUrl.searchParams.has(\"preview\")) {\n    response.headers.set(\"Cache-Control\", \"private, no-store, max-age=0\");\n    response.headers.set(\"Referrer-Policy\", \"no-referrer\");\n  }\n\n  return response;\n}\n\nexport const config = {\n  matcher: \"/book/:slug\",\n};\n"],"names":["proxy","request","response","next","nextUrl","searchParams","has","headers","set","config","matcher"],"mappings":";;;;;;AAAA;;AAKO,SAASA,MAAMC,OAAoB;IACxC,MAAMC,WAAW,8IAAY,CAACC,IAAI;IAElC,IAAIF,QAAQG,OAAO,CAACC,YAAY,CAACC,GAAG,CAAC,YAAY;QAC/CJ,SAASK,OAAO,CAACC,GAAG,CAAC,iBAAiB;QACtCN,SAASK,OAAO,CAACC,GAAG,CAAC,mBAAmB;IAC1C;IAEA,OAAON;AACT;AAEO,MAAMO,SAAS;IACpBC,SAAS;AACX"}}]
+}

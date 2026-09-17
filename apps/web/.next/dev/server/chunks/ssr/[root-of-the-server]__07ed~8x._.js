@@ -71,7 +71,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$compon
 ;
 ;
 function getAuthMode(mode) {
-    if (mode === "sign-up" || mode === "reset" || mode === "update-password") {
+    if (mode === "sign-up" || mode === "reset") {
         return mode;
     }
     return "sign-in";

@@ -13,6 +13,7 @@ import {
 } from "react";
 import {
   ApiError,
+  createBookingPreviewSession,
   createClientReferralLink,
   getAuthenticatedUser,
   getAccountPlan,
@@ -31,6 +32,11 @@ import {
   type StylistSettingsProfile,
   type StylistSettingsUpdate,
 } from "@/src/lib/api";
+import {
+  buildBookingPreviewDraftOverrides,
+  getBookingPreviewCreationError,
+  type BookingPreviewCreationError,
+} from "@/src/components/account/booking-preview";
 import {
   getSupabaseBrowserClient,
   hasSupabaseBrowserConfig,
@@ -83,9 +89,15 @@ function toPublicProfileForm(stylist: StylistSettingsProfile): PublicProfileForm
     slug: stylist.slug,
     display_name: stylist.display_name,
     bio: stylist.bio ?? "",
+    instagram: stylist.instagram ?? "",
     cover_photo_url: stylist.cover_photo_url ?? "",
     booking_enabled: stylist.booking_enabled,
+    booking_request_form_enabled: stylist.booking_request_form_enabled ?? false,
   };
+}
+
+function normalizeOptionalText(value: string) {
+  return value.trim() ? value : null;
 }
 
 function getErrorMessage(error: unknown) {
@@ -151,6 +163,14 @@ export function AccountPageClient() {
   );
   const [savingProfile, setSavingProfile] = useState(false);
   const [savingPublic, setSavingPublic] = useState(false);
+  const [previewingPublic, setPreviewingPublic] = useState(false);
+  const [previewError, setPreviewError] = useState<BookingPreviewCreationError | null>(
+    null,
+  );
+  const [previewCooldownUntil, setPreviewCooldownUntil] = useState<number | null>(
+    null,
+  );
+  const [previewCooldownSeconds, setPreviewCooldownSeconds] = useState(0);
   const [isCancelOpen, setIsCancelOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<AccountTab>("dashboard");
 
@@ -161,6 +181,30 @@ export function AccountPageClient() {
 
     return getWebAppUrl(`/book/${stylist.slug}`);
   }, [stylist?.slug]);
+
+  useEffect(() => {
+    if (!previewCooldownUntil) {
+      setPreviewCooldownSeconds(0);
+      return;
+    }
+
+    const updateCountdown = () => {
+      const remaining = Math.max(
+        0,
+        Math.ceil((previewCooldownUntil - Date.now()) / 1000),
+      );
+
+      setPreviewCooldownSeconds(remaining);
+      if (!remaining) {
+        setPreviewCooldownUntil(null);
+      }
+    };
+
+    updateCountdown();
+    const intervalId = window.setInterval(updateCountdown, 250);
+
+    return () => window.clearInterval(intervalId);
+  }, [previewCooldownUntil]);
 
   const loadAccount = useCallback(
     async (token: string) => {
@@ -626,8 +670,10 @@ export function AccountPageClient() {
     // still enforce entitlements, but this avoids confusing user-side changes.
     const body: StylistSettingsUpdate = {
       display_name: publicForm.display_name,
-      bio: publicForm.bio,
+      bio: normalizeOptionalText(publicForm.bio),
+      instagram: normalizeOptionalText(publicForm.instagram),
       booking_enabled: publicForm.booking_enabled,
+      booking_request_form_enabled: publicForm.booking_request_form_enabled,
     };
 
     if (plan?.features.customSlug) {
@@ -635,7 +681,7 @@ export function AccountPageClient() {
     }
 
     if (plan?.features.customCoverPhoto) {
-      body.cover_photo_url = publicForm.cover_photo_url;
+      body.cover_photo_url = normalizeOptionalText(publicForm.cover_photo_url);
     }
 
     setSavingPublic(true);
@@ -650,6 +696,66 @@ export function AccountPageClient() {
     } finally {
       setSavingPublic(false);
     }
+  }
+
+  async function handlePublicPreview() {
+    if (
+      !publicForm ||
+      !stylist ||
+      !accessToken ||
+      previewCooldownSeconds > 0
+    ) {
+      return;
+    }
+
+    // Open synchronously from the click handler so browsers do not treat the
+    // eventual capability URL navigation as a popup.
+    const previewWindow = window.open("", "_blank");
+
+    if (!previewWindow) {
+      setPreviewError({
+        message: "Your browser blocked the preview tab. Allow popups, then try again.",
+      });
+      return;
+    }
+
+    setPreviewingPublic(true);
+    setPreviewError(null);
+
+    try {
+      const previewSession = await createBookingPreviewSession(accessToken, {
+        // Preview ownership and slug authorization are resolved by the API.
+        // Never use the editable slug field here; it may not be persisted yet.
+        slug: stylist.slug,
+        draft_overrides: buildBookingPreviewDraftOverrides(publicForm, stylist),
+        client_context: {
+          source: "booking-settings-preview",
+          schema_version: "booking_preview_draft.v1",
+        },
+      });
+
+      // The preview URL is a short-lived bearer capability. It is passed only
+      // to the newly opened tab and never placed in state, logs, or analytics.
+      previewWindow.opener = null;
+      previewWindow.location.replace(previewSession.preview_url);
+    } catch (error) {
+      previewWindow.close();
+      const nextPreviewError = getBookingPreviewCreationError(error);
+      setPreviewError(nextPreviewError);
+
+      if (nextPreviewError.cooldownSeconds) {
+        setPreviewCooldownUntil(
+          Date.now() + nextPreviewError.cooldownSeconds * 1000,
+        );
+      }
+    } finally {
+      setPreviewingPublic(false);
+    }
+  }
+
+  function handlePreviewSettingsRefresh() {
+    setPreviewError(null);
+    void loadAccount(accessToken);
   }
 
   function updateProfileField(
@@ -743,6 +849,9 @@ export function AccountPageClient() {
                   newPassword={newPassword}
                   savingProfile={savingProfile}
                   savingPublic={savingPublic}
+                  previewingPublic={previewingPublic}
+                  previewError={previewError}
+                  previewCooldownSeconds={previewCooldownSeconds}
                   canUpgrade={canUpgrade}
                   onNewPasswordChange={setNewPassword}
                   onPasswordSubmit={handleUpdatePassword}
@@ -755,7 +864,18 @@ export function AccountPageClient() {
                       current ? { ...current, booking_enabled } : current,
                     )
                   }
+                  onBookingRequestFormEnabledChange={(
+                    booking_request_form_enabled,
+                  ) =>
+                    setPublicForm((current) =>
+                      current
+                        ? { ...current, booking_request_form_enabled }
+                        : current,
+                    )
+                  }
                   onPublicSubmit={handlePublicSubmit}
+                  onPublicPreview={handlePublicPreview}
+                  onPreviewSettingsRefresh={handlePreviewSettingsRefresh}
                   onCancel={() => setIsCancelOpen(true)}
                   onSoon={(message) => showMessage(message, setToast)}
                 />

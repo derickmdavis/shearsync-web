@@ -11,5 +11,6 @@
   "/login/page": "/login",
   "/manage/[shortCode]/page": "/manage/[shortCode]",
   "/page": "/",
-  "/r/[referralCode]/page": "/r/[referralCode]"
+  "/r/[referralCode]/page": "/r/[referralCode]",
+  "/reset-password/page": "/reset-password"
 }

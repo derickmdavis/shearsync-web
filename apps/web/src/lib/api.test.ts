@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   cancelManagedAppointment,
+  createBookingPreviewSession,
   createClientReferralLink,
   createPublicBooking,
   getClientReferralLink,
@@ -12,8 +13,11 @@ import {
   getPublicSlots,
   joinWaitlist,
   rescheduleManagedAppointment,
+  resolveBookingPreviewSession,
   resolvePublicAppointmentLink,
   resolvePublicReferral,
+  setActiveBookingPreviewToken,
+  updateStylistSettingsProfile,
 } from "@/src/lib/api";
 
 describe("public booking api helpers", () => {
@@ -200,6 +204,44 @@ describe("public booking api helpers", () => {
     expect(new Headers(init.headers).get("Idempotency-Key")).toBe(
       "booking-key-1",
     );
+  });
+
+  it("adds the active preview token to public mutation requests", async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          data: {
+            stylist_slug: "maya-johnson",
+            service_id: "service-1",
+            service_name: "Haircut",
+            service_duration_minutes: 60,
+            service_price: 95,
+            appointment_date: "2026-06-15T09:00:00-06:00",
+            status: "scheduled",
+          },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    setActiveBookingPreviewToken("PVW_preview-token");
+
+    try {
+      await createPublicBooking({
+        stylist_slug: "maya-johnson",
+        service_id: "service-1",
+        requested_datetime: "2026-06-15T09:00:00-06:00",
+        guest_first_name: "Jane",
+        guest_last_name: "Smith",
+        guest_phone: "(720) 555-0103",
+      });
+
+      const init = vi.mocked(fetch).mock.calls[0]?.[1] as RequestInit;
+      expect(
+        new Headers(init.headers).get("X-Booking-Preview-Token"),
+      ).toBe("PVW_preview-token");
+    } finally {
+      setActiveBookingPreviewToken(null);
+    }
   });
 
   it("shows a readable booking-service error for browser load failures", async () => {
@@ -425,6 +467,168 @@ describe("public booking api helpers", () => {
       reason: "expired",
       message: "Internal backend wording is not displayed.",
     });
+  });
+});
+
+describe("booking preview api helpers", () => {
+  beforeEach(() => {
+    vi.stubGlobal("fetch", vi.fn());
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("creates preview sessions with the authenticated draft contract", async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          data: {
+            preview_session_id: "preview-1",
+            preview_url: "https://www.rootfoil.app/book/maya?preview=PVW_secret",
+            expires_at: "2026-09-16T12:15:00.000Z",
+            schema_version: "booking_preview_session.v1",
+          },
+        }),
+        { status: 201, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+
+    await createBookingPreviewSession("settings-token", {
+      slug: "maya",
+      draft_overrides: { bio: null, instagram: "maya-new" },
+      client_context: {
+        source: "booking-settings-preview",
+        schema_version: "booking_preview_draft.v1",
+      },
+    });
+
+    const [url, init] = vi.mocked(fetch).mock.calls[0] ?? [];
+    expect(String(url)).toMatch(/\/api\/settings\/booking-preview-sessions$/);
+    expect(init).toEqual(
+      expect.objectContaining({
+        method: "POST",
+        body: JSON.stringify({
+          slug: "maya",
+          draft_overrides: { bio: null, instagram: "maya-new" },
+          client_context: {
+            source: "booking-settings-preview",
+            schema_version: "booking_preview_draft.v1",
+          },
+        }),
+      }),
+    );
+    expect(new Headers((init as RequestInit).headers).get("Authorization")).toBe(
+      "Bearer settings-token",
+    );
+  });
+
+  it("preserves preview resolver error codes", async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          error: {
+            code: "preview_session_expired",
+            message: "Internal preview details are not for display.",
+          },
+        }),
+        {
+          status: 410,
+          headers: {
+            "Content-Type": "application/json",
+            "Retry-After": "12",
+          },
+        },
+      ),
+    );
+
+    await expect(
+      resolveBookingPreviewSession("PVW_secret", "maya"),
+    ).rejects.toEqual(
+      expect.objectContaining({
+        code: "preview_session_expired",
+        status: 410,
+        retryAfterSeconds: 12,
+      }),
+    );
+  });
+
+  it("encodes resolver credentials and unwraps the preview context", async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          data: {
+            preview_mode: true,
+            expires_at: "2026-09-16T12:15:00.000Z",
+            slug: "maya & johnson",
+            profile: {
+              display_name: "Maya",
+              bio: null,
+              instagram: null,
+              cover_photo_url: null,
+              business_name: null,
+              booking_enabled: true,
+              booking_request_form_enabled: false,
+            },
+            preview_capabilities: {
+              allow_public_reads: true,
+              allow_booking_submission: false,
+              allow_waitlist_submission: false,
+              allow_uploads: false,
+              allow_payments: false,
+              allow_analytics: false,
+            },
+            schema_version: "booking_preview_context.v1",
+          },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+
+    const preview = await resolveBookingPreviewSession(
+      "PVW_token/with?reserved",
+      "maya & johnson",
+    );
+
+    expect(fetch).toHaveBeenCalledWith(
+      "/api/public/booking-preview-sessions/PVW_token%2Fwith%3Freserved?slug=maya+%26+johnson",
+      expect.objectContaining({ cache: "no-store" }),
+    );
+    expect(preview).toMatchObject({
+      preview_mode: true,
+      slug: "maya & johnson",
+      profile: { display_name: "Maya" },
+    });
+  });
+
+  it("persists optional booking settings as explicit null clears", async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(JSON.stringify({ data: {} }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    await updateStylistSettingsProfile("settings-token", {
+      display_name: "Maya Johnson",
+      instagram: null,
+      bio: null,
+      booking_request_form_enabled: true,
+    });
+
+    const [url, init] = vi.mocked(fetch).mock.calls[0] ?? [];
+    expect(String(url)).toMatch(/\/api\/settings\/booking$/);
+    expect(init).toEqual(
+      expect.objectContaining({
+        method: "PATCH",
+        body: JSON.stringify({
+          display_name: "Maya Johnson",
+          instagram: null,
+          bio: null,
+          booking_request_form_enabled: true,
+        }),
+      }),
+    );
   });
 });
 

@@ -17,6 +17,7 @@
     "lint:ops": "npm run lint --workspace=@rootfoil/ops",
     "test:marketing": "npm run test --workspace=@rootfoil/marketing",
     "test:web": "npm run test --workspace=@rootfoil/web",
+    "test:e2e:web": "npm run test:e2e --workspace=@rootfoil/web",
     "typecheck:marketing": "npm run typecheck --workspace=@rootfoil/marketing",
     "typecheck:web": "npm run typecheck --workspace=@rootfoil/web",
     "typecheck:ops": "npm run typecheck --workspace=@rootfoil/ops",
@@ -26,6 +27,7 @@
     "typecheck": "npm run typecheck:marketing && npm run typecheck:web && npm run typecheck:ops"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/react": "^16.3.0",

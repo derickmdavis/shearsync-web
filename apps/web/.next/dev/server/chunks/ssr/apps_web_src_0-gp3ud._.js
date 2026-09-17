@@ -19,6 +19,13 @@ __turbopack_context__.s([
 const LOCAL_WEB_APP_ORIGIN = "http://localhost:3001";
 const LOCAL_MARKETING_ORIGIN = "http://localhost:3000";
 const LOCAL_BACKEND_API_ORIGIN = "http://localhost:3000";
+// The apex domain redirects to www in production, so callback URLs must use
+// the hostname that actually serves this Next.js application.
+const PRODUCTION_WEB_APP_ORIGIN = "https://www.rootfoil.app";
+const PRODUCTION_MARKETING_ORIGIN = "https://rootfoil.com";
+function getDefaultOrigin(localOrigin, productionOrigin) {
+    return ("TURBOPACK compile-time falsy", 0) ? "TURBOPACK unreachable" : localOrigin;
+}
 function getAbsoluteOrigin(name, value, fallback) {
     const candidate = value?.trim() || fallback;
     try {
@@ -35,17 +42,17 @@ function joinOriginAndPath(origin, path = "/") {
     return new URL(path.startsWith("/") ? path : `/${path}`, `${origin}/`).toString();
 }
 function getWebAppOrigin() {
-    return getAbsoluteOrigin("NEXT_PUBLIC_WEB_APP_URL", process.env.NEXT_PUBLIC_WEB_APP_URL, LOCAL_WEB_APP_ORIGIN);
+    return getAbsoluteOrigin("NEXT_PUBLIC_WEB_APP_URL", ("TURBOPACK compile-time value", "http://localhost:3001"), getDefaultOrigin(LOCAL_WEB_APP_ORIGIN, PRODUCTION_WEB_APP_ORIGIN));
 }
 function getMarketingOrigin() {
-    return getAbsoluteOrigin("NEXT_PUBLIC_MARKETING_URL", process.env.NEXT_PUBLIC_MARKETING_URL, LOCAL_MARKETING_ORIGIN);
+    return getAbsoluteOrigin("NEXT_PUBLIC_MARKETING_URL", process.env.NEXT_PUBLIC_MARKETING_URL, getDefaultOrigin(LOCAL_MARKETING_ORIGIN, PRODUCTION_MARKETING_ORIGIN));
 }
 function getBrowserApiOrigin() {
-    return getAbsoluteOrigin("NEXT_PUBLIC_API_BASE_URL", process.env.NEXT_PUBLIC_API_BASE_URL, LOCAL_BACKEND_API_ORIGIN);
+    return getAbsoluteOrigin("NEXT_PUBLIC_API_BASE_URL", ("TURBOPACK compile-time value", "http://localhost:4010"), LOCAL_BACKEND_API_ORIGIN);
 }
 function getSupabaseBrowserConfig() {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
-    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
+    const url = ("TURBOPACK compile-time value", "http://localhost:4010")?.trim();
+    const anonKey = ("TURBOPACK compile-time value", "e2e-anon-key")?.trim();
     if (!url || !anonKey) {
         return null;
     }
@@ -65,14 +72,8 @@ function getSupabaseBrowserConfig() {
 function getWebAppUrl(path = "/") {
     return joinOriginAndPath(getWebAppOrigin(), path);
 }
-function getAuthRecoveryUrl(nextPath) {
-    const params = new URLSearchParams({
-        mode: "update-password"
-    });
-    if (nextPath) {
-        params.set("next", nextPath);
-    }
-    return getWebAppUrl(`/login?${params.toString()}`);
+function getAuthRecoveryUrl() {
+    return getWebAppUrl("/reset-password");
 }
 }),
 "[project]/apps/web/src/lib/supabase.ts [app-ssr] (ecmascript)", ((__turbopack_context__) => {
@@ -103,7 +104,15 @@ function getSupabaseBrowserClient() {
     }
     // Reuse one browser client so auth subscriptions and session storage are not
     // duplicated across account/login screens.
-    browserClient ??= (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$supabase$2f$supabase$2d$js$2f$dist$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__["createClient"])(supabaseUrl, supabaseAnonKey);
+    browserClient ??= (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$supabase$2f$supabase$2d$js$2f$dist$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__["createClient"])(supabaseUrl, supabaseAnonKey, {
+        auth: {
+            persistSession: true,
+            autoRefreshToken: true,
+            // Recovery URLs are consumed explicitly by /reset-password. Leaving
+            // automatic detection enabled would risk consuming an auth code twice.
+            detectSessionInUrl: false
+        }
+    });
     return browserClient;
 }
 }),
@@ -115,13 +124,11 @@ __turbopack_context__.s([
     ()=>LoginScreen
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react-jsx-dev-runtime.js [app-ssr] (ecmascript)");
-var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/image.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/navigation.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$supabase$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/apps/web/src/lib/supabase.ts [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$config$2f$public$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/apps/web/src/lib/config/public.ts [app-ssr] (ecmascript)");
 "use client";
-;
 ;
 ;
 ;
@@ -138,7 +145,6 @@ function LoginScreen({ initialMode, nextPath }) {
     const [mode, setMode] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(initialMode);
     const [email, setEmail] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])("");
     const [password, setPassword] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])("");
-    const [newPassword, setNewPassword] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])("");
     const [isBusy, setIsBusy] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
     const [message, setMessage] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])("");
     const [errorMessage, setErrorMessage] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(()=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$supabase$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["hasSupabaseBrowserConfig"])() ? "" : "Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY.");
@@ -148,9 +154,6 @@ function LoginScreen({ initialMode, nextPath }) {
         }
         if (mode === "reset") {
             return "Reset your password";
-        }
-        if (mode === "update-password") {
-            return "Choose a new password";
         }
         return "Welcome back";
     }, [
@@ -164,16 +167,16 @@ function LoginScreen({ initialMode, nextPath }) {
         // valid session exists, and password recovery temporarily switches modes.
         const supabase = (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$supabase$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["getSupabaseBrowserClient"])();
         void supabase.auth.getSession().then(({ data })=>{
-            if (data.session && mode !== "update-password") {
+            if (data.session && mode !== "reset") {
                 router.replace(nextPath);
             }
         });
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session)=>{
             if (event === "PASSWORD_RECOVERY") {
-                setMode("update-password");
+                router.replace("/reset-password");
                 return;
             }
-            if (session && mode !== "update-password") {
+            if (session && mode !== "reset") {
                 router.replace(nextPath);
             }
         });
@@ -195,26 +198,14 @@ function LoginScreen({ initialMode, nextPath }) {
         try {
             const supabase = (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$supabase$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["getSupabaseBrowserClient"])();
             if (mode === "reset") {
-                // Use same-origin redirects so Supabase recovery links return to this
-                // frontend and preserve the sanitized next path.
+                // All recovery links return to the dedicated public callback route.
                 const { error } = await supabase.auth.resetPasswordForEmail(email, {
-                    redirectTo: (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$config$2f$public$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["getAuthRecoveryUrl"])(nextPath)
+                    redirectTo: (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$config$2f$public$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["getAuthRecoveryUrl"])()
                 });
                 if (error) {
                     throw error;
                 }
-                setMessage("Password reset email sent.");
-                return;
-            }
-            if (mode === "update-password") {
-                const { error } = await supabase.auth.updateUser({
-                    password: newPassword
-                });
-                if (error) {
-                    throw error;
-                }
-                setMessage("Password updated.");
-                router.replace(nextPath);
+                setMessage("If an account exists for that email, we’ve sent a password-reset link.");
                 return;
             }
             const credentials = {
@@ -247,16 +238,12 @@ function LoginScreen({ initialMode, nextPath }) {
                     className: "flex min-h-[22rem] flex-col justify-between bg-[#111111] px-6 py-7 text-white sm:px-8",
                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         children: [
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$image$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
-                                src: "/branding/dripdesk-logo-wordmark-light.svg",
-                                alt: "DripDesk",
-                                width: 720,
-                                height: 160,
-                                priority: true,
-                                className: "h-auto w-[190px]"
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                className: "font-display text-4xl font-semibold tracking-tight",
+                                children: "Root & Foil"
                             }, void 0, false, {
                                 fileName: "[project]/apps/web/src/components/auth/LoginScreen.tsx",
-                                lineNumber: 164,
+                                lineNumber: 145,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
@@ -264,18 +251,18 @@ function LoginScreen({ initialMode, nextPath }) {
                                 children: "The business side of beauty"
                             }, void 0, false, {
                                 fileName: "[project]/apps/web/src/components/auth/LoginScreen.tsx",
-                                lineNumber: 172,
+                                lineNumber: 148,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/apps/web/src/components/auth/LoginScreen.tsx",
-                        lineNumber: 163,
+                        lineNumber: 144,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/apps/web/src/components/auth/LoginScreen.tsx",
-                    lineNumber: 162,
+                    lineNumber: 143,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -301,12 +288,12 @@ function LoginScreen({ initialMode, nextPath }) {
                                     children: item === "sign-in" ? "Sign in" : item === "sign-up" ? "Sign up" : "Reset"
                                 }, item, false, {
                                     fileName: "[project]/apps/web/src/components/auth/LoginScreen.tsx",
-                                    lineNumber: 181,
+                                    lineNumber: 157,
                                     columnNumber: 15
                                 }, this))
                         }, void 0, false, {
                             fileName: "[project]/apps/web/src/components/auth/LoginScreen.tsx",
-                            lineNumber: 179,
+                            lineNumber: 155,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
@@ -314,14 +301,14 @@ function LoginScreen({ initialMode, nextPath }) {
                             children: title
                         }, void 0, false, {
                             fileName: "[project]/apps/web/src/components/auth/LoginScreen.tsx",
-                            lineNumber: 205,
+                            lineNumber: 181,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
                             onSubmit: handleSubmit,
                             className: "mt-6 grid gap-4",
                             children: [
-                                mode !== "update-password" ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
                                     className: "block",
                                     children: [
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -329,8 +316,8 @@ function LoginScreen({ initialMode, nextPath }) {
                                             children: "Email"
                                         }, void 0, false, {
                                             fileName: "[project]/apps/web/src/components/auth/LoginScreen.tsx",
-                                            lineNumber: 212,
-                                            columnNumber: 17
+                                            lineNumber: 187,
+                                            columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
                                             value: email,
@@ -341,15 +328,15 @@ function LoginScreen({ initialMode, nextPath }) {
                                             required: true
                                         }, void 0, false, {
                                             fileName: "[project]/apps/web/src/components/auth/LoginScreen.tsx",
-                                            lineNumber: 215,
-                                            columnNumber: 17
+                                            lineNumber: 190,
+                                            columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/apps/web/src/components/auth/LoginScreen.tsx",
-                                    lineNumber: 211,
-                                    columnNumber: 15
-                                }, this) : null,
+                                    lineNumber: 186,
+                                    columnNumber: 13
+                                }, this),
                                 mode === "sign-in" || mode === "sign-up" ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
                                     className: "block",
                                     children: [
@@ -358,7 +345,7 @@ function LoginScreen({ initialMode, nextPath }) {
                                             children: "Password"
                                         }, void 0, false, {
                                             fileName: "[project]/apps/web/src/components/auth/LoginScreen.tsx",
-                                            lineNumber: 228,
+                                            lineNumber: 202,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -370,42 +357,13 @@ function LoginScreen({ initialMode, nextPath }) {
                                             required: true
                                         }, void 0, false, {
                                             fileName: "[project]/apps/web/src/components/auth/LoginScreen.tsx",
-                                            lineNumber: 231,
+                                            lineNumber: 205,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/apps/web/src/components/auth/LoginScreen.tsx",
-                                    lineNumber: 227,
-                                    columnNumber: 15
-                                }, this) : null,
-                                mode === "update-password" ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
-                                    className: "block",
-                                    children: [
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                            className: "mb-2 block text-xs font-semibold uppercase tracking-[0.08em] text-[#6B7280]",
-                                            children: "New password"
-                                        }, void 0, false, {
-                                            fileName: "[project]/apps/web/src/components/auth/LoginScreen.tsx",
-                                            lineNumber: 246,
-                                            columnNumber: 17
-                                        }, this),
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
-                                            value: newPassword,
-                                            onChange: (event)=>setNewPassword(event.target.value),
-                                            className: "h-12 w-full rounded-2xl border border-border bg-white px-4 text-sm outline-none focus:border-brand focus:ring-2 focus:ring-brand/20",
-                                            type: "password",
-                                            autoComplete: "new-password",
-                                            required: true
-                                        }, void 0, false, {
-                                            fileName: "[project]/apps/web/src/components/auth/LoginScreen.tsx",
-                                            lineNumber: 249,
-                                            columnNumber: 17
-                                        }, this)
-                                    ]
-                                }, void 0, true, {
-                                    fileName: "[project]/apps/web/src/components/auth/LoginScreen.tsx",
-                                    lineNumber: 245,
+                                    lineNumber: 201,
                                     columnNumber: 15
                                 }, this) : null,
                                 message ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -413,7 +371,7 @@ function LoginScreen({ initialMode, nextPath }) {
                                     children: message
                                 }, void 0, false, {
                                     fileName: "[project]/apps/web/src/components/auth/LoginScreen.tsx",
-                                    lineNumber: 261,
+                                    lineNumber: 219,
                                     columnNumber: 15
                                 }, this) : null,
                                 errorMessage ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -421,40 +379,40 @@ function LoginScreen({ initialMode, nextPath }) {
                                     children: errorMessage
                                 }, void 0, false, {
                                     fileName: "[project]/apps/web/src/components/auth/LoginScreen.tsx",
-                                    lineNumber: 267,
+                                    lineNumber: 225,
                                     columnNumber: 15
                                 }, this) : null,
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                                     type: "submit",
                                     disabled: isBusy,
                                     className: "mt-2 inline-flex h-12 items-center justify-center rounded-2xl bg-brand px-5 text-sm font-semibold text-white shadow-[0_16px_30px_rgba(183,121,61,0.23)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-brand/30 disabled:cursor-not-allowed disabled:opacity-60",
-                                    children: isBusy ? "Working..." : mode === "sign-up" ? "Create account" : mode === "reset" ? "Send reset email" : mode === "update-password" ? "Update password" : "Sign in"
+                                    children: isBusy ? "Working..." : mode === "sign-up" ? "Create account" : mode === "reset" ? "Send reset email" : "Sign in"
                                 }, void 0, false, {
                                     fileName: "[project]/apps/web/src/components/auth/LoginScreen.tsx",
-                                    lineNumber: 272,
+                                    lineNumber: 230,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/apps/web/src/components/auth/LoginScreen.tsx",
-                            lineNumber: 209,
+                            lineNumber: 185,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/apps/web/src/components/auth/LoginScreen.tsx",
-                    lineNumber: 178,
+                    lineNumber: 154,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/apps/web/src/components/auth/LoginScreen.tsx",
-            lineNumber: 161,
+            lineNumber: 142,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/apps/web/src/components/auth/LoginScreen.tsx",
-        lineNumber: 160,
+        lineNumber: 141,
         columnNumber: 5
     }, this);
 }

@@ -44,6 +44,7 @@ import { DetailsStep } from "@/src/components/booking/DetailsStep";
 import { TimeStep } from "@/src/components/booking/TimeStep";
 import { useBookingDetails } from "@/src/components/booking/useBookingDetails";
 import { WaitlistCallout } from "@/src/components/booking/WaitlistCallout";
+import { PublicBookingProfile } from "@/src/components/booking/PublicBookingProfile";
 
 type BookingFlowProps = {
   slug: string;
@@ -61,16 +62,6 @@ type AvailabilityDayPreview = {
   date: string;
   slots: PublicSlot[];
 };
-
-function formatInstagramHandle(value?: string | null) {
-  if (!value) return null;
-  return `@${value.replace(/^@+/, "")}`;
-}
-
-function getInstagramUrl(value?: string | null) {
-  if (!value) return null;
-  return `https://instagram.com/${value.replace(/^@+/, "")}`;
-}
 
 function filterRejectedSlots(slots: PublicSlot[], rejectedStarts: string[]) {
   if (!rejectedStarts.length) {
@@ -209,8 +200,6 @@ export function BookingFlow({
   const sortedServices = useMemo(() => sortServices(services), [services]);
   const activeTimezone = availabilityTimezone || stylist.timezone || null;
   const pageName = buildSummaryName(stylist);
-  const instagramHandle = formatInstagramHandle(stylist.instagram);
-  const instagramUrl = getInstagramUrl(stylist.instagram);
   const showServicePicker =
     !bookingDisabled &&
     intakeState.status === "ready" &&
@@ -1431,43 +1420,7 @@ export function BookingFlow({
 
   return (
     <div className="rounded-[30px] border border-white/80 bg-card p-6 shadow-[0_24px_80px_rgba(17,24,39,0.08)] sm:p-8 lg:grid lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-8">
-      <aside className="lg:sticky lg:top-8 lg:self-start">
-        {stylist.cover_photo_url ? (
-          <div
-            className="-mx-6 -mt-6 mb-5 h-28 rounded-t-[30px] bg-zinc-100 bg-cover bg-center sm:-mx-8 sm:-mt-8 lg:mx-0 lg:mt-0 lg:h-48 lg:rounded-3xl"
-            style={{ backgroundImage: `url(${stylist.cover_photo_url})` }}
-          />
-        ) : null}
-
-        <div>
-          <p className="font-display text-4xl font-semibold italic text-foreground">
-            {stylist.display_name}
-          </p>
-          {stylist.business_name || instagramHandle ? (
-            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-              {stylist.business_name ? (
-                <p className="text-muted">{stylist.business_name}</p>
-              ) : null}
-              {instagramHandle && instagramUrl ? (
-                <a
-                  className="font-medium text-foreground underline decoration-border underline-offset-4 transition hover:text-muted"
-                  href={instagramUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {instagramHandle}
-                </a>
-              ) : null}
-            </div>
-          ) : null}
-        </div>
-
-        {stylist.bio ? (
-          <p className="mt-5 rounded-2xl bg-zinc-50 px-4 py-3 text-sm leading-6 text-muted">
-            {stylist.bio}
-          </p>
-        ) : null}
-      </aside>
+      <PublicBookingProfile stylist={stylist} />
 
       <div className="lg:min-w-0">
         {bookingDisabled ? (

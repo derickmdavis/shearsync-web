@@ -83,6 +83,8 @@ export type PublicProfileForm = {
   slug: string;
   display_name: string;
   bio: string;
+  instagram: string;
   cover_photo_url: string;
   booking_enabled: boolean;
+  booking_request_form_enabled: boolean;
 };

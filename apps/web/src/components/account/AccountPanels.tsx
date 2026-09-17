@@ -282,6 +282,9 @@ export function ProfileTabPanel({
   newPassword,
   savingProfile,
   savingPublic,
+  previewingPublic,
+  previewError,
+  previewCooldownSeconds,
   canUpgrade,
   onNewPasswordChange,
   onPasswordSubmit,
@@ -290,7 +293,10 @@ export function ProfileTabPanel({
   onProfileSubmit,
   onPublicFieldChange,
   onBookingEnabledChange,
+  onBookingRequestFormEnabledChange,
   onPublicSubmit,
+  onPublicPreview,
+  onPreviewSettingsRefresh,
   onCancel,
   onSoon,
 }: {
@@ -303,6 +309,9 @@ export function ProfileTabPanel({
   newPassword: string;
   savingProfile: boolean;
   savingPublic: boolean;
+  previewingPublic: boolean;
+  previewError: { message: string; canRefreshSettings?: boolean } | null;
+  previewCooldownSeconds: number;
   canUpgrade: boolean;
   onNewPasswordChange: (value: string) => void;
   onPasswordSubmit: (event: FormEvent<HTMLFormElement>) => void;
@@ -317,7 +326,10 @@ export function ProfileTabPanel({
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => void;
   onBookingEnabledChange: (bookingEnabled: boolean) => void;
+  onBookingRequestFormEnabledChange: (value: boolean) => void;
   onPublicSubmit: (event: FormEvent<HTMLFormElement>) => void;
+  onPublicPreview: () => void;
+  onPreviewSettingsRefresh: () => void;
   onCancel: () => void;
   onSoon: (message: string) => void;
 }) {
@@ -338,7 +350,13 @@ export function ProfileTabPanel({
           isSaving={savingPublic}
           onFieldChange={onPublicFieldChange}
           onBookingEnabledChange={onBookingEnabledChange}
+          onBookingRequestFormEnabledChange={onBookingRequestFormEnabledChange}
           onSubmit={onPublicSubmit}
+          isPreviewing={previewingPublic}
+          previewError={previewError}
+          previewCooldownSeconds={previewCooldownSeconds}
+          onPreview={onPublicPreview}
+          onPreviewSettingsRefresh={onPreviewSettingsRefresh}
         />
       </div>
 
@@ -1006,7 +1024,13 @@ function PublicProfileSection({
   isSaving,
   onFieldChange,
   onBookingEnabledChange,
+  onBookingRequestFormEnabledChange,
   onSubmit,
+  isPreviewing,
+  previewError,
+  previewCooldownSeconds,
+  onPreview,
+  onPreviewSettingsRefresh,
 }: {
   form: PublicProfileForm;
   plan: AccountPlan;
@@ -1017,7 +1041,13 @@ function PublicProfileSection({
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => void;
   onBookingEnabledChange: (value: boolean) => void;
+  onBookingRequestFormEnabledChange: (value: boolean) => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+  isPreviewing: boolean;
+  previewError: { message: string; canRefreshSettings?: boolean } | null;
+  previewCooldownSeconds: number;
+  onPreview: () => void;
+  onPreviewSettingsRefresh: () => void;
 }) {
   return (
     <section
@@ -1057,8 +1087,23 @@ function PublicProfileSection({
           <input
             value={form.display_name}
             onChange={(event) => onFieldChange("display_name", event)}
+            maxLength={160}
             className="h-12 w-full rounded-[8px] border border-[#E4D6C3] bg-white px-4 text-sm outline-none focus:ring-2 focus:ring-brand/25"
           />
+        </Field>
+        <Field label="Instagram">
+          <input
+            value={form.instagram}
+            onChange={(event) => onFieldChange("instagram", event)}
+            maxLength={100}
+            autoCapitalize="none"
+            autoCorrect="off"
+            placeholder="@yourhandle"
+            className="h-12 w-full rounded-[8px] border border-[#E4D6C3] bg-white px-4 text-sm outline-none focus:ring-2 focus:ring-brand/25"
+          />
+          <p className="mt-2 text-xs font-semibold text-[#6B7280]">
+            Your handle can include @; it is removed when saved.
+          </p>
         </Field>
         <Field label="Bio">
           <textarea
@@ -1098,13 +1143,62 @@ function PublicProfileSection({
             className="h-5 w-5 accent-brand"
           />
         </label>
-        <button
-          type="submit"
-          disabled={isSaving}
-          className="mt-2 inline-flex h-12 items-center justify-center rounded-[8px] bg-brand px-5 text-sm font-semibold text-white shadow-[0_16px_30px_rgba(183,121,61,0.23)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-brand/30 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {isSaving ? "Saving..." : "Save public profile"}
-        </button>
+        <label className="flex items-center justify-between gap-4 rounded-[8px] border border-[#E4D6C3] bg-[#FAF7F2] px-4 py-3">
+          <span>
+            <span className="block text-sm font-semibold text-[#111111]">
+              Booking request form enabled
+            </span>
+            <span className="mt-1 block text-xs font-semibold text-[#6B7280]">
+              Let customers submit booking requests from your public page.
+            </span>
+          </span>
+          <input
+            checked={form.booking_request_form_enabled}
+            onChange={(event) =>
+              onBookingRequestFormEnabledChange(event.target.checked)
+            }
+            type="checkbox"
+            className="h-5 w-5 accent-brand"
+          />
+        </label>
+        {previewError ? (
+          <div
+            role="alert"
+            className="rounded-[8px] border border-[#F5C2C7] bg-[#FFF5F5] px-4 py-3 text-sm leading-6 text-[#9B1C1C]"
+          >
+            <p>{previewError.message}</p>
+            {previewError.canRefreshSettings ? (
+              <button
+                type="button"
+                onClick={onPreviewSettingsRefresh}
+                className="mt-2 font-semibold underline underline-offset-2"
+              >
+                Refresh settings
+              </button>
+            ) : null}
+          </div>
+        ) : null}
+        <div className="mt-2 grid gap-3 sm:grid-cols-2">
+          <button
+            type="submit"
+            disabled={isSaving || isPreviewing}
+            className="inline-flex h-12 items-center justify-center rounded-[8px] bg-brand px-5 text-sm font-semibold text-white shadow-[0_16px_30px_rgba(183,121,61,0.23)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-brand/30 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isSaving ? "Saving..." : "Save public profile"}
+          </button>
+          <button
+            type="button"
+            onClick={onPreview}
+            disabled={isSaving || isPreviewing || previewCooldownSeconds > 0}
+            className="inline-flex h-12 items-center justify-center rounded-[8px] border border-brand bg-white px-5 text-sm font-semibold text-brand transition-colors hover:bg-brand/5 focus:outline-none focus:ring-2 focus:ring-brand/30 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isPreviewing
+              ? "Creating preview..."
+              : previewCooldownSeconds > 0
+                ? `Try again in ${previewCooldownSeconds}s`
+                : "Preview booking page"}
+          </button>
+        </div>
       </form>
     </section>
   );
