@@ -19,6 +19,8 @@ type DetailsState = {
 type DetailsErrors = Partial<Record<keyof DetailsState, string>>;
 
 type DetailsStepProps = {
+  intro?: string | null;
+  introDescription?: string | null;
   values: DetailsState;
   errors: DetailsErrors;
   services: PublicService[];
@@ -36,6 +38,8 @@ type DetailsStepProps = {
 };
 
 export function DetailsStep({
+  intro,
+  introDescription,
   values,
   errors,
   services,
@@ -51,6 +55,9 @@ export function DetailsStep({
   onToggleService,
   onContinue,
 }: DetailsStepProps) {
+  const heading = intro ?? "Let's get to know you";
+  const description = introDescription
+    ?? "Start with your contact details so we can check whether you're a returning client before you pick a service.";
   const disableSubmit =
     intakeLoading ||
     servicesLoading ||
@@ -67,11 +74,10 @@ export function DetailsStep({
     >
       <div>
         <h2 className="text-[30px] font-semibold tracking-tight text-foreground">
-          Let&apos;s get to know you
+          {heading}
         </h2>
         <p className="mt-2 text-sm text-muted">
-          Start with your contact details so we can check whether you&apos;re a
-          returning client before you pick a service.
+          {description}
         </p>
       </div>
 

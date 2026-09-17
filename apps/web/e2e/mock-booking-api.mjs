@@ -23,6 +23,8 @@ const stylist = {
   slug: "maya-johnson",
   display_name: "Maya Johnson",
   bio: "Lived-in color specialist",
+  intro: "Let's get to know you",
+  intro_description: "Start with your contact details before selecting a service.",
   instagram: "mayajohnsonhair",
   cover_photo_url: null,
   booking_enabled: true,
@@ -99,6 +101,8 @@ createServer((request, response) => {
         profile: {
           display_name: "Maya Johnson",
           bio: "Lived-in color specialist",
+          intro: "Let's get to know you",
+          intro_description: "Start with your contact details before selecting a service.",
           instagram: "mayajohnsonhair",
           cover_photo_url: null,
           business_name: "Maya Studio",

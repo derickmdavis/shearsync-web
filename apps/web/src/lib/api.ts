@@ -71,6 +71,8 @@ export type PublicStylistProfile = {
   slug: string;
   display_name: string;
   bio?: string | null;
+  intro?: string | null;
+  intro_description?: string | null;
   cover_photo_url?: string | null;
   instagram?: string | null;
   booking_enabled: boolean;
@@ -126,6 +128,8 @@ export type StylistSettingsProfile = {
   slug: string;
   display_name: string;
   bio: string | null;
+  intro: string | null;
+  intro_description: string | null;
   instagram: string | null;
   cover_photo_url: string | null;
   booking_enabled: boolean;
@@ -138,6 +142,8 @@ export type StylistSettingsUpdate = {
   slug?: string;
   display_name?: string;
   bio?: string | null;
+  intro?: string | null;
+  intro_description?: string | null;
   instagram?: string | null;
   cover_photo_url?: string | null;
   booking_enabled?: boolean;
@@ -148,6 +154,8 @@ export type BookingPreviewDraftOverrides = {
   display_name?: string | null;
   instagram?: string | null;
   bio?: string | null;
+  intro?: string | null;
+  intro_description?: string | null;
   booking_request_form_enabled?: boolean;
 };
 
@@ -175,6 +183,8 @@ export type BookingPreviewContext = {
     display_name: string | null;
     bio: string | null;
     instagram: string | null;
+    intro: string | null;
+    intro_description: string | null;
     cover_photo_url: string | null;
     business_name: string | null;
     booking_enabled: boolean;

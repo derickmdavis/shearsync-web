@@ -25,6 +25,8 @@ const stylist: PublicStylist = {
   slug: "maya-johnson",
   display_name: "Maya at North Loop",
   bio: "Lived-in color specialist",
+  intro: "Tell us about yourself",
+  intro_description: "Share your contact details before choosing a service.",
   instagram: "maya-new",
   cover_photo_url: null,
   business_name: "Maya Studio",
@@ -43,6 +45,8 @@ function createPreview(
       display_name: "Maya at North Loop",
       bio: "Lived-in color specialist",
       instagram: "maya-new",
+      intro: "Tell us about yourself",
+      intro_description: "Share your contact details before choosing a service.",
       cover_photo_url: null,
       business_name: "Maya Studio",
       booking_enabled: true,
@@ -92,6 +96,10 @@ describe("BookingPreviewFlow", () => {
       screen.getByRole("heading", { name: "Preview — booking is disabled" }),
     ).toBeTruthy();
     expect(await screen.findByText("Signature Cut")).toBeTruthy();
+    expect(screen.getByText("Tell us about yourself")).toBeTruthy();
+    expect(
+      screen.getByText("Share your contact details before choosing a service."),
+    ).toBeTruthy();
     expect(bookingApi.getPublicServices).toHaveBeenCalledWith("maya-johnson");
     expect(bookingApi.createPublicBookingIntake).not.toHaveBeenCalled();
     expect(bookingApi.createPublicBooking).not.toHaveBeenCalled();

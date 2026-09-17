@@ -23,7 +23,7 @@ export function getBookingPreviewCreationError(
       case "invalid_preview_draft":
         return {
           message:
-            "Some preview fields are invalid. Review the display name, Instagram handle, and bio, then try again.",
+            "Some preview fields are invalid. Review the display name, Instagram handle, bio, and intro copy, then try again.",
         };
       case "preview_not_authorized":
         return {
@@ -58,6 +58,8 @@ export function buildBookingPreviewDraftOverrides(
   const displayName = normalizePreviewText(form.display_name);
   const instagram = normalizePreviewText(form.instagram);
   const bio = normalizePreviewText(form.bio);
+  const intro = normalizePreviewText(form.intro);
+  const introDescription = normalizePreviewText(form.intro_description);
 
   if (displayName !== persisted.display_name) {
     overrides.display_name = displayName;
@@ -69,6 +71,14 @@ export function buildBookingPreviewDraftOverrides(
 
   if (bio !== persisted.bio) {
     overrides.bio = bio;
+  }
+
+  if (intro !== persisted.intro) {
+    overrides.intro = intro;
+  }
+
+  if (introDescription !== persisted.intro_description) {
+    overrides.intro_description = introDescription;
   }
 
   if (

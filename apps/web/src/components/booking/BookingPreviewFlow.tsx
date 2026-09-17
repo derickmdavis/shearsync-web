@@ -39,6 +39,9 @@ export function BookingPreviewFlow({
   const previewDisablesUploads = capabilities.allow_uploads === false;
   const previewDisablesPayments = capabilities.allow_payments === false;
   const previewDisablesAnalytics = capabilities.allow_analytics === false;
+  const intro = preview.profile.intro ?? "Let's get to know you";
+  const introDescription = preview.profile.intro_description
+    ?? "Start with your contact details so we can check whether you're a returning client before you pick a service.";
   const services = useMemo(
     () =>
       serviceState.status === "ready"
@@ -99,6 +102,15 @@ export function BookingPreviewFlow({
           <p className="mt-3 text-sm leading-6 text-muted">
             This is a read-only view of your booking page. Customers cannot
             submit bookings, join the waitlist, upload photos, or make payments.
+          </p>
+        </section>
+
+        <section className="mt-6">
+          <h2 className="text-xl font-semibold tracking-tight text-foreground">
+            {intro}
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-muted">
+            {introDescription}
           </p>
         </section>
 

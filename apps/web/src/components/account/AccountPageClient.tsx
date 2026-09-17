@@ -89,6 +89,8 @@ function toPublicProfileForm(stylist: StylistSettingsProfile): PublicProfileForm
     slug: stylist.slug,
     display_name: stylist.display_name,
     bio: stylist.bio ?? "",
+    intro: stylist.intro ?? "",
+    intro_description: stylist.intro_description ?? "",
     instagram: stylist.instagram ?? "",
     cover_photo_url: stylist.cover_photo_url ?? "",
     booking_enabled: stylist.booking_enabled,
@@ -671,6 +673,8 @@ export function AccountPageClient() {
     const body: StylistSettingsUpdate = {
       display_name: publicForm.display_name,
       bio: normalizeOptionalText(publicForm.bio),
+      intro: normalizeOptionalText(publicForm.intro),
+      intro_description: normalizeOptionalText(publicForm.intro_description),
       instagram: normalizeOptionalText(publicForm.instagram),
       booking_enabled: publicForm.booking_enabled,
       booking_request_form_enabled: publicForm.booking_request_form_enabled,

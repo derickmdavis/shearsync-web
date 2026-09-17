@@ -15,6 +15,8 @@ const persisted: StylistSettingsProfile = {
   slug: "maya-johnson",
   display_name: "Maya Johnson",
   bio: "Lived-in color specialist",
+  intro: "Let's get to know you",
+  intro_description: "Saved client information description",
   instagram: "mayajohnsonhair",
   cover_photo_url: "https://cdn.example.com/cover.jpg",
   booking_enabled: true,
@@ -27,6 +29,8 @@ const form: PublicProfileForm = {
   slug: "unsaved-new-slug",
   display_name: "Maya at North Loop",
   bio: "",
+  intro: "Tell us about yourself",
+  intro_description: "Share your contact details before choosing a service.",
   instagram: "@maya-new",
   cover_photo_url: "https://example.com/draft-cover.jpg",
   booking_enabled: false,
@@ -39,6 +43,8 @@ describe("buildBookingPreviewDraftOverrides", () => {
       display_name: "Maya at North Loop",
       instagram: "@maya-new",
       bio: null,
+      intro: "Tell us about yourself",
+      intro_description: "Share your contact details before choosing a service.",
       booking_request_form_enabled: true,
     });
   });
@@ -51,6 +57,8 @@ describe("buildBookingPreviewDraftOverrides", () => {
           slug: "another-unsaved-slug",
           display_name: persisted.display_name,
           bio: persisted.bio ?? "",
+          intro: persisted.intro ?? "",
+          intro_description: persisted.intro_description ?? "",
           instagram: persisted.instagram ?? "",
           booking_request_form_enabled:
             persisted.booking_request_form_enabled,

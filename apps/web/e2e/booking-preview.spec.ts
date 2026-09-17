@@ -30,6 +30,10 @@ test("opens a read-only preview popup without persisting capabilities, referrals
   await expect(
     previewPage.getByRole("heading", { name: "Preview — booking is disabled" }),
   ).toBeVisible();
+  await expect(previewPage.getByText("Let's get to know you")).toBeVisible();
+  await expect(
+    previewPage.getByText("Start with your contact details before selecting a service."),
+  ).toBeVisible();
   await expect(previewPage.getByText("Signature Cut")).toBeVisible();
   await expect.poll(() => new URL(previewPage.url()).searchParams.has("preview")).toBe(false);
 

@@ -1113,6 +1113,30 @@ function PublicProfileSection({
             className="min-h-28 w-full resize-y rounded-[8px] border border-[#E4D6C3] bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-brand/25"
           />
         </Field>
+        <Field label="Client information heading">
+          <input
+            value={form.intro}
+            onChange={(event) => onFieldChange("intro", event)}
+            maxLength={100}
+            placeholder="Let's get to know you"
+            className="h-12 w-full rounded-[8px] border border-[#E4D6C3] bg-white px-4 text-sm outline-none focus:ring-2 focus:ring-brand/25"
+          />
+          <p className="mt-2 text-xs font-semibold text-[#6B7280]">
+            Shown above customer contact fields. Leave blank to use the booking-page default.
+          </p>
+        </Field>
+        <Field label="Client information description">
+          <textarea
+            value={form.intro_description}
+            onChange={(event) => onFieldChange("intro_description", event)}
+            maxLength={500}
+            placeholder="Start with your contact details before selecting a service."
+            className="min-h-24 w-full resize-y rounded-[8px] border border-[#E4D6C3] bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-brand/25"
+          />
+          <p className="mt-2 text-xs font-semibold text-[#6B7280]">
+            Shown beneath the heading. Leave blank to use the booking-page default.
+          </p>
+        </Field>
         <Field label="Cover photo URL">
           <input
             value={form.cover_photo_url}

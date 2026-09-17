@@ -1445,6 +1445,8 @@ export function BookingFlow({
 
           {currentStep === 1 ? (
             <DetailsStep
+              intro={stylist.intro}
+              introDescription={stylist.intro_description}
               values={{ fullName, email, phone }}
               errors={detailsErrors}
               services={sortedServices}

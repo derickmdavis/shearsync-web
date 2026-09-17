@@ -212,6 +212,27 @@ describe("BookingFlow", () => {
     expect(screen.queryByRole("link", { name: /^@/ })).toBeNull();
   });
 
+  it("renders saved client-information copy", () => {
+    render(
+      <BookingFlow
+        slug="maya-johnson"
+        stylist={{
+          ...baseStylist,
+          intro: "Tell us about yourself",
+          intro_description:
+            "Share your contact details before choosing a service.",
+        }}
+      />,
+    );
+
+    expect(
+      screen.getByRole("heading", { name: "Tell us about yourself" }),
+    ).toBeTruthy();
+    expect(
+      screen.getByText("Share your contact details before choosing a service."),
+    ).toBeTruthy();
+  });
+
   it("stops immediately when profile booking is disabled", () => {
     const {
       createPublicBookingIntake,
