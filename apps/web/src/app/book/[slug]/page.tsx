@@ -175,6 +175,9 @@ function toPreviewStylist(preview: BookingPreviewContext): PublicStylist {
     business_name: profile.business_name,
     booking_enabled: profile.booking_enabled,
     booking_request_form_enabled: profile.booking_request_form_enabled,
+    booking_request_form: isBookingInquiryForm(profile.booking_request_form)
+      ? profile.booking_request_form
+      : { enabled: false, questions: [] },
   };
 }
 
@@ -222,6 +225,13 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function isNullableString(value: unknown) {
   return value === null || typeof value === "string";
+}
+
+function isBookingInquiryForm(value: unknown) {
+  return isRecord(value)
+    && typeof value.enabled === "boolean"
+    && Array.isArray(value.questions)
+    && value.questions.length === 3;
 }
 
 function recordPreviewResolverOutcome(status: number, code: string) {

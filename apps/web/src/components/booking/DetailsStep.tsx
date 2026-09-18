@@ -9,6 +9,7 @@ import {
   sumServicePrices,
 } from "@/src/lib/booking-format";
 import { ServiceCard } from "@/src/components/booking/ServiceCard";
+import type { ReactNode } from "react";
 
 type DetailsState = {
   fullName: string;
@@ -32,6 +33,7 @@ type DetailsStepProps = {
   canBeginServiceSelection: boolean;
   showServicePicker: boolean;
   recommendedServiceId?: string | null;
+  inquiryCallout?: ReactNode;
   onChange: (field: keyof DetailsState, value: string) => void;
   onToggleService: (service: PublicService) => void;
   onContinue: () => void;
@@ -51,6 +53,7 @@ export function DetailsStep({
   canBeginServiceSelection,
   showServicePicker,
   recommendedServiceId,
+  inquiryCallout,
   onChange,
   onToggleService,
   onContinue,
@@ -129,6 +132,8 @@ export function DetailsStep({
           selectedServiceIds={selectedServices.map((service) => service.id)}
         />
       ) : null}
+
+      {inquiryCallout}
 
       {showServicePicker ? (
         <div className="mt-8 overflow-hidden rounded-3xl border border-border bg-surface-warm">
@@ -219,18 +224,18 @@ function IntakeMessage({
   intake: PublicBookingIntakeData;
   selectedServiceIds: string[];
 }) {
+  if (intake.matchStatus === "not_found") {
+    return null;
+  }
+
   const title =
     intake.matchStatus === "matched"
       ? `Welcome back, ${intake.client?.firstName || "there"}`
-      : intake.matchStatus === "ambiguous"
-        ? "We need one more check"
-        : "New client booking";
+      : "We need one more check";
   const toneClass =
     intake.matchStatus === "matched"
       ? "border-emerald-200 bg-emerald-50 text-emerald-950"
-      : intake.matchStatus === "ambiguous"
-        ? "border-amber-200 bg-amber-50 text-amber-950"
-        : "border-sky-200 bg-sky-50 text-sky-950";
+      : "border-amber-200 bg-amber-50 text-amber-950";
 
   return (
     <div className={["mt-6 rounded-2xl border px-4 py-4", toneClass].join(" ")}>

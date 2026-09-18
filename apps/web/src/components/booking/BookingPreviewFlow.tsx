@@ -15,6 +15,7 @@ import { ConfirmStep } from "@/src/components/booking/ConfirmStep";
 import { DetailsStep } from "@/src/components/booking/DetailsStep";
 import { PublicBookingProfile } from "@/src/components/booking/PublicBookingProfile";
 import { TimeStep } from "@/src/components/booking/TimeStep";
+import { BookingInquiryCard } from "@/src/components/booking/BookingInquiryCard";
 
 type BookingPreviewFlowProps = {
   preview: BookingPreviewContext;
@@ -214,6 +215,18 @@ export function BookingPreviewFlow({
                 onChange={updateDetails}
                 onToggleService={toggleService}
                 onContinue={continueFromDetails}
+                inquiryCallout={<BookingInquiryCard
+                  slug={preview.slug}
+                  config={preview.profile.booking_request_form}
+                  phone={details.phone}
+                  email={details.email}
+                  previewMode
+                  validateContact={() => {
+                    const valid = Boolean(details.fullName.trim() && details.phone.trim());
+                    if (!valid) setDetailsErrors({ fullName: "Enter a name to preview.", phone: "Enter a phone number to preview." });
+                    return valid;
+                  }}
+                />}
               />
               {showServicePicker ? (
                 <p className="mt-4 text-xs text-muted">

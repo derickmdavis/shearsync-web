@@ -482,6 +482,8 @@ describe("BookingFlow", () => {
     await openServicesStep();
 
     expect(screen.getByText("Haircut")).toBeTruthy();
+    expect(screen.queryByText("New client booking")).toBeNull();
+    expect(screen.queryByText("New client booking rules apply.")).toBeNull();
     expect(
       screen.queryByRole("button", { name: /Color Correction/i }),
     ).toBeNull();

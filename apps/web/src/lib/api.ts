@@ -77,12 +77,50 @@ export type PublicStylistProfile = {
   instagram?: string | null;
   booking_enabled: boolean;
   booking_request_form_enabled?: boolean;
+  booking_request_form?: BookingInquiryFormConfig;
   business_name?: string | null;
   phone_number?: string | null;
   timezone?: string | null;
   features?: {
     waitlistEnabled?: boolean;
   } | null;
+};
+
+export type BookingInquiryQuestion = {
+  id: "desired_outcome" | "hair_history" | "optional_photos";
+  order: 1 | 2 | 3;
+  type: "long_text" | "photo_upload";
+  required: boolean;
+  prompt: string;
+  helper_text?: string;
+};
+
+export type BookingInquiryFormConfig = {
+  enabled: boolean;
+  questions: BookingInquiryQuestion[];
+};
+
+export type BookingInquirySession = {
+  inquiry_session_id: string;
+  expires_at: string;
+  booking_request_form: BookingInquiryFormConfig;
+};
+
+export type CreatePublicBookingInquiryBody = {
+  inquiry_session_id: string;
+  guest_phone: string;
+  guest_email?: string;
+  inquiry_answers: {
+    desired_outcome: string;
+    hair_history: string;
+    optional_photo_upload_ids: string[];
+  };
+};
+
+export type PublicBookingInquiry = { inquiry_id: string; submitted_at: string };
+export type InquiryUploadIntent = {
+  id: string; storage_path: string; thumbnail_path: string; expires_at: string;
+  signed_upload_urls: { display: { path: string; token: string }; thumbnail: { path: string; token: string } };
 };
 
 export type PublicStylist = PublicStylistProfile;
@@ -157,6 +195,11 @@ export type BookingPreviewDraftOverrides = {
   intro?: string | null;
   intro_description?: string | null;
   booking_request_form_enabled?: boolean;
+  booking_request_form_questions?: {
+    desired_outcome: string;
+    hair_history: string;
+    optional_photos: string;
+  };
 };
 
 export type CreateBookingPreviewSessionInput = {
@@ -189,6 +232,7 @@ export type BookingPreviewContext = {
     business_name: string | null;
     booking_enabled: boolean;
     booking_request_form_enabled: boolean;
+    booking_request_form: BookingInquiryFormConfig;
   };
   preview_capabilities: {
     allow_public_reads: boolean;
@@ -1012,6 +1056,33 @@ export async function createPublicBooking(
       body: JSON.stringify(body),
     },
   });
+}
+
+export async function createPublicBookingInquirySession(stylist_slug: string) {
+  return requestPublicApi<BookingInquirySession>("/api/public/booking-inquiries/sessions", {
+    init: { method: "POST", body: JSON.stringify({ stylist_slug }) },
+  });
+}
+
+export async function createPublicBookingInquiry(body: CreatePublicBookingInquiryBody) {
+  return requestPublicApi<PublicBookingInquiry>("/api/public/booking-inquiries", {
+    init: { method: "POST", body: JSON.stringify(body) },
+  });
+}
+
+export async function createPublicBookingInquiryUploadIntent(body: {
+  inquiry_session_id: string; original_filename?: string | null; content_type: "image/jpeg" | "image/png" | "image/webp";
+  input_size_bytes: number; display_content_type: "image/jpeg" | "image/png" | "image/webp"; thumbnail_content_type: "image/jpeg" | "image/png" | "image/webp";
+}) {
+  return requestPublicApi<InquiryUploadIntent>("/api/public/booking-inquiry-uploads/upload-intent", { init: { method: "POST", body: JSON.stringify(body) } });
+}
+
+export async function finalizePublicBookingInquiryUpload(body: {
+  inquiry_session_id: string; upload_id: string; storage_path: string; thumbnail_path: string; original_filename?: string | null;
+  content_type: "image/jpeg" | "image/png" | "image/webp"; file_size_bytes: number; thumbnail_size_bytes: number;
+  width: number; height: number; thumbnail_width: number; thumbnail_height: number;
+}) {
+  return requestPublicApi<{ id: string }>("/api/public/booking-inquiry-uploads/finalize", { init: { method: "POST", body: JSON.stringify(body) } });
 }
 
 export async function resolvePublicReferral(referralCode: string) {

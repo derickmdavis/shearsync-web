@@ -15,6 +15,7 @@ import {
   type PublicSlotsResponse,
   type PublicStylist,
 } from "@/src/lib/api";
+import { BookingInquiryCard } from "@/src/components/booking/BookingInquiryCard";
 import {
   buildAvailabilityDateOptions,
   buildBookingNotes,
@@ -1460,7 +1461,14 @@ export function BookingFlow({
               recommendedServiceId={intakeData?.recommendedService?.serviceId ?? null}
               onChange={handleDetailsChange}
               onToggleService={handleToggleService}
-              onContinue={handleContinueFromDetails}
+                onContinue={handleContinueFromDetails}
+                inquiryCallout={<BookingInquiryCard
+                  slug={slug}
+                  config={stylist.booking_request_form}
+                  phone={phone}
+                  email={email}
+                  validateContact={validateDetails}
+                />}
             />
           ) : null}
 
