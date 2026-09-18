@@ -236,7 +236,10 @@ export function ConfirmStep({
 
       {error ? <p className="mt-4 text-sm text-red-500">{error}</p> : null}
 
-      <section className="mt-5 text-left" aria-labelledby="sms-consent-label">
+      <section
+        className="mt-5 rounded-2xl border border-border bg-surface-warm p-4 text-left"
+        aria-labelledby="sms-consent-label"
+      >
         <div className="flex items-start gap-3">
           <input
             id="appointment-sms-consent"
