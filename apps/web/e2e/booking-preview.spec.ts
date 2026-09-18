@@ -55,6 +55,38 @@ test("opens a read-only preview popup without persisting capabilities, referrals
   await expect(
     previewPage.getByRole("heading", { name: "Review your booking" }),
   ).toBeVisible();
+  await previewPage.setViewportSize({ width: 393, height: 852 });
+
+  const smsOptIn = previewPage.getByRole("checkbox", {
+    name: "Receive appointment text updates",
+  });
+  await expect(smsOptIn).not.toBeChecked();
+  await expect(
+    previewPage.getByText(/Root & Foil LLC on behalf of your stylist/i),
+  ).toBeVisible();
+  await expect(
+    previewPage.getByText(
+      /booking confirmations, appointment reminders, rescheduling or cancellation updates, and customer service responses/i,
+    ),
+  ).toBeVisible();
+  await expect(
+    previewPage.getByText(
+      /Message frequency varies\. Message and data rates may apply\. Reply STOP to opt out or HELP for help\. Consent is not a condition of purchase\./i,
+    ),
+  ).toBeVisible();
+  await expect(
+    previewPage.getByRole("link", { name: "Privacy Policy" }),
+  ).toHaveAttribute("href", "https://www.rootfoil.com/privacy-policy");
+  await expect(
+    previewPage.getByRole("link", { name: "Terms of Service" }),
+  ).toHaveAttribute("href", "https://www.rootfoil.com/terms-of-service");
+  await expect
+    .poll(() =>
+      previewPage.evaluate(
+        () => document.documentElement.scrollWidth <= window.innerWidth,
+      ),
+    )
+    .toBe(true);
   await expect(
     previewPage.getByRole("button", { name: "Booking is disabled in preview" }),
   ).toBeDisabled();

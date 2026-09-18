@@ -532,7 +532,7 @@ function getBookingPreviewCreationError(error) {
         switch(error.code){
             case "invalid_preview_draft":
                 return {
-                    message: "Some preview fields are invalid. Review the display name, Instagram handle, and bio, then try again."
+                    message: "Some preview fields are invalid. Review the display name, Instagram handle, bio, and intro copy, then try again."
                 };
             case "preview_not_authorized":
                 return {
@@ -563,6 +563,8 @@ function buildBookingPreviewDraftOverrides(form, persisted) {
     const displayName = normalizePreviewText(form.display_name);
     const instagram = normalizePreviewText(form.instagram);
     const bio = normalizePreviewText(form.bio);
+    const intro = normalizePreviewText(form.intro);
+    const introDescription = normalizePreviewText(form.intro_description);
     if (displayName !== persisted.display_name) {
         overrides.display_name = displayName;
     }
@@ -571,6 +573,12 @@ function buildBookingPreviewDraftOverrides(form, persisted) {
     }
     if (bio !== persisted.bio) {
         overrides.bio = bio;
+    }
+    if (intro !== persisted.intro) {
+        overrides.intro = intro;
+    }
+    if (introDescription !== persisted.intro_description) {
+        overrides.intro_description = introDescription;
     }
     if (form.booking_request_form_enabled !== persisted.booking_request_form_enabled) {
         overrides.booking_request_form_enabled = form.booking_request_form_enabled;
@@ -2628,6 +2636,62 @@ function PublicProfileSection({ form, plan, publicUrl, isSaving, onFieldChange, 
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(Field, {
+                        label: "Client information heading",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                value: form.intro,
+                                onChange: (event)=>onFieldChange("intro", event),
+                                maxLength: 100,
+                                placeholder: "Let's get to know you",
+                                className: "h-12 w-full rounded-[8px] border border-[#E4D6C3] bg-white px-4 text-sm outline-none focus:ring-2 focus:ring-brand/25"
+                            }, void 0, false, {
+                                fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
+                                lineNumber: 1117,
+                                columnNumber: 11
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                className: "mt-2 text-xs font-semibold text-[#6B7280]",
+                                children: "Shown above customer contact fields. Leave blank to use the booking-page default."
+                            }, void 0, false, {
+                                fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
+                                lineNumber: 1124,
+                                columnNumber: 11
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
+                        lineNumber: 1116,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(Field, {
+                        label: "Client information description",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("textarea", {
+                                value: form.intro_description,
+                                onChange: (event)=>onFieldChange("intro_description", event),
+                                maxLength: 500,
+                                placeholder: "Start with your contact details before selecting a service.",
+                                className: "min-h-24 w-full resize-y rounded-[8px] border border-[#E4D6C3] bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-brand/25"
+                            }, void 0, false, {
+                                fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
+                                lineNumber: 1129,
+                                columnNumber: 11
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                className: "mt-2 text-xs font-semibold text-[#6B7280]",
+                                children: "Shown beneath the heading. Leave blank to use the booking-page default."
+                            }, void 0, false, {
+                                fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
+                                lineNumber: 1136,
+                                columnNumber: 11
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
+                        lineNumber: 1128,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(Field, {
                         label: "Cover photo URL",
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -2638,7 +2702,7 @@ function PublicProfileSection({ form, plan, publicUrl, isSaving, onFieldChange, 
                                 placeholder: "https://..."
                             }, void 0, false, {
                                 fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                                lineNumber: 1117,
+                                lineNumber: 1141,
                                 columnNumber: 11
                             }, this),
                             !plan.features.customCoverPhoto ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2646,13 +2710,13 @@ function PublicProfileSection({ form, plan, publicUrl, isSaving, onFieldChange, 
                                 children: "Custom cover photos are not included in this plan."
                             }, void 0, false, {
                                 fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                                lineNumber: 1125,
+                                lineNumber: 1149,
                                 columnNumber: 13
                             }, this) : null
                         ]
                     }, void 0, true, {
                         fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                        lineNumber: 1116,
+                        lineNumber: 1140,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -2665,7 +2729,7 @@ function PublicProfileSection({ form, plan, publicUrl, isSaving, onFieldChange, 
                                         children: "Booking enabled"
                                     }, void 0, false, {
                                         fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                                        lineNumber: 1132,
+                                        lineNumber: 1156,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2673,13 +2737,13 @@ function PublicProfileSection({ form, plan, publicUrl, isSaving, onFieldChange, 
                                         children: "Customers can still preview an unavailable page when off."
                                     }, void 0, false, {
                                         fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                                        lineNumber: 1135,
+                                        lineNumber: 1159,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                                lineNumber: 1131,
+                                lineNumber: 1155,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -2689,13 +2753,13 @@ function PublicProfileSection({ form, plan, publicUrl, isSaving, onFieldChange, 
                                 className: "h-5 w-5 accent-brand"
                             }, void 0, false, {
                                 fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                                lineNumber: 1139,
+                                lineNumber: 1163,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                        lineNumber: 1130,
+                        lineNumber: 1154,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -2708,7 +2772,7 @@ function PublicProfileSection({ form, plan, publicUrl, isSaving, onFieldChange, 
                                         children: "Booking request form enabled"
                                     }, void 0, false, {
                                         fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                                        lineNumber: 1148,
+                                        lineNumber: 1172,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2716,13 +2780,13 @@ function PublicProfileSection({ form, plan, publicUrl, isSaving, onFieldChange, 
                                         children: "Let customers submit booking requests from your public page."
                                     }, void 0, false, {
                                         fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                                        lineNumber: 1151,
+                                        lineNumber: 1175,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                                lineNumber: 1147,
+                                lineNumber: 1171,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -2732,13 +2796,13 @@ function PublicProfileSection({ form, plan, publicUrl, isSaving, onFieldChange, 
                                 className: "h-5 w-5 accent-brand"
                             }, void 0, false, {
                                 fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                                lineNumber: 1155,
+                                lineNumber: 1179,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                        lineNumber: 1146,
+                        lineNumber: 1170,
                         columnNumber: 9
                     }, this),
                     previewError ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2749,7 +2813,7 @@ function PublicProfileSection({ form, plan, publicUrl, isSaving, onFieldChange, 
                                 children: previewError.message
                             }, void 0, false, {
                                 fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                                lineNumber: 1169,
+                                lineNumber: 1193,
                                 columnNumber: 13
                             }, this),
                             previewError.canRefreshSettings ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -2759,13 +2823,13 @@ function PublicProfileSection({ form, plan, publicUrl, isSaving, onFieldChange, 
                                 children: "Refresh settings"
                             }, void 0, false, {
                                 fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                                lineNumber: 1171,
+                                lineNumber: 1195,
                                 columnNumber: 15
                             }, this) : null
                         ]
                     }, void 0, true, {
                         fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                        lineNumber: 1165,
+                        lineNumber: 1189,
                         columnNumber: 11
                     }, this) : null,
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2778,7 +2842,7 @@ function PublicProfileSection({ form, plan, publicUrl, isSaving, onFieldChange, 
                                 children: isSaving ? "Saving..." : "Save public profile"
                             }, void 0, false, {
                                 fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                                lineNumber: 1182,
+                                lineNumber: 1206,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -2789,13 +2853,13 @@ function PublicProfileSection({ form, plan, publicUrl, isSaving, onFieldChange, 
                                 children: isPreviewing ? "Creating preview..." : previewCooldownSeconds > 0 ? `Try again in ${previewCooldownSeconds}s` : "Preview booking page"
                             }, void 0, false, {
                                 fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                                lineNumber: 1189,
+                                lineNumber: 1213,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                        lineNumber: 1181,
+                        lineNumber: 1205,
                         columnNumber: 9
                     }, this)
                 ]
@@ -2825,7 +2889,7 @@ function AccountSection({ plan, canUpgrade, onCancel, onSoon }) {
                             children: "Account Plan"
                         }, void 0, false, {
                             fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                            lineNumber: 1225,
+                            lineNumber: 1249,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2836,14 +2900,14 @@ function AccountSection({ plan, canUpgrade, onCancel, onSoon }) {
                                     children: "/api/account/plan"
                                 }, void 0, false, {
                                     fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                                    lineNumber: 1229,
+                                    lineNumber: 1253,
                                     columnNumber: 44
                                 }, this),
                                 "."
                             ]
                         }, void 0, true, {
                             fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                            lineNumber: 1228,
+                            lineNumber: 1252,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2854,7 +2918,7 @@ function AccountSection({ plan, canUpgrade, onCancel, onSoon }) {
                                     children: "Current plan"
                                 }, void 0, false, {
                                     fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                                    lineNumber: 1233,
+                                    lineNumber: 1257,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2865,7 +2929,7 @@ function AccountSection({ plan, canUpgrade, onCancel, onSoon }) {
                                             children: plan.displayName
                                         }, void 0, false, {
                                             fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                                            lineNumber: 1237,
+                                            lineNumber: 1261,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2873,13 +2937,13 @@ function AccountSection({ plan, canUpgrade, onCancel, onSoon }) {
                                             children: plan.status.replace("_", " ")
                                         }, void 0, false, {
                                             fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                                            lineNumber: 1240,
+                                            lineNumber: 1264,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                                    lineNumber: 1236,
+                                    lineNumber: 1260,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2896,13 +2960,13 @@ function AccountSection({ plan, canUpgrade, onCancel, onSoon }) {
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                                    lineNumber: 1244,
+                                    lineNumber: 1268,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                            lineNumber: 1232,
+                            lineNumber: 1256,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2915,14 +2979,14 @@ function AccountSection({ plan, canUpgrade, onCancel, onSoon }) {
                                     children: "Upgrade"
                                 }, void 0, false, {
                                     fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                                    lineNumber: 1252,
+                                    lineNumber: 1276,
                                     columnNumber: 15
                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                     className: "inline-flex h-12 flex-1 items-center justify-center rounded-[8px] bg-[#ECFDF5] px-5 text-sm font-semibold text-[#15803D]",
                                     children: "You're on the highest plan."
                                 }, void 0, false, {
                                     fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                                    lineNumber: 1260,
+                                    lineNumber: 1284,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -2932,19 +2996,19 @@ function AccountSection({ plan, canUpgrade, onCancel, onSoon }) {
                                     children: "Cancel"
                                 }, void 0, false, {
                                     fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                                    lineNumber: 1264,
+                                    lineNumber: 1288,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                            lineNumber: 1250,
+                            lineNumber: 1274,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                    lineNumber: 1224,
+                    lineNumber: 1248,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2967,7 +3031,7 @@ function AccountSection({ plan, canUpgrade, onCancel, onSoon }) {
                                                     children: planNote.name
                                                 }, void 0, false, {
                                                     fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                                                    lineNumber: 1290,
+                                                    lineNumber: 1314,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2975,13 +3039,13 @@ function AccountSection({ plan, canUpgrade, onCancel, onSoon }) {
                                                     children: planNote.description
                                                 }, void 0, false, {
                                                     fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                                                    lineNumber: 1293,
+                                                    lineNumber: 1317,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                                            lineNumber: 1289,
+                                            lineNumber: 1313,
                                             columnNumber: 19
                                         }, this),
                                         isCurrent ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2989,18 +3053,18 @@ function AccountSection({ plan, canUpgrade, onCancel, onSoon }) {
                                             children: "Current"
                                         }, void 0, false, {
                                             fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                                            lineNumber: 1298,
+                                            lineNumber: 1322,
                                             columnNumber: 21
                                         }, this) : null
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                                    lineNumber: 1288,
+                                    lineNumber: 1312,
                                     columnNumber: 17
                                 }, this)
                             }, planNote.tier, false, {
                                 fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                                lineNumber: 1279,
+                                lineNumber: 1303,
                                 columnNumber: 15
                             }, this);
                         }),
@@ -3012,7 +3076,7 @@ function AccountSection({ plan, canUpgrade, onCancel, onSoon }) {
                                     children: "Features"
                                 }, void 0, false, {
                                     fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                                    lineNumber: 1307,
+                                    lineNumber: 1331,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("dl", {
@@ -3025,7 +3089,7 @@ function AccountSection({ plan, canUpgrade, onCancel, onSoon }) {
                                                     children: __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$components$2f$account$2f$account$2d$types$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["featureLabels"][key]
                                                 }, void 0, false, {
                                                     fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                                                    lineNumber: 1314,
+                                                    lineNumber: 1338,
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("dd", {
@@ -3036,41 +3100,41 @@ function AccountSection({ plan, canUpgrade, onCancel, onSoon }) {
                                                     children: enabled ? "Included" : "Locked"
                                                 }, void 0, false, {
                                                     fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                                                    lineNumber: 1317,
+                                                    lineNumber: 1341,
                                                     columnNumber: 19
                                                 }, this)
                                             ]
                                         }, key, true, {
                                             fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                                            lineNumber: 1310,
+                                            lineNumber: 1334,
                                             columnNumber: 17
                                         }, this))
                                 }, void 0, false, {
                                     fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                                    lineNumber: 1308,
+                                    lineNumber: 1332,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                            lineNumber: 1306,
+                            lineNumber: 1330,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                    lineNumber: 1274,
+                    lineNumber: 1298,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-            lineNumber: 1223,
+            lineNumber: 1247,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-        lineNumber: 1219,
+        lineNumber: 1243,
         columnNumber: 5
     }, this);
 }
@@ -3083,14 +3147,14 @@ function Field({ label, children }) {
                 children: label
             }, void 0, false, {
                 fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                lineNumber: 1344,
+                lineNumber: 1368,
                 columnNumber: 7
             }, this),
             children
         ]
     }, void 0, true, {
         fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-        lineNumber: 1343,
+        lineNumber: 1367,
         columnNumber: 5
     }, this);
 }
@@ -3117,7 +3181,7 @@ function CancelDialog({ onClose, onSoon }) {
                     children: "Before you cancel"
                 }, void 0, false, {
                     fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                    lineNumber: 1378,
+                    lineNumber: 1402,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3126,7 +3190,7 @@ function CancelDialog({ onClose, onSoon }) {
                     children: "Billing changes should use the hosted billing flow. Direct plan mutation is intentionally not exposed from this screen."
                 }, void 0, false, {
                     fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                    lineNumber: 1384,
+                    lineNumber: 1408,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3139,7 +3203,7 @@ function CancelDialog({ onClose, onSoon }) {
                             children: "Keep My Plan"
                         }, void 0, false, {
                             fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                            lineNumber: 1393,
+                            lineNumber: 1417,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -3149,24 +3213,24 @@ function CancelDialog({ onClose, onSoon }) {
                             children: "Continue to Cancel"
                         }, void 0, false, {
                             fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                            lineNumber: 1400,
+                            lineNumber: 1424,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-                    lineNumber: 1392,
+                    lineNumber: 1416,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-            lineNumber: 1370,
+            lineNumber: 1394,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-        lineNumber: 1365,
+        lineNumber: 1389,
         columnNumber: 5
     }, this);
 }
@@ -3178,7 +3242,7 @@ function ToastMessage({ message }) {
         children: message
     }, void 0, false, {
         fileName: "[project]/apps/web/src/components/account/AccountPanels.tsx",
-        lineNumber: 1415,
+        lineNumber: 1439,
         columnNumber: 5
     }, this);
 }
@@ -3230,6 +3294,8 @@ function toPublicProfileForm(stylist) {
         slug: stylist.slug,
         display_name: stylist.display_name,
         bio: stylist.bio ?? "",
+        intro: stylist.intro ?? "",
+        intro_description: stylist.intro_description ?? "",
         instagram: stylist.instagram ?? "",
         cover_photo_url: stylist.cover_photo_url ?? "",
         booking_enabled: stylist.booking_enabled,
@@ -3713,6 +3779,8 @@ function AccountPageClient() {
         const body = {
             display_name: publicForm.display_name,
             bio: normalizeOptionalText(publicForm.bio),
+            intro: normalizeOptionalText(publicForm.intro),
+            intro_description: normalizeOptionalText(publicForm.intro_description),
             instagram: normalizeOptionalText(publicForm.instagram),
             booking_enabled: publicForm.booking_enabled,
             booking_request_form_enabled: publicForm.booking_request_form_enabled
@@ -3804,7 +3872,7 @@ function AccountPageClient() {
                         onTabChange: setActiveTab
                     }, void 0, false, {
                         fileName: "[project]/apps/web/src/components/account/AccountPageClient.tsx",
-                        lineNumber: 784,
+                        lineNumber: 788,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
@@ -3820,7 +3888,7 @@ function AccountPageClient() {
                                                 children: activeTab === "dashboard" ? `Good morning${profile?.full_name ? `, ${profile.full_name.split(" ")[0]}` : ""}` : "Account Management"
                                             }, void 0, false, {
                                                 fileName: "[project]/apps/web/src/components/account/AccountPageClient.tsx",
-                                                lineNumber: 789,
+                                                lineNumber: 793,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3828,13 +3896,13 @@ function AccountPageClient() {
                                                 children: activeTab === "dashboard" ? "Here's what's happening with your chair." : "Manage your private account details, public booking identity, and plan access."
                                             }, void 0, false, {
                                                 fileName: "[project]/apps/web/src/components/account/AccountPageClient.tsx",
-                                                lineNumber: 794,
+                                                lineNumber: 798,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/apps/web/src/components/account/AccountPageClient.tsx",
-                                        lineNumber: 788,
+                                        lineNumber: 792,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3844,20 +3912,20 @@ function AccountPageClient() {
                                                 className: "h-2 w-2 rounded-full bg-[#22C55E]"
                                             }, void 0, false, {
                                                 fileName: "[project]/apps/web/src/components/account/AccountPageClient.tsx",
-                                                lineNumber: 801,
+                                                lineNumber: 805,
                                                 columnNumber: 15
                                             }, this),
                                             plan ? plan.displayName : "Account portal"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/apps/web/src/components/account/AccountPageClient.tsx",
-                                        lineNumber: 800,
+                                        lineNumber: 804,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/apps/web/src/components/account/AccountPageClient.tsx",
-                                lineNumber: 787,
+                                lineNumber: 791,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3867,7 +3935,7 @@ function AccountPageClient() {
                                         message: loadState.message
                                     }, void 0, false, {
                                         fileName: "[project]/apps/web/src/components/account/AccountPageClient.tsx",
-                                        lineNumber: 808,
+                                        lineNumber: 812,
                                         columnNumber: 15
                                     }, this) : null,
                                     loadState.status === "auth" ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$components$2f$account$2f$AccountPanels$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["AuthPanel"], {
@@ -3881,12 +3949,12 @@ function AccountPageClient() {
                                         onSubmit: handleAuthSubmit
                                     }, void 0, false, {
                                         fileName: "[project]/apps/web/src/components/account/AccountPageClient.tsx",
-                                        lineNumber: 812,
+                                        lineNumber: 816,
                                         columnNumber: 15
                                     }, this) : null,
                                     loadState.status === "loading" ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$components$2f$account$2f$AccountPanels$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["LoadingPanel"], {}, void 0, false, {
                                         fileName: "[project]/apps/web/src/components/account/AccountPageClient.tsx",
-                                        lineNumber: 824,
+                                        lineNumber: 828,
                                         columnNumber: 47
                                     }, this) : null,
                                     loadState.status === "error" ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$components$2f$account$2f$AccountPanels$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["ErrorPanel"], {
@@ -3894,7 +3962,7 @@ function AccountPageClient() {
                                         onRetry: ()=>void loadAccount(accessToken)
                                     }, void 0, false, {
                                         fileName: "[project]/apps/web/src/components/account/AccountPageClient.tsx",
-                                        lineNumber: 827,
+                                        lineNumber: 831,
                                         columnNumber: 15
                                     }, this) : null,
                                     loadState.status === "ready" && profile && stylist && plan && profileForm && publicForm ? activeTab === "dashboard" ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$components$2f$account$2f$AccountPanels$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DashboardTabPanel"], {
@@ -3902,7 +3970,7 @@ function AccountPageClient() {
                                         plan: plan
                                     }, void 0, false, {
                                         fileName: "[project]/apps/web/src/components/account/AccountPageClient.tsx",
-                                        lineNumber: 840,
+                                        lineNumber: 844,
                                         columnNumber: 17
                                     }, this) : activeTab === "profile" ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$components$2f$account$2f$AccountPanels$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["ProfileTabPanel"], {
                                         profile: profile,
@@ -3939,7 +4007,7 @@ function AccountPageClient() {
                                         onSoon: (message)=>showMessage(message, setToast)
                                     }, void 0, false, {
                                         fileName: "[project]/apps/web/src/components/account/AccountPageClient.tsx",
-                                        lineNumber: 842,
+                                        lineNumber: 846,
                                         columnNumber: 17
                                     }, this) : activeTab === "clients" ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$components$2f$account$2f$AccountPanels$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["ClientsTabPanel"], {
                                         clients: clients,
@@ -3955,38 +4023,38 @@ function AccountPageClient() {
                                         onRetry: ()=>void loadClients(accessToken)
                                     }, void 0, false, {
                                         fileName: "[project]/apps/web/src/components/account/AccountPageClient.tsx",
-                                        lineNumber: 883,
+                                        lineNumber: 887,
                                         columnNumber: 17
                                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$components$2f$account$2f$AccountPanels$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["BlankTabPanel"], {
                                         title: "Appointments"
                                     }, void 0, false, {
                                         fileName: "[project]/apps/web/src/components/account/AccountPageClient.tsx",
-                                        lineNumber: 899,
+                                        lineNumber: 903,
                                         columnNumber: 17
                                     }, this) : null
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/apps/web/src/components/account/AccountPageClient.tsx",
-                                lineNumber: 806,
+                                lineNumber: 810,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/apps/web/src/components/account/AccountPageClient.tsx",
-                        lineNumber: 786,
+                        lineNumber: 790,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/apps/web/src/components/account/AccountPageClient.tsx",
-                lineNumber: 783,
+                lineNumber: 787,
                 columnNumber: 7
             }, this),
             toast ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$components$2f$account$2f$AccountPanels$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["ToastMessage"], {
                 message: toast.message
             }, void 0, false, {
                 fileName: "[project]/apps/web/src/components/account/AccountPageClient.tsx",
-                lineNumber: 906,
+                lineNumber: 910,
                 columnNumber: 16
             }, this) : null,
             isCancelOpen ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$components$2f$account$2f$AccountPanels$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CancelDialog"], {
@@ -3994,13 +4062,13 @@ function AccountPageClient() {
                 onSoon: (message)=>showMessage(message, setToast)
             }, void 0, false, {
                 fileName: "[project]/apps/web/src/components/account/AccountPageClient.tsx",
-                lineNumber: 909,
+                lineNumber: 913,
                 columnNumber: 9
             }, this) : null
         ]
     }, void 0, true, {
         fileName: "[project]/apps/web/src/components/account/AccountPageClient.tsx",
-        lineNumber: 782,
+        lineNumber: 786,
         columnNumber: 5
     }, this);
 }

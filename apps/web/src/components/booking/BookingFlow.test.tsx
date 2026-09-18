@@ -679,9 +679,23 @@ describe("BookingFlow", () => {
     fireEvent.click(screen.getByRole("button", { name: "Continue" }));
 
     const smsOptIn = await screen.findByRole("checkbox", {
-      name: /I agree to receive appointment-related text messages/i,
+      name: "Receive appointment text updates",
     });
     expect(smsOptIn.checked).toBe(false);
+
+    expect(
+      screen.getByText(/Root & Foil LLC on behalf of your stylist/i),
+    ).toBeTruthy();
+    expect(
+      screen.getByText(
+        /booking confirmations, appointment reminders, rescheduling or cancellation updates, and customer service responses/i,
+      ),
+    ).toBeTruthy();
+    expect(
+      screen.getByText(
+        /Message frequency varies\. Message and data rates may apply\. Reply STOP to opt out or HELP for help\. Consent is not a condition of purchase\./i,
+      ),
+    ).toBeTruthy();
 
     fireEvent.click(smsOptIn);
     expect(smsOptIn.checked).toBe(true);

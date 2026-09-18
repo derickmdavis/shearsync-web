@@ -236,28 +236,37 @@ export function ConfirmStep({
 
       {error ? <p className="mt-4 text-sm text-red-500">{error}</p> : null}
 
-      <label className="mt-5 flex cursor-pointer items-start gap-3 rounded-2xl border border-border bg-surface-warm p-4 text-left">
-        <input
-          type="checkbox"
-          name="appointment-sms-consent"
-          checked={smsOptIn}
-          disabled={submitting}
-          onChange={(event) => onSmsOptInChange(event.target.checked)}
-          className="mt-0.5 h-4 w-4 shrink-0 rounded border-border accent-brand focus:ring-2 focus:ring-brand/30 disabled:cursor-not-allowed"
-        />
-        <span className="text-xs leading-5 text-muted">
-          I agree to receive appointment-related text messages. Message
-          frequency varies. Message and data rates may apply. Reply STOP to opt
-          out or HELP for help. See our{" "}
-          <a
-            href="https://www.rootfoil.com/terms-of-service"
-            target="_blank"
-            rel="noreferrer"
-            className="font-semibold text-foreground underline decoration-brand/60 underline-offset-2 hover:text-brand"
+      <section className="mt-5 text-left" aria-labelledby="sms-consent-label">
+        <div className="flex items-start gap-3">
+          <input
+            id="appointment-sms-consent"
+            type="checkbox"
+            name="appointment-sms-consent"
+            checked={smsOptIn}
+            disabled={submitting}
+            aria-describedby="sms-consent-details sms-consent-policy-links"
+            onChange={(event) => onSmsOptInChange(event.target.checked)}
+            className="mt-0.5 h-4 w-4 shrink-0 rounded border-border accent-brand focus:ring-2 focus:ring-brand/30 disabled:cursor-not-allowed"
+          />
+          <label
+            id="sms-consent-label"
+            htmlFor="appointment-sms-consent"
+            className="cursor-pointer text-sm font-semibold text-foreground"
           >
-            Terms of Service
-          </a>
-          {" "}and{" "}
+            Receive appointment text updates
+          </label>
+        </div>
+        <p id="sms-consent-details" className="mt-2 text-xs leading-5 text-muted">
+          By checking this box, you agree to receive appointment-related text
+          messages from Root &amp; Foil LLC on behalf of your stylist. Messages may
+          include booking confirmations, appointment reminders, rescheduling or
+          cancellation updates, and customer service responses.
+        </p>
+        <p className="mt-2 text-xs leading-5 text-muted">
+          Message frequency varies. Message and data rates may apply. Reply STOP
+          to opt out or HELP for help. Consent is not a condition of purchase.
+        </p>
+        <p id="sms-consent-policy-links" className="mt-2 text-xs leading-5 text-muted">
           <a
             href="https://www.rootfoil.com/privacy-policy"
             target="_blank"
@@ -266,9 +275,17 @@ export function ConfirmStep({
           >
             Privacy Policy
           </a>
-          .
-        </span>
-      </label>
+          <span aria-hidden="true"> · </span>
+          <a
+            href="https://www.rootfoil.com/terms-of-service"
+            target="_blank"
+            rel="noreferrer"
+            className="font-semibold text-foreground underline decoration-brand/60 underline-offset-2 hover:text-brand"
+          >
+            Terms of Service
+          </a>
+        </p>
+      </section>
 
       <button
         type="button"

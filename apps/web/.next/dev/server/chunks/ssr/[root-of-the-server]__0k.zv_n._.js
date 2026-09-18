@@ -702,6 +702,19 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f
 ;
 ;
 ;
+const SUPPORTED_BOOKING_PREVIEW_SCHEMA_VERSION = "booking_preview_context.v1";
+const PREVIEW_RESOLVER_CODES = new Set([
+    "preview_resolved",
+    "invalid_preview_context",
+    "preview_session_not_found",
+    "preview_session_expired",
+    "validation_failed",
+    "preview_rate_limited",
+    "preview_session_failed",
+    "preview_not_authorized",
+    "preview_mutation_forbidden",
+    "booking_slug_unavailable"
+]);
 async function generateMetadata({ searchParams }) {
     const params = await searchParams;
     return params.preview !== undefined ? {
@@ -718,7 +731,7 @@ async function BookingPage(props) {
                 failure: "malformed"
             }, void 0, false, {
                 fileName: "[project]/apps/web/src/app/book/[slug]/page.tsx",
-                lineNumber: 46,
+                lineNumber: 60,
                 columnNumber: 14
             }, this);
         }
@@ -730,21 +743,24 @@ async function BookingPage(props) {
                 // Treat an unexpected resolver payload as unavailable rather than
                 // passing incomplete data to the client preview flow.
                 previewFailure = "unavailable";
+                recordPreviewResolverOutcome(502, "invalid_preview_context");
             } else {
                 preview = resolvedPreview;
+                recordPreviewResolverOutcome(200, "preview_resolved");
             }
         } catch (error) {
             // Never fall back to the production stylist endpoint in preview mode.
             // That endpoint records a public booking-page view.
             preview = null;
             previewFailure = getPreviewFailure(error);
+            recordPreviewResolverOutcome(getPreviewResolverStatus(error), getPreviewResolverCode(error));
         }
         if (!preview) {
             return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(PreviewErrorScreen, {
                 failure: previewFailure ?? "unavailable"
             }, void 0, false, {
                 fileName: "[project]/apps/web/src/app/book/[slug]/page.tsx",
-                lineNumber: 70,
+                lineNumber: 90,
                 columnNumber: 14
             }, this);
         }
@@ -753,7 +769,7 @@ async function BookingPage(props) {
             children: [
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$components$2f$booking$2f$PreviewUrlCleanup$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["PreviewUrlCleanup"], {}, void 0, false, {
                     fileName: "[project]/apps/web/src/app/book/[slug]/page.tsx",
-                    lineNumber: 75,
+                    lineNumber: 95,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -764,18 +780,18 @@ async function BookingPage(props) {
                         previewToken: previewToken
                     }, void 0, false, {
                         fileName: "[project]/apps/web/src/app/book/[slug]/page.tsx",
-                        lineNumber: 77,
+                        lineNumber: 97,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/apps/web/src/app/book/[slug]/page.tsx",
-                    lineNumber: 76,
+                    lineNumber: 96,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/apps/web/src/app/book/[slug]/page.tsx",
-            lineNumber: 74,
+            lineNumber: 94,
             columnNumber: 7
         }, this);
     }
@@ -795,7 +811,7 @@ async function BookingPage(props) {
                             children: "DripDesk"
                         }, void 0, false, {
                             fileName: "[project]/apps/web/src/app/book/[slug]/page.tsx",
-                            lineNumber: 98,
+                            lineNumber: 118,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
@@ -803,7 +819,7 @@ async function BookingPage(props) {
                             children: "Stylist not found"
                         }, void 0, false, {
                             fileName: "[project]/apps/web/src/app/book/[slug]/page.tsx",
-                            lineNumber: 101,
+                            lineNumber: 121,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -811,18 +827,18 @@ async function BookingPage(props) {
                             children: "We couldn't find that booking page. Please double-check the link or contact your stylist directly."
                         }, void 0, false, {
                             fileName: "[project]/apps/web/src/app/book/[slug]/page.tsx",
-                            lineNumber: 104,
+                            lineNumber: 124,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/apps/web/src/app/book/[slug]/page.tsx",
-                    lineNumber: 97,
+                    lineNumber: 117,
                     columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/apps/web/src/app/book/[slug]/page.tsx",
-                lineNumber: 96,
+                lineNumber: 116,
                 columnNumber: 9
             }, this);
         }
@@ -836,7 +852,7 @@ async function BookingPage(props) {
                         children: "Booking unavailable"
                     }, void 0, false, {
                         fileName: "[project]/apps/web/src/app/book/[slug]/page.tsx",
-                        lineNumber: 116,
+                        lineNumber: 136,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -844,18 +860,18 @@ async function BookingPage(props) {
                         children: error instanceof Error ? error.message : "We couldn't load this booking page right now."
                     }, void 0, false, {
                         fileName: "[project]/apps/web/src/app/book/[slug]/page.tsx",
-                        lineNumber: 119,
+                        lineNumber: 139,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/apps/web/src/app/book/[slug]/page.tsx",
-                lineNumber: 115,
+                lineNumber: 135,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/apps/web/src/app/book/[slug]/page.tsx",
-            lineNumber: 114,
+            lineNumber: 134,
             columnNumber: 7
         }, this);
     }
@@ -869,17 +885,17 @@ async function BookingPage(props) {
                 initialReferralCode: referralCode
             }, void 0, false, {
                 fileName: "[project]/apps/web/src/app/book/[slug]/page.tsx",
-                lineNumber: 132,
+                lineNumber: 152,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/apps/web/src/app/book/[slug]/page.tsx",
-            lineNumber: 131,
+            lineNumber: 151,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/apps/web/src/app/book/[slug]/page.tsx",
-        lineNumber: 130,
+        lineNumber: 150,
         columnNumber: 5
     }, this);
 }
@@ -903,17 +919,31 @@ function isBookingPreviewContext(value) {
     if (!isRecord(value) || value.preview_mode !== true) {
         return false;
     }
-    if (typeof value.expires_at !== "string" || !value.expires_at || typeof value.slug !== "string" || !value.slug || value.schema_version !== "booking_preview_context.v1" || !isRecord(value.profile) || !isRecord(value.preview_capabilities)) {
+    if (typeof value.expires_at !== "string" || !value.expires_at || typeof value.slug !== "string" || !value.slug || value.schema_version !== SUPPORTED_BOOKING_PREVIEW_SCHEMA_VERSION || !isRecord(value.profile) || !isRecord(value.preview_capabilities)) {
         return false;
     }
     const { profile, preview_capabilities: capabilities } = value;
-    return isNullableString(profile.display_name) && isNullableString(profile.bio) && isNullableString(profile.instagram) && isNullableString(profile.cover_photo_url) && isNullableString(profile.business_name) && typeof profile.booking_enabled === "boolean" && typeof profile.booking_request_form_enabled === "boolean" && typeof capabilities.allow_public_reads === "boolean" && typeof capabilities.allow_booking_submission === "boolean" && typeof capabilities.allow_waitlist_submission === "boolean" && typeof capabilities.allow_uploads === "boolean" && typeof capabilities.allow_payments === "boolean" && typeof capabilities.allow_analytics === "boolean";
+    return isNullableString(profile.display_name) && isNullableString(profile.bio) && isNullableString(profile.instagram) && isNullableString(profile.intro) && isNullableString(profile.intro_description) && isNullableString(profile.cover_photo_url) && isNullableString(profile.business_name) && typeof profile.booking_enabled === "boolean" && typeof profile.booking_request_form_enabled === "boolean" && typeof capabilities.allow_public_reads === "boolean" && typeof capabilities.allow_booking_submission === "boolean" && typeof capabilities.allow_waitlist_submission === "boolean" && typeof capabilities.allow_uploads === "boolean" && typeof capabilities.allow_payments === "boolean" && typeof capabilities.allow_analytics === "boolean";
 }
 function isRecord(value) {
     return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
 function isNullableString(value) {
     return value === null || typeof value === "string";
+}
+function recordPreviewResolverOutcome(status, code) {
+    // This is intentionally server-only operational telemetry. Keep it limited
+    // to an aggregate status/code pair: a preview URL is a bearer capability.
+    console.info("booking_preview_resolver", JSON.stringify({
+        status: Number.isInteger(status) && status >= 100 && status <= 599 ? status : 502,
+        code: PREVIEW_RESOLVER_CODES.has(code) ? code : "unknown"
+    }));
+}
+function getPreviewResolverStatus(error) {
+    return error instanceof __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["ApiError"] ? error.status : 502;
+}
+function getPreviewResolverCode(error) {
+    return error instanceof __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["ApiError"] ? error.code ?? "unknown" : "unknown";
 }
 function getPreviewFailure(error) {
     if (error instanceof __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["ApiError"]) {
@@ -956,7 +986,7 @@ function PreviewErrorScreen({ failure }) {
                     children: "DripDesk"
                 }, void 0, false, {
                     fileName: "[project]/apps/web/src/app/book/[slug]/page.tsx",
-                    lineNumber: 252,
+                    lineNumber: 296,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
@@ -964,7 +994,7 @@ function PreviewErrorScreen({ failure }) {
                     children: title
                 }, void 0, false, {
                     fileName: "[project]/apps/web/src/app/book/[slug]/page.tsx",
-                    lineNumber: 255,
+                    lineNumber: 299,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -972,12 +1002,12 @@ function PreviewErrorScreen({ failure }) {
                     children: message
                 }, void 0, false, {
                     fileName: "[project]/apps/web/src/app/book/[slug]/page.tsx",
-                    lineNumber: 258,
+                    lineNumber: 302,
                     columnNumber: 9
                 }, this),
                 isRetryable ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$components$2f$booking$2f$PreviewRetryButton$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["PreviewRetryButton"], {}, void 0, false, {
                     fileName: "[project]/apps/web/src/app/book/[slug]/page.tsx",
-                    lineNumber: 261,
+                    lineNumber: 305,
                     columnNumber: 24
                 }, this) : null,
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
@@ -986,18 +1016,18 @@ function PreviewErrorScreen({ failure }) {
                     children: "Return to Settings"
                 }, void 0, false, {
                     fileName: "[project]/apps/web/src/app/book/[slug]/page.tsx",
-                    lineNumber: 262,
+                    lineNumber: 306,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/apps/web/src/app/book/[slug]/page.tsx",
-            lineNumber: 251,
+            lineNumber: 295,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/apps/web/src/app/book/[slug]/page.tsx",
-        lineNumber: 250,
+        lineNumber: 294,
         columnNumber: 5
     }, this);
 }

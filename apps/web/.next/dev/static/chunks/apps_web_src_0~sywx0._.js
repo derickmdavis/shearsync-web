@@ -2168,7 +2168,7 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f
 var _s = __turbopack_context__.k.signature();
 ;
 ;
-function ConfirmStep({ stylist, services, slot, fullName, email, phone, notes, smsOptIn, referencePhotoFile, referencePhotoPreviewUrl, submitting, error, timezone, bookingBehavior, onNotesChange, onSmsOptInChange, onReferencePhotoSelect, onReferencePhotoRemove, onEdit, onSubmit }) {
+function ConfirmStep({ stylist, services, slot, fullName, email, phone, notes, smsOptIn, referencePhotoFile, referencePhotoPreviewUrl, submitting, previewMode = false, error, timezone, bookingBehavior, onNotesChange, onSmsOptInChange, onReferencePhotoSelect, onReferencePhotoRemove, onEdit, onSubmit }) {
     _s();
     const fileInputRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
     const [referencePhotoError, setReferencePhotoError] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
@@ -2185,7 +2185,7 @@ function ConfirmStep({ stylist, services, slot, fullName, email, phone, notes, s
                         children: "Review your booking"
                     }, void 0, false, {
                         fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                        lineNumber: 77,
+                        lineNumber: 79,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2193,13 +2193,13 @@ function ConfirmStep({ stylist, services, slot, fullName, email, phone, notes, s
                         children: "Almost done. Please confirm your details."
                     }, void 0, false, {
                         fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                        lineNumber: 80,
+                        lineNumber: 82,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                lineNumber: 76,
+                lineNumber: 78,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2213,7 +2213,7 @@ function ConfirmStep({ stylist, services, slot, fullName, email, phone, notes, s
                                 children: "Booking preview"
                             }, void 0, false, {
                                 fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                                lineNumber: 88,
+                                lineNumber: 90,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2221,7 +2221,7 @@ function ConfirmStep({ stylist, services, slot, fullName, email, phone, notes, s
                                 children: bookingPreviewMessage
                             }, void 0, false, {
                                 fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                                lineNumber: 91,
+                                lineNumber: 93,
                                 columnNumber: 13
                             }, this),
                             bookingBehavior.requiresApproval ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2229,13 +2229,13 @@ function ConfirmStep({ stylist, services, slot, fullName, email, phone, notes, s
                                 children: "Please watch your email for a final confirmation."
                             }, void 0, false, {
                                 fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                                lineNumber: 95,
+                                lineNumber: 97,
                                 columnNumber: 15
                             }, this) : null
                         ]
                     }, void 0, true, {
                         fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                        lineNumber: 87,
+                        lineNumber: 89,
                         columnNumber: 11
                     }, this) : null,
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(ReviewCard, {
@@ -2247,7 +2247,7 @@ function ConfirmStep({ stylist, services, slot, fullName, email, phone, notes, s
                                 children: fullName
                             }, void 0, false, {
                                 fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                                lineNumber: 103,
+                                lineNumber: 105,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2255,7 +2255,7 @@ function ConfirmStep({ stylist, services, slot, fullName, email, phone, notes, s
                                 children: phone
                             }, void 0, false, {
                                 fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                                lineNumber: 104,
+                                lineNumber: 106,
                                 columnNumber: 11
                             }, this),
                             email ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2263,13 +2263,13 @@ function ConfirmStep({ stylist, services, slot, fullName, email, phone, notes, s
                                 children: email
                             }, void 0, false, {
                                 fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                                lineNumber: 105,
+                                lineNumber: 107,
                                 columnNumber: 20
                             }, this) : null
                         ]
                     }, void 0, true, {
                         fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                        lineNumber: 102,
+                        lineNumber: 104,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(ReviewCard, {
@@ -2285,7 +2285,7 @@ function ConfirmStep({ stylist, services, slot, fullName, email, phone, notes, s
                                             children: serviceSummary
                                         }, void 0, false, {
                                             fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                                            lineNumber: 111,
+                                            lineNumber: 113,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2293,13 +2293,13 @@ function ConfirmStep({ stylist, services, slot, fullName, email, phone, notes, s
                                             children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$booking$2d$format$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["buildSummaryName"])(stylist)
                                         }, void 0, false, {
                                             fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                                            lineNumber: 112,
+                                            lineNumber: 114,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                                    lineNumber: 110,
+                                    lineNumber: 112,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2310,7 +2310,7 @@ function ConfirmStep({ stylist, services, slot, fullName, email, phone, notes, s
                                             children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$booking$2d$format$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["formatDuration"])(totalDuration)
                                         }, void 0, false, {
                                             fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                                            lineNumber: 117,
+                                            lineNumber: 119,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2318,24 +2318,24 @@ function ConfirmStep({ stylist, services, slot, fullName, email, phone, notes, s
                                             children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$booking$2d$format$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["formatCurrency"])(totalPrice)
                                         }, void 0, false, {
                                             fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                                            lineNumber: 120,
+                                            lineNumber: 122,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                                    lineNumber: 116,
+                                    lineNumber: 118,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                            lineNumber: 109,
+                            lineNumber: 111,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                        lineNumber: 108,
+                        lineNumber: 110,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(ReviewCard, {
@@ -2347,7 +2347,7 @@ function ConfirmStep({ stylist, services, slot, fullName, email, phone, notes, s
                                 children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$booking$2d$format$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["formatLongDate"])(slot.start, timezone)
                             }, void 0, false, {
                                 fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                                lineNumber: 126,
+                                lineNumber: 128,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2355,7 +2355,7 @@ function ConfirmStep({ stylist, services, slot, fullName, email, phone, notes, s
                                 children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$booking$2d$format$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["formatTime"])(slot.start, timezone)
                             }, void 0, false, {
                                 fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                                lineNumber: 129,
+                                lineNumber: 131,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2363,19 +2363,19 @@ function ConfirmStep({ stylist, services, slot, fullName, email, phone, notes, s
                                 children: timezone
                             }, void 0, false, {
                                 fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                                lineNumber: 132,
+                                lineNumber: 134,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                        lineNumber: 125,
+                        lineNumber: 127,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                lineNumber: 85,
+                lineNumber: 87,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -2386,7 +2386,7 @@ function ConfirmStep({ stylist, services, slot, fullName, email, phone, notes, s
                         children: "Add a note (optional)"
                     }, void 0, false, {
                         fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                        lineNumber: 137,
+                        lineNumber: 139,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("textarea", {
@@ -2397,7 +2397,7 @@ function ConfirmStep({ stylist, services, slot, fullName, email, phone, notes, s
                         className: "w-full rounded-2xl border border-border bg-white px-4 py-3 text-sm text-foreground outline-none transition-colors placeholder:text-zinc-400 focus:border-brand focus:ring-2 focus:ring-brand/20"
                     }, void 0, false, {
                         fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                        lineNumber: 140,
+                        lineNumber: 142,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2408,13 +2408,13 @@ function ConfirmStep({ stylist, services, slot, fullName, email, phone, notes, s
                         ]
                     }, void 0, true, {
                         fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                        lineNumber: 147,
+                        lineNumber: 149,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                lineNumber: 136,
+                lineNumber: 138,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
@@ -2425,7 +2425,7 @@ function ConfirmStep({ stylist, services, slot, fullName, email, phone, notes, s
                         children: "Add a reference photo (optional)"
                     }, void 0, false, {
                         fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                        lineNumber: 151,
+                        lineNumber: 153,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2433,7 +2433,7 @@ function ConfirmStep({ stylist, services, slot, fullName, email, phone, notes, s
                         children: "Share an inspiration photo, current hair photo, or style reference to help your stylist prepare."
                     }, void 0, false, {
                         fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                        lineNumber: 154,
+                        lineNumber: 156,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -2441,10 +2441,11 @@ function ConfirmStep({ stylist, services, slot, fullName, email, phone, notes, s
                         type: "file",
                         accept: "image/jpeg,image/jpg,image/pjpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp",
                         className: "sr-only",
+                        disabled: previewMode,
                         onChange: handleReferencePhotoChange
                     }, void 0, false, {
                         fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                        lineNumber: 159,
+                        lineNumber: 161,
                         columnNumber: 9
                     }, this),
                     referencePhotoFile ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2460,18 +2461,18 @@ function ConfirmStep({ stylist, services, slot, fullName, email, phone, notes, s
                                     }
                                 }, void 0, false, {
                                     fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                                    lineNumber: 171,
+                                    lineNumber: 174,
                                     columnNumber: 17
                                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                     className: "flex h-16 w-16 shrink-0 items-center justify-center rounded-xl border border-brand/20 text-brand",
                                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(ImageIcon, {}, void 0, false, {
                                         fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                                        lineNumber: 180,
+                                        lineNumber: 183,
                                         columnNumber: 19
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                                    lineNumber: 179,
+                                    lineNumber: 182,
                                     columnNumber: 17
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2482,7 +2483,7 @@ function ConfirmStep({ stylist, services, slot, fullName, email, phone, notes, s
                                             children: referencePhotoFile.name
                                         }, void 0, false, {
                                             fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                                            lineNumber: 184,
+                                            lineNumber: 187,
                                             columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2490,13 +2491,13 @@ function ConfirmStep({ stylist, services, slot, fullName, email, phone, notes, s
                                             children: "Ready to upload after booking"
                                         }, void 0, false, {
                                             fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                                            lineNumber: 187,
+                                            lineNumber: 190,
                                             columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                                    lineNumber: 183,
+                                    lineNumber: 186,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -2509,22 +2510,23 @@ function ConfirmStep({ stylist, services, slot, fullName, email, phone, notes, s
                                     children: "Remove"
                                 }, void 0, false, {
                                     fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                                    lineNumber: 191,
+                                    lineNumber: 194,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                            lineNumber: 169,
+                            lineNumber: 172,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                        lineNumber: 168,
+                        lineNumber: 171,
                         columnNumber: 11
                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                         type: "button",
                         onClick: ()=>fileInputRef.current?.click(),
+                        disabled: previewMode,
                         className: "mt-4 flex min-h-24 w-full items-center justify-between gap-4 rounded-2xl border border-dashed border-brand/40 bg-white px-4 py-4 text-left transition hover:border-brand hover:bg-brand/5",
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2534,12 +2536,12 @@ function ConfirmStep({ stylist, services, slot, fullName, email, phone, notes, s
                                         className: "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-brand/30 text-brand",
                                         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(ImageIcon, {}, void 0, false, {
                                             fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                                            lineNumber: 211,
+                                            lineNumber: 215,
                                             columnNumber: 17
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                                        lineNumber: 210,
+                                        lineNumber: 214,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2549,7 +2551,7 @@ function ConfirmStep({ stylist, services, slot, fullName, email, phone, notes, s
                                                 children: "Add a reference photo"
                                             }, void 0, false, {
                                                 fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                                                lineNumber: 214,
+                                                lineNumber: 218,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2557,19 +2559,19 @@ function ConfirmStep({ stylist, services, slot, fullName, email, phone, notes, s
                                                 children: "JPG, PNG, or WebP up to 5 MB"
                                             }, void 0, false, {
                                                 fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                                                lineNumber: 217,
+                                                lineNumber: 221,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                                        lineNumber: 213,
+                                        lineNumber: 217,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                                lineNumber: 209,
+                                lineNumber: 213,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2577,13 +2579,13 @@ function ConfirmStep({ stylist, services, slot, fullName, email, phone, notes, s
                                 children: "Upload Photo"
                             }, void 0, false, {
                                 fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                                lineNumber: 222,
+                                lineNumber: 226,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                        lineNumber: 204,
+                        lineNumber: 207,
                         columnNumber: 11
                     }, this),
                     referencePhotoError ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2591,13 +2593,13 @@ function ConfirmStep({ stylist, services, slot, fullName, email, phone, notes, s
                         children: referencePhotoError
                     }, void 0, false, {
                         fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                        lineNumber: 229,
+                        lineNumber: 233,
                         columnNumber: 11
                     }, this) : null
                 ]
             }, void 0, true, {
                 fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                lineNumber: 150,
+                lineNumber: 152,
                 columnNumber: 7
             }, this),
             error ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2605,43 +2607,67 @@ function ConfirmStep({ stylist, services, slot, fullName, email, phone, notes, s
                 children: error
             }, void 0, false, {
                 fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                lineNumber: 233,
+                lineNumber: 237,
                 columnNumber: 16
             }, this) : null,
-            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
-                className: "mt-5 flex cursor-pointer items-start gap-3 rounded-2xl border border-border bg-surface-warm p-4 text-left",
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
+                className: "mt-5 text-left",
+                "aria-labelledby": "sms-consent-label",
                 children: [
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
-                        type: "checkbox",
-                        name: "appointment-sms-consent",
-                        checked: smsOptIn,
-                        disabled: submitting,
-                        onChange: (event)=>onSmsOptInChange(event.target.checked),
-                        className: "mt-0.5 h-4 w-4 shrink-0 rounded border-border accent-brand focus:ring-2 focus:ring-brand/30 disabled:cursor-not-allowed"
-                    }, void 0, false, {
-                        fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                        lineNumber: 236,
-                        columnNumber: 9
-                    }, this),
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                        className: "text-xs leading-5 text-muted",
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "flex items-start gap-3",
                         children: [
-                            "I agree to receive appointment-related text messages. Message frequency varies. Message and data rates may apply. Reply STOP to opt out or HELP for help. See our",
-                            " ",
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
-                                href: "https://www.rootfoil.com/terms-of-service",
-                                target: "_blank",
-                                rel: "noreferrer",
-                                className: "font-semibold text-foreground underline decoration-brand/60 underline-offset-2 hover:text-brand",
-                                children: "Terms of Service"
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                id: "appointment-sms-consent",
+                                type: "checkbox",
+                                name: "appointment-sms-consent",
+                                checked: smsOptIn,
+                                disabled: submitting,
+                                "aria-describedby": "sms-consent-details sms-consent-policy-links",
+                                onChange: (event)=>onSmsOptInChange(event.target.checked),
+                                className: "mt-0.5 h-4 w-4 shrink-0 rounded border-border accent-brand focus:ring-2 focus:ring-brand/30 disabled:cursor-not-allowed"
                             }, void 0, false, {
                                 fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                                lineNumber: 248,
+                                lineNumber: 241,
                                 columnNumber: 11
                             }, this),
-                            " ",
-                            "and",
-                            " ",
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                id: "sms-consent-label",
+                                htmlFor: "appointment-sms-consent",
+                                className: "cursor-pointer text-sm font-semibold text-foreground",
+                                children: "Receive appointment text updates"
+                            }, void 0, false, {
+                                fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
+                                lineNumber: 251,
+                                columnNumber: 11
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
+                        lineNumber: 240,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                        id: "sms-consent-details",
+                        className: "mt-2 text-xs leading-5 text-muted",
+                        children: "By checking this box, you agree to receive appointment-related text messages from Root & Foil LLC on behalf of your stylist. Messages may include booking confirmations, appointment reminders, rescheduling or cancellation updates, and customer service responses."
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
+                        lineNumber: 259,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                        className: "mt-2 text-xs leading-5 text-muted",
+                        children: "Message frequency varies. Message and data rates may apply. Reply STOP to opt out or HELP for help. Consent is not a condition of purchase."
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
+                        lineNumber: 265,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                        id: "sms-consent-policy-links",
+                        className: "mt-2 text-xs leading-5 text-muted",
+                        children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
                                 href: "https://www.rootfoil.com/privacy-policy",
                                 target: "_blank",
@@ -2650,44 +2676,62 @@ function ConfirmStep({ stylist, services, slot, fullName, email, phone, notes, s
                                 children: "Privacy Policy"
                             }, void 0, false, {
                                 fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                                lineNumber: 257,
+                                lineNumber: 270,
                                 columnNumber: 11
                             }, this),
-                            "."
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                "aria-hidden": "true",
+                                children: " · "
+                            }, void 0, false, {
+                                fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
+                                lineNumber: 278,
+                                columnNumber: 11
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
+                                href: "https://www.rootfoil.com/terms-of-service",
+                                target: "_blank",
+                                rel: "noreferrer",
+                                className: "font-semibold text-foreground underline decoration-brand/60 underline-offset-2 hover:text-brand",
+                                children: "Terms of Service"
+                            }, void 0, false, {
+                                fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
+                                lineNumber: 279,
+                                columnNumber: 11
+                            }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                        lineNumber: 244,
+                        lineNumber: 269,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                lineNumber: 235,
+                lineNumber: 239,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                 type: "button",
-                disabled: submitting,
+                disabled: submitting || previewMode,
                 onClick: onSubmit,
                 className: "mt-4 flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-brand px-5 text-base font-semibold text-white shadow-[0_18px_32px_rgba(183,121,61,0.24)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark disabled:cursor-wait disabled:opacity-70",
                 children: [
-                    submitting ? "Booking..." : "Book Appointment",
+                    previewMode ? "Booking is disabled in preview" : submitting ? "Booking..." : "Book Appointment",
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(ArrowIcon, {}, void 0, false, {
                         fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                        lineNumber: 276,
+                        lineNumber: 297,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                lineNumber: 269,
+                lineNumber: 290,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-        lineNumber: 75,
+        lineNumber: 77,
         columnNumber: 5
     }, this);
     //TURBOPACK unreachable
@@ -2746,7 +2790,7 @@ function ReviewCard({ title, children, action }) {
                         children: title
                     }, void 0, false, {
                         fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                        lineNumber: 351,
+                        lineNumber: 372,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -2756,13 +2800,13 @@ function ReviewCard({ title, children, action }) {
                         children: "Edit"
                     }, void 0, false, {
                         fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                        lineNumber: 352,
+                        lineNumber: 373,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                lineNumber: 350,
+                lineNumber: 371,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2770,13 +2814,13 @@ function ReviewCard({ title, children, action }) {
                 children: children
             }, void 0, false, {
                 fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                lineNumber: 360,
+                lineNumber: 381,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-        lineNumber: 349,
+        lineNumber: 370,
         columnNumber: 5
     }, this);
 }
@@ -2795,12 +2839,12 @@ function ArrowIcon() {
             strokeWidth: "1.7"
         }, void 0, false, {
             fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-            lineNumber: 368,
+            lineNumber: 389,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-        lineNumber: 367,
+        lineNumber: 388,
         columnNumber: 5
     }, this);
 }
@@ -2822,7 +2866,7 @@ function ImageIcon() {
                 strokeWidth: "1.8"
             }, void 0, false, {
                 fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                lineNumber: 383,
+                lineNumber: 404,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
@@ -2834,7 +2878,7 @@ function ImageIcon() {
                 strokeWidth: "1.8"
             }, void 0, false, {
                 fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                lineNumber: 393,
+                lineNumber: 414,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("circle", {
@@ -2844,13 +2888,13 @@ function ImageIcon() {
                 fill: "currentColor"
             }, void 0, false, {
                 fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-                lineNumber: 401,
+                lineNumber: 422,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/apps/web/src/components/booking/ConfirmStep.tsx",
-        lineNumber: 382,
+        lineNumber: 403,
         columnNumber: 5
     }, this);
 }
@@ -3079,7 +3123,9 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$compon
 ;
 ;
 ;
-function DetailsStep({ values, errors, services, intake, intakeLoading, servicesLoading, selectedServices, serviceError, canBeginServiceSelection, showServicePicker, recommendedServiceId, onChange, onToggleService, onContinue }) {
+function DetailsStep({ intro, introDescription, values, errors, services, intake, intakeLoading, servicesLoading, selectedServices, serviceError, canBeginServiceSelection, showServicePicker, recommendedServiceId, onChange, onToggleService, onContinue }) {
+    const heading = intro ?? "Let's get to know you";
+    const description = introDescription ?? "Start with your contact details so we can check whether you're a returning client before you pick a service.";
     const disableSubmit = intakeLoading || servicesLoading || !showServicePicker && !canBeginServiceSelection;
     const totalDuration = (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$booking$2d$format$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["sumServiceDurations"])(selectedServices);
     const totalPrice = (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$booking$2d$format$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["sumServicePrices"])(selectedServices);
@@ -3093,24 +3139,24 @@ function DetailsStep({ values, errors, services, intake, intakeLoading, services
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
                         className: "text-[30px] font-semibold tracking-tight text-foreground",
-                        children: "Let's get to know you"
+                        children: heading
                     }, void 0, false, {
                         fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-                        lineNumber: 69,
+                        lineNumber: 76,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                         className: "mt-2 text-sm text-muted",
-                        children: "Start with your contact details so we can check whether you're a returning client before you pick a service."
+                        children: description
                     }, void 0, false, {
                         fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-                        lineNumber: 72,
+                        lineNumber: 79,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-                lineNumber: 68,
+                lineNumber: 75,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3130,7 +3176,7 @@ function DetailsStep({ values, errors, services, intake, intakeLoading, services
                         required: true
                     }, void 0, false, {
                         fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-                        lineNumber: 79,
+                        lineNumber: 85,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(Field, {
@@ -3147,7 +3193,7 @@ function DetailsStep({ values, errors, services, intake, intakeLoading, services
                         required: true
                     }, void 0, false, {
                         fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-                        lineNumber: 92,
+                        lineNumber: 98,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(Field, {
@@ -3164,13 +3210,13 @@ function DetailsStep({ values, errors, services, intake, intakeLoading, services
                         autoCorrect: "off"
                     }, void 0, false, {
                         fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-                        lineNumber: 105,
+                        lineNumber: 111,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-                lineNumber: 78,
+                lineNumber: 84,
                 columnNumber: 7
             }, this),
             intake ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(IntakeMessage, {
@@ -3178,7 +3224,7 @@ function DetailsStep({ values, errors, services, intake, intakeLoading, services
                 selectedServiceIds: selectedServices.map((service)=>service.id)
             }, void 0, false, {
                 fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-                lineNumber: 121,
+                lineNumber: 127,
                 columnNumber: 9
             }, this) : null,
             showServicePicker ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3194,7 +3240,7 @@ function DetailsStep({ values, errors, services, intake, intakeLoading, services
                                         children: "Select your service"
                                     }, void 0, false, {
                                         fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-                                        lineNumber: 131,
+                                        lineNumber: 137,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3202,13 +3248,13 @@ function DetailsStep({ values, errors, services, intake, intakeLoading, services
                                         children: "Choose a service for this appointment."
                                     }, void 0, false, {
                                         fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-                                        lineNumber: 134,
+                                        lineNumber: 140,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-                                lineNumber: 130,
+                                lineNumber: 136,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3218,23 +3264,23 @@ function DetailsStep({ values, errors, services, intake, intakeLoading, services
                                     "aria-hidden": "true",
                                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(ChevronIcon, {}, void 0, false, {
                                         fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-                                        lineNumber: 143,
+                                        lineNumber: 149,
                                         columnNumber: 17
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-                                    lineNumber: 139,
+                                    lineNumber: 145,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-                                lineNumber: 138,
+                                lineNumber: 144,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-                        lineNumber: 129,
+                        lineNumber: 135,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3243,7 +3289,7 @@ function DetailsStep({ values, errors, services, intake, intakeLoading, services
                             message: "Refreshing the services you can book right now..."
                         }, void 0, false, {
                             fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-                            lineNumber: 150,
+                            lineNumber: 156,
                             columnNumber: 15
                         }, this) : services.length ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
                             children: [
@@ -3256,12 +3302,12 @@ function DetailsStep({ values, errors, services, intake, intakeLoading, services
                                             onSelect: onToggleService
                                         }, service.id, false, {
                                             fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-                                            lineNumber: 155,
+                                            lineNumber: 161,
                                             columnNumber: 21
                                         }, this))
                                 }, void 0, false, {
                                     fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-                                    lineNumber: 153,
+                                    lineNumber: 159,
                                     columnNumber: 17
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3274,36 +3320,12 @@ function DetailsStep({ values, errors, services, intake, intakeLoading, services
                                                     children: "Total Duration"
                                                 }, void 0, false, {
                                                     fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-                                                    lineNumber: 169,
-                                                    columnNumber: 21
-                                                }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                    className: "font-semibold text-foreground",
-                                                    children: selectedServices.length ? (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$booking$2d$format$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["formatDuration"])(totalDuration) : "--"
-                                                }, void 0, false, {
-                                                    fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-                                                    lineNumber: 170,
-                                                    columnNumber: 21
-                                                }, this)
-                                            ]
-                                        }, void 0, true, {
-                                            fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-                                            lineNumber: 168,
-                                            columnNumber: 19
-                                        }, this),
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "mt-3 flex items-center justify-between text-sm text-muted",
-                                            children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                    children: "Total Price"
-                                                }, void 0, false, {
-                                                    fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
                                                     lineNumber: 175,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                     className: "font-semibold text-foreground",
-                                                    children: selectedServices.length ? (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$booking$2d$format$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["formatCurrency"])(totalPrice) : "--"
+                                                    children: selectedServices.length ? (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$booking$2d$format$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["formatDuration"])(totalDuration) : "--"
                                                 }, void 0, false, {
                                                     fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
                                                     lineNumber: 176,
@@ -3314,11 +3336,35 @@ function DetailsStep({ values, errors, services, intake, intakeLoading, services
                                             fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
                                             lineNumber: 174,
                                             columnNumber: 19
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: "mt-3 flex items-center justify-between text-sm text-muted",
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                    children: "Total Price"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
+                                                    lineNumber: 181,
+                                                    columnNumber: 21
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                    className: "font-semibold text-foreground",
+                                                    children: selectedServices.length ? (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$booking$2d$format$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["formatCurrency"])(totalPrice) : "--"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
+                                                    lineNumber: 182,
+                                                    columnNumber: 21
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
+                                            lineNumber: 180,
+                                            columnNumber: 19
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-                                    lineNumber: 167,
+                                    lineNumber: 173,
                                     columnNumber: 17
                                 }, this)
                             ]
@@ -3326,18 +3372,18 @@ function DetailsStep({ values, errors, services, intake, intakeLoading, services
                             message: "No services are currently available for online booking."
                         }, void 0, false, {
                             fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-                            lineNumber: 183,
+                            lineNumber: 189,
                             columnNumber: 15
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-                        lineNumber: 148,
+                        lineNumber: 154,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-                lineNumber: 128,
+                lineNumber: 134,
                 columnNumber: 9
             }, this) : null,
             serviceError ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3345,7 +3391,7 @@ function DetailsStep({ values, errors, services, intake, intakeLoading, services
                 children: serviceError
             }, void 0, false, {
                 fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-                lineNumber: 189,
+                lineNumber: 195,
                 columnNumber: 23
             }, this) : null,
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -3356,19 +3402,19 @@ function DetailsStep({ values, errors, services, intake, intakeLoading, services
                     intakeLoading ? "Checking..." : servicesLoading ? "Loading services..." : showServicePicker ? "Continue" : "Select Services",
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(ArrowIcon, {}, void 0, false, {
                         fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-                        lineNumber: 203,
+                        lineNumber: 209,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-                lineNumber: 191,
+                lineNumber: 197,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-        lineNumber: 62,
+        lineNumber: 69,
         columnNumber: 5
     }, this);
 }
@@ -3387,7 +3433,7 @@ function IntakeMessage({ intake, selectedServiceIds }) {
                 children: title
             }, void 0, false, {
                 fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-                lineNumber: 231,
+                lineNumber: 237,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3395,7 +3441,7 @@ function IntakeMessage({ intake, selectedServiceIds }) {
                 children: intake.bookingBehavior.message
             }, void 0, false, {
                 fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-                lineNumber: 232,
+                lineNumber: 238,
                 columnNumber: 7
             }, this),
             intake.recommendedService ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3408,13 +3454,13 @@ function IntakeMessage({ intake, selectedServiceIds }) {
                         children: selectedServiceIds.includes(intake.recommendedService.serviceId) ? `${intake.recommendedService.serviceName} selected` : intake.recommendedService.serviceName
                     }, void 0, false, {
                         fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-                        lineNumber: 236,
+                        lineNumber: 242,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-                lineNumber: 234,
+                lineNumber: 240,
                 columnNumber: 9
             }, this) : null,
             intake.matchStatus === "ambiguous" && intake.candidateCount ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3422,13 +3468,13 @@ function IntakeMessage({ intake, selectedServiceIds }) {
                 children: "We found more than one possible match, so we'll use safe new-client rules unless you confirm more information later."
             }, void 0, false, {
                 fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-                lineNumber: 244,
+                lineNumber: 250,
                 columnNumber: 9
             }, this) : null
         ]
     }, void 0, true, {
         fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-        lineNumber: 230,
+        lineNumber: 236,
         columnNumber: 5
     }, this);
 }
@@ -3442,7 +3488,7 @@ function EmptyState({ message }) {
                 children: "Nothing to book yet"
             }, void 0, false, {
                 fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-                lineNumber: 256,
+                lineNumber: 262,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3450,13 +3496,13 @@ function EmptyState({ message }) {
                 children: message
             }, void 0, false, {
                 fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-                lineNumber: 257,
+                lineNumber: 263,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-        lineNumber: 255,
+        lineNumber: 261,
         columnNumber: 5
     }, this);
 }
@@ -3475,13 +3521,13 @@ function Field({ id, name, label, type, placeholder, value, error, required, aut
                         children: " *"
                     }, void 0, false, {
                         fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-                        lineNumber: 305,
+                        lineNumber: 311,
                         columnNumber: 21
                     }, this) : null
                 ]
             }, void 0, true, {
                 fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-                lineNumber: 303,
+                lineNumber: 309,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -3502,7 +3548,7 @@ function Field({ id, name, label, type, placeholder, value, error, required, aut
                 ].join(" ")
             }, void 0, false, {
                 fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-                lineNumber: 307,
+                lineNumber: 313,
                 columnNumber: 7
             }, this),
             error ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -3510,13 +3556,13 @@ function Field({ id, name, label, type, placeholder, value, error, required, aut
                 children: error
             }, void 0, false, {
                 fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-                lineNumber: 324,
+                lineNumber: 330,
                 columnNumber: 16
             }, this) : null
         ]
     }, void 0, true, {
         fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-        lineNumber: 302,
+        lineNumber: 308,
         columnNumber: 5
     }, this);
 }
@@ -3535,12 +3581,12 @@ function ArrowIcon() {
             strokeWidth: "1.7"
         }, void 0, false, {
             fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-            lineNumber: 332,
+            lineNumber: 338,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-        lineNumber: 331,
+        lineNumber: 337,
         columnNumber: 5
     }, this);
 }
@@ -3559,12 +3605,12 @@ function ChevronIcon() {
             strokeWidth: "1.7"
         }, void 0, false, {
             fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-            lineNumber: 347,
+            lineNumber: 353,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/apps/web/src/components/booking/DetailsStep.tsx",
-        lineNumber: 346,
+        lineNumber: 352,
         columnNumber: 5
     }, this);
 }
@@ -6167,6 +6213,8 @@ function BookingFlow({ slug, stylist, initialReferralCode }) {
                             columnNumber: 11
                         }, this),
                         currentStep === 1 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$components$2f$booking$2f$DetailsStep$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DetailsStep"], {
+                            intro: stylist.intro,
+                            introDescription: stylist.intro_description,
                             values: {
                                 fullName,
                                 email,
@@ -6206,7 +6254,7 @@ function BookingFlow({ slug, stylist, initialReferralCode }) {
                                 defaultClientPhone: phone
                             }, void 0, false, {
                                 fileName: "[project]/apps/web/src/components/booking/BookingFlow.tsx",
-                                lineNumber: 1475,
+                                lineNumber: 1477,
                                 columnNumber: 19
                             }, this) : null,
                             onDateSelect: (date)=>{
@@ -6223,7 +6271,7 @@ function BookingFlow({ slug, stylist, initialReferralCode }) {
                             onContinue: handleContinueFromTime
                         }, void 0, false, {
                             fileName: "[project]/apps/web/src/components/booking/BookingFlow.tsx",
-                            lineNumber: 1466,
+                            lineNumber: 1468,
                             columnNumber: 13
                         }, this) : null,
                         currentStep === 3 && selectedServices.length && selectedSlot ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$components$2f$booking$2f$ConfirmStep$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ConfirmStep"], {
@@ -6249,7 +6297,7 @@ function BookingFlow({ slug, stylist, initialReferralCode }) {
                             onSubmit: handleSubmitBooking
                         }, void 0, false, {
                             fileName: "[project]/apps/web/src/components/booking/BookingFlow.tsx",
-                            lineNumber: 1501,
+                            lineNumber: 1503,
                             columnNumber: 13
                         }, this) : null,
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6257,7 +6305,7 @@ function BookingFlow({ slug, stylist, initialReferralCode }) {
                             children: canShowTimeStep ? (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$booking$2d$format$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["formatTimezoneLabel"])(activeTimezone) : null
                         }, void 0, false, {
                             fileName: "[project]/apps/web/src/components/booking/BookingFlow.tsx",
-                            lineNumber: 1525,
+                            lineNumber: 1527,
                             columnNumber: 11
                         }, this)
                     ]
@@ -6297,7 +6345,11 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/apps/web/src/lib/api.ts [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$booking$2d$format$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/apps/web/src/lib/booking-format.ts [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$components$2f$booking$2f$BookingStepper$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/apps/web/src/components/booking/BookingStepper.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$components$2f$booking$2f$ConfirmStep$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/apps/web/src/components/booking/ConfirmStep.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$components$2f$booking$2f$DetailsStep$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/apps/web/src/components/booking/DetailsStep.tsx [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$components$2f$booking$2f$PublicBookingProfile$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/apps/web/src/components/booking/PublicBookingProfile.tsx [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$components$2f$booking$2f$TimeStep$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/apps/web/src/components/booking/TimeStep.tsx [app-client] (ecmascript)");
 ;
 var _s = __turbopack_context__.k.signature();
 "use client";
@@ -6305,18 +6357,69 @@ var _s = __turbopack_context__.k.signature();
 ;
 ;
 ;
+;
+;
+;
+;
+const buildPreviewAvailability = ()=>{
+    const firstDate = (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$booking$2d$format$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["addDaysToDate"])((0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$booking$2d$format$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getTodayDateValue"])(), 1);
+    const secondDate = (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$booking$2d$format$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["addDaysToDate"])(firstDate, 2);
+    return [
+        {
+            date: firstDate,
+            slots: [
+                {
+                    start: `${firstDate}T10:00:00`,
+                    end: `${firstDate}T11:00:00`
+                },
+                {
+                    start: `${firstDate}T13:00:00`,
+                    end: `${firstDate}T14:00:00`
+                },
+                {
+                    start: `${firstDate}T16:00:00`,
+                    end: `${firstDate}T17:00:00`
+                }
+            ]
+        },
+        {
+            date: secondDate,
+            slots: [
+                {
+                    start: `${secondDate}T09:30:00`,
+                    end: `${secondDate}T10:30:00`
+                },
+                {
+                    start: `${secondDate}T12:30:00`,
+                    end: `${secondDate}T13:30:00`
+                }
+            ]
+        }
+    ];
+};
 function BookingPreviewFlow({ preview, stylist, previewToken }) {
     _s();
     const [serviceState, setServiceState] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])({
         status: "loading"
     });
+    const [currentStep, setCurrentStep] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(1);
+    const [details, setDetails] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])({
+        fullName: "",
+        phone: "",
+        email: ""
+    });
+    const [detailsErrors, setDetailsErrors] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])({});
+    const [showServicePicker, setShowServicePicker] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
+    const [selectedServices, setSelectedServices] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
+    const previewAvailability = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])(buildPreviewAvailability, []);
+    const [selectedDate, setSelectedDate] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(previewAvailability[0]?.date);
+    const [selectedSlot, setSelectedSlot] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
+    const [notes, setNotes] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("");
+    const [smsOptIn, setSmsOptIn] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const capabilities = preview.preview_capabilities;
     const canReadPublicData = preview.preview_mode === true && capabilities.allow_public_reads === true;
-    const previewDisablesBooking = capabilities.allow_booking_submission === false;
-    const previewDisablesWaitlist = capabilities.allow_waitlist_submission === false;
-    const previewDisablesUploads = capabilities.allow_uploads === false;
-    const previewDisablesPayments = capabilities.allow_payments === false;
-    const previewDisablesAnalytics = capabilities.allow_analytics === false;
+    const intro = preview.profile.intro ?? "Let's get to know you";
+    const introDescription = preview.profile.intro_description ?? "Start with your contact details so we can check whether you're a returning client before you pick a service.";
     const services = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
         "BookingPreviewFlow.useMemo[services]": ()=>serviceState.status === "ready" ? [
                 ...serviceState.services
@@ -6326,6 +6429,8 @@ function BookingPreviewFlow({ preview, stylist, previewToken }) {
     }["BookingPreviewFlow.useMemo[services]"], [
         serviceState
     ]);
+    const servicesLoading = canReadPublicData && serviceState.status === "loading";
+    const servicesUnavailable = !canReadPublicData || serviceState.status === "error";
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "BookingPreviewFlow.useEffect": ()=>{
             (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$api$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["setActiveBookingPreviewToken"])(previewToken);
@@ -6372,172 +6477,210 @@ function BookingPreviewFlow({ preview, stylist, previewToken }) {
         canReadPublicData,
         preview.slug
     ]);
+    const updateDetails = (field, value)=>{
+        setDetails((current)=>({
+                ...current,
+                [field]: value
+            }));
+        setDetailsErrors((current)=>({
+                ...current,
+                [field]: undefined
+            }));
+    };
+    const toggleService = (service)=>{
+        setSelectedServices((current)=>current.some((selected)=>selected.id === service.id) ? current.filter((selected)=>selected.id !== service.id) : [
+                service
+            ]);
+        setSelectedSlot(null);
+    };
+    const continueFromDetails = ()=>{
+        if (!showServicePicker) {
+            const errors = {};
+            if (!details.fullName.trim()) errors.fullName = "Enter a name to continue the preview.";
+            if (!details.phone.trim()) errors.phone = "Enter a phone number to continue the preview.";
+            if (Object.keys(errors).length > 0) {
+                setDetailsErrors(errors);
+                return;
+            }
+            setShowServicePicker(true);
+            return;
+        }
+        if (selectedServices.length > 0) {
+            setCurrentStep(2);
+        }
+    };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: "rounded-[30px] border border-white/80 bg-card p-6 shadow-[0_24px_80px_rgba(17,24,39,0.08)] sm:p-8 lg:grid lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-8",
+        className: "space-y-3",
         children: [
-            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$components$2f$booking$2f$PublicBookingProfile$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["PublicBookingProfile"], {
-                stylist: stylist
-            }, void 0, false, {
-                fileName: "[project]/apps/web/src/components/booking/BookingPreviewFlow.tsx",
-                lineNumber: 86,
-                columnNumber: 7
-            }, this),
-            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "mt-8 lg:mt-0 lg:min-w-0",
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
+                "aria-label": "Preview status",
+                className: "flex flex-wrap items-center gap-x-2 gap-y-1 rounded-xl border border-brand/20 bg-brand-soft/60 px-3 py-2 text-xs leading-5 text-muted",
                 children: [
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
-                        "aria-label": "Preview status",
-                        className: "rounded-3xl border border-brand/30 bg-brand-soft p-6",
-                        children: [
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                className: "text-sm font-bold uppercase tracking-[0.08em] text-brand",
-                                children: "Preview"
-                            }, void 0, false, {
-                                fileName: "[project]/apps/web/src/components/booking/BookingPreviewFlow.tsx",
-                                lineNumber: 93,
-                                columnNumber: 11
-                            }, this),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
-                                className: "mt-2 text-2xl font-semibold tracking-tight text-foreground",
-                                children: "Preview — booking is disabled"
-                            }, void 0, false, {
-                                fileName: "[project]/apps/web/src/components/booking/BookingPreviewFlow.tsx",
-                                lineNumber: 96,
-                                columnNumber: 11
-                            }, this),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                className: "mt-3 text-sm leading-6 text-muted",
-                                children: "This is a read-only view of your booking page. Customers cannot submit bookings, join the waitlist, upload photos, or make payments."
-                            }, void 0, false, {
-                                fileName: "[project]/apps/web/src/components/booking/BookingPreviewFlow.tsx",
-                                lineNumber: 99,
-                                columnNumber: 11
-                            }, this)
-                        ]
-                    }, void 0, true, {
-                        fileName: "[project]/apps/web/src/components/booking/BookingPreviewFlow.tsx",
-                        lineNumber: 89,
-                        columnNumber: 9
-                    }, this),
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
-                        className: "mt-6",
-                        children: [
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
-                                className: "text-xl font-semibold tracking-tight text-foreground",
-                                children: "Services"
-                            }, void 0, false, {
-                                fileName: "[project]/apps/web/src/components/booking/BookingPreviewFlow.tsx",
-                                lineNumber: 106,
-                                columnNumber: 11
-                            }, this),
-                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                className: "mt-2 text-sm leading-6 text-muted",
-                                children: "Services are displayed for preview only and cannot be selected."
-                            }, void 0, false, {
-                                fileName: "[project]/apps/web/src/components/booking/BookingPreviewFlow.tsx",
-                                lineNumber: 109,
-                                columnNumber: 11
-                            }, this),
-                            !canReadPublicData ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                className: "mt-4 rounded-2xl bg-zinc-50 px-4 py-3 text-sm text-muted",
-                                children: "Public service data is unavailable for this preview."
-                            }, void 0, false, {
-                                fileName: "[project]/apps/web/src/components/booking/BookingPreviewFlow.tsx",
-                                lineNumber: 114,
-                                columnNumber: 13
-                            }, this) : serviceState.status === "loading" ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                className: "mt-4 text-sm text-muted",
-                                children: "Loading services…"
-                            }, void 0, false, {
-                                fileName: "[project]/apps/web/src/components/booking/BookingPreviewFlow.tsx",
-                                lineNumber: 118,
-                                columnNumber: 13
-                            }, this) : serviceState.status === "error" ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                className: "mt-4 text-sm text-muted",
-                                children: "Services could not be loaded for this preview."
-                            }, void 0, false, {
-                                fileName: "[project]/apps/web/src/components/booking/BookingPreviewFlow.tsx",
-                                lineNumber: 120,
-                                columnNumber: 13
-                            }, this) : services.length ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("ul", {
-                                className: "mt-4 grid gap-3 sm:grid-cols-2",
-                                children: services.map((service)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
-                                        className: "rounded-2xl border border-border bg-white p-4",
-                                        children: [
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                className: "font-semibold text-foreground",
-                                                children: service.name
-                                            }, void 0, false, {
-                                                fileName: "[project]/apps/web/src/components/booking/BookingPreviewFlow.tsx",
-                                                lineNumber: 130,
-                                                columnNumber: 19
-                                            }, this),
-                                            service.description ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                className: "mt-1 text-sm leading-5 text-muted",
-                                                children: service.description
-                                            }, void 0, false, {
-                                                fileName: "[project]/apps/web/src/components/booking/BookingPreviewFlow.tsx",
-                                                lineNumber: 134,
-                                                columnNumber: 21
-                                            }, this) : null,
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                className: "mt-3 text-sm text-muted",
-                                                children: [
-                                                    (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$booking$2d$format$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["formatDuration"])(service.durationMinutes),
-                                                    " · ",
-                                                    (0, __TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$lib$2f$booking$2d$format$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["formatCurrency"])(service.price)
-                                                ]
-                                            }, void 0, true, {
-                                                fileName: "[project]/apps/web/src/components/booking/BookingPreviewFlow.tsx",
-                                                lineNumber: 138,
-                                                columnNumber: 19
-                                            }, this)
-                                        ]
-                                    }, service.id, true, {
-                                        fileName: "[project]/apps/web/src/components/booking/BookingPreviewFlow.tsx",
-                                        lineNumber: 126,
-                                        columnNumber: 17
-                                    }, this))
-                            }, void 0, false, {
-                                fileName: "[project]/apps/web/src/components/booking/BookingPreviewFlow.tsx",
-                                lineNumber: 124,
-                                columnNumber: 13
-                            }, this) : serviceState.status === "ready" ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                className: "mt-4 text-sm text-muted",
-                                children: "No services are currently available."
-                            }, void 0, false, {
-                                fileName: "[project]/apps/web/src/components/booking/BookingPreviewFlow.tsx",
-                                lineNumber: 145,
-                                columnNumber: 13
-                            }, this) : null
-                        ]
-                    }, void 0, true, {
-                        fileName: "[project]/apps/web/src/components/booking/BookingPreviewFlow.tsx",
-                        lineNumber: 105,
-                        columnNumber: 9
-                    }, this),
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                        className: "mt-6 text-xs text-muted",
-                        children: previewDisablesBooking && previewDisablesWaitlist && previewDisablesUploads && previewDisablesPayments && previewDisablesAnalytics ? "All booking actions, uploads, payments, and analytics are disabled in this preview." : "This preview is running with its resolver-provided capabilities."
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                        className: "font-bold uppercase tracking-[0.08em] text-brand",
+                        children: "Preview"
                     }, void 0, false, {
                         fileName: "[project]/apps/web/src/components/booking/BookingPreviewFlow.tsx",
-                        lineNumber: 151,
+                        lineNumber: 179,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
+                        className: "font-semibold text-foreground",
+                        children: "Booking is disabled"
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/booking/BookingPreviewFlow.tsx",
+                        lineNumber: 182,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                        "aria-hidden": "true",
+                        children: "·"
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/booking/BookingPreviewFlow.tsx",
+                        lineNumber: 185,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                        children: "Booking cannot be submitted; preview changes stay in this browser."
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/booking/BookingPreviewFlow.tsx",
+                        lineNumber: 186,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/apps/web/src/components/booking/BookingPreviewFlow.tsx",
-                lineNumber: 88,
+                lineNumber: 175,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "rounded-[30px] border border-white/80 bg-card p-6 shadow-[0_24px_80px_rgba(17,24,39,0.08)] sm:p-8 lg:grid lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-8",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$components$2f$booking$2f$PublicBookingProfile$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["PublicBookingProfile"], {
+                        stylist: stylist
+                    }, void 0, false, {
+                        fileName: "[project]/apps/web/src/components/booking/BookingPreviewFlow.tsx",
+                        lineNumber: 190,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "mt-8 lg:mt-0 lg:min-w-0",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$components$2f$booking$2f$BookingStepper$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["BookingStepper"], {
+                                currentStep: currentStep
+                            }, void 0, false, {
+                                fileName: "[project]/apps/web/src/components/booking/BookingPreviewFlow.tsx",
+                                lineNumber: 193,
+                                columnNumber: 11
+                            }, this),
+                            currentStep === 1 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$components$2f$booking$2f$DetailsStep$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DetailsStep"], {
+                                        intro: intro,
+                                        introDescription: introDescription,
+                                        values: details,
+                                        errors: detailsErrors,
+                                        services: services,
+                                        intake: null,
+                                        intakeLoading: false,
+                                        servicesLoading: servicesLoading,
+                                        selectedServices: selectedServices,
+                                        serviceError: servicesUnavailable ? "Services could not be loaded for this preview." : null,
+                                        canBeginServiceSelection: !servicesLoading && !servicesUnavailable,
+                                        showServicePicker: showServicePicker,
+                                        onChange: updateDetails,
+                                        onToggleService: toggleService,
+                                        onContinue: continueFromDetails
+                                    }, void 0, false, {
+                                        fileName: "[project]/apps/web/src/components/booking/BookingPreviewFlow.tsx",
+                                        lineNumber: 197,
+                                        columnNumber: 15
+                                    }, this),
+                                    showServicePicker ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                        className: "mt-4 text-xs text-muted",
+                                        children: "Services are live public data. Contact details stay only in this browser preview."
+                                    }, void 0, false, {
+                                        fileName: "[project]/apps/web/src/components/booking/BookingPreviewFlow.tsx",
+                                        lineNumber: 219,
+                                        columnNumber: 17
+                                    }, this) : null
+                                ]
+                            }, void 0, true) : null,
+                            currentStep === 2 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                        className: "mb-4 text-xs text-muted",
+                                        children: "Sample times illustrate the booking flow and are not live availability."
+                                    }, void 0, false, {
+                                        fileName: "[project]/apps/web/src/components/booking/BookingPreviewFlow.tsx",
+                                        lineNumber: 228,
+                                        columnNumber: 15
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$components$2f$booking$2f$TimeStep$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TimeStep"], {
+                                        selectedDate: selectedDate,
+                                        selectedSlot: selectedSlot,
+                                        upcomingDays: previewAvailability,
+                                        loading: false,
+                                        timezone: stylist.timezone,
+                                        onDateSelect: (date)=>{
+                                            setSelectedDate(date);
+                                            setSelectedSlot(null);
+                                        },
+                                        onSlotSelect: setSelectedSlot,
+                                        onBack: ()=>setCurrentStep(1),
+                                        onContinue: ()=>{
+                                            if (selectedSlot) setCurrentStep(3);
+                                        }
+                                    }, void 0, false, {
+                                        fileName: "[project]/apps/web/src/components/booking/BookingPreviewFlow.tsx",
+                                        lineNumber: 231,
+                                        columnNumber: 15
+                                    }, this)
+                                ]
+                            }, void 0, true) : null,
+                            currentStep === 3 && selectedSlot ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$apps$2f$web$2f$src$2f$components$2f$booking$2f$ConfirmStep$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ConfirmStep"], {
+                                stylist: stylist,
+                                services: selectedServices,
+                                slot: selectedSlot,
+                                fullName: details.fullName.trim(),
+                                email: details.email.trim(),
+                                phone: details.phone.trim(),
+                                notes: notes,
+                                smsOptIn: smsOptIn,
+                                submitting: false,
+                                previewMode: true,
+                                timezone: stylist.timezone,
+                                onNotesChange: setNotes,
+                                onSmsOptInChange: setSmsOptIn,
+                                onReferencePhotoSelect: ()=>undefined,
+                                onReferencePhotoRemove: ()=>undefined,
+                                onEdit: setCurrentStep,
+                                onSubmit: ()=>undefined
+                            }, void 0, false, {
+                                fileName: "[project]/apps/web/src/components/booking/BookingPreviewFlow.tsx",
+                                lineNumber: 251,
+                                columnNumber: 13
+                            }, this) : null
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/apps/web/src/components/booking/BookingPreviewFlow.tsx",
+                        lineNumber: 192,
+                        columnNumber: 9
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/apps/web/src/components/booking/BookingPreviewFlow.tsx",
+                lineNumber: 189,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/apps/web/src/components/booking/BookingPreviewFlow.tsx",
-        lineNumber: 85,
+        lineNumber: 174,
         columnNumber: 5
     }, this);
 }
-_s(BookingPreviewFlow, "uy0+Ib9V5aQWwUX7chWB/bkrfEs=");
+_s(BookingPreviewFlow, "SC1ExOJ3Su5zdP82f4Eit8nMJQ8=");
 _c = BookingPreviewFlow;
 var _c;
 __turbopack_context__.k.register(_c, "BookingPreviewFlow");
