@@ -201,6 +201,8 @@ function isBookingPreviewContext(value: unknown): value is BookingPreviewContext
     isNullableString(profile.display_name) &&
     isNullableString(profile.bio) &&
     isNullableString(profile.instagram) &&
+    isNullableString(profile.intro) &&
+    isNullableString(profile.intro_description) &&
     isNullableString(profile.cover_photo_url) &&
     isNullableString(profile.business_name) &&
     typeof profile.booking_enabled === "boolean" &&

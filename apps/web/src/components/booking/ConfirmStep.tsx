@@ -28,6 +28,7 @@ type ConfirmStepProps = {
   referencePhotoFile?: File | null;
   referencePhotoPreviewUrl?: string | null;
   submitting: boolean;
+  previewMode?: boolean;
   error?: string | null;
   timezone?: string | null;
   bookingBehavior?: PublicBookingBehavior | null;
@@ -51,6 +52,7 @@ export function ConfirmStep({
   referencePhotoFile,
   referencePhotoPreviewUrl,
   submitting,
+  previewMode = false,
   error,
   timezone,
   bookingBehavior,
@@ -161,6 +163,7 @@ export function ConfirmStep({
           type="file"
           accept="image/jpeg,image/jpg,image/pjpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
           className="sr-only"
+          disabled={previewMode}
           onChange={handleReferencePhotoChange}
         />
 
@@ -204,6 +207,7 @@ export function ConfirmStep({
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
+            disabled={previewMode}
             className="mt-4 flex min-h-24 w-full items-center justify-between gap-4 rounded-2xl border border-dashed border-brand/40 bg-white px-4 py-4 text-left transition hover:border-brand hover:bg-brand/5"
           >
             <span className="flex items-center gap-3">
@@ -268,11 +272,11 @@ export function ConfirmStep({
 
       <button
         type="button"
-        disabled={submitting}
+        disabled={submitting || previewMode}
         onClick={onSubmit}
         className="mt-4 flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-brand px-5 text-base font-semibold text-white shadow-[0_18px_32px_rgba(183,121,61,0.24)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark disabled:cursor-wait disabled:opacity-70"
       >
-        {submitting ? "Booking..." : "Book Appointment"}
+        {previewMode ? "Booking is disabled in preview" : submitting ? "Booking..." : "Book Appointment"}
         <ArrowIcon />
       </button>
     </div>

@@ -89,6 +89,8 @@ describe("BookingPage", () => {
         display_name: "Maya at North Loop",
         bio: null,
         instagram: "maya-new",
+        intro: null,
+        intro_description: null,
         cover_photo_url: null,
         business_name: "Maya Studio",
         booking_enabled: true,
@@ -123,6 +125,45 @@ describe("BookingPage", () => {
     expect(screen.getByTestId("preview-url-cleanup")).toBeTruthy();
     expect(screen.getByTestId("booking-preview-flow")).toBeTruthy();
     expect(screen.queryByTestId("booking-flow")).toBeNull();
+  });
+
+  it("rejects malformed preview intro fields before rendering", async () => {
+    vi.mocked(resolveBookingPreviewSession).mockResolvedValue({
+      preview_mode: true,
+      expires_at: "2026-09-16T12:15:00.000Z",
+      slug: "maya-johnson",
+      profile: {
+        display_name: "Maya",
+        bio: null,
+        instagram: null,
+        intro: { invalid: true },
+        intro_description: null,
+        cover_photo_url: null,
+        business_name: null,
+        booking_enabled: true,
+        booking_request_form_enabled: false,
+      },
+      preview_capabilities: {
+        allow_public_reads: true,
+        allow_booking_submission: false,
+        allow_waitlist_submission: false,
+        allow_uploads: false,
+        allow_payments: false,
+        allow_analytics: false,
+      },
+      schema_version: "booking_preview_context.v1",
+    } as never);
+
+    render(
+      await BookingPage({
+        params: Promise.resolve({ slug: "maya-johnson" }),
+        searchParams: Promise.resolve({ preview: "PVW_secret" }),
+      }),
+    );
+
+    expect(screen.getByText("This preview link is unavailable.")).toBeTruthy();
+    expect(screen.queryByTestId("booking-preview-flow")).toBeNull();
+    expect(getPublicStylist).not.toHaveBeenCalled();
   });
 
   it("shows a token-safe unavailable screen for missing preview sessions", async () => {

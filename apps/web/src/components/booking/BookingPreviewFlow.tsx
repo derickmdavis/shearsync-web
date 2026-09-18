@@ -6,10 +6,15 @@ import {
   setActiveBookingPreviewToken,
   type BookingPreviewContext,
   type PublicService,
+  type PublicSlot,
   type PublicStylist,
 } from "@/src/lib/api";
-import { formatCurrency, formatDuration } from "@/src/lib/booking-format";
+import { addDaysToDate, getTodayDateValue } from "@/src/lib/booking-format";
+import { BookingStepper } from "@/src/components/booking/BookingStepper";
+import { ConfirmStep } from "@/src/components/booking/ConfirmStep";
+import { DetailsStep } from "@/src/components/booking/DetailsStep";
 import { PublicBookingProfile } from "@/src/components/booking/PublicBookingProfile";
+import { TimeStep } from "@/src/components/booking/TimeStep";
 
 type BookingPreviewFlowProps = {
   preview: BookingPreviewContext;
@@ -23,6 +28,42 @@ type ServiceState =
   | { status: "ready"; services: PublicService[] }
   | { status: "error" };
 
+type PreviewDetails = {
+  fullName: string;
+  phone: string;
+  email: string;
+};
+
+type PreviewDetailsErrors = Partial<Record<keyof PreviewDetails, string>>;
+
+type PreviewAvailabilityDay = {
+  date: string;
+  slots: PublicSlot[];
+};
+
+const buildPreviewAvailability = (): PreviewAvailabilityDay[] => {
+  const firstDate = addDaysToDate(getTodayDateValue(), 1);
+  const secondDate = addDaysToDate(firstDate, 2);
+
+  return [
+    {
+      date: firstDate,
+      slots: [
+        { start: `${firstDate}T10:00:00`, end: `${firstDate}T11:00:00` },
+        { start: `${firstDate}T13:00:00`, end: `${firstDate}T14:00:00` },
+        { start: `${firstDate}T16:00:00`, end: `${firstDate}T17:00:00` },
+      ],
+    },
+    {
+      date: secondDate,
+      slots: [
+        { start: `${secondDate}T09:30:00`, end: `${secondDate}T10:30:00` },
+        { start: `${secondDate}T12:30:00`, end: `${secondDate}T13:30:00` },
+      ],
+    },
+  ];
+};
+
 export function BookingPreviewFlow({
   preview,
   stylist,
@@ -31,14 +72,23 @@ export function BookingPreviewFlow({
   const [serviceState, setServiceState] = useState<ServiceState>({
     status: "loading",
   });
+  const [currentStep, setCurrentStep] = useState(1);
+  const [details, setDetails] = useState<PreviewDetails>({
+    fullName: "",
+    phone: "",
+    email: "",
+  });
+  const [detailsErrors, setDetailsErrors] = useState<PreviewDetailsErrors>({});
+  const [showServicePicker, setShowServicePicker] = useState(false);
+  const [selectedServices, setSelectedServices] = useState<PublicService[]>([]);
+  const previewAvailability = useMemo(buildPreviewAvailability, []);
+  const [selectedDate, setSelectedDate] = useState(previewAvailability[0]?.date);
+  const [selectedSlot, setSelectedSlot] = useState<PublicSlot | null>(null);
+  const [notes, setNotes] = useState("");
+  const [smsOptIn, setSmsOptIn] = useState(false);
   const capabilities = preview.preview_capabilities;
   const canReadPublicData =
     preview.preview_mode === true && capabilities.allow_public_reads === true;
-  const previewDisablesBooking = capabilities.allow_booking_submission === false;
-  const previewDisablesWaitlist = capabilities.allow_waitlist_submission === false;
-  const previewDisablesUploads = capabilities.allow_uploads === false;
-  const previewDisablesPayments = capabilities.allow_payments === false;
-  const previewDisablesAnalytics = capabilities.allow_analytics === false;
   const intro = preview.profile.intro ?? "Let's get to know you";
   const introDescription = preview.profile.intro_description
     ?? "Start with your contact details so we can check whether you're a returning client before you pick a service.";
@@ -51,6 +101,8 @@ export function BookingPreviewFlow({
         : [],
     [serviceState],
   );
+  const servicesLoading = canReadPublicData && serviceState.status === "loading";
+  const servicesUnavailable = !canReadPublicData || serviceState.status === "error";
 
   useEffect(() => {
     setActiveBookingPreviewToken(previewToken);
@@ -84,87 +136,139 @@ export function BookingPreviewFlow({
     };
   }, [canReadPublicData, preview.slug]);
 
+  const updateDetails = (field: keyof PreviewDetails, value: string) => {
+    setDetails((current) => ({ ...current, [field]: value }));
+    setDetailsErrors((current) => ({ ...current, [field]: undefined }));
+  };
+
+  const toggleService = (service: PublicService) => {
+    setSelectedServices((current) =>
+      current.some((selected) => selected.id === service.id)
+        ? current.filter((selected) => selected.id !== service.id)
+        : [service],
+    );
+    setSelectedSlot(null);
+  };
+
+  const continueFromDetails = () => {
+    if (!showServicePicker) {
+      const errors: PreviewDetailsErrors = {};
+      if (!details.fullName.trim()) errors.fullName = "Enter a name to continue the preview.";
+      if (!details.phone.trim()) errors.phone = "Enter a phone number to continue the preview.";
+
+      if (Object.keys(errors).length > 0) {
+        setDetailsErrors(errors);
+        return;
+      }
+
+      setShowServicePicker(true);
+      return;
+    }
+
+    if (selectedServices.length > 0) {
+      setCurrentStep(2);
+    }
+  };
+
   return (
-    <div className="rounded-[30px] border border-white/80 bg-card p-6 shadow-[0_24px_80px_rgba(17,24,39,0.08)] sm:p-8 lg:grid lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-8">
-      <PublicBookingProfile stylist={stylist} />
+    <div className="space-y-3">
+      <section
+        aria-label="Preview status"
+        className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-xl border border-brand/20 bg-brand-soft/60 px-3 py-2 text-xs leading-5 text-muted"
+      >
+        <span className="font-bold uppercase tracking-[0.08em] text-brand">
+          Preview
+        </span>
+        <h1 className="font-semibold text-foreground">
+          Booking is disabled
+        </h1>
+        <span aria-hidden="true">·</span>
+        <span>Booking cannot be submitted; preview changes stay in this browser.</span>
+      </section>
 
-      <div className="mt-8 lg:mt-0 lg:min-w-0">
-        <section
-          aria-label="Preview status"
-          className="rounded-3xl border border-brand/30 bg-brand-soft p-6"
-        >
-          <p className="text-sm font-bold uppercase tracking-[0.08em] text-brand">
-            Preview
-          </p>
-          <h1 className="mt-2 text-2xl font-semibold tracking-tight text-foreground">
-            Preview — booking is disabled
-          </h1>
-          <p className="mt-3 text-sm leading-6 text-muted">
-            This is a read-only view of your booking page. Customers cannot
-            submit bookings, join the waitlist, upload photos, or make payments.
-          </p>
-        </section>
+      <div className="rounded-[30px] border border-white/80 bg-card p-6 shadow-[0_24px_80px_rgba(17,24,39,0.08)] sm:p-8 lg:grid lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-8">
+        <PublicBookingProfile stylist={stylist} />
 
-        <section className="mt-6">
-          <h2 className="text-xl font-semibold tracking-tight text-foreground">
-            {intro}
-          </h2>
-          <p className="mt-2 text-sm leading-6 text-muted">
-            {introDescription}
-          </p>
-        </section>
+        <div className="mt-8 lg:mt-0 lg:min-w-0">
+          <BookingStepper currentStep={currentStep} />
 
-        <section className="mt-6">
-          <h2 className="text-xl font-semibold tracking-tight text-foreground">
-            Services
-          </h2>
-          <p className="mt-2 text-sm leading-6 text-muted">
-            Services are displayed for preview only and cannot be selected.
-          </p>
-
-          {!canReadPublicData ? (
-            <p className="mt-4 rounded-2xl bg-zinc-50 px-4 py-3 text-sm text-muted">
-              Public service data is unavailable for this preview.
-            </p>
-          ) : serviceState.status === "loading" ? (
-            <p className="mt-4 text-sm text-muted">Loading services…</p>
-          ) : serviceState.status === "error" ? (
-            <p className="mt-4 text-sm text-muted">
-              Services could not be loaded for this preview.
-            </p>
-          ) : services.length ? (
-            <ul className="mt-4 grid gap-3 sm:grid-cols-2">
-              {services.map((service) => (
-                <li
-                  key={service.id}
-                  className="rounded-2xl border border-border bg-white p-4"
-                >
-                  <p className="font-semibold text-foreground">
-                    {service.name}
-                  </p>
-                  {service.description ? (
-                    <p className="mt-1 text-sm leading-5 text-muted">
-                      {service.description}
-                    </p>
-                  ) : null}
-                  <p className="mt-3 text-sm text-muted">
-                    {formatDuration(service.durationMinutes)} · {formatCurrency(service.price)}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          ) : serviceState.status === "ready" ? (
-            <p className="mt-4 text-sm text-muted">
-              No services are currently available.
-            </p>
+          {currentStep === 1 ? (
+            <>
+              <DetailsStep
+                intro={intro}
+                introDescription={introDescription}
+                values={details}
+                errors={detailsErrors}
+                services={services}
+                intake={null}
+                intakeLoading={false}
+                servicesLoading={servicesLoading}
+                selectedServices={selectedServices}
+                serviceError={
+                  servicesUnavailable
+                    ? "Services could not be loaded for this preview."
+                    : null
+                }
+                canBeginServiceSelection={!servicesLoading && !servicesUnavailable}
+                showServicePicker={showServicePicker}
+                onChange={updateDetails}
+                onToggleService={toggleService}
+                onContinue={continueFromDetails}
+              />
+              {showServicePicker ? (
+                <p className="mt-4 text-xs text-muted">
+                  Services are live public data. Contact details stay only in this browser preview.
+                </p>
+              ) : null}
+            </>
           ) : null}
-        </section>
 
-        <p className="mt-6 text-xs text-muted">
-          {previewDisablesBooking && previewDisablesWaitlist && previewDisablesUploads && previewDisablesPayments && previewDisablesAnalytics
-            ? "All booking actions, uploads, payments, and analytics are disabled in this preview."
-            : "This preview is running with its resolver-provided capabilities."}
-        </p>
+          {currentStep === 2 ? (
+            <>
+              <p className="mb-4 text-xs text-muted">
+                Sample times illustrate the booking flow and are not live availability.
+              </p>
+              <TimeStep
+                selectedDate={selectedDate}
+                selectedSlot={selectedSlot}
+                upcomingDays={previewAvailability}
+                loading={false}
+                timezone={stylist.timezone}
+                onDateSelect={(date) => {
+                  setSelectedDate(date);
+                  setSelectedSlot(null);
+                }}
+                onSlotSelect={setSelectedSlot}
+                onBack={() => setCurrentStep(1)}
+                onContinue={() => {
+                  if (selectedSlot) setCurrentStep(3);
+                }}
+              />
+            </>
+          ) : null}
+
+          {currentStep === 3 && selectedSlot ? (
+            <ConfirmStep
+              stylist={stylist}
+              services={selectedServices}
+              slot={selectedSlot}
+              fullName={details.fullName.trim()}
+              email={details.email.trim()}
+              phone={details.phone.trim()}
+              notes={notes}
+              smsOptIn={smsOptIn}
+              submitting={false}
+              previewMode
+              timezone={stylist.timezone}
+              onNotesChange={setNotes}
+              onSmsOptInChange={setSmsOptIn}
+              onReferencePhotoSelect={() => undefined}
+              onReferencePhotoRemove={() => undefined}
+              onEdit={setCurrentStep}
+              onSubmit={() => undefined}
+            />
+          ) : null}
+        </div>
       </div>
     </div>
   );

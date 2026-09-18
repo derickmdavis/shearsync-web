@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { BookingPreviewFlow } from "@/src/components/booking/BookingPreviewFlow";
 import type { BookingPreviewContext, PublicStylist } from "@/src/lib/api";
@@ -93,9 +93,8 @@ describe("BookingPreviewFlow", () => {
     );
 
     expect(
-      screen.getByRole("heading", { name: "Preview — booking is disabled" }),
+      screen.getByRole("heading", { name: "Booking is disabled" }),
     ).toBeTruthy();
-    expect(await screen.findByText("Signature Cut")).toBeTruthy();
     expect(screen.getByText("Tell us about yourself")).toBeTruthy();
     expect(
       screen.getByText("Share your contact details before choosing a service."),
@@ -108,10 +107,38 @@ describe("BookingPreviewFlow", () => {
       bookingApi.createPublicReferencePhotoUploadIntent,
     ).not.toHaveBeenCalled();
     expect(bookingApi.finalizePublicReferencePhoto).not.toHaveBeenCalled();
-    expect(screen.queryByPlaceholderText("Enter your full name")).toBeNull();
+    fireEvent.change(screen.getByPlaceholderText("Enter your full name"), {
+      target: { value: "Preview Client" },
+    });
+    fireEvent.change(screen.getByPlaceholderText("(555) 123-4567"), {
+      target: { value: "555-0100" },
+    });
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Select Services" }),
+    );
+    expect(await screen.findByText("Signature Cut")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: /Signature Cut/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    expect(await screen.findByText("Choose a date & time")).toBeTruthy();
+    expect(
+      screen.getByText("Sample times illustrate the booking flow and are not live availability."),
+    ).toBeTruthy();
+    fireEvent.click(screen.getAllByRole("button", { name: /10:00/i })[0]!);
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    expect(await screen.findByText("Review your booking")).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: "Booking is disabled in preview" }),
+    ).toHaveProperty("disabled", true);
     expect(
       screen.queryByRole("button", { name: /book appointment/i }),
     ).toBeNull();
+    expect(bookingApi.createPublicBookingIntake).not.toHaveBeenCalled();
+    expect(bookingApi.createPublicBooking).not.toHaveBeenCalled();
+    expect(bookingApi.joinWaitlist).not.toHaveBeenCalled();
+    expect(
+      bookingApi.createPublicReferencePhotoUploadIntent,
+    ).not.toHaveBeenCalled();
+    expect(bookingApi.finalizePublicReferencePhoto).not.toHaveBeenCalled();
   });
 
   it("does not read services when public reads are disallowed", () => {
@@ -124,8 +151,78 @@ describe("BookingPreviewFlow", () => {
     );
 
     expect(bookingApi.getPublicServices).not.toHaveBeenCalled();
-    expect(
-      screen.getByText("Public service data is unavailable for this preview."),
-    ).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Select Services" })).toHaveProperty(
+      "disabled",
+      true,
+    );
+  });
+
+  it("keeps one selected service and clears a sample time when it changes", async () => {
+    vi.mocked(bookingApi.getPublicServices).mockResolvedValue([
+      {
+        id: "service-1",
+        name: "Signature Cut",
+        description: null,
+        durationMinutes: 60,
+        price: 95,
+        isActive: true,
+        isDefault: false,
+        sortOrder: 0,
+      },
+      {
+        id: "service-2",
+        name: "Gloss Refresh",
+        description: null,
+        durationMinutes: 45,
+        price: 65,
+        isActive: true,
+        isDefault: false,
+        sortOrder: 1,
+      },
+    ]);
+
+    render(
+      <BookingPreviewFlow
+        preview={createPreview()}
+        stylist={stylist}
+        previewToken="PVW_preview-token"
+      />,
+    );
+
+    fireEvent.change(screen.getByPlaceholderText("Enter your full name"), {
+      target: { value: "Preview Client" },
+    });
+    fireEvent.change(screen.getByPlaceholderText("(555) 123-4567"), {
+      target: { value: "555-0100" },
+    });
+    fireEvent.click(
+      await screen.findByRole("button", { name: "Select Services" }),
+    );
+
+    const signatureCut = screen.getByRole("button", { name: /Signature Cut/i });
+    const glossRefresh = screen.getByRole("button", { name: /Gloss Refresh/i });
+    fireEvent.click(signatureCut);
+    expect(signatureCut.getAttribute("aria-pressed")).toBe("true");
+
+    fireEvent.click(glossRefresh);
+    expect(signatureCut.getAttribute("aria-pressed")).toBe("false");
+    expect(glossRefresh.getAttribute("aria-pressed")).toBe("true");
+
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    expect(await screen.findByText("Choose a date & time")).toBeTruthy();
+    fireEvent.click(screen.getAllByRole("button", { name: /10:00/i })[0]!);
+    expect(screen.getByRole("button", { name: "Continue" })).toHaveProperty(
+      "disabled",
+      false,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Back" }));
+    fireEvent.click(screen.getByRole("button", { name: /Signature Cut/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    expect(await screen.findByText("Choose a date & time")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Continue" })).toHaveProperty(
+      "disabled",
+      true,
+    );
   });
 });

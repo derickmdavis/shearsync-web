@@ -28,13 +28,40 @@ test("opens a read-only preview popup without persisting capabilities, referrals
   const previewPage = await previewPagePromise;
 
   await expect(
-    previewPage.getByRole("heading", { name: "Preview — booking is disabled" }),
+    previewPage.getByRole("heading", { name: "Booking is disabled" }),
   ).toBeVisible();
   await expect(previewPage.getByText("Let's get to know you")).toBeVisible();
   await expect(
     previewPage.getByText("Start with your contact details before selecting a service."),
   ).toBeVisible();
+  await previewPage.getByPlaceholder("Enter your full name").fill("Preview Client");
+  await previewPage.getByPlaceholder("(555) 123-4567").fill("555-0100");
+  await previewPage.getByRole("button", { name: "Select Services" }).click();
   await expect(previewPage.getByText("Signature Cut")).toBeVisible();
+  await previewPage.getByRole("button", { name: /Signature Cut/i }).click();
+  await previewPage.getByRole("button", { name: "Continue" }).click();
+
+  await expect(
+    previewPage.getByRole("heading", { name: "Choose a date & time" }),
+  ).toBeVisible();
+  await expect(
+    previewPage.getByText(
+      "Sample times illustrate the booking flow and are not live availability.",
+    ),
+  ).toBeVisible();
+  await previewPage.getByRole("button", { name: /10:00/i }).first().click();
+  await previewPage.getByRole("button", { name: "Continue" }).click();
+
+  await expect(
+    previewPage.getByRole("heading", { name: "Review your booking" }),
+  ).toBeVisible();
+  await expect(
+    previewPage.getByRole("button", { name: "Booking is disabled in preview" }),
+  ).toBeDisabled();
+  await expect(
+    previewPage.getByRole("button", { name: /Add a reference photo/i }),
+  ).toBeDisabled();
+  await expect(previewPage.locator('input[type="file"]')).toBeDisabled();
   await expect.poll(() => new URL(previewPage.url()).searchParams.has("preview")).toBe(false);
 
   const previewStorage = await previewPage.evaluate(() => ({
