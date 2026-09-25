@@ -133,7 +133,7 @@ export function DetailsStep({
         />
       ) : null}
 
-      {inquiryCallout}
+      {showServicePicker ? inquiryCallout : null}
 
       {showServicePicker ? (
         <div className="mt-8 overflow-hidden rounded-3xl border border-border bg-surface-warm">
@@ -240,7 +240,9 @@ function IntakeMessage({
   return (
     <div className={["mt-6 rounded-2xl border px-4 py-4", toneClass].join(" ")}>
       <p className="text-sm font-semibold">{title}</p>
-      <p className="mt-1 text-sm leading-6">{intake.bookingBehavior.message}</p>
+      {intake.matchStatus !== "matched" ? (
+        <p className="mt-1 text-sm leading-6">{intake.bookingBehavior.message}</p>
+      ) : null}
       {intake.recommendedService ? (
         <p className="mt-2 text-sm leading-6">
           Same as last time?{" "}

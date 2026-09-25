@@ -170,6 +170,8 @@ export function TimeStep({
           </div>
         </div>
 
+        {!loading && !error && waitlistCta ? waitlistCta : null}
+
         {!loading && !error && !showEmptyState ? (
           <section className="mt-7">
             <div className="mb-3">
@@ -257,8 +259,6 @@ export function TimeStep({
             </div>
           </section>
         ) : null}
-
-        {!loading && !error && waitlistCta ? waitlistCta : null}
 
         {showEmptyState ? (
           <InfoCard>

@@ -226,7 +226,7 @@ export function BookingFlow({
   const upcomingAvailabilityDays = useMemo<AvailabilityDayPreview[]>(() => {
     const today = getTodayDateValue();
     const orderedDates = Array.from(
-      new Set([selectedDate, ...dateOptions].filter(Boolean)),
+      new Set([...dateOptions, selectedDate].filter(Boolean)),
     ).filter((date) => date >= today);
 
     return orderedDates

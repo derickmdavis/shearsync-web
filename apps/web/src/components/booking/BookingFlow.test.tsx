@@ -233,6 +233,52 @@ describe("BookingFlow", () => {
     ).toBeTruthy();
   });
 
+  it("only shows the booking inquiry on the services screen", async () => {
+    const { createPublicBookingIntake, getPublicServices } = setupMockReferences();
+
+    createPublicBookingIntake.mockResolvedValue(createIntake());
+    getPublicServices.mockResolvedValue([
+      createService("service-1", "Signature Cut"),
+    ]);
+
+    render(
+      <BookingFlow
+        slug="maya-johnson"
+        stylist={{
+          ...baseStylist,
+          booking_request_form: {
+            enabled: true,
+            questions: [],
+          },
+        }}
+      />,
+    );
+
+    expect(screen.queryByText("Not sure what to book?")).toBeNull();
+
+    await openServicesStep();
+
+    expect(screen.getByText("Not sure what to book?")).toBeTruthy();
+  });
+
+  it("omits the booking behavior message for an identified returning client", async () => {
+    const { createPublicBookingIntake, getPublicServices } = setupMockReferences();
+
+    createPublicBookingIntake.mockResolvedValue(createIntake());
+    getPublicServices.mockResolvedValue([
+      createService("service-1", "Signature Cut"),
+    ]);
+
+    render(<BookingFlow slug="maya-johnson" stylist={baseStylist} />);
+
+    await openServicesStep();
+
+    expect(screen.getByText("Welcome back, Jane")).toBeTruthy();
+    expect(
+      screen.queryByText("Welcome back — you can book directly."),
+    ).toBeNull();
+  });
+
   it("stops immediately when profile booking is disabled", () => {
     const {
       createPublicBookingIntake,
@@ -451,6 +497,74 @@ describe("BookingFlow", () => {
     expect(
       getPublicSlots.mock.calls.map(([, , date]) => date).sort(),
     ).toEqual(["2026-07-15", "2026-07-16", "2026-07-17"]);
+  });
+
+  it("keeps upcoming day sections in place when a time is selected", async () => {
+    const {
+      createPublicBookingIntake,
+      getPublicAvailability,
+      getPublicServices,
+      getPublicSlots,
+    } = setupMockReferences();
+
+    createPublicBookingIntake.mockResolvedValue(
+      createIntake({ bookingContextToken: "token-stable-days" }),
+    );
+    getPublicServices.mockResolvedValue([createService("service-1", "Haircut")]);
+    getPublicAvailability.mockResolvedValue({
+      dates: ["2026-07-15", "2026-07-16", "2026-07-17"],
+      timezone: "America/Denver",
+    });
+    getPublicSlots.mockImplementation(async (_slug, _serviceIds, date) => {
+      const hourByDate: Record<string, number> = {
+        "2026-07-15": 9,
+        "2026-07-16": 10,
+        "2026-07-17": 11,
+      };
+      const hour = hourByDate[date] ?? 12;
+
+      return {
+        date,
+        timezone: "America/Denver",
+        service: {
+          id: "service-1",
+          name: "Haircut",
+          durationMinutes: 60,
+          price: 95,
+        },
+        slots: [
+          {
+            start: `${date}T${String(hour).padStart(2, "0")}:00:00-06:00`,
+            end: `${date}T${String(hour + 1).padStart(2, "0")}:00:00-06:00`,
+          },
+        ],
+      };
+    });
+
+    render(<BookingFlow slug="maya-johnson" stylist={baseStylist} />);
+
+    await openServicesStep();
+    fireEvent.click(screen.getByRole("button", { name: /Haircut/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+
+    const firstDay = await screen.findByText("Jul 15");
+    const middleDay = await screen.findByText("Jul 16");
+    const middleDayTime = await screen.findByRole("button", { name: /10:00/i });
+
+    expect(
+      firstDay.compareDocumentPosition(middleDay) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).not.toBe(0);
+
+    fireEvent.click(middleDayTime);
+
+    await waitFor(() => {
+      expect(middleDayTime.getAttribute("aria-pressed")).toBe("true");
+    });
+    expect(
+      firstDay.compareDocumentPosition(middleDay) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).not.toBe(0);
   });
 
   it("renders only backend-filtered services for new clients", async () => {

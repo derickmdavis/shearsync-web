@@ -554,8 +554,10 @@ export type FinalizePublicReferencePhotoBody = {
   content_type: PublicReferencePhotoContentType;
   file_size_bytes: number;
   thumbnail_size_bytes?: number | null;
-  width?: number | null;
-  height?: number | null;
+  width: number;
+  height: number;
+  thumbnail_width: number;
+  thumbnail_height: number;
   caption?: string | null;
 };
 

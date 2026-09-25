@@ -25,7 +25,9 @@ const ACCEPTED_INPUT_IMAGE_TYPES = [
 ] as const;
 const ACCEPTED_IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp"] as const;
 const APPOINTMENT_IMAGE_BUCKET = "appointment-images";
-const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
+const MAX_INPUT_FILE_SIZE_BYTES = 5 * 1024 * 1024;
+const MAX_DISPLAY_FILE_SIZE_BYTES = 2 * 1024 * 1024;
+const MAX_THUMBNAIL_FILE_SIZE_BYTES = 300 * 1024;
 const MAX_TIMEOUT_MS = 2_147_483_647;
 
 type ProcessedImage = {
@@ -83,8 +85,14 @@ export function PublicReferencePhotoUpload({
         setState({ status: "processing" });
 
         const [display, thumbnail] = await Promise.all([
-          resizeImage(file, { maxLongEdge: 1600 }),
-          resizeImage(file, { maxLongEdge: 520 }),
+          resizeImage(file, {
+            maxLongEdge: 1600,
+            maxSizeBytes: MAX_DISPLAY_FILE_SIZE_BYTES,
+          }),
+          resizeImage(file, {
+            maxLongEdge: 400,
+            maxSizeBytes: MAX_THUMBNAIL_FILE_SIZE_BYTES,
+          }),
         ]);
 
         setState({ status: "uploading", progress: 20 });
@@ -148,6 +156,8 @@ export function PublicReferencePhotoUpload({
           thumbnail_size_bytes: thumbnail.sizeBytes,
           width: display.width,
           height: display.height,
+          thumbnail_width: thumbnail.width,
+          thumbnail_height: thumbnail.height,
           caption: null,
         });
 
@@ -205,6 +215,17 @@ export function PublicReferencePhotoUpload({
       setState({
         status: "failed",
         message: "We couldn't upload that photo. Please try another image.",
+        canRetry: false,
+      });
+      setSelectedFile(null);
+      setPreview(null);
+      return;
+    }
+
+    if (file.size > MAX_INPUT_FILE_SIZE_BYTES) {
+      setState({
+        status: "failed",
+        message: "Please choose a photo smaller than 5 MB.",
         canRetry: false,
       });
       setSelectedFile(null);
@@ -430,7 +451,13 @@ function isAcceptedImage(file: File) {
 
 async function resizeImage(
   file: File,
-  { maxLongEdge }: { maxLongEdge: number },
+  {
+    maxLongEdge,
+    maxSizeBytes,
+  }: {
+    maxLongEdge: number;
+    maxSizeBytes: number;
+  },
 ): Promise<ProcessedImage> {
   const source = await loadImageSource(file);
   const scale = Math.min(1, maxLongEdge / Math.max(source.width, source.height));
@@ -453,7 +480,7 @@ async function resizeImage(
   cleanupImageSource(source.image);
 
   const contentType = getOutputContentType(file.type);
-  const blob = await canvasToBoundedBlob(canvas, contentType);
+  const blob = await canvasToBoundedBlob(canvas, contentType, maxSizeBytes);
 
   return {
     blob,
@@ -508,13 +535,14 @@ function getOutputContentType(value: string): PublicReferencePhotoContentType {
 async function canvasToBoundedBlob(
   canvas: HTMLCanvasElement,
   contentType: PublicReferencePhotoContentType,
+  maxSizeBytes: number,
 ) {
   const qualities = contentType === "image/jpeg" ? [0.86, 0.74, 0.62, 0.5] : [0.82, 0.7, 0.58];
 
   for (const quality of qualities) {
     const blob = await canvasToBlob(canvas, contentType, quality);
 
-    if (blob.size <= MAX_FILE_SIZE_BYTES) {
+    if (blob.size <= maxSizeBytes) {
       return blob;
     }
   }
