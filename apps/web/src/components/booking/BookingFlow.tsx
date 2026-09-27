@@ -51,6 +51,9 @@ type BookingFlowProps = {
   slug: string;
   stylist: PublicStylist;
   initialReferralCode?: string | null;
+  initialServiceIds?: string[];
+  initialSuggestedDates?: string[];
+  initialBookingInquiryToken?: string | null;
 };
 
 type BookingIntakeState =
@@ -85,6 +88,10 @@ function getBookableSlots(response: PublicSlotsResponse) {
 
 function normalizeReferralCode(value?: string | null) {
   return value?.trim() || null;
+}
+
+function normalizePrefillValues(values?: string[]) {
+  return Array.from(new Set((values ?? []).map((value) => value.trim()).filter(Boolean)));
 }
 
 function getReferralStorageKey(slug: string) {
@@ -141,10 +148,14 @@ export function BookingFlow({
   slug,
   stylist,
   initialReferralCode,
+  initialServiceIds,
+  initialSuggestedDates,
+  initialBookingInquiryToken,
 }: BookingFlowProps) {
   const [referralCode, setReferralCode] = useState<string | null>(() =>
     normalizeReferralCode(initialReferralCode) ?? readStoredReferralCode(slug),
   );
+  const bookingInquiryToken = initialBookingInquiryToken ?? null;
   const [currentStep, setCurrentStep] = useState(1);
   const [notes, setNotes] = useState("");
   const [smsOptIn, setSmsOptIn] = useState(false);
@@ -254,6 +265,11 @@ export function BookingFlow({
 
   const selectedServicesRef = useRef(selectedServices);
   const referralCodeRef = useRef(referralCode);
+  const initialServiceIdsRef = useRef(normalizePrefillValues(initialServiceIds));
+  const initialSuggestedDatesRef = useRef(
+    normalizePrefillValues(initialSuggestedDates),
+  );
+  const initialServicePrefillAttemptedRef = useRef(false);
   const submittingRef = useRef(false);
   // Token refreshes can be triggered by several concurrent availability calls;
   // share one in-flight refresh to avoid duplicate intake requests.
@@ -483,17 +499,29 @@ export function BookingFlow({
             (availableService) => availableService.id === service.id,
           ),
         );
+        const initialServiceId =
+          !initialServicePrefillAttemptedRef.current &&
+          initialServiceIdsRef.current.length === 1
+            ? initialServiceIdsRef.current[0]
+            : null;
+        const prefilledService = initialServiceId
+          ? nextServices.find((service) => service.id === initialServiceId) ?? null
+          : null;
+        initialServicePrefillAttemptedRef.current = true;
         const recommendedService =
           nextSelectedServices.length === 0 &&
+          !prefilledService &&
           nextIntake.recommendedService?.serviceId
             ? nextServices.find(
                 (service) =>
                   service.id === nextIntake.recommendedService?.serviceId,
               ) ?? null
             : null;
-        const resolvedSelectedServices = recommendedService
-          ? [recommendedService]
-          : nextSelectedServices;
+        const resolvedSelectedServices = prefilledService
+          ? [prefilledService]
+          : recommendedService
+            ? [recommendedService]
+            : nextSelectedServices;
         const selectionChanged =
           currentSelectedServices.length !== resolvedSelectedServices.length ||
           currentSelectedServices.some(
@@ -501,6 +529,12 @@ export function BookingFlow({
           );
 
         setSelectedServices(resolvedSelectedServices);
+
+        if (initialServiceId && !prefilledService) {
+          setServiceError(
+            "The suggested service is no longer available. Please choose another service.",
+          );
+        }
 
         if (selectionChanged) {
           clearAvailabilityState();
@@ -879,12 +913,17 @@ export function BookingFlow({
           ),
         );
 
+        const today = getTodayDateValue();
+        const suggestedDates = initialSuggestedDatesRef.current.filter(
+          (date) => date >= today,
+        );
+        const candidateDates = Array.from(new Set([...suggestedDates, ...nextDates]));
         let nextTimezone =
           extractAvailabilityTimezone(availability) ?? stylist.timezone ?? null;
-        let nextSelectedDate = nextDates[0] ?? "";
+        let nextSelectedDate = candidateDates[0] ?? "";
         let nextSlots: PublicSlot[] = [];
 
-        for (const date of nextDates) {
+        for (const date of candidateDates) {
           const response = await getSlotsForDate(date, {
             signal: abortController.signal,
           });
@@ -908,7 +947,7 @@ export function BookingFlow({
         }
 
         setAvailabilityTimezone(nextTimezone);
-        setDateOptions(nextDates);
+        setDateOptions(candidateDates);
         setSelectedDate(nextSelectedDate);
         setSlotPreviews(nextSlots.length ? { [nextSelectedDate]: nextSlots } : {});
         setSlots(nextSlots);
@@ -1275,6 +1314,7 @@ export function BookingFlow({
           guest_email: email.trim() || undefined,
           guest_phone: phone.trim(),
           booking_context_token: bookingContextToken,
+          booking_inquiry_token: bookingInquiryToken ?? undefined,
           referral_code: referralCodeRef.current || undefined,
           sms_opt_in: smsOptIn,
           notes: buildBookingNotes(selectedServices, notes),
@@ -1522,7 +1562,6 @@ export function BookingFlow({
               submitting={submitting}
               error={confirmError}
               timezone={activeTimezone}
-              bookingBehavior={intakeData?.bookingBehavior ?? null}
               onNotesChange={setNotes}
               onSmsOptInChange={setSmsOptIn}
               onReferencePhotoSelect={handleReferencePhotoSelect}

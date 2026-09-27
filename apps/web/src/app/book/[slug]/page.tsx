@@ -18,6 +18,9 @@ type BookingPageProps = {
   searchParams: Promise<{
     ref?: string | string[];
     preview?: string | string[];
+    service_id?: string | string[];
+    date?: string | string[];
+    booking_inquiry_token?: string | string[];
   }>;
 };
 
@@ -105,6 +108,11 @@ export default async function BookingPage(props: BookingPageProps) {
   }
 
   const referralCode = getFirstSearchParamValue(searchParams.ref);
+  const initialServiceIds = getSearchParamValues(searchParams.service_id);
+  const initialSuggestedDates = getSearchParamValues(searchParams.date);
+  const initialBookingInquiryToken = getFirstRawSearchParamValue(
+    searchParams.booking_inquiry_token,
+  );
 
   let stylist: PublicStylist | null = null;
 
@@ -153,6 +161,9 @@ export default async function BookingPage(props: BookingPageProps) {
           slug={slug}
           stylist={stylist}
           initialReferralCode={referralCode}
+          initialServiceIds={initialServiceIds}
+          initialSuggestedDates={initialSuggestedDates}
+          initialBookingInquiryToken={initialBookingInquiryToken}
         />
       </div>
     </main>
@@ -232,6 +243,12 @@ function isBookingInquiryForm(value: unknown) {
     && typeof value.enabled === "boolean"
     && Array.isArray(value.questions)
     && value.questions.length === 3;
+}
+
+function getSearchParamValues(value?: string | string[]) {
+  const values = Array.isArray(value) ? value : value ? [value] : [];
+
+  return Array.from(new Set(values.map((item) => item.trim()).filter(Boolean)));
 }
 
 function recordPreviewResolverOutcome(status: number, code: string) {
@@ -329,4 +346,10 @@ function getFirstSearchParamValue(value?: string | string[]) {
   const trimmedValue = rawValue?.trim();
 
   return trimmedValue || null;
+}
+
+function getFirstRawSearchParamValue(value?: string | string[]) {
+  const rawValue = Array.isArray(value) ? value[0] : value;
+
+  return rawValue || null;
 }

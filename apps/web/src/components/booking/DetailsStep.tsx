@@ -133,11 +133,9 @@ export function DetailsStep({
         />
       ) : null}
 
-      {showServicePicker ? inquiryCallout : null}
-
       {showServicePicker ? (
         <div className="mt-8 overflow-hidden rounded-3xl border border-border bg-surface-warm">
-          <div className="flex items-center justify-between gap-4 px-5 py-4">
+          <div className="px-5 py-4">
             <div>
               <h3 className="text-base font-semibold text-foreground">
                 Select your service
@@ -145,14 +143,6 @@ export function DetailsStep({
               <p className="mt-1 text-sm text-muted">
                 Choose a service for this appointment.
               </p>
-            </div>
-            <div className="flex items-center">
-              <div
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-muted"
-                aria-hidden="true"
-              >
-                <ChevronIcon />
-              </div>
             </div>
           </div>
 
@@ -196,6 +186,8 @@ export function DetailsStep({
           </div>
         </div>
       ) : null}
+
+      {showServicePicker ? inquiryCallout : null}
 
       {serviceError ? <p className="mt-4 text-sm text-red-500">{serviceError}</p> : null}
 
@@ -344,21 +336,6 @@ function ArrowIcon() {
     <svg viewBox="0 0 20 20" aria-hidden="true" className="h-4 w-4">
       <path
         d="M4 10h12m-4-4 4 4-4 4"
-        fill="none"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.7"
-      />
-    </svg>
-  );
-}
-
-function ChevronIcon() {
-  return (
-    <svg viewBox="0 0 20 20" aria-hidden="true" className="h-4 w-4">
-      <path
-        d="m5 7.5 5 5 5-5"
         fill="none"
         stroke="currentColor"
         strokeLinecap="round"

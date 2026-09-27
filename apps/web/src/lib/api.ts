@@ -439,6 +439,7 @@ export type CreatePublicBookingBody = {
   guest_email?: string;
   guest_phone: string;
   booking_context_token?: string;
+  booking_inquiry_token?: string;
   referral_code?: string;
   sms_opt_in?: boolean;
   notes?: string;

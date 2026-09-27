@@ -12,9 +12,23 @@ import {
 vi.mock("@/src/components/booking/BookingFlow", () => ({
   BookingFlow: ({
     initialReferralCode,
+    initialServiceIds,
+    initialSuggestedDates,
+    initialBookingInquiryToken,
   }: {
     initialReferralCode?: string | null;
-  }) => <div data-testid="booking-flow" data-ref={initialReferralCode ?? ""} />,
+    initialServiceIds?: string[];
+    initialSuggestedDates?: string[];
+    initialBookingInquiryToken?: string | null;
+  }) => (
+    <div
+      data-testid="booking-flow"
+      data-ref={initialReferralCode ?? ""}
+      data-services={initialServiceIds?.join(",") ?? ""}
+      data-dates={initialSuggestedDates?.join(",") ?? ""}
+      data-inquiry-token={initialBookingInquiryToken ?? ""}
+    />
+  ),
 }));
 
 vi.mock("@/src/components/booking/BookingPreviewFlow", () => ({
@@ -78,6 +92,37 @@ describe("BookingPage", () => {
     expect(screen.getByTestId("booking-flow").getAttribute("data-ref")).toBe(
       "rf_client123",
     );
+  });
+
+  it("passes inquiry-link prefills and attribution through to the booking flow", async () => {
+    vi.mocked(getPublicStylist).mockResolvedValue({
+      id: "stylist-1",
+      slug: "maya-johnson",
+      display_name: "Maya Johnson",
+      bio: null,
+      cover_photo_url: null,
+      instagram: null,
+      booking_enabled: true,
+      business_name: "Maya Johnson Hair",
+      phone_number: null,
+      timezone: "America/Denver",
+    });
+
+    render(
+      await BookingPage({
+        params: Promise.resolve({ slug: "maya-johnson" }),
+        searchParams: Promise.resolve({
+          service_id: ["service-1", "service-2", "service-1"],
+          date: ["2026-10-15", "2026-10-17"],
+          booking_inquiry_token: "signed-inquiry-token",
+        }),
+      }),
+    );
+
+    const flow = screen.getByTestId("booking-flow");
+    expect(flow.getAttribute("data-services")).toBe("service-1,service-2");
+    expect(flow.getAttribute("data-dates")).toBe("2026-10-15,2026-10-17");
+    expect(flow.getAttribute("data-inquiry-token")).toBe("signed-inquiry-token");
   });
 
   it("resolves preview data without reading the production stylist profile", async () => {

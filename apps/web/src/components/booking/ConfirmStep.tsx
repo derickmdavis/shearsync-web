@@ -1,6 +1,5 @@
 import { useRef, useState, type ChangeEvent } from "react";
 import type {
-  PublicBookingBehavior,
   PublicService,
   PublicSlot,
   PublicStylist,
@@ -31,7 +30,6 @@ type ConfirmStepProps = {
   previewMode?: boolean;
   error?: string | null;
   timezone?: string | null;
-  bookingBehavior?: PublicBookingBehavior | null;
   onNotesChange: (value: string) => void;
   onSmsOptInChange: (value: boolean) => void;
   onReferencePhotoSelect: (file: File) => void;
@@ -55,7 +53,6 @@ export function ConfirmStep({
   previewMode = false,
   error,
   timezone,
-  bookingBehavior,
   onNotesChange,
   onSmsOptInChange,
   onReferencePhotoSelect,
@@ -70,9 +67,6 @@ export function ConfirmStep({
   const totalDuration = sumServiceDurations(services);
   const totalPrice = sumServicePrices(services);
   const serviceSummary = formatServiceNames(services);
-  const bookingPreviewMessage = bookingBehavior?.requiresApproval
-    ? "New client appointments require approval."
-    : bookingBehavior?.message;
   return (
     <div>
       <div>
@@ -85,22 +79,6 @@ export function ConfirmStep({
       </div>
 
       <div className="mt-6 space-y-4">
-        {bookingBehavior ? (
-          <div className="rounded-2xl border border-border bg-surface-warm p-4">
-            <p className="text-sm font-semibold text-foreground">
-              Booking preview
-            </p>
-            <p className="mt-1 text-sm leading-6 text-muted">
-              {bookingPreviewMessage}
-            </p>
-            {bookingBehavior.requiresApproval ? (
-              <p className="mt-2 text-sm leading-6 text-muted">
-                Please watch your email for a final confirmation.
-              </p>
-            ) : null}
-          </div>
-        ) : null}
-
         <ReviewCard title="Your Details" action={() => onEdit(1)}>
           <p className="font-medium text-foreground">{fullName}</p>
           <p className="mt-1 text-sm text-muted">{phone}</p>

@@ -258,7 +258,77 @@ describe("BookingFlow", () => {
 
     await openServicesStep();
 
-    expect(screen.getByText("Not sure what to book?")).toBeTruthy();
+    const serviceName = screen.getByText("Signature Cut");
+    const inquiryTitle = screen.getByText("Not sure what to book?");
+
+    expect(inquiryTitle).toBeTruthy();
+    expect(
+      serviceName.compareDocumentPosition(inquiryTitle)
+      & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
+  it("submits an inquiry attribution token from a generated booking link", async () => {
+    const {
+      createPublicBooking,
+      createPublicBookingIntake,
+      getPublicAvailability,
+      getPublicServices,
+      getPublicSlots,
+    } = setupMockReferences();
+
+    createPublicBookingIntake.mockResolvedValue(createIntake());
+    getPublicServices.mockResolvedValue([createService("service-1", "Haircut")]);
+    getPublicAvailability.mockResolvedValue({
+      availability: [createAvailabilityRow("all")],
+      timezone: "America/Denver",
+    });
+    getPublicSlots.mockResolvedValue({
+      slots: [{ start: "2026-07-06T09:00:00-06:00", end: "2026-07-06T10:00:00-06:00" }],
+      timezone: "America/Denver",
+    });
+    createPublicBooking.mockResolvedValue(createBookingConfirmation());
+
+    render(
+      <BookingFlow
+        slug="maya-johnson"
+        stylist={baseStylist}
+        initialServiceIds={["service-1"]}
+        initialSuggestedDates={["2026-07-08"]}
+        initialBookingInquiryToken="signed-inquiry-token"
+      />,
+    );
+
+    fillContactDetails();
+    fireEvent.click(screen.getByRole("button", { name: "Select Services" }));
+    const serviceButton = await screen.findByRole("button", { name: /Haircut/i });
+    expect(serviceButton.getAttribute("aria-pressed")).toBe("true");
+
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    await screen.findByText("Choose a date & time");
+    await waitFor(() => {
+      expect(getPublicSlots).toHaveBeenCalledWith(
+        "maya-johnson",
+        ["service-1"],
+        "2026-07-08",
+        "token-1",
+        expect.any(Object),
+      );
+    });
+    fireEvent.click(screen.getAllByRole("button", { name: /9:00/i })[0]);
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    await screen.findByText("Review your booking");
+    fireEvent.click(screen.getByRole("button", { name: /Book Appointment/i }));
+
+    await waitFor(() => {
+      expect(createPublicBooking).toHaveBeenCalledWith(
+        expect.objectContaining({
+          booking_inquiry_token: "signed-inquiry-token",
+          service_id: "service-1",
+        }),
+        expect.any(Object),
+      );
+    });
   });
 
   it("omits the booking behavior message for an identified returning client", async () => {
@@ -729,6 +799,10 @@ describe("BookingFlow", () => {
     fireEvent.click(screen.getByRole("button", { name: "Continue" }));
 
     await screen.findByText("Review your booking");
+    expect(screen.queryByText("Booking preview")).toBeNull();
+    expect(
+      screen.queryByText("Welcome back — you can book directly."),
+    ).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: /Book Appointment/i }));
 
     await waitFor(() => {
