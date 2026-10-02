@@ -114,7 +114,7 @@ export function DetailsStep({
         <Field
           id="email"
           name="email"
-          label="Email (Optional)"
+          label="Email"
           type="email"
           placeholder="you@email.com"
           value={values.email}
@@ -123,6 +123,7 @@ export function DetailsStep({
           autoComplete="email"
           autoCapitalize="none"
           autoCorrect="off"
+          required
         />
       </div>
 

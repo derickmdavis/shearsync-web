@@ -39,7 +39,8 @@ export function detailsAreValid(values: ContactValues) {
     Boolean(values.fullName.trim()) &&
     Boolean(parsedName.lastName) &&
     Boolean(values.phone.trim()) &&
-    (!values.email.trim() || isValidEmail(values.email.trim()))
+    Boolean(values.email.trim()) &&
+    isValidEmail(values.email.trim())
   );
 }
 
@@ -124,6 +125,10 @@ export function isSelectedServiceUnavailableError(error: unknown) {
     error.status === 400 &&
     normalizeApiErrorMessage(error) === "selected service is not available"
   );
+}
+
+export function isBookingIdentityRequiredError(error: unknown) {
+  return error instanceof ApiError && error.code === "booking_identity_required";
 }
 
 export function buildBookingServiceUnavailableMessage(stylist: PublicStylist) {

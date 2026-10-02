@@ -11,13 +11,17 @@ import { BookingInquiryPhotoUpload } from "@/src/components/booking/BookingInqui
 type Props = {
   slug: string;
   config?: BookingInquiryFormConfig;
-  phone: string;
-  email: string;
+  contact: {
+    firstName: string;
+    lastName: string;
+    phone: string;
+    email: string;
+  };
   validateContact: () => boolean;
   previewMode?: boolean;
 };
 
-export function BookingInquiryCard({ slug, config, phone, email, validateContact, previewMode = false }: Props) {
+export function BookingInquiryCard({ slug, config, contact, validateContact, previewMode = false }: Props) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<BookingInquiryFormConfig | undefined>(config);
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -74,8 +78,10 @@ export function BookingInquiryCard({ slug, config, phone, email, validateContact
       }
       await createPublicBookingInquiry({
         inquiry_session_id: sessionId!,
-        guest_phone: phone.trim(),
-        guest_email: email.trim() || undefined,
+        guest_first_name: contact.firstName.trim(),
+        guest_last_name: contact.lastName.trim(),
+        guest_phone: contact.phone.trim(),
+        guest_email: contact.email.trim(),
         inquiry_answers: { desired_outcome: desired, hair_history: history, optional_photo_upload_ids: photoIds },
       });
       setSuccess(true);

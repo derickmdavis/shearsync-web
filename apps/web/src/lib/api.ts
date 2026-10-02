@@ -108,8 +108,10 @@ export type BookingInquirySession = {
 
 export type CreatePublicBookingInquiryBody = {
   inquiry_session_id: string;
+  guest_first_name: string;
+  guest_last_name: string;
   guest_phone: string;
-  guest_email?: string;
+  guest_email: string;
   inquiry_answers: {
     desired_outcome: string;
     hair_history: string;
@@ -118,6 +120,24 @@ export type CreatePublicBookingInquiryBody = {
 };
 
 export type PublicBookingInquiry = { inquiry_id: string; submitted_at: string };
+export type BookingInquiryHandoff = {
+  contract_version: "booking_inquiry.handoff.v1";
+  next_step: "select_datetime" | "contact_information";
+  booking_context_token: string;
+  expires_at: string;
+  customer: {
+    display_name: string | null;
+    email_masked: string;
+    phone_masked: string;
+  };
+  service: {
+    id: string;
+    name: string;
+    duration_minutes: number;
+    price: number;
+  };
+  suggested_dates: string[];
+};
 export type InquiryUploadIntent = {
   id: string; storage_path: string; thumbnail_path: string; expires_at: string;
   signed_upload_urls: { display: { path: string; token: string }; thumbnail: { path: string; token: string } };
@@ -411,6 +431,8 @@ export type PublicBookingIntakeData = {
   client?: PublicBookingIntakeClient | null;
   submittedContact: {
     fullName: string;
+    firstName: string;
+    lastName: string;
     phoneNormalized: string;
     email: string | null;
   };
@@ -427,23 +449,36 @@ export type CreatePublicBookingIntakeBody = {
   stylist_slug: string;
   full_name: string;
   phone: string;
-  email?: string;
+  email: string;
 };
 
-export type CreatePublicBookingBody = {
+type CreatePublicBookingBase = {
   stylist_slug: string;
   service_id: string;
   requested_datetime: string;
-  guest_first_name: string;
-  guest_last_name: string;
-  guest_email?: string;
-  guest_phone: string;
-  booking_context_token?: string;
-  booking_inquiry_token?: string;
   referral_code?: string;
   sms_opt_in?: boolean;
   notes?: string;
 };
+
+export type CreatePublicBookingBody = CreatePublicBookingBase & (
+  | {
+      guest_first_name: string;
+      guest_last_name: string;
+      guest_email: string;
+      guest_phone: string;
+      booking_context_token?: string;
+      booking_inquiry_token?: string;
+    }
+  | {
+      booking_context_token: string;
+      guest_first_name?: never;
+      guest_last_name?: never;
+      guest_email?: never;
+      guest_phone?: never;
+      booking_inquiry_token?: never;
+    }
+);
 
 type PublicApiCallOptions = {
   signal?: AbortSignal;
@@ -1071,6 +1106,18 @@ export async function createPublicBookingInquiry(body: CreatePublicBookingInquir
   return requestPublicApi<PublicBookingInquiry>("/api/public/booking-inquiries", {
     init: { method: "POST", body: JSON.stringify(body) },
   });
+}
+
+export async function resolveBookingInquiryHandoff(bookingInquiryToken: string) {
+  return requestPublicApi<BookingInquiryHandoff>(
+    "/api/public/booking-inquiry-handoffs/resolve",
+    {
+      init: {
+        method: "POST",
+        body: JSON.stringify({ booking_inquiry_token: bookingInquiryToken }),
+      },
+    },
+  );
 }
 
 export async function createPublicBookingInquiryUploadIntent(body: {

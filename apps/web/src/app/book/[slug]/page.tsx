@@ -50,7 +50,9 @@ export async function generateMetadata({
 }: Pick<BookingPageProps, "searchParams">): Promise<Metadata> {
   const params = await searchParams;
 
-  return params.preview !== undefined ? { referrer: "no-referrer" } : {};
+  return params.preview !== undefined || params.booking_inquiry_token !== undefined
+    ? { referrer: "no-referrer" }
+    : {};
 }
 
 export default async function BookingPage(props: BookingPageProps) {

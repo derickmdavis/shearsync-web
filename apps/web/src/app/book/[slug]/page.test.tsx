@@ -66,6 +66,14 @@ describe("BookingPage", () => {
     await expect(
       generateMetadata({ searchParams: Promise.resolve({ ref: "rf_client123" }) }),
     ).resolves.toEqual({});
+
+    await expect(
+      generateMetadata({
+        searchParams: Promise.resolve({
+          booking_inquiry_token: "signed-inquiry-token",
+        }),
+      }),
+    ).resolves.toEqual({ referrer: "no-referrer" });
   });
 
   it("passes the ref search param into the booking flow", async () => {

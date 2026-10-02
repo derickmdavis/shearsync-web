@@ -8,6 +8,9 @@ import {
   getPublicAvailability,
   getPublicServices,
   getPublicSlots,
+  resolveBookingInquiryHandoff,
+  type BookingInquiryHandoff,
+  type CreatePublicBookingBody,
   type PublicBookingConfirmation,
   type PublicBookingIntakeData,
   type PublicService,
@@ -33,6 +36,7 @@ import {
   buildBookingServiceUnavailableMessage,
   detailsAreValid,
   getApiErrorReason,
+  isBookingIdentityRequiredError,
   isBookingContextExpiredError,
   isBookingDisabledError,
   isBookingSchemaMismatch,
@@ -61,6 +65,12 @@ type BookingIntakeState =
   | { status: "loading" }
   | { status: "ready"; data: PublicBookingIntakeData }
   | { status: "error"; message: string };
+
+type BookingInquiryHandoffState =
+  | { status: "idle" }
+  | { status: "loading" }
+  | { status: "ready"; data: BookingInquiryHandoff }
+  | { status: "fallback"; message?: string };
 
 type AvailabilityDayPreview = {
   date: string;
@@ -144,6 +154,54 @@ function clearStoredReferralCode(slug: string) {
   }
 }
 
+function removeBookingInquiryTokenFromUrl() {
+  const url = new URL(window.location.href);
+
+  if (!url.searchParams.has("booking_inquiry_token")) {
+    return;
+  }
+
+  url.searchParams.delete("booking_inquiry_token");
+  window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}${url.hash}`);
+}
+
+function toHandoffService(handoff: BookingInquiryHandoff): PublicService {
+  return {
+    id: handoff.service.id,
+    name: handoff.service.name,
+    durationMinutes: handoff.service.duration_minutes,
+    price: handoff.service.price,
+    isActive: true,
+    isDefault: false,
+    sortOrder: 0,
+  };
+}
+
+function toHandoffIntake(handoff: BookingInquiryHandoff): PublicBookingIntakeData {
+  return {
+    matchStatus: "matched",
+    clientFound: true,
+    isExistingClient: true,
+    bookingContextToken: handoff.booking_context_token,
+    bookingEnabled: true,
+    client: null,
+    submittedContact: {
+      fullName: "",
+      firstName: "",
+      lastName: "",
+      phoneNormalized: "",
+      email: null,
+    },
+    recommendedService: null,
+    bookingBehavior: {
+      requiresApproval: false,
+      restrictedToNewClientRules: false,
+      canUseReturningClientRules: true,
+      message: "",
+    },
+  };
+}
+
 export function BookingFlow({
   slug,
   stylist,
@@ -156,6 +214,9 @@ export function BookingFlow({
     normalizeReferralCode(initialReferralCode) ?? readStoredReferralCode(slug),
   );
   const bookingInquiryToken = initialBookingInquiryToken ?? null;
+  const [handoffState, setHandoffState] = useState<BookingInquiryHandoffState>(
+    bookingInquiryToken ? { status: "loading" } : { status: "idle" },
+  );
   const [currentStep, setCurrentStep] = useState(1);
   const [notes, setNotes] = useState("");
   const [smsOptIn, setSmsOptIn] = useState(false);
@@ -199,6 +260,8 @@ export function BookingFlow({
   // Intake is the gatekeeper for booking rules: it tells the UI whether booking
   // is allowed and provides a short-lived context token for services/slots.
   const intakeData = intakeState.status === "ready" ? intakeState.data : null;
+  const activeHandoff = handoffState.status === "ready" ? handoffState.data : null;
+  const isDirectHandoff = activeHandoff?.next_step === "select_datetime";
   const bookingContextToken = intakeData?.bookingContextToken ?? null;
   const bookingDisabled =
     !stylist.booking_enabled ||
@@ -227,6 +290,7 @@ export function BookingFlow({
   const shouldShowWaitlistCta =
     // Waitlist is intentionally feature-gated by public stylist metadata and
     // only appears after an actual empty-slot result for the selected date.
+    !isDirectHandoff &&
     canShowWaitlist &&
     selectedServiceIds.length > 0 &&
     Boolean(selectedDate) &&
@@ -270,6 +334,7 @@ export function BookingFlow({
     normalizePrefillValues(initialSuggestedDates),
   );
   const initialServicePrefillAttemptedRef = useRef(false);
+  const handoffResolutionPromiseRef = useRef<Promise<BookingInquiryHandoff> | null>(null);
   const submittingRef = useRef(false);
   // Token refreshes can be triggered by several concurrent availability calls;
   // share one in-flight refresh to avoid duplicate intake requests.
@@ -371,6 +436,73 @@ export function BookingFlow({
     setConfirmError(null);
   }, [clearAvailabilityState]);
 
+  const discardDirectHandoff = useCallback((
+    message?: string,
+    { clearPrefills = true }: { clearPrefills?: boolean } = {},
+  ) => {
+    setHandoffState({ status: "fallback", ...(message ? { message } : {}) });
+    setIntakeState({ status: "idle" });
+    setServices([]);
+    setServicesLoadedToken(null);
+    setSelectedServices([]);
+    if (clearPrefills) {
+      initialServiceIdsRef.current = [];
+      initialSuggestedDatesRef.current = [];
+      initialServicePrefillAttemptedRef.current = true;
+    }
+    clearAvailabilityState();
+    setCurrentStep(1);
+    setServiceError(message ?? null);
+    setConfirmError(null);
+  }, [clearAvailabilityState]);
+
+  useEffect(() => {
+    if (!bookingInquiryToken) {
+      return;
+    }
+
+    removeBookingInquiryTokenFromUrl();
+    const resolution = handoffResolutionPromiseRef.current
+      ?? resolveBookingInquiryHandoff(bookingInquiryToken);
+    handoffResolutionPromiseRef.current = resolution;
+    let active = true;
+
+    void resolution
+      .then((handoff) => {
+        if (!active) return;
+
+        if (handoff.next_step !== "select_datetime") {
+          discardDirectHandoff(undefined, { clearPrefills: false });
+          return;
+        }
+
+        const service = toHandoffService(handoff);
+        clearAvailabilityState();
+        initialServiceIdsRef.current = [service.id];
+        initialSuggestedDatesRef.current = handoff.suggested_dates;
+        initialServicePrefillAttemptedRef.current = true;
+        setHandoffState({ status: "ready", data: handoff });
+        setIntakeState({ status: "ready", data: toHandoffIntake(handoff) });
+        setServices([service]);
+        setServicesLoadedToken(handoff.booking_context_token);
+        setSelectedServices([service]);
+        setServiceError(null);
+        setCurrentStep(2);
+      })
+      .catch(() => {
+        if (active) {
+          discardDirectHandoff(
+            "We couldn't use that recommendation link. Please continue with your contact details.",
+            { clearPrefills: false },
+          );
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [bookingInquiryToken, clearAvailabilityState, discardDirectHandoff]);
+
   const {
     contactValues,
     contactValuesRef,
@@ -424,7 +556,7 @@ export function BookingFlow({
           stylist_slug: slug,
           full_name: currentValues.fullName.trim(),
           phone: currentValues.phone.trim(),
-          email: currentValues.email.trim() || undefined,
+          email: currentValues.email.trim(),
         });
 
         setIntakeState({ status: "ready", data: intake });
@@ -562,6 +694,13 @@ export function BookingFlow({
         }
 
         if (allowTokenRefresh && isBookingContextExpiredError(error)) {
+          if (isDirectHandoff) {
+            discardDirectHandoff(
+              "Your recommendation link expired. Please continue with your contact details.",
+            );
+            return null;
+          }
+
           const refreshedIntake = await refreshBookingContext();
 
           if (!refreshedIntake) {
@@ -623,7 +762,9 @@ export function BookingFlow({
     [
       clearAvailabilityState,
       disableBookingFlow,
+      discardDirectHandoff,
       handleBookingContextRecoveryFailure,
+      isDirectHandoff,
       refreshBookingContext,
       slug,
     ],
@@ -780,11 +921,25 @@ export function BookingFlow({
           }
 
           if (isSelectedServiceUnavailableError(error)) {
+            if (isDirectHandoff) {
+              discardDirectHandoff(
+                "That recommended service is no longer available. Please choose another service.",
+              );
+              return null;
+            }
+
             await handleSelectedServiceUnavailable(activeIntake);
             return null;
           }
 
           if (allowTokenRefresh && isBookingContextExpiredError(error)) {
+            if (isDirectHandoff) {
+              discardDirectHandoff(
+                "Your recommendation link expired. Please continue with your contact details.",
+              );
+              return null;
+            }
+
             const refreshedIntake = await refreshBookingContext();
 
             if (!refreshedIntake) {
@@ -857,9 +1012,11 @@ export function BookingFlow({
     },
     [
       disableBookingFlow,
+      discardDirectHandoff,
       handleBookingContextRecoveryFailure,
       handleSelectedServiceUnavailable,
       intakeState,
+      isDirectHandoff,
       loadServicesForIntake,
       refreshBookingContext,
       slug,
@@ -1304,23 +1461,29 @@ export function BookingFlow({
         return;
       }
 
-      const response = await createPublicBooking(
-        {
-          stylist_slug: slug,
-          service_id: primarySelectedService.id,
-          requested_datetime: verifiedSlot.start,
-          guest_first_name: parsedName.firstName,
-          guest_last_name: parsedName.lastName,
-          guest_email: email.trim() || undefined,
-          guest_phone: phone.trim(),
-          booking_context_token: bookingContextToken,
-          booking_inquiry_token: bookingInquiryToken ?? undefined,
-          referral_code: referralCodeRef.current || undefined,
-          sms_opt_in: smsOptIn,
-          notes: buildBookingNotes(selectedServices, notes),
-        },
-        { idempotencyKey },
-      );
+      const bookingRequestBase = {
+        stylist_slug: slug,
+        service_id: primarySelectedService.id,
+        requested_datetime: verifiedSlot.start,
+        referral_code: referralCodeRef.current || undefined,
+        sms_opt_in: smsOptIn,
+        notes: buildBookingNotes(selectedServices, notes),
+      };
+      const bookingRequest: CreatePublicBookingBody = isDirectHandoff
+        ? {
+            ...bookingRequestBase,
+            booking_context_token: bookingContextToken,
+          }
+        : {
+            ...bookingRequestBase,
+            guest_first_name: parsedName.firstName,
+            guest_last_name: parsedName.lastName,
+            guest_email: email.trim(),
+            guest_phone: phone.trim(),
+            booking_context_token: bookingContextToken,
+            booking_inquiry_token: bookingInquiryToken ?? undefined,
+          };
+      const response = await createPublicBooking(bookingRequest, { idempotencyKey });
 
       clearStoredReferralCode(slug);
       referralCodeRef.current = null;
@@ -1349,7 +1512,18 @@ export function BookingFlow({
 
       console.error(`Booking submit failed ${JSON.stringify(debugPayload)}`);
 
-      if (isSlotConflictError(error, message)) {
+      if (
+        isDirectHandoff
+        && (
+          isBookingIdentityRequiredError(error)
+          || isBookingContextExpiredError(error)
+          || (error instanceof ApiError && error.code === "booking_inquiry_handoff_unavailable")
+        )
+      ) {
+        discardDirectHandoff(
+          "Please confirm your contact details before finishing this booking.",
+        );
+      } else if (isSlotConflictError(error, message)) {
         const rejectedSlotStart = selectedSlot.start;
 
         setRejectedSlotStarts((currentStarts) =>
@@ -1393,6 +1567,9 @@ export function BookingFlow({
   }
 
   function handleReset() {
+    if (isDirectHandoff) {
+      discardDirectHandoff();
+    }
     setCurrentStep(1);
     setSelectedSlot(null);
     setNotes("");
@@ -1459,6 +1636,19 @@ export function BookingFlow({
     );
   }
 
+  if (handoffState.status === "loading") {
+    return (
+      <div className="mx-auto max-w-[620px] rounded-[30px] border border-white/80 bg-card p-8 text-center shadow-[0_24px_80px_rgba(17,24,39,0.08)]">
+        <h2 className="text-2xl font-semibold tracking-tight text-foreground">
+          Preparing your recommendation
+        </h2>
+        <p className="mt-3 text-sm leading-6 text-muted">
+          Loading the service and available appointment times…
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="rounded-[30px] border border-white/80 bg-card p-6 shadow-[0_24px_80px_rgba(17,24,39,0.08)] sm:p-8 lg:grid lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-8">
       <PublicBookingProfile stylist={stylist} />
@@ -1505,8 +1695,12 @@ export function BookingFlow({
                 inquiryCallout={<BookingInquiryCard
                   slug={slug}
                   config={stylist.booking_request_form}
-                  phone={phone}
-                  email={email}
+                  contact={{
+                    firstName: intakeData?.submittedContact.firstName ?? parsedName.firstName,
+                    lastName: intakeData?.submittedContact.lastName ?? parsedName.lastName,
+                    phone: intakeData?.submittedContact.phoneNormalized ?? phone,
+                    email: intakeData?.submittedContact.email ?? email,
+                  }}
                   validateContact={validateDetails}
                 />}
             />
@@ -1542,7 +1736,13 @@ export function BookingFlow({
                 setSlotsError(null);
                 setConfirmError(null);
               }}
-              onBack={() => setCurrentStep(1)}
+              onBack={() => {
+                if (isDirectHandoff) {
+                  discardDirectHandoff();
+                } else {
+                  setCurrentStep(1);
+                }
+              }}
               onContinue={handleContinueFromTime}
             />
           ) : null}
@@ -1552,9 +1752,9 @@ export function BookingFlow({
               stylist={stylist}
               services={selectedServices}
               slot={selectedSlot}
-              fullName={fullName.trim()}
-              email={email.trim()}
-              phone={phone.trim()}
+              fullName={activeHandoff?.customer.display_name ?? fullName.trim()}
+              email={activeHandoff?.customer.email_masked ?? email.trim()}
+              phone={activeHandoff?.customer.phone_masked ?? phone.trim()}
               notes={notes}
               smsOptIn={smsOptIn}
               referencePhotoFile={referencePhotoFile}
@@ -1566,7 +1766,13 @@ export function BookingFlow({
               onSmsOptInChange={setSmsOptIn}
               onReferencePhotoSelect={handleReferencePhotoSelect}
               onReferencePhotoRemove={clearReferencePhotoSelection}
-              onEdit={(step) => setCurrentStep(step)}
+              onEdit={(step) => {
+                if (isDirectHandoff && step === 1) {
+                  discardDirectHandoff();
+                } else {
+                  setCurrentStep(step);
+                }
+              }}
               onSubmit={handleSubmitBooking}
             />
           ) : null}

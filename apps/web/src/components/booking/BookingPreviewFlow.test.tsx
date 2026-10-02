@@ -113,6 +113,9 @@ describe("BookingPreviewFlow", () => {
     fireEvent.change(screen.getByPlaceholderText("(555) 123-4567"), {
       target: { value: "555-0100" },
     });
+    fireEvent.change(screen.getByPlaceholderText("you@email.com"), {
+      target: { value: "preview@example.com" },
+    });
     fireEvent.click(
       await screen.findByRole("button", { name: "Select Services" }),
     );
@@ -194,6 +197,9 @@ describe("BookingPreviewFlow", () => {
     });
     fireEvent.change(screen.getByPlaceholderText("(555) 123-4567"), {
       target: { value: "555-0100" },
+    });
+    fireEvent.change(screen.getByPlaceholderText("you@email.com"), {
+      target: { value: "preview@example.com" },
     });
     fireEvent.click(
       await screen.findByRole("button", { name: "Select Services" }),

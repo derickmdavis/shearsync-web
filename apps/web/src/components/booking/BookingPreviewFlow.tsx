@@ -16,6 +16,10 @@ import { DetailsStep } from "@/src/components/booking/DetailsStep";
 import { PublicBookingProfile } from "@/src/components/booking/PublicBookingProfile";
 import { TimeStep } from "@/src/components/booking/TimeStep";
 import { BookingInquiryCard } from "@/src/components/booking/BookingInquiryCard";
+import {
+  isValidEmail,
+  splitFullName,
+} from "@/src/components/booking/booking-flow-utils";
 
 type BookingPreviewFlowProps = {
   preview: BookingPreviewContext;
@@ -82,7 +86,7 @@ export function BookingPreviewFlow({
   const [detailsErrors, setDetailsErrors] = useState<PreviewDetailsErrors>({});
   const [showServicePicker, setShowServicePicker] = useState(false);
   const [selectedServices, setSelectedServices] = useState<PublicService[]>([]);
-  const previewAvailability = useMemo(buildPreviewAvailability, []);
+  const previewAvailability = useMemo(() => buildPreviewAvailability(), []);
   const [selectedDate, setSelectedDate] = useState(previewAvailability[0]?.date);
   const [selectedSlot, setSelectedSlot] = useState<PublicSlot | null>(null);
   const [notes, setNotes] = useState("");
@@ -156,6 +160,8 @@ export function BookingPreviewFlow({
       const errors: PreviewDetailsErrors = {};
       if (!details.fullName.trim()) errors.fullName = "Enter a name to continue the preview.";
       if (!details.phone.trim()) errors.phone = "Enter a phone number to continue the preview.";
+      if (!details.email.trim()) errors.email = "Enter an email to continue the preview.";
+      else if (!isValidEmail(details.email.trim())) errors.email = "Enter a valid email address.";
 
       if (Object.keys(errors).length > 0) {
         setDetailsErrors(errors);
@@ -218,12 +224,27 @@ export function BookingPreviewFlow({
                 inquiryCallout={<BookingInquiryCard
                   slug={preview.slug}
                   config={preview.profile.booking_request_form}
-                  phone={details.phone}
-                  email={details.email}
+                  contact={{
+                    ...splitFullName(details.fullName),
+                    phone: details.phone,
+                    email: details.email,
+                  }}
                   previewMode
                   validateContact={() => {
-                    const valid = Boolean(details.fullName.trim() && details.phone.trim());
-                    if (!valid) setDetailsErrors({ fullName: "Enter a name to preview.", phone: "Enter a phone number to preview." });
+                    const parsedName = splitFullName(details.fullName);
+                    const valid = Boolean(
+                      parsedName.firstName
+                      && parsedName.lastName
+                      && details.phone.trim()
+                      && isValidEmail(details.email.trim()),
+                    );
+                    if (!valid) {
+                      setDetailsErrors({
+                        fullName: !parsedName.lastName ? "Enter a full name to preview." : undefined,
+                        phone: !details.phone.trim() ? "Enter a phone number to preview." : undefined,
+                        email: !isValidEmail(details.email.trim()) ? "Enter a valid email to preview." : undefined,
+                      });
+                    }
                     return valid;
                   }}
                 />}

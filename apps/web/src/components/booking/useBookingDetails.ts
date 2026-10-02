@@ -46,7 +46,9 @@ export function useBookingDetails({
       nextErrors.phone = "Phone is required.";
     }
 
-    if (email.trim() && !isValidEmail(email.trim())) {
+    if (!email.trim()) {
+      nextErrors.email = "Email is required.";
+    } else if (!isValidEmail(email.trim())) {
       nextErrors.email = "Enter a valid email address.";
     }
 

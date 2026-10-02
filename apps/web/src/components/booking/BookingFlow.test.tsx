@@ -19,6 +19,9 @@ import * as bookingApi from "@/src/lib/api";
 const bookingApiMocks = vi.hoisted(() => ({
   createPublicBooking: vi.fn(),
   createPublicBookingIntake: vi.fn(),
+  createPublicBookingInquiry: vi.fn(),
+  createPublicBookingInquirySession: vi.fn(),
+  resolveBookingInquiryHandoff: vi.fn(),
   getPublicAvailability: vi.fn(),
   getPublicServices: vi.fn(),
   getPublicSlots: vi.fn(),
@@ -83,6 +86,8 @@ function createIntake(
     },
     submittedContact: {
       fullName: "Jane Smith",
+      firstName: "Jane",
+      lastName: "Smith",
       phoneNormalized: "+17205550103",
       email: "jane@example.com",
     },
@@ -115,6 +120,9 @@ function setupMockReferences() {
   return {
     createPublicBooking: vi.mocked(bookingApi.createPublicBooking),
     createPublicBookingIntake: vi.mocked(bookingApi.createPublicBookingIntake),
+    createPublicBookingInquiry: vi.mocked(bookingApi.createPublicBookingInquiry),
+    createPublicBookingInquirySession: vi.mocked(bookingApi.createPublicBookingInquirySession),
+    resolveBookingInquiryHandoff: vi.mocked(bookingApi.resolveBookingInquiryHandoff),
     getPublicServices: vi.mocked(bookingApi.getPublicServices),
     getPublicAvailability: vi.mocked(bookingApi.getPublicAvailability),
     getPublicSlots: vi.mocked(bookingApi.getPublicSlots),
@@ -133,6 +141,30 @@ function createBookingConfirmation(
     service_price: 95,
     appointment_date: "2026-07-15T09:00:00-06:00",
     status: "scheduled" as const,
+    ...overrides,
+  };
+}
+
+function createInquiryHandoff(
+  overrides: Partial<bookingApi.BookingInquiryHandoff> = {},
+): bookingApi.BookingInquiryHandoff {
+  return {
+    contract_version: "booking_inquiry.handoff.v1",
+    next_step: "select_datetime",
+    booking_context_token: "direct-handoff-context",
+    expires_at: "2026-07-01T12:30:00.000Z",
+    customer: {
+      display_name: "Jenna",
+      email_masked: "j***a@example.com",
+      phone_masked: "***-***-0103",
+    },
+    service: {
+      id: "service-1",
+      name: "Balayage + Toner",
+      duration_minutes: 210,
+      price: 250,
+    },
+    suggested_dates: ["2026-07-08"],
     ...overrides,
   };
 }
@@ -182,6 +214,7 @@ describe("BookingFlow", () => {
     vi.setSystemTime(new Date("2026-07-01T12:00:00.000Z"));
     vi.clearAllMocks();
     window.sessionStorage.clear();
+    window.history.replaceState({}, "", "/book/maya-johnson");
   });
 
   afterEach(() => {
@@ -268,6 +301,255 @@ describe("BookingFlow", () => {
     ).toBeTruthy();
   });
 
+  it("reuses the first-step identity when submitting a booking inquiry", async () => {
+    const {
+      createPublicBookingInquiry,
+      createPublicBookingInquirySession,
+      createPublicBookingIntake,
+      getPublicServices,
+    } = setupMockReferences();
+
+    createPublicBookingIntake.mockResolvedValue(createIntake({
+      submittedContact: {
+        fullName: "Jenny Stone",
+        firstName: "Jenny",
+        lastName: "Stone",
+        phoneNormalized: "+17205550103",
+        email: "jenny@example.com",
+      },
+    }));
+    getPublicServices.mockResolvedValue([
+      createService("service-1", "Signature Cut"),
+    ]);
+    createPublicBookingInquirySession.mockResolvedValue({
+      inquiry_session_id: "11111111-1111-4111-8111-111111111111",
+      expires_at: "2026-07-01T12:30:00.000Z",
+      booking_request_form: {
+        enabled: true,
+        questions: [],
+      },
+    });
+    createPublicBookingInquiry.mockResolvedValue({
+      inquiry_id: "22222222-2222-4222-8222-222222222222",
+      submitted_at: "2026-07-01T12:05:00.000Z",
+    });
+
+    render(
+      <BookingFlow
+        slug="maya-johnson"
+        stylist={{
+          ...baseStylist,
+          booking_request_form: {
+            enabled: true,
+            questions: [],
+          },
+        }}
+      />,
+    );
+
+    fillContactDetails({
+      fullName: "Jenny Stone",
+      email: "jenny@example.com",
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Select Services" }));
+    await screen.findByText("Select your service");
+    fireEvent.click(screen.getByRole("button", { name: "Answer a few questions" }));
+
+    fireEvent.change(await screen.findByLabelText(/1\. What are you hoping/i), {
+      target: { value: "Dimensional blonde" },
+    });
+    fireEvent.change(screen.getByLabelText(/2\. Describe your current hair/i), {
+      target: { value: "Gloss six months ago" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Send inquiry" }));
+
+    await waitFor(() => {
+      expect(createPublicBookingInquiry).toHaveBeenCalledWith({
+        inquiry_session_id: "11111111-1111-4111-8111-111111111111",
+        guest_first_name: "Jenny",
+        guest_last_name: "Stone",
+        guest_phone: "+17205550103",
+        guest_email: "jenny@example.com",
+        inquiry_answers: {
+          desired_outcome: "Dimensional blonde",
+          hair_history: "Gloss six months ago",
+          optional_photo_upload_ids: [],
+        },
+      });
+    });
+  });
+
+  it("requires email on the existing contact step before running intake", () => {
+    const { createPublicBookingIntake } = setupMockReferences();
+
+    render(<BookingFlow slug="maya-johnson" stylist={baseStylist} />);
+
+    fillContactDetails({ email: "" });
+    fireEvent.click(screen.getByRole("button", { name: "Select Services" }));
+
+    expect(screen.getByText("Email is required.")).toBeTruthy();
+    expect(createPublicBookingIntake).not.toHaveBeenCalled();
+  });
+
+  it("resolves an inquiry handoff and starts directly on date and time", async () => {
+    const {
+      createPublicBooking,
+      getPublicAvailability,
+      getPublicServices,
+      getPublicSlots,
+      resolveBookingInquiryHandoff,
+    } = setupMockReferences();
+    resolveBookingInquiryHandoff.mockResolvedValue(createInquiryHandoff());
+    getPublicAvailability.mockResolvedValue({
+      availability: [createAvailabilityRow("all")],
+      timezone: "America/Denver",
+    });
+    getPublicSlots.mockResolvedValue({
+      slots: [{
+        start: "2026-07-08T09:00:00-06:00",
+        end: "2026-07-08T12:30:00-06:00",
+      }],
+      timezone: "America/Denver",
+    });
+    createPublicBooking.mockResolvedValue(createBookingConfirmation({
+      service_name: "Balayage + Toner",
+      service_duration_minutes: 210,
+      service_price: 250,
+    }));
+    window.history.replaceState(
+      {},
+      "",
+      "/book/maya-johnson?booking_inquiry_token=signed-inquiry-token",
+    );
+
+    render(
+      <BookingFlow
+        slug="maya-johnson"
+        stylist={baseStylist}
+        initialBookingInquiryToken="signed-inquiry-token"
+      />,
+    );
+
+    expect(screen.getByText("Preparing your recommendation")).toBeTruthy();
+    expect(await screen.findByText("Choose a date & time")).toBeTruthy();
+    expect(resolveBookingInquiryHandoff).toHaveBeenCalledWith("signed-inquiry-token");
+    expect(screen.queryByPlaceholderText("Enter your full name")).toBeNull();
+    expect(window.location.search).not.toContain("booking_inquiry_token");
+    expect(getPublicServices).not.toHaveBeenCalled();
+
+    fireEvent.click((await screen.findAllByRole("button", { name: /9:00/i }))[0]);
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    expect(await screen.findByText("Review your booking")).toBeTruthy();
+    expect(screen.getByText("j***a@example.com")).toBeTruthy();
+    expect(screen.getByText("***-***-0103")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: /Book Appointment/i }));
+
+    await waitFor(() => {
+      expect(createPublicBooking).toHaveBeenCalledWith(
+        {
+          stylist_slug: "maya-johnson",
+          service_id: "service-1",
+          requested_datetime: "2026-07-08T09:00:00-06:00",
+          booking_context_token: "direct-handoff-context",
+          referral_code: undefined,
+          sms_opt_in: false,
+          notes: undefined,
+        },
+        expect.any(Object),
+      );
+    });
+  });
+
+  it("falls back to the existing contact step when the handoff requires identity", async () => {
+    const { resolveBookingInquiryHandoff } = setupMockReferences();
+    resolveBookingInquiryHandoff.mockResolvedValue(createInquiryHandoff({
+      next_step: "contact_information",
+    }));
+
+    render(
+      <BookingFlow
+        slug="maya-johnson"
+        stylist={baseStylist}
+        initialBookingInquiryToken="legacy-inquiry-token"
+      />,
+    );
+
+    expect(await screen.findByPlaceholderText("Enter your full name")).toBeTruthy();
+    expect(screen.getByPlaceholderText("you@email.com")).toBeTruthy();
+    expect(screen.queryByText("Choose a date & time")).toBeNull();
+  });
+
+  it("returns to contact details when final handoff booking requires identity", async () => {
+    const {
+      createPublicBooking,
+      getPublicAvailability,
+      getPublicSlots,
+      resolveBookingInquiryHandoff,
+    } = setupMockReferences();
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    resolveBookingInquiryHandoff.mockResolvedValue(createInquiryHandoff());
+    getPublicAvailability.mockResolvedValue({
+      availability: [createAvailabilityRow("all")],
+      timezone: "America/Denver",
+    });
+    getPublicSlots.mockResolvedValue({
+      slots: [{
+        start: "2026-07-08T09:00:00-06:00",
+        end: "2026-07-08T12:30:00-06:00",
+      }],
+      timezone: "America/Denver",
+    });
+    createPublicBooking.mockRejectedValue(new bookingApi.ApiError(
+      "Customer contact information is required",
+      422,
+      { next_step: "contact_information" },
+      "booking_identity_required",
+    ));
+
+    render(
+      <BookingFlow
+        slug="maya-johnson"
+        stylist={baseStylist}
+        initialBookingInquiryToken="signed-inquiry-token"
+      />,
+    );
+
+    expect(await screen.findByText("Choose a date & time")).toBeTruthy();
+    fireEvent.click((await screen.findAllByRole("button", { name: /9:00/i }))[0]);
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    await screen.findByText("Review your booking");
+    fireEvent.click(screen.getByRole("button", { name: /Book Appointment/i }));
+
+    expect(await screen.findByPlaceholderText("Enter your full name")).toBeTruthy();
+    expect(
+      screen.getByText("Please confirm your contact details before finishing this booking."),
+    ).toBeTruthy();
+    consoleError.mockRestore();
+  });
+
+  it("discards the trusted context when a direct-handoff customer goes back", async () => {
+    const { getPublicAvailability, getPublicSlots, resolveBookingInquiryHandoff } = setupMockReferences();
+    resolveBookingInquiryHandoff.mockResolvedValue(createInquiryHandoff());
+    getPublicAvailability.mockResolvedValue({
+      availability: [createAvailabilityRow("all")],
+      timezone: "America/Denver",
+    });
+    getPublicSlots.mockResolvedValue({ slots: [], timezone: "America/Denver" });
+
+    render(
+      <BookingFlow
+        slug="maya-johnson"
+        stylist={baseStylist}
+        initialBookingInquiryToken="signed-inquiry-token"
+      />,
+    );
+
+    expect(await screen.findByText("Choose a date & time")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Back" }));
+    expect(await screen.findByPlaceholderText("Enter your full name")).toBeTruthy();
+    expect(screen.queryByText("Choose a date & time")).toBeNull();
+  });
+
   it("submits an inquiry attribution token from a generated booking link", async () => {
     const {
       createPublicBooking,
@@ -275,8 +557,12 @@ describe("BookingFlow", () => {
       getPublicAvailability,
       getPublicServices,
       getPublicSlots,
+      resolveBookingInquiryHandoff,
     } = setupMockReferences();
 
+    resolveBookingInquiryHandoff.mockResolvedValue(createInquiryHandoff({
+      next_step: "contact_information",
+    }));
     createPublicBookingIntake.mockResolvedValue(createIntake());
     getPublicServices.mockResolvedValue([createService("service-1", "Haircut")]);
     getPublicAvailability.mockResolvedValue({
@@ -299,6 +585,7 @@ describe("BookingFlow", () => {
       />,
     );
 
+    await screen.findByPlaceholderText("Enter your full name");
     fillContactDetails();
     fireEvent.click(screen.getByRole("button", { name: "Select Services" }));
     const serviceButton = await screen.findByRole("button", { name: /Haircut/i });

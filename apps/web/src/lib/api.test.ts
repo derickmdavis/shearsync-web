@@ -13,6 +13,7 @@ import {
   getPublicSlots,
   joinWaitlist,
   rescheduleManagedAppointment,
+  resolveBookingInquiryHandoff,
   resolveBookingPreviewSession,
   resolvePublicAppointmentLink,
   resolvePublicReferral,
@@ -114,6 +115,48 @@ describe("public booking api helpers", () => {
     expect(init.signal).toEqual(expect.objectContaining({ aborted: true }));
   });
 
+  it("posts the inquiry token when resolving a direct-booking handoff", async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          data: {
+            contract_version: "booking_inquiry.handoff.v1",
+            next_step: "select_datetime",
+            booking_context_token: "handoff-context-token",
+            expires_at: "2026-10-01T18:15:00.000Z",
+            customer: {
+              display_name: "Jenna",
+              email_masked: "j***a@gmail.com",
+              phone_masked: "***-***-0103",
+            },
+            service: {
+              id: "service-1",
+              name: "Balayage + Toner",
+              duration_minutes: 210,
+              price: 250,
+            },
+            suggested_dates: [],
+          },
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        },
+      ),
+    );
+
+    await resolveBookingInquiryHandoff("inquiry-token");
+
+    expect(fetch).toHaveBeenCalledWith(
+      "/api/public/booking-inquiry-handoffs/resolve",
+      expect.objectContaining({
+        cache: "no-store",
+        method: "POST",
+        body: JSON.stringify({ booking_inquiry_token: "inquiry-token" }),
+      }),
+    );
+  });
+
   it("posts booking_context_token when creating a public booking", async () => {
     vi.mocked(fetch).mockResolvedValue(
       new Response(
@@ -195,6 +238,7 @@ describe("public booking api helpers", () => {
         requested_datetime: "2026-06-15T09:00:00-06:00",
         guest_first_name: "Jane",
         guest_last_name: "Smith",
+        guest_email: "jane@example.com",
         guest_phone: "(720) 555-0103",
       },
       { idempotencyKey: "booking-key-1" },
@@ -232,6 +276,7 @@ describe("public booking api helpers", () => {
         requested_datetime: "2026-06-15T09:00:00-06:00",
         guest_first_name: "Jane",
         guest_last_name: "Smith",
+        guest_email: "jane@example.com",
         guest_phone: "(720) 555-0103",
       });
 
