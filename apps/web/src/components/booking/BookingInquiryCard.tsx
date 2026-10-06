@@ -11,6 +11,7 @@ import { BookingInquiryPhotoUpload } from "@/src/components/booking/BookingInqui
 type Props = {
   slug: string;
   config?: BookingInquiryFormConfig;
+  enabled: boolean;
   contact: {
     firstName: string;
     lastName: string;
@@ -21,7 +22,7 @@ type Props = {
   previewMode?: boolean;
 };
 
-export function BookingInquiryCard({ slug, config, contact, validateContact, previewMode = false }: Props) {
+export function BookingInquiryCard({ slug, config, enabled: enabledByStylist, contact, validateContact, previewMode = false }: Props) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<BookingInquiryFormConfig | undefined>(config);
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -34,7 +35,7 @@ export function BookingInquiryCard({ slug, config, contact, validateContact, pre
   const [photosBusy, setPhotosBusy] = useState(false);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
 
-  const enabled = config?.enabled === true;
+  const enabled = enabledByStylist && form?.enabled === true;
   useEffect(() => {
     if (open) closeButtonRef.current?.focus();
   }, [open]);

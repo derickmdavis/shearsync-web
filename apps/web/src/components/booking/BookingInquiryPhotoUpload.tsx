@@ -1,17 +1,21 @@
 "use client";
 
-import { useRef, useState, type ChangeEvent } from "react";
+import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import { createPublicBookingInquiryUploadIntent, finalizePublicBookingInquiryUpload } from "@/src/lib/api";
 import { getSupabaseBrowserClient } from "@/src/lib/supabase";
 
-type Photo = { id: string; url: string; name: string; status: "uploading" | "ready" | "failed"; file: File };
+type Photo = { id: string; url: string; name: string; status: "uploading" | "ready" | "failed"; file: File; error?: string };
 type Props = { sessionId: string | null; disabled?: boolean; onChange: (ids: string[]) => void; onBusyChange?: (busy: boolean) => void };
 const MAX = 5;
 
 export function BookingInquiryPhotoUpload({ sessionId, disabled, onChange, onBusyChange }: Props) {
   const input = useRef<HTMLInputElement>(null);
   const [photos, setPhotos] = useState<Photo[]>([]);
-  const update = (next: Photo[]) => { setPhotos(next); onChange(next.filter((photo) => photo.status === "ready").map((photo) => photo.id)); onBusyChange?.(next.some((photo) => photo.status === "uploading")); };
+  const updatePhotos = (updater: (current: Photo[]) => Photo[]) => setPhotos(updater);
+  useEffect(() => {
+    onChange(photos.filter((photo) => photo.status === "ready").map((photo) => photo.id));
+    onBusyChange?.(photos.some((photo) => photo.status === "uploading"));
+  }, [onBusyChange, onChange, photos]);
   async function addFiles(event: ChangeEvent<HTMLInputElement>) {
     const files = Array.from(event.target.files ?? []).slice(0, MAX - photos.length);
     event.target.value = "";
@@ -19,7 +23,7 @@ export function BookingInquiryPhotoUpload({ sessionId, disabled, onChange, onBus
       if (!/^image\/(jpeg|png|webp)$/.test(file.type) || file.size > 5 * 1024 * 1024 || !sessionId) continue;
       const localId = crypto.randomUUID();
       const entry: Photo = { id: localId, url: URL.createObjectURL(file), name: file.name, status: "uploading", file };
-      update([...photos, entry]);
+      updatePhotos((current) => [...current, entry]);
       try {
         const display = await resize(file, 1600);
         const thumb = await resize(file, 400);
@@ -31,18 +35,20 @@ export function BookingInquiryPhotoUpload({ sessionId, disabled, onChange, onBus
         ]);
         if (displayUpload.error || thumbUpload.error) throw new Error("Upload failed");
         await finalizePublicBookingInquiryUpload({ inquiry_session_id: sessionId, upload_id: intent.id, storage_path: intent.storage_path, thumbnail_path: intent.thumbnail_path, original_filename: file.name || null, content_type: display.type, file_size_bytes: display.blob.size, thumbnail_size_bytes: thumb.blob.size, width: display.width, height: display.height, thumbnail_width: thumb.width, thumbnail_height: thumb.height });
-        update(photos.map((photo) => photo.id === localId ? { ...photo, id: intent.id, status: "ready" } : photo));
-      } catch {
-        update(photos.map((photo) => photo.id === localId ? { ...photo, status: "failed" } : photo));
+        updatePhotos((current) => current.map((photo) => photo.id === localId ? { ...photo, id: intent.id, status: "ready" } : photo));
+      } catch (cause) {
+        const message = cause instanceof Error ? cause.message : "Upload failed. Please try again.";
+        updatePhotos((current) => current.map((photo) => photo.id === localId ? { ...photo, status: "failed", error: message } : photo));
+        console.error("booking_inquiry_photo_upload_failed", cause);
       }
     }
   }
-  function remove(id: string) { const item = photos.find((photo) => photo.id === id); if (item) URL.revokeObjectURL(item.url); update(photos.filter((photo) => photo.id !== id)); }
+  function remove(id: string) { const item = photos.find((photo) => photo.id === id); if (item) URL.revokeObjectURL(item.url); updatePhotos((current) => current.filter((photo) => photo.id !== id)); }
   const pending = photos.some((photo) => photo.status === "uploading");
   return <div className="mt-2"><input ref={input} className="sr-only" type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={(event) => void addFiles(event)} />
     <button type="button" disabled={disabled || !sessionId || photos.length >= MAX || pending} onClick={() => input.current?.click()} className="flex min-h-24 w-full items-center justify-center rounded-xl border border-dashed border-brand/40 bg-brand-soft/30 px-4 text-sm font-semibold text-brand disabled:opacity-60">{pending ? "Uploading photos…" : "Add photos"}</button>
     <p className="mt-2 text-xs text-muted">JPG, PNG, or WebP. Up to 5 photos.</p>
-    {photos.length ? <ul className="mt-3 grid grid-cols-5 gap-2">{photos.map((photo) => <li key={photo.id} className="relative"><img src={photo.url} alt={photo.name} className="h-14 w-full rounded-lg object-cover" /><button type="button" onClick={() => remove(photo.id)} aria-label={`Remove ${photo.name}`} className="absolute -right-1 -top-1 rounded-full bg-white px-1 text-xs shadow">×</button>{photo.status === "failed" ? <span className="block text-[10px] text-red-600">Retry</span> : null}</li>)}</ul> : null}</div>;
+    {photos.length ? <ul className="mt-3 grid grid-cols-5 gap-2">{photos.map((photo) => <li key={photo.id} className="relative"><img src={photo.url} alt={photo.name} className="h-14 w-full rounded-lg object-cover" /><button type="button" onClick={() => remove(photo.id)} aria-label={`Remove ${photo.name}`} className="absolute -right-1 -top-1 rounded-full bg-white px-1 text-xs shadow">×</button>{photo.status === "failed" ? <span role="alert" className="block text-[10px] text-red-600">{photo.error ?? "Upload failed. Please try again."}</span> : null}</li>)}</ul> : null}</div>;
 }
 
 async function resize(file: File, max: number) {

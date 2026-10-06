@@ -56,10 +56,12 @@ function createService(
   id: string,
   name: string,
   durationMinutes = 60,
+  category?: string | null,
 ): PublicService {
   return {
     id,
     name,
+    category,
     durationMinutes,
     price: 95,
     isActive: true,
@@ -279,6 +281,7 @@ describe("BookingFlow", () => {
         slug="maya-johnson"
         stylist={{
           ...baseStylist,
+          booking_request_form_enabled: true,
           booking_request_form: {
             enabled: true,
             questions: [],
@@ -339,6 +342,7 @@ describe("BookingFlow", () => {
         slug="maya-johnson"
         stylist={{
           ...baseStylist,
+          booking_request_form_enabled: true,
           booking_request_form: {
             enabled: true,
             questions: [],
@@ -377,6 +381,33 @@ describe("BookingFlow", () => {
         },
       });
     });
+  });
+
+  it("hides booking inquiry when the stylist has disabled it", async () => {
+    const { createPublicBookingIntake, getPublicServices } = setupMockReferences();
+
+    createPublicBookingIntake.mockResolvedValue(createIntake());
+    getPublicServices.mockResolvedValue([
+      createService("service-1", "Signature Cut"),
+    ]);
+
+    render(
+      <BookingFlow
+        slug="maya-johnson"
+        stylist={{
+          ...baseStylist,
+          booking_request_form_enabled: false,
+          booking_request_form: {
+            enabled: true,
+            questions: [],
+          },
+        }}
+      />,
+    );
+
+    await openServicesStep();
+
+    expect(screen.queryByText("Not sure what to book?")).toBeNull();
   });
 
   it("requires email on the existing contact step before running intake", () => {
@@ -960,6 +991,48 @@ describe("BookingFlow", () => {
     ).toBeNull();
   });
 
+  it("keeps services flat when none have a category", async () => {
+    const { getPublicServices } = setupMockReferences();
+    getPublicServices.mockResolvedValue([
+      createService("service-1", "Haircut"),
+      createService("service-2", "Blowout"),
+    ]);
+
+    render(<BookingFlow slug="maya-johnson" stylist={baseStylist} />);
+
+    await openServicesStep();
+
+    expect(screen.queryByText("Other services")).toBeNull();
+    expect(screen.queryByRole("heading", { name: "Services" })).toBeNull();
+  });
+
+  it("groups categorized services and collects uncategorized services under Other services", async () => {
+    const { getPublicServices } = setupMockReferences();
+    getPublicServices.mockResolvedValue([
+      createService("service-1", "Haircut", 60, "Cuts"),
+      createService("service-2", "Blowout"),
+      createService("service-3", "Color", 60, "Color"),
+      createService("service-4", "Treatment", 60, " "),
+    ]);
+
+    render(<BookingFlow slug="maya-johnson" stylist={baseStylist} />);
+
+    await openServicesStep();
+
+    const cuts = screen.getByRole("heading", { name: "Cuts" });
+    const otherServices = screen.getByRole("heading", { name: "Other services" });
+    const color = screen.getByRole("heading", { name: "Color" });
+
+    expect(
+      cuts.compareDocumentPosition(otherServices) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).not.toBe(0);
+    expect(
+      otherServices.compareDocumentPosition(color) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).not.toBe(0);
+    expect(within(screen.getByLabelText("Other services")).getByText("Blowout")).toBeTruthy();
+    expect(within(screen.getByLabelText("Other services")).getByText("Treatment")).toBeTruthy();
+  });
+
   it.each([
     {
       audience: "new" as const,
@@ -1265,6 +1338,60 @@ describe("BookingFlow", () => {
 
     resolveBooking(createBookingConfirmation());
     expect(await screen.findByText("You're All Set!")).toBeTruthy();
+  });
+
+  it("returns Done users to an empty booking flow", async () => {
+    const {
+      createPublicBooking,
+      createPublicBookingIntake,
+      getPublicAvailability,
+      getPublicServices,
+      getPublicSlots,
+    } = setupMockReferences();
+
+    createPublicBookingIntake.mockResolvedValue(createIntake());
+    getPublicServices.mockResolvedValue([createService("service-1", "Haircut")]);
+    getPublicAvailability.mockResolvedValue({
+      dates: ["2026-07-15"],
+      timezone: "America/Denver",
+    });
+    getPublicSlots.mockResolvedValue({
+      date: "2026-07-15",
+      timezone: "America/Denver",
+      service: {
+        id: "service-1",
+        name: "Haircut",
+        durationMinutes: 60,
+        price: 95,
+      },
+      slots: [
+        {
+          start: "2026-07-15T09:00:00-06:00",
+          end: "2026-07-15T10:00:00-06:00",
+        },
+      ],
+    });
+    createPublicBooking.mockResolvedValue(createBookingConfirmation());
+
+    render(<BookingFlow slug="maya-johnson" stylist={baseStylist} />);
+
+    await completeSuccessfulBooking();
+    expect(await screen.findByText("You're All Set!")).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "Done" }));
+
+    expect(await screen.findByText("Let's get to know you")).toBeTruthy();
+    expect(
+      (screen.getByPlaceholderText("Enter your full name") as HTMLInputElement).value,
+    ).toBe("");
+    expect(
+      (screen.getByPlaceholderText("(555) 123-4567") as HTMLInputElement).value,
+    ).toBe("");
+    expect(
+      (screen.getByPlaceholderText("you@email.com") as HTMLInputElement).value,
+    ).toBe("");
+    expect(screen.queryByText("Select your service")).toBeNull();
+    expect(screen.queryByText("Haircut")).toBeNull();
   });
 
   it("sends the referral code when submitting the final booking", async () => {

@@ -512,6 +512,7 @@ export function BookingFlow({
     handleDetailsChange,
     parsedName,
     phone,
+    resetDetails,
     validateDetails,
   } = useBookingDetails({
     onDetailsChanged: () => {
@@ -1567,11 +1568,14 @@ export function BookingFlow({
   }
 
   function handleReset() {
-    if (isDirectHandoff) {
-      discardDirectHandoff();
-    }
-    setCurrentStep(1);
-    setSelectedSlot(null);
+    // A completed booking must return to a genuinely fresh flow rather than
+    // leaving the completed customer's choices ready to submit again.
+    initialServiceIdsRef.current = [];
+    initialSuggestedDatesRef.current = [];
+    initialServicePrefillAttemptedRef.current = true;
+    setHandoffState({ status: "idle" });
+    invalidateBookingContext();
+    resetDetails();
     setNotes("");
     setSmsOptIn(false);
     setConfirmError(null);
@@ -1695,6 +1699,7 @@ export function BookingFlow({
                 inquiryCallout={<BookingInquiryCard
                   slug={slug}
                   config={stylist.booking_request_form}
+                  enabled={stylist.booking_request_form_enabled === true}
                   contact={{
                     firstName: intakeData?.submittedContact.firstName ?? parsedName.firstName,
                     lastName: intakeData?.submittedContact.lastName ?? parsedName.lastName,

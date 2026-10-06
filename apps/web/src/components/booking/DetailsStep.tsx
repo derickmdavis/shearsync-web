@@ -19,6 +19,11 @@ type DetailsState = {
 
 type DetailsErrors = Partial<Record<keyof DetailsState, string>>;
 
+type ServiceGroup = {
+  name: string;
+  services: PublicService[];
+};
+
 type DetailsStepProps = {
   intro?: string | null;
   introDescription?: string | null;
@@ -67,6 +72,8 @@ export function DetailsStep({
     (!showServicePicker && !canBeginServiceSelection);
   const totalDuration = sumServiceDurations(selectedServices);
   const totalPrice = sumServicePrices(selectedServices);
+  const serviceGroups = groupServicesByCategory(services);
+  const showCategoryHeadings = services.some((service) => service.category?.trim());
 
   return (
     <form
@@ -152,17 +159,28 @@ export function DetailsStep({
               <EmptyState message="Refreshing the services you can book right now..." />
             ) : services.length ? (
               <>
-                <div className="grid gap-3 xl:grid-cols-2">
-                  {services.map((service) => (
-                    <ServiceCard
-                      key={service.id}
-                      service={service}
-                      highlighted={service.id === recommendedServiceId}
-                      selected={selectedServices.some(
-                        (selectedService) => selectedService.id === service.id,
-                      )}
-                      onSelect={onToggleService}
-                    />
+                <div className="space-y-6">
+                  {serviceGroups.map((group) => (
+                    <section key={group.name} aria-label={group.name}>
+                      {showCategoryHeadings ? (
+                        <h4 className="mb-3 text-sm font-semibold text-foreground">
+                          {group.name}
+                        </h4>
+                      ) : null}
+                      <div className="grid gap-3 xl:grid-cols-2">
+                        {group.services.map((service) => (
+                          <ServiceCard
+                            key={service.id}
+                            service={service}
+                            highlighted={service.id === recommendedServiceId}
+                            selected={selectedServices.some(
+                              (selectedService) => selectedService.id === service.id,
+                            )}
+                            onSelect={onToggleService}
+                          />
+                        ))}
+                      </div>
+                    </section>
                   ))}
                 </div>
 
@@ -208,6 +226,32 @@ export function DetailsStep({
       </button>
     </form>
   );
+}
+
+function groupServicesByCategory(services: PublicService[]): ServiceGroup[] {
+  const hasCategories = services.some((service) => service.category?.trim());
+
+  if (!hasCategories) {
+    return [{ name: "Services", services }];
+  }
+
+  const groups = new Map<string, PublicService[]>();
+
+  for (const service of services) {
+    const category = service.category?.trim() || "Other services";
+    const groupedServices = groups.get(category);
+
+    if (groupedServices) {
+      groupedServices.push(service);
+    } else {
+      groups.set(category, [service]);
+    }
+  }
+
+  return Array.from(groups, ([name, groupedServices]) => ({
+    name,
+    services: groupedServices,
+  }));
 }
 
 function IntakeMessage({

@@ -224,6 +224,7 @@ export function BookingPreviewFlow({
                 inquiryCallout={<BookingInquiryCard
                   slug={preview.slug}
                   config={preview.profile.booking_request_form}
+                  enabled={preview.profile.booking_request_form_enabled === true}
                   contact={{
                     ...splitFullName(details.fullName),
                     phone: details.phone,

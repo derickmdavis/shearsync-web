@@ -79,6 +79,18 @@ export function useBookingDetails({
     onDetailsChanged();
   }
 
+  function resetDetails() {
+    const emptyValues = { fullName: "", email: "", phone: "" };
+
+    // Keep the ref in sync immediately because async callbacks use it rather
+    // than waiting for React state to commit.
+    contactValuesRef.current = emptyValues;
+    setFullName(emptyValues.fullName);
+    setEmail(emptyValues.email);
+    setPhone(emptyValues.phone);
+    setDetailsErrors({});
+  }
+
   return {
     contactValues: { fullName, email, phone },
     contactValuesRef,
@@ -88,6 +100,7 @@ export function useBookingDetails({
     handleDetailsChange,
     parsedName,
     phone,
+    resetDetails,
     validateDetails,
   };
 }
