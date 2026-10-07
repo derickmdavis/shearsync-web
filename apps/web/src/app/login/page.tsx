@@ -18,7 +18,7 @@ function getAuthMode(mode?: string) {
 function getSafeNextPath(next?: string) {
   // Prevent open redirects by allowing only same-origin relative paths.
   if (!next || !next.startsWith("/") || next.startsWith("//")) {
-    return "/account";
+    return "/insights";
   }
 
   return next;
