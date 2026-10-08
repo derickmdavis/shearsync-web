@@ -2165,7 +2165,7 @@ describe("BookingFlow", () => {
       requestedTimePreference: "Morning preferred",
       clientName: "Jane Smith",
       clientEmail: "jane@example.com",
-      clientPhone: "+17205550103",
+      clientPhone: "(720) 555-0103",
       note: null,
       status: "active",
       source: "public_booking",
@@ -2192,9 +2192,7 @@ describe("BookingFlow", () => {
     const dialog = screen.getByRole("dialog", { name: "Join the waitlist" });
 
     expect(dialog).toBeTruthy();
-    expect(
-      (within(dialog).getByLabelText("Requested date") as HTMLInputElement).value,
-    ).toBe("2026-07-15");
+    expect(within(dialog).getByText("Wed, Jul 15")).toBeTruthy();
 
     fireEvent.change(within(dialog).getByLabelText("Name"), {
       target: { value: "" },
@@ -2205,33 +2203,29 @@ describe("BookingFlow", () => {
     fireEvent.change(within(dialog).getByLabelText("Name"), {
       target: { value: "Jane Smith" },
     });
-    fireEvent.change(within(dialog).getByLabelText("Email"), {
-      target: { value: "" },
-    });
-    fireEvent.change(within(dialog).getByLabelText("Phone"), {
+    fireEvent.change(within(dialog).getByLabelText("Email (required)"), {
       target: { value: "" },
     });
     fireEvent.click(within(dialog).getByRole("button", { name: "Join waitlist" }));
     expect(
-      await screen.findByText("Please provide either an email address or phone number."),
+      await screen.findByText("Email is required."),
     ).toBeTruthy();
 
-    fireEvent.change(within(dialog).getByLabelText("Email"), {
+    fireEvent.change(within(dialog).getByLabelText("Email (required)"), {
       target: { value: "jane@example.com" },
-    });
-    fireEvent.change(within(dialog).getByLabelText("Preferred time"), {
-      target: { value: "Morning preferred" },
     });
     fireEvent.click(within(dialog).getByRole("button", { name: "Join waitlist" }));
 
     await screen.findByText("You're on the waitlist");
     expect(joinWaitlist).toHaveBeenCalledWith("maya-johnson", {
-      requestedDate: "2026-07-15",
+      requestedDates: ["2026-07-15"],
       serviceId: "service-1",
       clientName: "Jane Smith",
       clientEmail: "jane@example.com",
-      clientPhone: null,
-      requestedTimePreference: "Morning preferred",
+      clientPhone: "(720) 555-0103",
+      timePreference: "anytime",
+      requestedStartTime: null,
+      requestedEndTime: null,
       note: null,
     });
     expect(bookingApi.createPublicBooking).not.toHaveBeenCalled();

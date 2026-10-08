@@ -643,11 +643,13 @@ export type PublicReferralResponse = {
 };
 
 export type CreateWaitlistInput = {
-  requestedDate: string;
-  serviceId?: string | null;
-  requestedTimePreference?: string | null;
+  requestedDates: string[];
+  serviceId: string;
+  timePreference?: "anytime" | "range";
+  requestedStartTime?: string | null;
+  requestedEndTime?: string | null;
   clientName: string;
-  clientEmail?: string | null;
+  clientEmail: string;
   clientPhone?: string | null;
   note?: string | null;
 };
@@ -655,6 +657,7 @@ export type CreateWaitlistInput = {
 export type PublicWaitlistEntry = {
   id: string;
   requestedDate: string;
+  requestedDates?: string[];
   serviceId?: string | null;
   serviceName?: string | null;
   requestedTimePreference?: string | null;

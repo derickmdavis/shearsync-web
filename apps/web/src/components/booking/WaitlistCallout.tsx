@@ -14,13 +14,14 @@ type WaitlistCalloutProps = {
   slug: string;
   selectedDate: string;
   selectedServiceId?: string | null;
+  selectedService?: { name: string; durationMinutes: number; price: number } | null;
   defaultClientName: string;
   defaultClientEmail: string;
   defaultClientPhone: string;
 };
 
 type WaitlistFormErrors = Partial<{
-  requestedDate: string;
+  requestedDates: string;
   clientName: string;
   clientEmail: string;
   contact: string;
@@ -30,6 +31,7 @@ export function WaitlistCallout({
   slug,
   selectedDate,
   selectedServiceId,
+  selectedService,
   defaultClientName,
   defaultClientEmail,
   defaultClientPhone,
@@ -48,8 +50,7 @@ export function WaitlistCallout({
               No availability for the day you need?
             </h4>
             <p className="mt-1 text-sm leading-6 text-muted">
-              Join the waitlist and the pro can contact you if something
-              opens.
+              No time that works? We’ll email you if a matching opening becomes available.
             </p>
             <button
               type="button"
@@ -67,6 +68,7 @@ export function WaitlistCallout({
           slug={slug}
           selectedDate={selectedDate}
           selectedServiceId={selectedServiceId}
+          selectedService={selectedService}
           defaultClientName={defaultClientName}
           defaultClientEmail={defaultClientEmail}
           defaultClientPhone={defaultClientPhone}
@@ -81,17 +83,21 @@ function WaitlistDialog({
   slug,
   selectedDate,
   selectedServiceId,
+  selectedService,
   defaultClientName,
   defaultClientEmail,
   defaultClientPhone,
   onClose,
 }: WaitlistCalloutProps & { onClose: () => void }) {
   const today = getTodayDateValue();
-  const [requestedDate, setRequestedDate] = useState(selectedDate);
+  const [requestedDates, setRequestedDates] = useState<string[]>([selectedDate]);
+  const [dateToAdd, setDateToAdd] = useState("");
   const [clientName, setClientName] = useState(defaultClientName);
   const [clientEmail, setClientEmail] = useState(defaultClientEmail);
   const [clientPhone, setClientPhone] = useState(defaultClientPhone);
-  const [requestedTimePreference, setRequestedTimePreference] = useState("");
+  const [timePreference, setTimePreference] = useState<"anytime" | "range">("anytime");
+  const [requestedStartTime, setRequestedStartTime] = useState("09:00");
+  const [requestedEndTime, setRequestedEndTime] = useState("17:00");
   const [note, setNote] = useState("");
   const [errors, setErrors] = useState<WaitlistFormErrors>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -118,18 +124,18 @@ function WaitlistDialog({
     const trimmedEmail = clientEmail.trim();
     const trimmedPhone = clientPhone.trim();
 
-    if (!requestedDate) {
-      nextErrors.requestedDate = "Requested date is required.";
-    } else if (requestedDate < today) {
-      nextErrors.requestedDate = "Requested date must be today or later.";
+    if (!requestedDates.length) {
+      nextErrors.requestedDates = "Choose at least one date.";
+    } else if (requestedDates.some((date) => date < today)) {
+      nextErrors.requestedDates = "Dates must be today or later.";
     }
 
     if (!clientName.trim()) {
       nextErrors.clientName = "Name is required.";
     }
 
-    if (!trimmedEmail && !trimmedPhone) {
-      nextErrors.contact = "Please provide either an email address or phone number.";
+    if (!trimmedEmail) {
+      nextErrors.clientEmail = "Email is required.";
     }
 
     if (trimmedEmail && !isValidEmail(trimmedEmail)) {
@@ -150,12 +156,14 @@ function WaitlistDialog({
 
     const payload: CreateWaitlistInput = {
       // This shape mirrors POST /api/public/stylists/:slug/waitlist.
-      requestedDate,
-      serviceId: selectedServiceId || null,
+      requestedDates,
+      serviceId: selectedServiceId || "",
       clientName: clientName.trim(),
-      clientEmail: clientEmail.trim() || null,
+      clientEmail: clientEmail.trim(),
       clientPhone: clientPhone.trim() || null,
-      requestedTimePreference: requestedTimePreference.trim() || null,
+      timePreference,
+      requestedStartTime: timePreference === "range" ? requestedStartTime : null,
+      requestedEndTime: timePreference === "range" ? requestedEndTime : null,
       note: note.trim() || null,
     };
 
@@ -197,8 +205,7 @@ function WaitlistDialog({
               id="waitlist-description"
               className="mt-3 text-sm leading-6 text-muted"
             >
-              The pro can contact you if something opens. Joining the
-              waitlist does not reserve an appointment time.
+              We’ll email you if a matching opening becomes available. Everyone waiting for that opening may be notified; the first person to book gets it.
             </p>
             <button
               type="button"
@@ -222,8 +229,7 @@ function WaitlistDialog({
                   id="waitlist-description"
                   className="mt-2 text-sm leading-6 text-muted"
                 >
-                  Tell us what day works for you. The pro can contact you if
-                  something opens.
+                  Choose up to 3 days that work for you. We’ll email you if a matching opening becomes available.
                 </p>
               </div>
               <button
@@ -237,24 +243,15 @@ function WaitlistDialog({
             </div>
 
             <form className="mt-5 space-y-4" onSubmit={handleSubmit}>
-              <Field label="Requested date" htmlFor="waitlist-requested-date">
-                <input
-                  id="waitlist-requested-date"
-                  type="date"
-                  min={today}
-                  value={requestedDate}
-                  onChange={(event) => {
-                    setRequestedDate(event.target.value);
-                    setErrors((current) => ({
-                      ...current,
-                      requestedDate: undefined,
-                    }));
-                  }}
-                  className="h-12 w-full rounded-2xl border border-border bg-white px-4 text-sm text-foreground outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-brand/20"
-                />
-                {errors.requestedDate ? <ErrorText>{errors.requestedDate}</ErrorText> : null}
+              {selectedService ? <div className="rounded-2xl bg-surface-warm px-4 py-3 text-sm text-foreground"><strong>{selectedService.name}</strong><p className="mt-1 text-muted">{selectedService.durationMinutes} min · ${selectedService.price}</p></div> : null}
+              <Field label="Days that work" htmlFor="waitlist-requested-date">
+                <div className="flex flex-wrap gap-2">
+                  {requestedDates.map((date) => <span key={date} className="inline-flex h-10 items-center gap-2 rounded-xl border border-brand/30 bg-brand-soft px-3 text-sm"><span>{new Intl.DateTimeFormat(undefined, { weekday: "short", month: "short", day: "numeric" }).format(new Date(`${date}T12:00:00`))}</span><button type="button" aria-label={`Remove ${date}`} onClick={() => setRequestedDates((dates) => dates.filter((value) => value !== date))}>×</button></span>)}
+                </div>
+                {requestedDates.length < 3 ? <div className="mt-2 flex gap-2"><input id="waitlist-requested-date" type="date" min={today} value={dateToAdd} onChange={(event) => setDateToAdd(event.target.value)} className="h-11 flex-1 rounded-xl border border-border px-3 text-sm"/><button type="button" onClick={() => { if (dateToAdd && !requestedDates.includes(dateToAdd)) { setRequestedDates((dates) => [...dates, dateToAdd]); setDateToAdd(""); } }} className="rounded-xl border border-brand px-3 text-sm font-semibold text-brand">+ Add another day</button></div> : null}
+                <p className="mt-2 text-xs text-muted">You can add up to 3 days.</p>
+                {errors.requestedDates ? <ErrorText>{errors.requestedDates}</ErrorText> : null}
               </Field>
-
               <Field label="Name" htmlFor="waitlist-client-name">
                 <input
                   id="waitlist-client-name"
@@ -273,7 +270,7 @@ function WaitlistDialog({
               </Field>
 
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Email" htmlFor="waitlist-client-email">
+                <Field label="Email (required)" htmlFor="waitlist-client-email">
                   <input
                     id="waitlist-client-email"
                     type="email"
@@ -307,17 +304,10 @@ function WaitlistDialog({
                   />
                 </Field>
               </div>
-              {errors.contact ? <ErrorText>{errors.contact}</ErrorText> : null}
-
-              <Field label="Preferred time" htmlFor="waitlist-time-preference">
-                <input
-                  id="waitlist-time-preference"
-                  type="text"
-                  value={requestedTimePreference}
-                  onChange={(event) => setRequestedTimePreference(event.target.value)}
-                  placeholder="Morning preferred"
-                  className="h-12 w-full rounded-2xl border border-border bg-white px-4 text-sm text-foreground outline-none transition-colors placeholder:text-[#9CA3AF] focus:border-brand focus:ring-2 focus:ring-brand/20"
-                />
+              <Field label="What times work?" htmlFor="waitlist-anytime">
+                <label className="flex items-center gap-2 text-sm"><input id="waitlist-anytime" type="radio" checked={timePreference === "anytime"} onChange={() => setTimePreference("anytime")} /> Any time that day</label>
+                <label className="mt-3 flex items-center gap-2 text-sm"><input type="radio" checked={timePreference === "range"} onChange={() => setTimePreference("range")} /> Choose a time range</label>
+                {timePreference === "range" ? <div className="mt-3 grid grid-cols-2 gap-3"><label className="text-xs text-muted">Earliest time<input aria-label="Earliest time" type="time" value={requestedStartTime} onChange={(event) => setRequestedStartTime(event.target.value)} className="mt-1 h-11 w-full rounded-xl border border-border px-3 text-sm"/></label><label className="text-xs text-muted">Latest time<input aria-label="Latest time" type="time" value={requestedEndTime} onChange={(event) => setRequestedEndTime(event.target.value)} className="mt-1 h-11 w-full rounded-xl border border-border px-3 text-sm"/></label></div> : null}
               </Field>
 
               <Field label="Note" htmlFor="waitlist-note">
@@ -332,7 +322,7 @@ function WaitlistDialog({
               </Field>
 
               <p className="rounded-2xl bg-surface-warm px-4 py-3 text-xs leading-5 text-muted">
-                Joining the waitlist does not reserve an appointment time.
+                If an opening becomes available, we’ll email everyone waiting for that time. Appointments are first come, first served and are not held.
               </p>
 
               {submitError ? (

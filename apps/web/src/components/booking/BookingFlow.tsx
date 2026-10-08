@@ -1776,6 +1776,7 @@ export function BookingFlow({
                     slug={slug}
                     selectedDate={selectedDate}
                     selectedServiceId={primarySelectedService?.id ?? null}
+                    selectedService={primarySelectedService}
                     defaultClientName={fullName}
                     defaultClientEmail={email}
                     defaultClientPhone={phone}
