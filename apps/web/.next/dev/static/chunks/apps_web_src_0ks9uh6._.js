@@ -43,17 +43,17 @@ function joinOriginAndPath(origin, path = "/") {
     return new URL(path.startsWith("/") ? path : `/${path}`, `${origin}/`).toString();
 }
 function getWebAppOrigin() {
-    return getAbsoluteOrigin("NEXT_PUBLIC_WEB_APP_URL", ("TURBOPACK compile-time value", "http://localhost:3001"), getDefaultOrigin(LOCAL_WEB_APP_ORIGIN, PRODUCTION_WEB_APP_ORIGIN));
+    return getAbsoluteOrigin("NEXT_PUBLIC_WEB_APP_URL", __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$polyfills$2f$process$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].env.NEXT_PUBLIC_WEB_APP_URL, getDefaultOrigin(LOCAL_WEB_APP_ORIGIN, PRODUCTION_WEB_APP_ORIGIN));
 }
 function getMarketingOrigin() {
     return getAbsoluteOrigin("NEXT_PUBLIC_MARKETING_URL", __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$polyfills$2f$process$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].env.NEXT_PUBLIC_MARKETING_URL, getDefaultOrigin(LOCAL_MARKETING_ORIGIN, PRODUCTION_MARKETING_ORIGIN));
 }
 function getBrowserApiOrigin() {
-    return getAbsoluteOrigin("NEXT_PUBLIC_API_BASE_URL", ("TURBOPACK compile-time value", "http://localhost:4010"), LOCAL_BACKEND_API_ORIGIN);
+    return getAbsoluteOrigin("NEXT_PUBLIC_API_BASE_URL", __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$polyfills$2f$process$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].env.NEXT_PUBLIC_API_BASE_URL, LOCAL_BACKEND_API_ORIGIN);
 }
 function getSupabaseBrowserConfig() {
-    const url = ("TURBOPACK compile-time value", "http://localhost:4010")?.trim();
-    const anonKey = ("TURBOPACK compile-time value", "e2e-anon-key")?.trim();
+    const url = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$polyfills$2f$process$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+    const anonKey = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$polyfills$2f$process$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
     if (!url || !anonKey) {
         return null;
     }

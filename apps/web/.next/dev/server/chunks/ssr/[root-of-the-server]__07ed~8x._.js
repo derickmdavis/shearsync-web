@@ -79,7 +79,7 @@ function getAuthMode(mode) {
 function getSafeNextPath(next) {
     // Prevent open redirects by allowing only same-origin relative paths.
     if (!next || !next.startsWith("/") || next.startsWith("//")) {
-        return "/account";
+        return "/calendar";
     }
     return next;
 }
