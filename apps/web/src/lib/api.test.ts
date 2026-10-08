@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  captureBookingAttributionContext,
   cancelManagedAppointment,
   createBookingPreviewSession,
   createClientReferralLink,
@@ -88,6 +89,49 @@ describe("public booking api helpers", () => {
     );
   });
 
+  it("never appends opaque attribution tokens to public GET URLs", async () => {
+    vi.mocked(fetch)
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ data: [] }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ data: [] }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            data: { date: "2026-05-04", timezone: "America/Denver", slots: [] },
+          }),
+          {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          },
+        ),
+      );
+
+    await getPublicServices("maya-johnson", "booking-context-token");
+    await getPublicAvailability("maya-johnson", "booking-context-token");
+    await getPublicSlots(
+      "maya-johnson",
+      "service-1",
+      "2026-05-04",
+      "booking-context-token",
+    );
+
+    const requestUrls = vi.mocked(fetch).mock.calls.map(([url]) => String(url));
+    expect(requestUrls).toHaveLength(3);
+    requestUrls.forEach((url) => {
+      expect(url).not.toContain("booking_attribution_token");
+      expect(url).not.toContain("booking_attribution_handoff_token");
+    });
+  });
+
   it("passes abort signals into public slot requests", async () => {
     const abortController = new AbortController();
     abortController.abort();
@@ -157,7 +201,42 @@ describe("public booking api helpers", () => {
     );
   });
 
-  it("posts booking_context_token when creating a public booking", async () => {
+  it("captures an attribution handoff through the public proxy", async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          data: {
+            bookingAttributionToken: "opaque-booking-token",
+            expiresAt: "2026-11-06T12:00:00.000Z",
+          },
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        },
+      ),
+    );
+
+    await expect(
+      captureBookingAttributionContext("opaque-handoff-token"),
+    ).resolves.toEqual({
+      bookingAttributionToken: "opaque-booking-token",
+      expiresAt: "2026-11-06T12:00:00.000Z",
+    });
+
+    expect(fetch).toHaveBeenCalledWith(
+      "/api/public/booking-attribution-contexts/capture",
+      expect.objectContaining({
+        cache: "no-store",
+        method: "POST",
+        body: JSON.stringify({
+          booking_attribution_handoff_token: "opaque-handoff-token",
+        }),
+      }),
+    );
+  });
+
+  it("posts booking context and opaque attribution tokens when creating a public booking", async () => {
     vi.mocked(fetch).mockResolvedValue(
       new Response(
         JSON.stringify({
@@ -187,6 +266,7 @@ describe("public booking api helpers", () => {
       guest_email: "jane@example.com",
       guest_phone: "(720) 555-0103",
       booking_context_token: "token-4",
+      booking_attribution_token: "opaque-booking-token",
       sms_opt_in: false,
     });
 
@@ -204,6 +284,7 @@ describe("public booking api helpers", () => {
           guest_email: "jane@example.com",
           guest_phone: "(720) 555-0103",
           booking_context_token: "token-4",
+          booking_attribution_token: "opaque-booking-token",
           sms_opt_in: false,
         }),
       }),

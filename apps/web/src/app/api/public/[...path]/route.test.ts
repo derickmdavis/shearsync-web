@@ -9,7 +9,7 @@ vi.mock("@/src/lib/api", () => ({
   fetchWithTimeout,
 }));
 
-import { GET } from "./route";
+import { GET, POST } from "./route";
 
 describe("public API proxy", () => {
   afterEach(() => {
@@ -78,5 +78,72 @@ describe("public API proxy", () => {
     expect(body).toContain("Unable to reach the booking service.");
     expect(body).not.toContain(previewToken);
     expect(body).not.toContain("slug=maya-johnson");
+  });
+
+  it("redacts attribution fields from ordinary public API diagnostics", async () => {
+    const snakeCaseToken = "opaque-snake-case-token";
+    const camelCaseToken = "opaque-camel-case-token";
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    fetchWithTimeout.mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          error: {
+            booking_attribution_token: snakeCaseToken,
+            bookingAttributionToken: camelCaseToken,
+          },
+        }),
+        { status: 500, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+
+    await POST(
+      new Request("https://booking.example.test/api/public/bookings", {
+        method: "POST",
+        body: JSON.stringify({ stylist_slug: "maya-johnson" }),
+      }),
+      { params: Promise.resolve({ path: ["bookings"] }) },
+    );
+
+    const logged = consoleError.mock.calls.flat().join(" ");
+    expect(logged).not.toContain(snakeCaseToken);
+    expect(logged).not.toContain(camelCaseToken);
+    expect(logged).toContain("[redacted]");
+  });
+
+  it("treats attribution capture as a sensitive capability request", async () => {
+    const handoffToken = "opaque-handoff-token";
+    const issuedToken = "opaque-issued-token";
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    fetchWithTimeout.mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          data: { bookingAttributionToken: issuedToken },
+          error: { booking_attribution_handoff_token: handoffToken },
+        }),
+        { status: 500, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+
+    await POST(
+      new Request(
+        "https://booking.example.test/api/public/booking-attribution-contexts/capture",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            booking_attribution_handoff_token: handoffToken,
+          }),
+        },
+      ),
+      {
+        params: Promise.resolve({
+          path: ["booking-attribution-contexts", "capture"],
+        }),
+      },
+    );
+
+    const logged = consoleError.mock.calls.flat().join(" ");
+    expect(logged).toContain("/api/public/booking-attribution-contexts/[redacted]");
+    expect(logged).not.toContain(handoffToken);
+    expect(logged).not.toContain(issuedToken);
   });
 });

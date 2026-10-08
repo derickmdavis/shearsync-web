@@ -6,7 +6,11 @@ import {
   within,
 } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { BookingFlow } from "@/src/components/booking/BookingFlow";
+import {
+  BookingFlow,
+  getBookingAttributionErrorCode,
+  getUsableBookingAttributionToken,
+} from "@/src/components/booking/BookingFlow";
 import type {
   PublicBookingIntakeData,
   PublicBookingConfirmation,
@@ -28,6 +32,11 @@ const bookingApiMocks = vi.hoisted(() => ({
   joinWaitlist: vi.fn(),
 }));
 
+const bookingAttributionMocks = vi.hoisted(() => ({
+  useBookingAttribution: vi.fn(),
+  useClearBookingAttribution: vi.fn(),
+}));
+
 vi.mock("@/src/lib/api", async () => {
   const actual = await vi.importActual<typeof import("@/src/lib/api")>(
     "@/src/lib/api",
@@ -38,6 +47,11 @@ vi.mock("@/src/lib/api", async () => {
     ...bookingApiMocks,
   };
 });
+
+vi.mock("@/src/components/booking/BookingAttributionGate", () => ({
+  useBookingAttribution: bookingAttributionMocks.useBookingAttribution,
+  useClearBookingAttribution: bookingAttributionMocks.useClearBookingAttribution,
+}));
 
 const baseStylist: PublicStylist = {
   id: "stylist-1",
@@ -215,6 +229,8 @@ describe("BookingFlow", () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     vi.setSystemTime(new Date("2026-07-01T12:00:00.000Z"));
     vi.clearAllMocks();
+    bookingAttributionMocks.useBookingAttribution.mockReturnValue(null);
+    bookingAttributionMocks.useClearBookingAttribution.mockReturnValue(vi.fn());
     window.sessionStorage.clear();
     window.history.replaceState({}, "", "/book/maya-johnson");
   });
@@ -1428,6 +1444,11 @@ describe("BookingFlow", () => {
       ],
     });
     createPublicBooking.mockResolvedValue(createBookingConfirmation());
+    bookingAttributionMocks.useBookingAttribution.mockReturnValue({
+      token: "opaque-booking-token",
+      expiresAt: "2026-11-06T12:00:00.000Z",
+      stylistSlug: "maya-johnson",
+    });
 
     render(
       <BookingFlow
@@ -1443,10 +1464,147 @@ describe("BookingFlow", () => {
       expect(createPublicBooking).toHaveBeenCalledWith(
         expect.objectContaining({
           referral_code: "rf_client123",
+          booking_attribution_token: "opaque-booking-token",
+          booking_context_token: "token-final",
         }),
         expect.objectContaining({ idempotencyKey: expect.any(String) }),
       );
     });
+  });
+
+  it("withholds unavailable, expired, and cross-stylist attribution tokens", () => {
+    expect(getUsableBookingAttributionToken(null, "maya-johnson")).toBeUndefined();
+    expect(
+      getUsableBookingAttributionToken(
+        {
+          token: "expired-token",
+          expiresAt: "2026-06-01T12:00:00.000Z",
+          stylistSlug: "maya-johnson",
+        },
+        "maya-johnson",
+      ),
+    ).toBeUndefined();
+    expect(
+      getUsableBookingAttributionToken(
+        {
+          token: "other-stylist-token",
+          expiresAt: "2026-11-06T12:00:00.000Z",
+          stylistSlug: "other-stylist",
+        },
+        "maya-johnson",
+      ),
+    ).toBeUndefined();
+    expect(
+      getUsableBookingAttributionToken(
+        {
+          token: "malformed-expiry-token",
+          expiresAt: "not-a-date",
+          stylistSlug: "maya-johnson",
+        },
+        "maya-johnson",
+      ),
+    ).toBeUndefined();
+  });
+
+  it("recognizes only structured attribution-context errors", () => {
+    expect(
+      getBookingAttributionErrorCode(
+        new bookingApi.ApiError(
+          "Any message is ignored",
+          400,
+          undefined,
+          "booking_attribution_context_stylist_mismatch",
+        ),
+      ),
+    ).toBe("booking_attribution_context_stylist_mismatch");
+    expect(
+      getBookingAttributionErrorCode(
+        new bookingApi.ApiError(
+          "Any message is ignored",
+          400,
+          undefined,
+          "booking_attribution_context_unavailable",
+        ),
+      ),
+    ).toBe("booking_attribution_context_unavailable");
+    expect(
+      getBookingAttributionErrorCode(
+        new bookingApi.ApiError("Similar prose", 400),
+      ),
+    ).toBeNull();
+  });
+
+  it("clears rejected attribution and lets the customer retry without it", async () => {
+    const {
+      createPublicBooking,
+      createPublicBookingIntake,
+      getPublicAvailability,
+      getPublicServices,
+      getPublicSlots,
+    } = setupMockReferences();
+    const clearAttribution = vi.fn(() => {
+      bookingAttributionMocks.useBookingAttribution.mockReturnValue(null);
+    });
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    bookingAttributionMocks.useBookingAttribution.mockReturnValue({
+      token: "opaque-booking-token",
+      expiresAt: "2026-11-06T12:00:00.000Z",
+      stylistSlug: "maya-johnson",
+    });
+    bookingAttributionMocks.useClearBookingAttribution.mockReturnValue(
+      clearAttribution,
+    );
+    createPublicBookingIntake.mockResolvedValue(
+      createIntake({ bookingContextToken: "token-final" }),
+    );
+    getPublicServices.mockResolvedValue([createService("service-1", "Haircut")]);
+    getPublicAvailability.mockResolvedValue({
+      dates: ["2026-07-15"],
+      timezone: "America/Denver",
+    });
+    getPublicSlots.mockResolvedValue({
+      date: "2026-07-15",
+      timezone: "America/Denver",
+      slots: [
+        {
+          start: "2026-07-15T09:00:00-06:00",
+          end: "2026-07-15T10:00:00-06:00",
+        },
+      ],
+    });
+    createPublicBooking
+      .mockRejectedValueOnce(
+        new bookingApi.ApiError(
+          "Any backend wording",
+          400,
+          undefined,
+          "booking_attribution_context_stylist_mismatch",
+        ),
+      )
+      .mockResolvedValueOnce(createBookingConfirmation());
+
+    render(<BookingFlow slug="maya-johnson" stylist={baseStylist} />);
+
+    await completeSuccessfulBooking();
+
+    expect(
+      await screen.findByText(
+        "We couldn't apply that booking link. Please try booking again.",
+      ),
+    ).toBeTruthy();
+    expect(clearAttribution).toHaveBeenCalledTimes(1);
+    expect(createPublicBooking.mock.calls[0]?.[0]).toEqual(
+      expect.objectContaining({ booking_attribution_token: "opaque-booking-token" }),
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /Book Appointment/i }));
+
+    await waitFor(() => {
+      expect(createPublicBooking).toHaveBeenCalledTimes(2);
+    });
+    expect(createPublicBooking.mock.calls[1]?.[0].booking_attribution_token).toBeUndefined();
+    consoleError.mockRestore();
   });
 
   it("clears the stored referral code after a successful booking", async () => {
@@ -1939,9 +2097,12 @@ describe("BookingFlow", () => {
         },
       ],
     });
+    const attributionToken = "opaque-token-in-api-details";
     createPublicBooking.mockRejectedValue(
       new bookingApi.ApiError("Unable to create appointment", 400, {
         reason: "Selected service is not available for returning clients",
+        booking_attribution_token: attributionToken,
+        bookingAttributionToken: attributionToken,
       }),
     );
     const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
@@ -1962,6 +2123,11 @@ describe("BookingFlow", () => {
     expect(
       await screen.findByText("Selected service is not available for returning clients"),
     ).toBeTruthy();
+    const logged = consoleError.mock.calls.flat().join(" ");
+    expect(logged).not.toContain(attributionToken);
+    expect(logged).not.toContain(
+      "Selected service is not available for returning clients",
+    );
     consoleError.mockRestore();
   });
 

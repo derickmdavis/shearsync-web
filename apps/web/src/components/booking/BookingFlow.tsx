@@ -17,7 +17,12 @@ import {
   type PublicSlot,
   type PublicSlotsResponse,
   type PublicStylist,
+  type StoredAttribution,
 } from "@/src/lib/api";
+import {
+  useBookingAttribution,
+  useClearBookingAttribution,
+} from "@/src/components/booking/BookingAttributionGate";
 import { BookingInquiryCard } from "@/src/components/booking/BookingInquiryCard";
 import {
   buildAvailabilityDateOptions,
@@ -98,6 +103,38 @@ function getBookableSlots(response: PublicSlotsResponse) {
 
 function normalizeReferralCode(value?: string | null) {
   return value?.trim() || null;
+}
+
+export function getUsableBookingAttributionToken(
+  attribution: StoredAttribution | null,
+  stylistSlug: string,
+) {
+  const expiresAt = attribution ? Date.parse(attribution.expiresAt) : Number.NaN;
+
+  if (
+    !attribution?.token.trim()
+    || attribution.stylistSlug !== stylistSlug
+    || !Number.isFinite(expiresAt)
+    || expiresAt <= Date.now()
+  ) {
+    return undefined;
+  }
+
+  return attribution.token;
+}
+
+export function getBookingAttributionErrorCode(error: unknown) {
+  if (!(error instanceof ApiError)) {
+    return null;
+  }
+
+  switch (error.code) {
+    case "booking_attribution_context_stylist_mismatch":
+    case "booking_attribution_context_unavailable":
+      return error.code;
+    default:
+      return null;
+  }
 }
 
 function normalizePrefillValues(values?: string[]) {
@@ -210,6 +247,8 @@ export function BookingFlow({
   initialSuggestedDates,
   initialBookingInquiryToken,
 }: BookingFlowProps) {
+  const bookingAttribution = useBookingAttribution();
+  const clearBookingAttribution = useClearBookingAttribution();
   const [referralCode, setReferralCode] = useState<string | null>(() =>
     normalizeReferralCode(initialReferralCode) ?? readStoredReferralCode(slug),
   );
@@ -1467,6 +1506,10 @@ export function BookingFlow({
         service_id: primarySelectedService.id,
         requested_datetime: verifiedSlot.start,
         referral_code: referralCodeRef.current || undefined,
+        booking_attribution_token: getUsableBookingAttributionToken(
+          bookingAttribution,
+          slug,
+        ),
         sms_opt_in: smsOptIn,
         notes: buildBookingNotes(selectedServices, notes),
       };
@@ -1500,12 +1543,10 @@ export function BookingFlow({
           : "Unable to submit your booking right now.");
 
       const debugPayload = {
-        // Keep failure diagnostics scoped to booking identifiers and API error
-        // metadata; do not log guest contact details or notes here.
+        // Keep browser diagnostics to structured, non-customer identifiers.
+        // Backend messages and reasons can include untrusted capability values.
         status: error instanceof ApiError ? error.status : undefined,
-        message,
-        reason: apiReason ?? undefined,
-        details: error instanceof ApiError ? error.details : undefined,
+        code: error instanceof ApiError ? error.code : undefined,
         requested_datetime: selectedSlot.start,
         service_id: primarySelectedService.id,
         stylist_slug: slug,
@@ -1513,7 +1554,17 @@ export function BookingFlow({
 
       console.error(`Booking submit failed ${JSON.stringify(debugPayload)}`);
 
-      if (
+      const attributionErrorCode = getBookingAttributionErrorCode(error);
+
+      if (attributionErrorCode) {
+        // These API codes are returned before appointment creation. Clear the
+        // rejected opaque context and leave the customer on confirmation so a
+        // deliberate retry submits the unchanged booking without attribution.
+        clearBookingAttribution();
+        setConfirmError(
+          "We couldn't apply that booking link. Please try booking again.",
+        );
+      } else if (
         isDirectHandoff
         && (
           isBookingIdentityRequiredError(error)

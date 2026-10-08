@@ -457,6 +457,7 @@ type CreatePublicBookingBase = {
   service_id: string;
   requested_datetime: string;
   referral_code?: string;
+  booking_attribution_token?: string;
   sms_opt_in?: boolean;
   notes?: string;
 };
@@ -486,6 +487,19 @@ type PublicApiCallOptions = {
 
 type CreatePublicBookingOptions = PublicApiCallOptions & {
   idempotencyKey?: string;
+};
+
+export type BookingAttributionCapture = {
+  bookingAttributionToken: string;
+  expiresAt: string;
+};
+
+// This is intentionally the minimal browser-persisted representation. The
+// opaque token is resolved only by the API when the final booking is created.
+export type StoredAttribution = {
+  token: string;
+  expiresAt: string;
+  stylistSlug: string;
 };
 
 export type PublicReferralResponse = {
@@ -1074,6 +1088,20 @@ export async function createPublicBookingIntake(
       body: JSON.stringify(body),
     },
   });
+}
+
+export async function captureBookingAttributionContext(handoffToken: string) {
+  return requestPublicApi<BookingAttributionCapture>(
+    "/api/public/booking-attribution-contexts/capture",
+    {
+      init: {
+        method: "POST",
+        body: JSON.stringify({
+          booking_attribution_handoff_token: handoffToken,
+        }),
+      },
+    },
+  );
 }
 
 export async function createPublicBooking(

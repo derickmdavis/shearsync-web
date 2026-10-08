@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { BookingFlow } from "@/src/components/booking/BookingFlow";
+import { BookingAttributionGate } from "@/src/components/booking/BookingAttributionGate";
 import { BookingPreviewFlow } from "@/src/components/booking/BookingPreviewFlow";
 import { PreviewRetryButton } from "@/src/components/booking/PreviewRetryButton";
 import { PreviewUrlCleanup } from "@/src/components/booking/PreviewUrlCleanup";
@@ -21,6 +22,7 @@ type BookingPageProps = {
     service_id?: string | string[];
     date?: string | string[];
     booking_inquiry_token?: string | string[];
+    booking_attribution_handoff_token?: string | string[];
   }>;
 };
 
@@ -50,7 +52,9 @@ export async function generateMetadata({
 }: Pick<BookingPageProps, "searchParams">): Promise<Metadata> {
   const params = await searchParams;
 
-  return params.preview !== undefined || params.booking_inquiry_token !== undefined
+  return params.preview !== undefined
+    || params.booking_inquiry_token !== undefined
+    || params.booking_attribution_handoff_token !== undefined
     ? { referrer: "no-referrer" }
     : {};
 }
@@ -159,14 +163,16 @@ export default async function BookingPage(props: BookingPageProps) {
   return (
     <main className="px-4 py-6 sm:px-6 sm:py-10 lg:py-14">
       <div className="mx-auto w-full max-w-[430px] lg:max-w-[980px]">
-        <BookingFlow
-          slug={slug}
-          stylist={stylist}
-          initialReferralCode={referralCode}
-          initialServiceIds={initialServiceIds}
-          initialSuggestedDates={initialSuggestedDates}
-          initialBookingInquiryToken={initialBookingInquiryToken}
-        />
+        <BookingAttributionGate stylistSlug={slug}>
+          <BookingFlow
+            slug={slug}
+            stylist={stylist}
+            initialReferralCode={referralCode}
+            initialServiceIds={initialServiceIds}
+            initialSuggestedDates={initialSuggestedDates}
+            initialBookingInquiryToken={initialBookingInquiryToken}
+          />
+        </BookingAttributionGate>
       </div>
     </main>
   );

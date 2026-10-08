@@ -18,6 +18,10 @@ const SENSITIVE_LOG_KEYS = new Set([
   "phone",
   "reference_photo_upload_token",
   "reference_photo_upload_token_expires_at",
+  "booking_attribution_handoff_token",
+  "booking_attribution_token",
+  "bookingAttributionHandoffToken",
+  "bookingAttributionToken",
   "token",
   "preview",
   "preview_token",
@@ -76,7 +80,8 @@ async function forwardRequest(request: Request, context: RouteContext) {
     // so production logging should be treated as sensitive.
     const isSensitiveCapabilityRequest =
       path[0] === "appointment-links" ||
-      path[0] === "booking-preview-sessions";
+      path[0] === "booking-preview-sessions" ||
+      (path[0] === "booking-attribution-contexts" && path[1] === "capture");
     const requestSummary =
       !isSensitiveCapabilityRequest && path.join("/") === "bookings" && requestBody
         ? summarizeBookingRequest(requestBody)

@@ -10,17 +10,16 @@ type WorkspaceShellProps = {
 };
 
 const navItems = [
-  { href: "/insights", label: "Insights", icon: "▥", section: "insights" },
   { href: "/calendar", label: "Calendar", icon: "□", section: "calendar" },
   { href: "/clients", label: "Clients", icon: "♧", section: "clients" },
-  { href: "#messages", label: "Messages", icon: "▱", section: null },
+  { href: "/settings/business-details", label: "Settings", icon: "⚙", section: "settings" },
 ] as const;
 
 export function WorkspaceShell({ active, children }: WorkspaceShellProps) {
   return (
     <main className={styles.workspace}>
       <aside className={styles.sidebar} aria-label="Primary navigation">
-        <Link className={styles.brand} href="/insights" aria-label="Root and Foil insights">
+        <Link className={styles.brand} href="/calendar" aria-label="Root and Foil calendar">
           <span className={styles.brandMark} aria-hidden="true"><i /><i /><i /></span>
           <span>Root <em>&amp;</em> Foil</span>
         </Link>
@@ -39,9 +38,6 @@ export function WorkspaceShell({ active, children }: WorkspaceShellProps) {
         </nav>
 
         <nav className={styles.utilityNav} aria-label="Utility navigation">
-          <Link className={`${styles.navItem} ${active === "settings" ? styles.navItemActive : ""}`} href="/settings/business-details">
-            <span className={styles.navIcon} aria-hidden="true">⚙</span>Settings
-          </Link>
           <a className={styles.navItem} href="#help"><span className={styles.navIcon} aria-hidden="true">?</span>Help</a>
         </nav>
       </aside>

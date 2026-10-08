@@ -56,7 +56,7 @@ describe("BookingPage", () => {
     vi.clearAllMocks();
   });
 
-  it("uses a no-referrer document policy only for preview URLs", async () => {
+  it("uses a no-referrer document policy for capability URLs", async () => {
     await expect(
       generateMetadata({
         searchParams: Promise.resolve({ preview: "PVW_opaque-token" }),
@@ -71,6 +71,14 @@ describe("BookingPage", () => {
       generateMetadata({
         searchParams: Promise.resolve({
           booking_inquiry_token: "signed-inquiry-token",
+        }),
+      }),
+    ).resolves.toEqual({ referrer: "no-referrer" });
+
+    await expect(
+      generateMetadata({
+        searchParams: Promise.resolve({
+          booking_attribution_handoff_token: "opaque-handoff-token",
         }),
       }),
     ).resolves.toEqual({ referrer: "no-referrer" });
