@@ -3,8 +3,12 @@ import {
   captureBookingAttributionContext,
   cancelManagedAppointment,
   createBookingPreviewSession,
+  createClient,
   createClientReferralLink,
   createPublicBooking,
+  deleteClient,
+  type ClientRow,
+  getAccountAccess,
   getClientReferralLink,
   getClientReferralStats,
   getClients,
@@ -767,14 +771,29 @@ describe("authenticated clients api helpers", () => {
     vi.unstubAllGlobals();
   });
 
-  it("loads clients with a bearer token and sorts by client name", async () => {
+  it("loads a paginated client page with serialized query controls", async () => {
     vi.mocked(fetch).mockResolvedValue(
       new Response(
         JSON.stringify({
           data: [
-            makeCustomer({ id: "2", first_name: "Zoey", last_name: "Ray" }),
-            makeCustomer({ id: "1", first_name: "Ava", last_name: "Martinez" }),
+            makeCustomer({ id: "2", first_name: "Zoey", last_name: "Ray", total_spend: "120.50" }),
+            makeCustomer({ id: "1", first_name: "Ava", last_name: "Martinez", total_spend: "not-a-number" }),
           ],
+          page: 2,
+          pageSize: 25,
+          totalCount: 51,
+          nextCursor: "3",
+          insights: {
+            overdue: { count: 2, supportingText: "Needs attention" },
+            firstTime: { count: 3, supportingText: "This year" },
+            topSpenders: {
+              count: 5,
+              supportingText: "Top 10%",
+              thresholdAmount: 120,
+              period: "lifetime",
+              percentile: 10,
+            },
+          },
         }),
         {
           status: 200,
@@ -783,10 +802,17 @@ describe("authenticated clients api helpers", () => {
       ),
     );
 
-    const clients = await getClients("token-1");
+    const clients = await getClients("token-1", {
+      page: 2,
+      pageSize: 25,
+      sort: "total_spend",
+      direction: "asc",
+      filter: "vip",
+      search: "  ava ",
+    });
 
     expect(fetch).toHaveBeenCalledWith(
-      "http://localhost:3000/api/clients",
+      "/api/clients?search=ava&page=2&pageSize=25&sort=total_spend&direction=asc&filter=vip",
       expect.objectContaining({
         cache: "no-store",
         headers: expect.any(Headers),
@@ -797,7 +823,105 @@ describe("authenticated clients api helpers", () => {
         "Authorization",
       ),
     ).toBe("Bearer token-1");
-    expect(clients.map((client) => client.id)).toEqual(["1", "2"]);
+    expect(clients.data.map((client) => client.id)).toEqual(["2", "1"]);
+    expect(clients).toMatchObject({ page: 2, totalCount: 51, nextCursor: "3" });
+    expect(clients.data.map((client) => client.total_spend)).toEqual([120.5, null]);
+  });
+
+  it("creates a client through the protected proxy with the supplied API payload", async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(JSON.stringify({ data: makeCustomer({ id: "client-new", is_vip: true }) }), {
+        status: 201,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    await expect(createClient("token-1", {
+      first_name: "Ava",
+      last_name: "Martinez",
+      email: "ava@example.com",
+      birthday: "24/09",
+      preferred_contact_method: "email",
+      source: "referral",
+      is_vip: true,
+    })).resolves.toMatchObject({ id: "client-new", is_vip: true });
+
+    expect(fetch).toHaveBeenCalledWith(
+      "/api/clients",
+      expect.objectContaining({
+        cache: "no-store",
+        method: "POST",
+        body: JSON.stringify({
+          first_name: "Ava",
+          last_name: "Martinez",
+          email: "ava@example.com",
+          birthday: "24/09",
+          preferred_contact_method: "email",
+          source: "referral",
+          is_vip: true,
+        }),
+        headers: expect.any(Headers),
+      }),
+    );
+    expect(
+      (vi.mocked(fetch).mock.calls[0]?.[1]?.headers as Headers).get("Authorization"),
+    ).toBe("Bearer token-1");
+  });
+
+  it("returns cleanly for a 204 client deletion without parsing a body", async () => {
+    vi.mocked(fetch).mockResolvedValue(new Response(null, { status: 204 }));
+
+    await expect(deleteClient("client 1", "token-1")).resolves.toBeUndefined();
+    expect(fetch).toHaveBeenCalledWith(
+      "/api/clients/client%201",
+      expect.objectContaining({ method: "DELETE", headers: expect.any(Headers) }),
+    );
+  });
+
+  it("preserves structured client API errors and retry guidance", async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(JSON.stringify({ error: { code: "rate_limited", message: "Slow down" } }), {
+        status: 429,
+        headers: { "Content-Type": "application/json", "Retry-After": "12" },
+      }),
+    );
+
+    await expect(getClients("token-1")).rejects.toMatchObject({
+      status: 429,
+      code: "rate_limited",
+      retryAfterSeconds: 12,
+    });
+  });
+
+  it("loads account access through the same-origin account proxy", async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          data: {
+            status: "active",
+            isActive: true,
+            activatedAt: "2026-10-01T00:00:00.000Z",
+            currentPeriodEndsAt: null,
+            deactivatedAt: null,
+          },
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+
+    await expect(getAccountAccess("token-1")).resolves.toMatchObject({
+      status: "active",
+      isActive: true,
+    });
+    expect(fetch).toHaveBeenCalledWith(
+      "/api/account/access",
+      expect.objectContaining({ cache: "no-store", headers: expect.any(Headers) }),
+    );
+    expect(
+      (vi.mocked(fetch).mock.calls[0]?.[1]?.headers as Headers).get(
+        "Authorization",
+      ),
+    ).toBe("Bearer token-1");
   });
 
   it("unwraps null referral-link responses", async () => {
@@ -811,7 +935,7 @@ describe("authenticated clients api helpers", () => {
     await expect(getClientReferralLink("client-1", "token-1")).resolves.toBeNull();
 
     expect(fetch).toHaveBeenCalledWith(
-      "http://localhost:3000/api/clients/client-1/referral-link",
+      "/api/clients/client-1/referral-link",
       expect.objectContaining({
         cache: "no-store",
         headers: expect.any(Headers),
@@ -839,7 +963,7 @@ describe("authenticated clients api helpers", () => {
 
     expect(fetch).toHaveBeenNthCalledWith(
       1,
-      "http://localhost:3000/api/clients/client%201/referral-link",
+      "/api/clients/client%201/referral-link",
       expect.objectContaining({
         cache: "no-store",
         method: "POST",
@@ -848,7 +972,7 @@ describe("authenticated clients api helpers", () => {
     );
     expect(fetch).toHaveBeenNthCalledWith(
       2,
-      "http://localhost:3000/api/clients/client%201/referral-stats",
+      "/api/clients/client%201/referral-stats",
       expect.objectContaining({
         cache: "no-store",
         headers: expect.any(Headers),
@@ -905,9 +1029,7 @@ describe("public referral api helpers", () => {
   });
 });
 
-function makeCustomer(
-  overrides: Partial<Awaited<ReturnType<typeof getClients>>[number]>,
-) {
+function makeCustomer(overrides: Partial<ClientRow>) {
   return {
     id: "client-1",
     user_id: "user-1",
@@ -924,10 +1046,19 @@ function makeCustomer(
     tags: null,
     source: null,
     reminder_consent: null,
+    is_vip: false,
+    avatar_image_id: null,
     total_spend: null,
     last_visit_at: null,
+    completed_visit_count: 0,
+    first_completed_visit_at: null,
+    last_completed_visit_at: null,
     created_at: "2026-05-12T18:00:00.000Z",
     updated_at: "2026-05-12T18:00:00.000Z",
+    next_appointment_at: null,
+    has_future_appointment: false,
+    needs_rebook: false,
+    last_service: null,
     ...overrides,
   };
 }

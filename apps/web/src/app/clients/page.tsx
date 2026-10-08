@@ -1,3 +1,3 @@
-import { ClientsScreen } from "@/src/components/workspace/WorkspaceScreens";
+import { ClientsScreenClient } from "@/src/components/workspace/ClientsScreenClient";
 
-export default function ClientsPage() { return <ClientsScreen />; }
+export default function ClientsPage() { return <ClientsScreenClient />; }

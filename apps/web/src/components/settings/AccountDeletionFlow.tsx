@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { WorkspaceShell, workspaceStyles as shell } from "@/src/components/workspace/WorkspaceShell";
@@ -106,7 +107,7 @@ export function DeletionRequestedScreen() {
 
 export function AccountDeletedScreen() {
   return <main className={styles.deletedPage}>
-    <header className={styles.publicHeader}><Link className={styles.publicBrand} href="/" aria-label="Root and Foil home"><span className={styles.publicMark} aria-hidden="true">✦</span>Root <em>&amp;</em> Foil</Link><nav><Link href="/login">Sign In</Link><Link className={styles.createAccount} href="/login">Create Account</Link></nav></header>
+    <header className={styles.publicHeader}><Link className={styles.publicBrand} href="/" aria-label="Root and Foil home"><Image src="/branding/root-and-foil-logo.png" width={1137} height={1132} alt="Root and Foil" priority style={{ display: "block", width: 74, height: 74, objectFit: "contain" }} /></Link><nav><Link href="/login">Sign In</Link><Link className={styles.createAccount} href="/login">Create Account</Link></nav></header>
     <section className={styles.deletedCard}><span className={styles.deletedCheck} aria-hidden="true">✓</span><h1>Your account has been deleted</h1><p>Your Root &amp; Foil account and all associated data have been permanently removed.</p><small>Thank you for being part of the Root &amp; Foil community.<br />We hope to see you back in the future.</small><Link href="/" className={shell.primaryButton}>Return to Home</Link></section>
   </main>;
 }

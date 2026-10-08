@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { PageHeading, WorkspaceShell, workspaceStyles as styles } from "./WorkspaceShell";
 
 const sparkPaths = ["2,25 14,20 25,22 36,14 48,18 60,10 72,15 86,5", "2,25 14,23 25,18 37,21 48,14 60,16 72,9 86,6", "2,24 14,25 25,16 37,20 49,12 60,15 72,10 86,4"];
@@ -21,22 +22,7 @@ export function InsightsScreen() {
     </section>)}</section></WorkspaceShell>;
 }
 
-const clients = [
-  ["Alexis Flores", "AF", "2 weeks ago", "34", "$366", "Nov 2, 8:00 AM"], ["Gia Martinez", "GM", "2 months ago", "18", "$165", "Oct 14, 9:30 AM"], ["Q.A. De Luna", "QD", "1 month ago", "9", "$85", "—"], ["Sam Feller", "SF", "5 months ago", "7", "$95", "Oct 29, 4:00 PM"], ["Harper Ellis", "HE", "3 days ago", "24", "$440", "Oct 16, 12:00 PM"], ["Amara Diaz", "AD", "1 week ago", "12", "$326", "Oct 11, 4:00 PM"], ["Iris Parker", "IP", "3 weeks ago", "8", "$145", "Pending appointment..."], ["Casey Watson", "CW", "1 month ago", "5", "$120", "—"],
-];
-
-export function ClientsScreen() {
-  return <WorkspaceShell active="clients"><section>
-    <PageHeading title="Clients" subtitle="Build lasting relationships with every client." action={<button className={styles.primaryButton} type="button">＋ Add Client</button>} />
-    <div className={styles.clientsLayout}><section className={styles.clientTableWrap}><table className={styles.clientTable}><thead><tr><th>Name</th><th>Last Seen</th><th>Visits</th><th>Total Spent</th><th>Next Appointment</th></tr></thead><tbody>{clients.map(([name, initials, lastSeen, visits, spent, next]) => <tr className={name === "Alexis Flores" ? styles.selectedRow : ""} key={name}><td><span className={styles.clientAvatar}>{initials}</span><strong>{name}</strong></td><td>{lastSeen}</td><td>{visits}</td><td>{spent}</td><td>{next === "—" ? <span className={styles.muted}>—</span> : <span className={styles.nextPill}>{next}</span>}</td></tr>)}</tbody></table></section><ClientDetail /></div>
-  </section></WorkspaceShell>;
-}
-
-function ClientDetail() { return <aside className={styles.clientDetail}><button className={styles.closePanel} aria-label="Close client panel">×</button><div className={styles.clientProfile}><span className={`${styles.clientAvatar} ${styles.largeAvatar}`}>AF</span><div><h2>Alexis E. Flores</h2><span className={styles.vipPill}>♕ &nbsp;VIP Client</span></div><button className={styles.editButton}>Edit</button></div><div className={styles.clientTabs}><button className={styles.clientTabActive}>Overview</button><button>History</button><button>Notes</button></div><InfoSection title="Contact"><p>⌁ &nbsp;+1 300 555 0193</p><p>✉ &nbsp;alexisflores@email.com</p></InfoSection><InfoSection title="Client Stats"><div className={styles.clientStats}><div><b>34</b><span>Total Visits</span></div><div><b>$365</b><span>Total Value</span></div><div><b>2 weeks ago</b><span>Last Seen</span></div></div></InfoSection><InfoSection title="Next Appointment"><strong>↗ &nbsp;Nov 2, 2026 · 8:00 AM</strong><p>Signature Haircut · 1h</p></InfoSection><div className={styles.detailActions}><button>Reschedule</button><button>Add Note</button></div></aside>; }
-
-function InfoSection({ title, children }: { title: string; children: React.ReactNode }) { return <section className={styles.infoSection}><h3>{title}</h3>{children}</section>; }
-
-const settingsItems = ["Business Details", "Services", "Staff", "Availability", "Notifications", "Integrations", "Billing"];
+const settingsItems = ["Business Details", "Services", "Staff", "Availability", "Notifications", "Integrations", "Billing", "Account"];
 type FormField = readonly [label: string, value: string, width?: "wide"];
 
 const fields: ReadonlyArray<readonly [title: string, fields: readonly FormField[]]> = [
@@ -45,7 +31,7 @@ const fields: ReadonlyArray<readonly [title: string, fields: readonly FormField[
 ];
 
 export function SettingsScreen() {
-  return <WorkspaceShell active="settings"><section className={styles.settingsPage}><aside className={styles.settingsNav}><h2>Settings</h2>{settingsItems.map((item, index) => <button className={index === 0 ? styles.settingsActive : ""} key={item}><span>{["▣", "▤", "♧", "□", "♧", "⌘", "▧"][index]}</span>{item}</button>)}</aside><div className={styles.settingsContent}><PageHeading title="Business Details" subtitle="Manage your business information and preferences." />
+  return <WorkspaceShell active="settings"><section className={styles.settingsPage}><aside className={styles.settingsNav}><h2>Settings</h2>{settingsItems.map((item, index) => item === "Account" ? <Link className={styles.settingsNavLink} href="/settings/account" key={item}><span>◉</span>{item}</Link> : <button className={index === 0 ? styles.settingsActive : ""} key={item}><span>{["▣", "▤", "♧", "□", "♧", "⌘", "▧"][index]}</span>{item}</button>)}</aside><div className={styles.settingsContent}><PageHeading title="Business Details" subtitle="Manage your business information and preferences." />
     <form className={styles.businessForm}>{fields.map(([section, group]) => <FormSection key={section} title={section} fields={group} />)}<section className={styles.formSection}><h2>Business Preferences</h2><div className={`${styles.formGrid} ${styles.preferenceGrid}`}><SelectInput label="Time Zone" value="(GMT-7) Mountain Time (Denver)" /><SelectInput label="Currency" value="USD ($)" /></div></section><div className={styles.saveRow}><button className={styles.primaryButton} type="button">Save Changes</button></div></form></div></section></WorkspaceShell>;
 }
 

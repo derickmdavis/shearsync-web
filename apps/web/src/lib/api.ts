@@ -265,7 +265,7 @@ export type BookingPreviewContext = {
   schema_version: "booking_preview_context.v1";
 };
 
-export type Customer = {
+export type ClientRow = {
   id: string;
   user_id: string;
   first_name: string;
@@ -287,10 +287,133 @@ export type Customer = {
     | "other"
     | null;
   reminder_consent: boolean | null;
-  total_spend: number | null;
+  is_vip: boolean;
+  avatar_image_id: string | null;
+  avatar_initials?: string | null;
+  total_spend: number | string | null;
   last_visit_at: string | null;
+  completed_visit_count: number;
+  first_completed_visit_at: string | null;
+  last_completed_visit_at: string | null;
   created_at: string;
   updated_at: string;
+  next_appointment_at: string | null;
+  has_future_appointment: boolean;
+  needs_rebook: boolean;
+  last_service: string | null;
+};
+
+// Kept as an alias while existing account UI is migrated to the list contract.
+export type Customer = ClientRow;
+
+export type ClientSort = "updated_at" | "name" | "total_spend" | "last_visit_at";
+export type ClientSortDirection = "asc" | "desc";
+export type ClientFilter = "all" | "active" | "vip" | "overdue" | "first_time" | "top_spenders";
+
+export type ClientsListQuery = {
+  search?: string;
+  page?: number;
+  pageSize?: number;
+  sort?: ClientSort;
+  direction?: ClientSortDirection;
+  filter?: ClientFilter;
+};
+
+export type ClientsListRequestOptions = {
+  signal?: AbortSignal;
+};
+
+export type ClientsPage = {
+  data: ClientRow[];
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  nextCursor: string | null;
+  insights: {
+    overdue: { count: number; supportingText: string };
+    firstTime: { count: number; supportingText: string };
+    topSpenders: {
+      count: number;
+      supportingText: string;
+      thresholdAmount: number;
+      period: "lifetime";
+      percentile: 10;
+    };
+  };
+};
+
+export type CreateClientBody = {
+  first_name: string;
+  last_name: string;
+  phone?: string;
+  email?: string;
+  preferred_name?: string | null;
+  instagram?: string | null;
+  birthday?: string | null;
+  preferred_contact_method?: ClientRow["preferred_contact_method"];
+  tags?: string[] | null;
+  source?: ClientRow["source"];
+  notes?: string;
+  reminder_consent?: boolean | null;
+  is_vip?: boolean;
+  total_spend?: number | null;
+  last_visit_at?: string | null;
+};
+
+export type UpdateClientBody = Partial<CreateClientBody>;
+
+export type ClientDetail = {
+  client: ClientRow;
+  identity: {
+    display_name: string;
+    avatar_url: string | null;
+    avatar_image_id: string | null;
+    avatar_initials: string;
+    is_vip: boolean;
+  };
+  snapshot: {
+    last_visit_at: string | null;
+    last_visit_label: string | null;
+    total_completed_visits: number;
+    average_days_between_visits: number | null;
+    total_spent: number;
+    average_ticket: number | null;
+    member_since: string | null;
+    member_since_label: string | null;
+  };
+  next_appointment: Record<string, unknown> | null;
+  next_appointment_summary: {
+    when_label: string | null;
+    duration_label: string | null;
+    status_label: string;
+    status_tone: "success";
+  } | null;
+  status_summary: {
+    status_label: string;
+    status_tone: "neutral" | "success" | "warning" | "danger";
+  };
+  value_summary: {
+    total_spent: number;
+    average_ticket: number | null;
+    rebooking_rate: number | null;
+    trend_label: string;
+    trend_detail: string;
+  };
+  recent_history: { data: Record<string, unknown>[]; next_cursor: string | null };
+  visual_history: {
+    data: Array<{
+      id: string;
+      thumbnail_url: string | null;
+      full_url: string | null;
+      caption: string | null;
+      source_label: string;
+      service_label: string | null;
+      appointment_id: string | null;
+      created_at: string;
+    }>;
+    photo_count: number;
+    history_available: boolean;
+  };
 };
 
 export type ReferralLink = {
@@ -340,6 +463,14 @@ export type AccountPlan = {
   smsUsedThisMonth: number;
   smsRemainingThisMonth: number;
   features: AccountPlanFeatures;
+};
+
+export type AccountAccess = {
+  status: string;
+  isActive: boolean;
+  activatedAt: string | null;
+  currentPeriodEndsAt: string | null;
+  deactivatedAt: string | null;
 };
 
 export type PublicService = {
@@ -705,6 +836,7 @@ export type PublicAppointmentLinkResponse = {
 type RequestOptions = {
   init?: RequestInit;
   preferProxy?: boolean;
+  unwrap?: boolean;
 };
 
 export async function fetchWithTimeout(
@@ -928,7 +1060,7 @@ async function requestPublicApi<T>(
 async function requestAuthenticatedApi<T>(
   path: string,
   accessToken: string,
-  { init }: Pick<RequestOptions, "init"> = {},
+  { init, preferProxy = false, unwrap = true }: RequestOptions = {},
 ) {
   const headers = new Headers(init?.headers);
 
@@ -943,7 +1075,7 @@ async function requestAuthenticatedApi<T>(
   let response: Response;
 
   try {
-    response = await fetchWithTimeout(`${API_BASE_URL}${path}`, {
+    response = await fetchWithTimeout(`${getRequestBaseUrl(preferProxy)}${path}`, {
       ...init,
       headers,
       cache: "no-store",
@@ -959,6 +1091,12 @@ async function requestAuthenticatedApi<T>(
         : "A network error occurred while contacting the account service.",
       0,
     );
+  }
+
+  // DELETE endpoints commonly return 204. Do not attempt JSON parsing for an
+  // intentionally empty response body.
+  if (response.status === 204) {
+    return undefined as T;
   }
 
   const payload = await parseResponseBody(response);
@@ -977,7 +1115,9 @@ async function requestAuthenticatedApi<T>(
     );
   }
 
-  return unwrapPayload<T>(payload as ApiEnvelope<T> | T);
+  return unwrap
+    ? unwrapPayload<T>(payload as ApiEnvelope<T> | T)
+    : (payload as T);
 }
 
 export async function getAuthenticatedUser(accessToken: string) {
@@ -1401,6 +1541,7 @@ export async function getAccountProfile(accessToken: string) {
   return requestAuthenticatedApi<AccountProfile>(
     "/api/settings/profile",
     accessToken,
+    { preferProxy: true },
   );
 }
 
@@ -1463,21 +1604,102 @@ export async function getAccountPlan(accessToken: string) {
   return requestAuthenticatedApi<AccountPlan>("/api/account/plan", accessToken);
 }
 
-export async function getClients(accessToken: string) {
-  const clients = await requestAuthenticatedApi<Customer[]>(
-    "/api/clients",
+export async function getAccountAccess(accessToken: string) {
+  return requestAuthenticatedApi<AccountAccess>("/api/account/access", accessToken, {
+    preferProxy: true,
+  });
+}
+
+function normalizeTotalSpend(value: ClientRow["total_spend"]) {
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? value : null;
+  }
+
+  if (typeof value === "string" && value.trim()) {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  return null;
+}
+
+function normalizeClientRow(client: ClientRow): ClientRow {
+  return { ...client, total_spend: normalizeTotalSpend(client.total_spend) };
+}
+
+export async function getClients(
+  accessToken: string,
+  query: ClientsListQuery = {},
+  options: ClientsListRequestOptions = {},
+) {
+  const params = new URLSearchParams();
+  const search = query.search?.trim();
+
+  if (search) {
+    params.set("search", search);
+  }
+
+  params.set("page", String(query.page ?? 1));
+  params.set("pageSize", String(query.pageSize ?? 25));
+  params.set("sort", query.sort ?? "updated_at");
+  params.set("direction", query.direction ?? "desc");
+  params.set("filter", query.filter ?? "all");
+
+  const response = await requestAuthenticatedApi<ClientsPage>(
+    `/api/clients?${params.toString()}`,
     accessToken,
+    { preferProxy: true, unwrap: false, init: { signal: options.signal } },
   );
 
-  return [...clients].sort((clientA, clientB) => {
-    const nameA = `${clientA.first_name} ${clientA.last_name}`.trim();
-    const nameB = `${clientB.first_name} ${clientB.last_name}`.trim();
+  return {
+    ...response,
+    data: response.data.map(normalizeClientRow),
+  };
+}
 
-    return nameA.localeCompare(nameB, undefined, {
-      sensitivity: "base",
-      numeric: true,
-    });
+export async function createClient(accessToken: string, body: CreateClientBody) {
+  const client = await requestAuthenticatedApi<ClientRow>("/api/clients", accessToken, {
+    preferProxy: true,
+    init: { method: "POST", body: JSON.stringify(body) },
   });
+
+  return normalizeClientRow(client);
+}
+
+export async function updateClient(
+  clientId: string,
+  accessToken: string,
+  body: UpdateClientBody,
+) {
+  const client = await requestAuthenticatedApi<ClientRow>(
+    `/api/clients/${encodeURIComponent(clientId)}`,
+    accessToken,
+    { preferProxy: true, init: { method: "PATCH", body: JSON.stringify(body) } },
+  );
+
+  return normalizeClientRow(client);
+}
+
+export async function deleteClient(clientId: string, accessToken: string) {
+  await requestAuthenticatedApi<void>(
+    `/api/clients/${encodeURIComponent(clientId)}`,
+    accessToken,
+    { preferProxy: true, init: { method: "DELETE" } },
+  );
+}
+
+export async function getClientDetail(
+  clientId: string,
+  accessToken: string,
+  options: { signal?: AbortSignal } = {},
+) {
+  const detail = await requestAuthenticatedApi<ClientDetail>(
+    `/api/clients/${encodeURIComponent(clientId)}/detail`,
+    accessToken,
+    { preferProxy: true, init: { signal: options.signal } },
+  );
+
+  return { ...detail, client: normalizeClientRow(detail.client) };
 }
 
 export async function getClientReferralLink(
@@ -1487,6 +1709,7 @@ export async function getClientReferralLink(
   return requestAuthenticatedApi<ReferralLink | null>(
     `/api/clients/${encodeURIComponent(clientId)}/referral-link`,
     accessToken,
+    { preferProxy: true },
   );
 }
 
@@ -1498,6 +1721,7 @@ export async function createClientReferralLink(
     `/api/clients/${encodeURIComponent(clientId)}/referral-link`,
     accessToken,
     {
+      preferProxy: true,
       init: {
         method: "POST",
       },
@@ -1512,5 +1736,6 @@ export async function getClientReferralStats(
   return requestAuthenticatedApi<ReferralStats>(
     `/api/clients/${encodeURIComponent(clientId)}/referral-stats`,
     accessToken,
+    { preferProxy: true },
   );
 }

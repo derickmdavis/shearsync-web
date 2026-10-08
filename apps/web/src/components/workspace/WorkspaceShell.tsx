@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { ReactNode } from "react";
 import styles from "./workspace.module.css";
 
@@ -20,8 +21,7 @@ export function WorkspaceShell({ active, children }: WorkspaceShellProps) {
     <main className={styles.workspace}>
       <aside className={styles.sidebar} aria-label="Primary navigation">
         <Link className={styles.brand} href="/calendar" aria-label="Root and Foil calendar">
-          <span className={styles.brandMark} aria-hidden="true"><i /><i /><i /></span>
-          <span>Root <em>&amp;</em> Foil</span>
+          <Image className={styles.brandLogo} src="/branding/root-and-foil-logo.png" width={1137} height={1132} alt="Root and Foil" priority />
         </Link>
 
         <nav className={styles.primaryNav}>
@@ -49,9 +49,8 @@ export function WorkspaceShell({ active, children }: WorkspaceShellProps) {
             <input aria-label="Search" placeholder="Search clients, appointments, or notes..." />
           </label>
           <div className={styles.userTools}>
-            <button className={styles.iconButton} type="button" aria-label="Notifications">♧</button>
             <span className={styles.avatar} aria-hidden="true">DD</span>
-            <button className={styles.userMenu} type="button">Derick Davis <span aria-hidden="true">⌄</span></button>
+            <span className={styles.userMenu}>Derick Davis</span>
           </div>
         </header>
         <div className={styles.pageCanvas}>{children}</div>

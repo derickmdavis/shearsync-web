@@ -42,6 +42,7 @@ import {
   hasSupabaseBrowserConfig,
 } from "@/src/lib/supabase";
 import { isPasswordRecoveryInProgress } from "@/src/lib/auth/password-recovery";
+import { withActiveAccount } from "@/src/lib/auth/active-account";
 import { getAuthRecoveryUrl, getWebAppUrl } from "@/src/lib/config/public";
 import {
   AccountSideNav,
@@ -272,20 +273,12 @@ export function AccountPageClient() {
     [router],
   );
 
-  const loadClients = useCallback(async (token: string) => {
-    if (!token) {
-      setClients([]);
-      setClientsLoadState({ status: "idle" });
-      setSelectedClientId(null);
-      setClientReferralStates({});
-      setCreatingReferralClientId(null);
-      return;
-    }
-
+  const loadClients = useCallback(async () => {
     setClientsLoadState({ status: "loading" });
 
     try {
-      const nextClients = await getClients(token);
+      const nextClientsPage = await withActiveAccount((token) => getClients(token));
+      const nextClients = nextClientsPage.data;
       setClients(nextClients);
       setClientsLoadState({ status: "ready" });
       setSelectedClientId((currentClientId) =>
@@ -300,28 +293,29 @@ export function AccountPageClient() {
   }, []);
 
   const loadClientReferral = useCallback(
-    async (clientId: string, token: string) => {
-      if (!token) {
-        return;
-      }
-
+    async (clientId: string) => {
       setClientReferralStates((currentStates) => ({
         ...currentStates,
         [clientId]: { status: "loading" },
       }));
 
       try {
-        const [link, statsResult] = await Promise.all([
-          getClientReferralLink(clientId, token),
-          getClientReferralStats(clientId, token)
-            .then((stats): { stats: ReferralStats | null; error?: string } => ({
-              stats,
-            }))
-            .catch((error): { stats: ReferralStats | null; error?: string } => ({
-              stats: null,
-              error: getErrorMessage(error),
-            })),
-        ]);
+        const [link, statsResult] = await withActiveAccount((token) =>
+          Promise.all([
+            getClientReferralLink(clientId, token),
+            getClientReferralStats(clientId, token)
+              .then((stats): { stats: ReferralStats | null; error?: string } => ({
+                stats,
+              }))
+              .catch((error): { stats: ReferralStats | null; error?: string } => {
+                if (error instanceof ApiError && error.status === 401) {
+                  throw error;
+                }
+
+                return { stats: null, error: getErrorMessage(error) };
+              }),
+          ]),
+        );
 
         setClientReferralStates((currentStates) => ({
           ...currentStates,
@@ -350,7 +344,7 @@ export function AccountPageClient() {
       setSelectedClientId(nextClientId);
 
       if (!isClosing && accessToken && !clientReferralStates[clientId]) {
-        void loadClientReferral(clientId, accessToken);
+        void loadClientReferral(clientId);
       }
     },
     [
@@ -496,7 +490,7 @@ export function AccountPageClient() {
     // Defer the client list fetch until the tab is visible; the profile screen
     // remains lighter on first load and avoids exposing client data unnecessarily.
     const timeoutId = window.setTimeout(() => {
-      void loadClients(accessToken);
+      void loadClients();
     }, 0);
 
     return () => window.clearTimeout(timeoutId);
@@ -894,10 +888,10 @@ export function AccountPageClient() {
                   onClientToggle={handleClientToggle}
                   onCreateReferralLink={handleCreateClientReferralLink}
                   onReferralRetry={(clientId) =>
-                    void loadClientReferral(clientId, accessToken)
+                    void loadClientReferral(clientId)
                   }
                   onMessage={(message) => showMessage(message, setToast)}
-                  onRetry={() => void loadClients(accessToken)}
+                  onRetry={() => void loadClients()}
                 />
               ) : (
                 <BlankTabPanel title="Appointments" />
