@@ -1,4 +1,5 @@
 import { API_BASE_URL, fetchWithTimeout } from "@/src/lib/api";
+import { buildSafeProxyResponseHeaders } from "@/src/lib/api-proxy";
 
 type RouteContext = {
   params: Promise<{
@@ -36,19 +37,16 @@ async function forwardSettingsRequest(request: Request, context: RouteContext) {
   return new Response(response.body, {
     status: response.status,
     statusText: response.statusText,
-    headers: response.headers,
+    headers: buildSafeProxyResponseHeaders(response.headers),
   });
 }
 
-function accountProxyError(error: unknown) {
+function accountProxyError() {
   // The frontend API helper unwraps this envelope and turns it into ApiError.
   return Response.json(
     {
       error: {
-        message:
-          error instanceof Error
-            ? error.message
-            : "Unable to reach the account service.",
+        message: "Unable to reach the account service.",
       },
     },
     { status: 502 },
@@ -58,15 +56,15 @@ function accountProxyError(error: unknown) {
 export async function GET(request: Request, context: RouteContext) {
   try {
     return await forwardSettingsRequest(request, context);
-  } catch (error) {
-    return accountProxyError(error);
+  } catch {
+    return accountProxyError();
   }
 }
 
 export async function PATCH(request: Request, context: RouteContext) {
   try {
     return await forwardSettingsRequest(request, context);
-  } catch (error) {
-    return accountProxyError(error);
+  } catch {
+    return accountProxyError();
   }
 }

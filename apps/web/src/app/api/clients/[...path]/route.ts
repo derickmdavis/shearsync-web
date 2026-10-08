@@ -1,4 +1,5 @@
 import { API_BASE_URL, fetchWithTimeout } from "@/src/lib/api";
+import { buildSafeProxyResponseHeaders } from "@/src/lib/api-proxy";
 
 type RouteContext = {
   params: Promise<{ path: string[] }>;
@@ -28,18 +29,15 @@ async function forwardClientRequest(request: Request, context: RouteContext) {
   return new Response(response.body, {
     status: response.status,
     statusText: response.statusText,
-    headers: response.headers,
+    headers: buildSafeProxyResponseHeaders(response.headers),
   });
 }
 
-function clientProxyError(error: unknown) {
+function clientProxyError() {
   return Response.json(
     {
       error: {
-        message:
-          error instanceof Error
-            ? error.message
-            : "Unable to reach the client service.",
+        message: "Unable to reach the client service.",
       },
     },
     { status: 502 },
@@ -49,8 +47,8 @@ function clientProxyError(error: unknown) {
 async function handle(request: Request, context: RouteContext) {
   try {
     return await forwardClientRequest(request, context);
-  } catch (error) {
-    return clientProxyError(error);
+  } catch {
+    return clientProxyError();
   }
 }
 
