@@ -22,7 +22,7 @@ export function InsightsScreen() {
     </section>)}</section></WorkspaceShell>;
 }
 
-const settingsItems = ["Business Details", "Services", "Staff", "Availability", "Notifications", "Integrations", "Billing", "Account"];
+const settingsItems = ["Business Details", "Services", "Billing", "Account"];
 type FormField = readonly [label: string, value: string, width?: "wide"];
 
 const fields: ReadonlyArray<readonly [title: string, fields: readonly FormField[]]> = [
@@ -31,7 +31,7 @@ const fields: ReadonlyArray<readonly [title: string, fields: readonly FormField[
 ];
 
 export function SettingsScreen() {
-  return <WorkspaceShell active="settings"><section className={styles.settingsPage}><aside className={styles.settingsNav}><h2>Settings</h2>{settingsItems.map((item, index) => item === "Account" ? <Link className={styles.settingsNavLink} href="/settings/account" key={item}><span>◉</span>{item}</Link> : <button className={index === 0 ? styles.settingsActive : ""} key={item}><span>{["▣", "▤", "♧", "□", "♧", "⌘", "▧"][index]}</span>{item}</button>)}</aside><div className={styles.settingsContent}><PageHeading title="Business Details" subtitle="Manage your business information and preferences." />
+  return <WorkspaceShell active="settings"><section className={styles.settingsPage}><aside className={styles.settingsNav}><h2>Settings</h2>{settingsItems.map((item, index) => item === "Account" ? <Link className={styles.settingsNavLink} href="/settings/account" key={item}><span>◉</span>{item}</Link> : <button className={index === 0 ? styles.settingsActive : ""} key={item}><span>{["▣", "▤", "▧"][index]}</span>{item}</button>)}</aside><div className={styles.settingsContent}><PageHeading title="Business Details" subtitle="Manage your business information and preferences." />
     <form className={styles.businessForm}>{fields.map(([section, group]) => <FormSection key={section} title={section} fields={group} />)}<section className={styles.formSection}><h2>Business Preferences</h2><div className={`${styles.formGrid} ${styles.preferenceGrid}`}><SelectInput label="Time Zone" value="(GMT-7) Mountain Time (Denver)" /><SelectInput label="Currency" value="USD ($)" /></div></section><div className={styles.saveRow}><button className={styles.primaryButton} type="button">Save Changes</button></div></form></div></section></WorkspaceShell>;
 }
 

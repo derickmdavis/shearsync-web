@@ -7,7 +7,7 @@ import { useState } from "react";
 import { WorkspaceShell, workspaceStyles as shell } from "@/src/components/workspace/WorkspaceShell";
 import styles from "./account-deletion.module.css";
 
-const settingsItems = ["Business Details", "Services", "Staff", "Availability", "Notifications", "Integrations", "Billing", "Account"];
+const settingsItems = ["Business Details", "Services", "Billing", "Account"];
 
 function AccountSettingsNav() {
   return (

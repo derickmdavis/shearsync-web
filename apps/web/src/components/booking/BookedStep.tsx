@@ -119,6 +119,7 @@ export function BookedStep({
         }
         initialFile={initialReferencePhotoFile}
         onInitialFileConsumed={onInitialReferencePhotoConsumed}
+        allowManualSelection={false}
       />
 
       <button

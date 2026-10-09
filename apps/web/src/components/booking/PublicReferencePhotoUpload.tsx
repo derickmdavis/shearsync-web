@@ -50,6 +50,7 @@ type PublicReferencePhotoUploadProps = {
   tokenExpiresAt?: string | null;
   initialFile?: File | null;
   onInitialFileConsumed?: () => void;
+  allowManualSelection?: boolean;
 };
 
 export function PublicReferencePhotoUpload({
@@ -57,6 +58,7 @@ export function PublicReferencePhotoUpload({
   tokenExpiresAt,
   initialFile,
   onInitialFileConsumed,
+  allowManualSelection = true,
 }: PublicReferencePhotoUploadProps) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const autoUploadStartedRef = useRef(false);
@@ -253,11 +255,19 @@ export function PublicReferencePhotoUpload({
   const busy = state.status === "processing" || state.status === "uploading";
   const uploadDisabled = busy || state.status === "success";
 
+  // A photo selected during review can finish uploading here after a booking
+  // succeeds, but confirmation must not offer another place to select one.
+  if (!allowManualSelection && !selectedFile && state.status === "idle") {
+    return null;
+  }
+
   return (
     <section className="mt-8 text-left">
       <div>
         <h3 className="text-sm font-semibold text-foreground">
-          Add an inspiration/reference photo
+          {allowManualSelection
+            ? "Add an inspiration/reference photo"
+            : "Reference photo"}
         </h3>
         <p className="mt-2 text-sm leading-6 text-muted">
           This photo is private and shared only with your stylist for this
@@ -265,13 +275,15 @@ export function PublicReferencePhotoUpload({
         </p>
       </div>
 
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/jpeg,image/jpg,image/pjpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
-        className="sr-only"
-        onChange={(event) => void handleFileChange(event)}
-      />
+      {allowManualSelection ? (
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/jpg,image/pjpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
+          className="sr-only"
+          onChange={(event) => void handleFileChange(event)}
+        />
+      ) : null}
 
       {state.status === "success" ? (
         <div className="mt-4 rounded-2xl border border-success/30 bg-success/10 p-4">
@@ -289,7 +301,7 @@ export function PublicReferencePhotoUpload({
             </div>
           </div>
         </div>
-      ) : (
+      ) : allowManualSelection ? (
         <>
           <button
             type="button"
@@ -376,7 +388,49 @@ export function PublicReferencePhotoUpload({
             </div>
           ) : null}
         </>
-      )}
+      ) : busy ? (
+        <div className="mt-3">
+          <div className="h-2 overflow-hidden rounded-full bg-zinc-100">
+            <div
+              className="h-full rounded-full bg-brand transition-all"
+              style={{
+                width:
+                  state.status === "uploading" ? `${state.progress}%` : "12%",
+              }}
+            />
+          </div>
+          <p className="mt-2 text-xs font-medium text-muted">
+            {state.status === "processing"
+              ? "Preparing your photo..."
+              : "Uploading securely..."}
+          </p>
+        </div>
+      ) : selectedFile && state.status === "failed" ? (
+        <div className="mt-4 rounded-2xl border border-border bg-white p-4">
+          <p className="text-sm font-semibold text-foreground">
+            {selectedFile.name}
+          </p>
+          <p className="mt-1 text-xs leading-5 text-muted">{state.message}</p>
+          <div className="mt-3 flex flex-wrap gap-3">
+            {state.canRetry ? (
+              <button
+                type="button"
+                onClick={handleRetry}
+                className="text-xs font-semibold text-brand hover:text-brand-dark"
+              >
+                Retry
+              </button>
+            ) : null}
+            <button
+              type="button"
+              onClick={handleRemove}
+              className="text-xs font-semibold text-muted hover:text-foreground"
+            >
+              Remove
+            </button>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }

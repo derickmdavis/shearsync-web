@@ -84,7 +84,6 @@ export function BookingPreviewFlow({
     email: "",
   });
   const [detailsErrors, setDetailsErrors] = useState<PreviewDetailsErrors>({});
-  const [showServicePicker, setShowServicePicker] = useState(false);
   const [selectedServices, setSelectedServices] = useState<PublicService[]>([]);
   const previewAvailability = useMemo(() => buildPreviewAvailability(), []);
   const [selectedDate, setSelectedDate] = useState(previewAvailability[0]?.date);
@@ -156,24 +155,23 @@ export function BookingPreviewFlow({
   };
 
   const continueFromDetails = () => {
-    if (!showServicePicker) {
-      const errors: PreviewDetailsErrors = {};
-      if (!details.fullName.trim()) errors.fullName = "Enter a name to continue the preview.";
-      if (!details.phone.trim()) errors.phone = "Enter a phone number to continue the preview.";
-      if (!details.email.trim()) errors.email = "Enter an email to continue the preview.";
-      else if (!isValidEmail(details.email.trim())) errors.email = "Enter a valid email address.";
+    const errors: PreviewDetailsErrors = {};
+    if (!details.fullName.trim()) errors.fullName = "Enter a name to continue the preview.";
+    if (!details.phone.trim()) errors.phone = "Enter a phone number to continue the preview.";
+    if (!details.email.trim()) errors.email = "Enter an email to continue the preview.";
+    else if (!isValidEmail(details.email.trim())) errors.email = "Enter a valid email address.";
 
-      if (Object.keys(errors).length > 0) {
-        setDetailsErrors(errors);
-        return;
-      }
-
-      setShowServicePicker(true);
+    if (Object.keys(errors).length > 0) {
+      setDetailsErrors(errors);
       return;
     }
 
+    setCurrentStep(2);
+  };
+
+  const continueFromServices = () => {
     if (selectedServices.length > 0) {
-      setCurrentStep(2);
+      setCurrentStep(3);
     }
   };
 
@@ -217,7 +215,7 @@ export function BookingPreviewFlow({
                     : null
                 }
                 canBeginServiceSelection={!servicesLoading && !servicesUnavailable}
-                showServicePicker={showServicePicker}
+                showServicePicker={false}
                 onChange={updateDetails}
                 onToggleService={toggleService}
                 onContinue={continueFromDetails}
@@ -250,15 +248,39 @@ export function BookingPreviewFlow({
                   }}
                 />}
               />
-              {showServicePicker ? (
-                <p className="mt-4 text-xs text-muted">
-                  Services are live public data. Contact details stay only in this browser preview.
-                </p>
-              ) : null}
             </>
           ) : null}
 
           {currentStep === 2 ? (
+            <>
+              <DetailsStep
+                mode="services"
+                values={details}
+                errors={detailsErrors}
+                services={services}
+                intake={null}
+                intakeLoading={false}
+                servicesLoading={servicesLoading}
+                selectedServices={selectedServices}
+                serviceError={
+                  servicesUnavailable
+                    ? "Services could not be loaded for this preview."
+                    : null
+                }
+                canBeginServiceSelection={!servicesLoading && !servicesUnavailable}
+                showServicePicker
+                onChange={updateDetails}
+                onToggleService={toggleService}
+                onBack={() => setCurrentStep(1)}
+                onContinue={continueFromServices}
+              />
+              <p className="mt-4 text-xs text-muted">
+                Services are live public data. Contact details stay only in this browser preview.
+              </p>
+            </>
+          ) : null}
+
+          {currentStep === 3 ? (
             <>
               <p className="mb-4 text-xs text-muted">
                 Sample times illustrate the booking flow and are not live availability.
@@ -274,15 +296,15 @@ export function BookingPreviewFlow({
                   setSelectedSlot(null);
                 }}
                 onSlotSelect={setSelectedSlot}
-                onBack={() => setCurrentStep(1)}
+                onBack={() => setCurrentStep(2)}
                 onContinue={() => {
-                  if (selectedSlot) setCurrentStep(3);
+                  if (selectedSlot) setCurrentStep(4);
                 }}
               />
             </>
           ) : null}
 
-          {currentStep === 3 && selectedSlot ? (
+          {currentStep === 4 && selectedSlot ? (
             <ConfirmStep
               stylist={stylist}
               services={selectedServices}

@@ -25,6 +25,7 @@ type ServiceGroup = {
 };
 
 type DetailsStepProps = {
+  mode?: "details" | "services";
   intro?: string | null;
   introDescription?: string | null;
   values: DetailsState;
@@ -41,10 +42,12 @@ type DetailsStepProps = {
   inquiryCallout?: ReactNode;
   onChange: (field: keyof DetailsState, value: string) => void;
   onToggleService: (service: PublicService) => void;
+  onBack?: () => void;
   onContinue: () => void;
 };
 
 export function DetailsStep({
+  mode = "details",
   intro,
   introDescription,
   values,
@@ -61,9 +64,11 @@ export function DetailsStep({
   inquiryCallout,
   onChange,
   onToggleService,
+  onBack,
   onContinue,
 }: DetailsStepProps) {
-  const heading = intro ?? "Let's get to know you";
+  const isServiceStep = mode === "services";
+  const heading = isServiceStep ? "Select service" : intro ?? "Let's get to know you";
   const description = introDescription
     ?? "Start with your contact details so we can check whether you're a returning client before you pick a service.";
   const disableSubmit =
@@ -87,52 +92,54 @@ export function DetailsStep({
           {heading}
         </h2>
         <p className="mt-2 text-sm text-muted">
-          {description}
+          {isServiceStep ? "Choose a service for this appointment." : description}
         </p>
       </div>
 
-      <div className="mt-8 space-y-4">
-        <Field
-          id="fullName"
-          name="fullName"
-          label="Full Name"
-          type="text"
-          placeholder="Enter your full name"
-          value={values.fullName}
-          error={errors.fullName}
-          onChange={(value) => onChange("fullName", value)}
-          autoComplete="name"
-          autoCapitalize="words"
-          required
-        />
-        <Field
-          id="phone"
-          name="phone"
-          label="Phone"
-          type="tel"
-          placeholder="(555) 123-4567"
-          value={values.phone}
-          error={errors.phone}
-          onChange={(value) => onChange("phone", value)}
-          autoComplete="tel"
-          inputMode="tel"
-          required
-        />
-        <Field
-          id="email"
-          name="email"
-          label="Email"
-          type="email"
-          placeholder="you@email.com"
-          value={values.email}
-          error={errors.email}
-          onChange={(value) => onChange("email", value)}
-          autoComplete="email"
-          autoCapitalize="none"
-          autoCorrect="off"
-          required
-        />
-      </div>
+      {!isServiceStep ? (
+        <div className="mt-8 space-y-4">
+          <Field
+            id="fullName"
+            name="fullName"
+            label="Full Name"
+            type="text"
+            placeholder="Enter your full name"
+            value={values.fullName}
+            error={errors.fullName}
+            onChange={(value) => onChange("fullName", value)}
+            autoComplete="name"
+            autoCapitalize="words"
+            required
+          />
+          <Field
+            id="phone"
+            name="phone"
+            label="Phone"
+            type="tel"
+            placeholder="(555) 123-4567"
+            value={values.phone}
+            error={errors.phone}
+            onChange={(value) => onChange("phone", value)}
+            autoComplete="tel"
+            inputMode="tel"
+            required
+          />
+          <Field
+            id="email"
+            name="email"
+            label="Email"
+            type="email"
+            placeholder="you@email.com"
+            value={values.email}
+            error={errors.email}
+            onChange={(value) => onChange("email", value)}
+            autoComplete="email"
+            autoCapitalize="none"
+            autoCorrect="off"
+            required
+          />
+        </div>
+      ) : null}
 
       {intake ? (
         <IntakeMessage
@@ -143,18 +150,7 @@ export function DetailsStep({
 
       {showServicePicker ? (
         <div className="mt-8 overflow-hidden rounded-3xl border border-border bg-surface-warm">
-          <div className="px-5 py-4">
-            <div>
-              <h3 className="text-base font-semibold text-foreground">
-                Select your service
-              </h3>
-              <p className="mt-1 text-sm text-muted">
-                Choose a service for this appointment.
-              </p>
-            </div>
-          </div>
-
-          <div className="border-t border-border px-5 py-5">
+          <div className="px-5 py-5">
             {servicesLoading ? (
               <EmptyState message="Refreshing the services you can book right now..." />
             ) : services.length ? (
@@ -224,6 +220,16 @@ export function DetailsStep({
               : "Select Services"}
         <ArrowIcon />
       </button>
+
+      {isServiceStep && onBack ? (
+        <button
+          type="button"
+          onClick={onBack}
+          className="mt-3 w-full rounded-2xl px-5 py-3 text-sm font-semibold text-muted transition-colors hover:text-foreground"
+        >
+          Back
+        </button>
+      ) : null}
     </form>
   );
 }

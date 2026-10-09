@@ -85,7 +85,7 @@ export function ConfirmStep({
           {email ? <p className="mt-1 text-sm text-muted">{email}</p> : null}
         </ReviewCard>
 
-        <ReviewCard title="Your Services" action={() => onEdit(1)}>
+        <ReviewCard title="Your Services" action={() => onEdit(2)}>
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="font-medium text-foreground">{serviceSummary}</p>
@@ -102,7 +102,7 @@ export function ConfirmStep({
           </div>
         </ReviewCard>
 
-        <ReviewCard title="Date & Time" action={() => onEdit(2)}>
+        <ReviewCard title="Date & Time" action={() => onEdit(3)}>
           <p className="font-medium text-foreground">
             {formatLongDate(slot.start, timezone)}
           </p>

@@ -208,7 +208,11 @@ function fillContactDetails({
 async function openServicesStep() {
   fillContactDetails();
   fireEvent.click(screen.getByRole("button", { name: "Select Services" }));
-  await screen.findByText("Select your service");
+  await screen.findByRole("heading", { name: "Select service" });
+  expect(screen.queryByPlaceholderText("Enter your full name")).toBeNull();
+  expect(
+    screen.queryByRole("heading", { name: "Let's get to know you" }),
+  ).toBeNull();
 }
 
 async function completeSuccessfulBooking() {
@@ -372,7 +376,7 @@ describe("BookingFlow", () => {
       email: "jenny@example.com",
     });
     fireEvent.click(screen.getByRole("button", { name: "Select Services" }));
-    await screen.findByText("Select your service");
+    await screen.findByRole("heading", { name: "Select service" });
     fireEvent.click(screen.getByRole("button", { name: "Answer a few questions" }));
 
     fireEvent.change(await screen.findByLabelText(/1\. What are you hoping/i), {
@@ -765,12 +769,13 @@ describe("BookingFlow", () => {
     expect(screen.getByText("Haircut")).toBeTruthy();
 
     fireEvent.click(screen.getByRole("button", { name: /Haircut/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Back" }));
     fireEvent.change(screen.getByPlaceholderText("(555) 123-4567"), {
       target: { value: "(720) 555-0104" },
     });
 
     await waitFor(() => {
-      expect(screen.queryByText("Select your service")).toBeNull();
+      expect(screen.queryByRole("heading", { name: "Select service" })).toBeNull();
     });
 
     fireEvent.click(screen.getByRole("button", { name: "Select Services" }));
@@ -838,7 +843,7 @@ describe("BookingFlow", () => {
     render(<BookingFlow slug="maya-johnson" stylist={baseStylist} />);
 
     await openServicesStep();
-    fireEvent.click(screen.getByRole("button", { name: /Haircut/i }));
+    fireEvent.click(await screen.findByRole("button", { name: /Haircut/i }));
     fireEvent.click(screen.getByRole("button", { name: "Continue" }));
 
     await screen.findByText("Choose a date & time");
@@ -1406,7 +1411,7 @@ describe("BookingFlow", () => {
     expect(
       (screen.getByPlaceholderText("you@email.com") as HTMLInputElement).value,
     ).toBe("");
-    expect(screen.queryByText("Select your service")).toBeNull();
+    expect(screen.queryByRole("heading", { name: "Select service" })).toBeNull();
     expect(screen.queryByText("Haircut")).toBeNull();
   });
 
@@ -1761,7 +1766,7 @@ describe("BookingFlow", () => {
     expect(createPublicBooking.mock.calls[0]?.[0].referral_code).toBeUndefined();
   });
 
-  it("shows the optional reference photo upload after a booking returns a live upload token", async () => {
+  it("does not show a reference photo CTA on confirmation", async () => {
     const {
       createPublicBooking,
       createPublicBookingIntake,
@@ -1807,16 +1812,11 @@ describe("BookingFlow", () => {
 
     expect(await screen.findByText("You're All Set!")).toBeTruthy();
     expect(
-      await screen.findByText("Add an inspiration/reference photo"),
-    ).toBeTruthy();
+      screen.queryByText("Add an inspiration/reference photo"),
+    ).toBeNull();
     expect(
-      screen.getByText(
-        "This photo is private and shared only with your stylist for this appointment.",
-      ),
-    ).toBeTruthy();
-    expect(
-      screen.getByRole("button", { name: /Add a reference photo/i }),
-    ).toBeTruthy();
+      screen.queryByRole("button", { name: /Add a reference photo/i }),
+    ).toBeNull();
   });
 
   it("rejects reference photos larger than 5 MB before booking", async () => {

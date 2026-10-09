@@ -4,6 +4,7 @@ type BookingStepperProps = {
 
 const steps = [
   { label: "Details" },
+  { label: "Service" },
   { label: "Time" },
   { label: "Confirm" },
 ];

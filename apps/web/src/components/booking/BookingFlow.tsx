@@ -314,10 +314,6 @@ export function BookingFlow({
   const sortedServices = useMemo(() => sortServices(services), [services]);
   const activeTimezone = availabilityTimezone || stylist.timezone || null;
   const pageName = buildSummaryName(stylist);
-  const showServicePicker =
-    !bookingDisabled &&
-    intakeState.status === "ready" &&
-    Boolean(intakeData?.bookingEnabled);
   const selectedServiceIds = useMemo(
     () => selectedServices.map((service) => service.id),
     [selectedServices],
@@ -526,7 +522,7 @@ export function BookingFlow({
         setServicesLoadedToken(handoff.booking_context_token);
         setSelectedServices([service]);
         setServiceError(null);
-        setCurrentStep(2);
+        setCurrentStep(3);
       })
       .catch(() => {
         if (active) {
@@ -712,7 +708,7 @@ export function BookingFlow({
           clearAvailabilityState();
 
           if (currentSelectedServices.length > 0) {
-            setCurrentStep(1);
+            setCurrentStep(2);
             setServiceError("Your available services changed. Please choose again.");
           }
         }
@@ -818,7 +814,7 @@ export function BookingFlow({
 
       setSelectedServices([]);
       clearAvailabilityState();
-      setCurrentStep(1);
+      setCurrentStep(2);
       setConfirmError(null);
 
       if (activeIntake?.bookingContextToken) {
@@ -1365,6 +1361,7 @@ export function BookingFlow({
         return;
       }
 
+      setCurrentStep(2);
       return;
     }
 
@@ -1373,13 +1370,18 @@ export function BookingFlow({
       return;
     }
 
+    setServiceError(null);
+    setCurrentStep(2);
+  }
+
+  function handleContinueFromServices() {
     if (!selectedServices.length) {
       setServiceError("Please select at least one service to continue.");
       return;
     }
 
     setServiceError(null);
-    setCurrentStep(2);
+    setCurrentStep(3);
   }
 
   async function handleContinueFromTime() {
@@ -1395,7 +1397,7 @@ export function BookingFlow({
     }
 
     setSlotsError(null);
-    setCurrentStep(3);
+    setCurrentStep(4);
   }
 
   async function refreshSlotsForSelectedDate({
@@ -1469,7 +1471,7 @@ export function BookingFlow({
         setSelectedSlot(null);
         setSlotsError("That time just became unavailable. Please choose another time.");
         setConfirmError(null);
-        setCurrentStep(2);
+        setCurrentStep(3);
         return null;
       }
 
@@ -1604,7 +1606,7 @@ export function BookingFlow({
         );
         setSlotsError("That time just became unavailable. Please choose another time.");
         setConfirmError(null);
-        setCurrentStep(2);
+        setCurrentStep(3);
       } else if (isBookingSchemaMismatch(error)) {
         setConfirmError(buildBookingServiceUnavailableMessage(stylist));
       } else if (isBookingDisabledError(error)) {
@@ -1742,7 +1744,7 @@ export function BookingFlow({
               selectedServices={selectedServices}
               serviceError={serviceError}
               canBeginServiceSelection={canBeginServiceSelection}
-              showServicePicker={showServicePicker}
+              showServicePicker={false}
               recommendedServiceId={intakeData?.recommendedService?.serviceId ?? null}
               onChange={handleDetailsChange}
               onToggleService={handleToggleService}
@@ -1763,6 +1765,39 @@ export function BookingFlow({
           ) : null}
 
           {currentStep === 2 ? (
+            <DetailsStep
+              mode="services"
+              values={{ fullName, email, phone }}
+              errors={detailsErrors}
+              services={sortedServices}
+              intake={intakeData}
+              intakeLoading={intakeState.status === "loading"}
+              servicesLoading={servicesLoading || intakeRefreshing}
+              selectedServices={selectedServices}
+              serviceError={serviceError}
+              canBeginServiceSelection={canBeginServiceSelection}
+              showServicePicker
+              recommendedServiceId={intakeData?.recommendedService?.serviceId ?? null}
+              onChange={handleDetailsChange}
+              onToggleService={handleToggleService}
+              onBack={() => setCurrentStep(1)}
+              onContinue={handleContinueFromServices}
+              inquiryCallout={<BookingInquiryCard
+                slug={slug}
+                config={stylist.booking_request_form}
+                enabled={stylist.booking_request_form_enabled === true}
+                contact={{
+                  firstName: intakeData?.submittedContact.firstName ?? parsedName.firstName,
+                  lastName: intakeData?.submittedContact.lastName ?? parsedName.lastName,
+                  phone: intakeData?.submittedContact.phoneNormalized ?? phone,
+                  email: intakeData?.submittedContact.email ?? email,
+                }}
+                validateContact={validateDetails}
+              />}
+            />
+          ) : null}
+
+          {currentStep === 3 ? (
             <TimeStep
               selectedDate={selectedDate}
               selectedSlot={selectedSlot}
@@ -1797,14 +1832,14 @@ export function BookingFlow({
                 if (isDirectHandoff) {
                   discardDirectHandoff();
                 } else {
-                  setCurrentStep(1);
+                  setCurrentStep(2);
                 }
               }}
               onContinue={handleContinueFromTime}
             />
           ) : null}
 
-          {currentStep === 3 && selectedServices.length && selectedSlot ? (
+          {currentStep === 4 && selectedServices.length && selectedSlot ? (
             <ConfirmStep
               stylist={stylist}
               services={selectedServices}
@@ -1824,7 +1859,7 @@ export function BookingFlow({
               onReferencePhotoSelect={handleReferencePhotoSelect}
               onReferencePhotoRemove={clearReferencePhotoSelection}
               onEdit={(step) => {
-                if (isDirectHandoff && step === 1) {
+                if (isDirectHandoff && (step === 1 || step === 2)) {
                   discardDirectHandoff();
                 } else {
                   setCurrentStep(step);
