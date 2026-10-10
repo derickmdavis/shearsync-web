@@ -161,7 +161,7 @@ export function DetailsStep({
                   {serviceGroups.map((group) => (
                     <section key={group.name} aria-label={group.name}>
                       {showCategoryHeadings ? (
-                        <h4 className="mb-4 rounded-xl bg-surface-warm px-4 py-3 text-sm font-semibold tracking-[0.22em] text-[#705640] uppercase">
+                        <h4 className="mb-4 border-y border-border/60 py-3 text-sm font-semibold tracking-[0.22em] text-[#705640] uppercase">
                           {group.name}
                         </h4>
                       ) : null}

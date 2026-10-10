@@ -47,26 +47,44 @@ __turbopack_context__.s([
     ()=>DEFAULT_FETCH_TIMEOUT_MS,
     "cancelManagedAppointment",
     ()=>cancelManagedAppointment,
+    "captureBookingAttributionContext",
+    ()=>captureBookingAttributionContext,
     "createBookingPreviewSession",
     ()=>createBookingPreviewSession,
+    "createClient",
+    ()=>createClient,
     "createClientReferralLink",
     ()=>createClientReferralLink,
     "createPublicBooking",
     ()=>createPublicBooking,
+    "createPublicBookingInquiry",
+    ()=>createPublicBookingInquiry,
+    "createPublicBookingInquirySession",
+    ()=>createPublicBookingInquirySession,
+    "createPublicBookingInquiryUploadIntent",
+    ()=>createPublicBookingInquiryUploadIntent,
     "createPublicBookingIntake",
     ()=>createPublicBookingIntake,
     "createPublicReferencePhotoUploadIntent",
     ()=>createPublicReferencePhotoUploadIntent,
+    "deleteClient",
+    ()=>deleteClient,
     "fetchWithTimeout",
     ()=>fetchWithTimeout,
+    "finalizePublicBookingInquiryUpload",
+    ()=>finalizePublicBookingInquiryUpload,
     "finalizePublicReferencePhoto",
     ()=>finalizePublicReferencePhoto,
+    "getAccountAccess",
+    ()=>getAccountAccess,
     "getAccountPlan",
     ()=>getAccountPlan,
     "getAccountProfile",
     ()=>getAccountProfile,
     "getAuthenticatedUser",
     ()=>getAuthenticatedUser,
+    "getClientDetail",
+    ()=>getClientDetail,
     "getClientReferralLink",
     ()=>getClientReferralLink,
     "getClientReferralStats",
@@ -91,6 +109,8 @@ __turbopack_context__.s([
     ()=>normalizePublicAppointmentLink,
     "rescheduleManagedAppointment",
     ()=>rescheduleManagedAppointment,
+    "resolveBookingInquiryHandoff",
+    ()=>resolveBookingInquiryHandoff,
     "resolveBookingPreviewSession",
     ()=>resolveBookingPreviewSession,
     "resolvePublicAppointmentLink",
@@ -101,12 +121,14 @@ __turbopack_context__.s([
     ()=>setActiveBookingPreviewToken,
     "updateAccountProfile",
     ()=>updateAccountProfile,
+    "updateClient",
+    ()=>updateClient,
     "updateStylistSettingsProfile",
     ()=>updateStylistSettingsProfile
 ]);
 ;
 function getServerApiOrigin() {
-    const candidate = process.env.API_BASE_URL?.trim() || ("TURBOPACK compile-time value", "http://localhost:4010")?.trim() || "http://localhost:3000";
+    const candidate = process.env.API_BASE_URL?.trim() || ("TURBOPACK compile-time value", "https://shearsync-production.up.railway.app")?.trim() || "http://localhost:3000";
     try {
         const url = new URL(candidate);
         if (url.protocol !== "http:" && url.protocol !== "https:") {
@@ -272,7 +294,7 @@ async function requestPublicApi(path, { init, preferProxy = true } = {}) {
     }
     return unwrapPayload(payload);
 }
-async function requestAuthenticatedApi(path, accessToken, { init } = {}) {
+async function requestAuthenticatedApi(path, accessToken, { init, preferProxy = false, unwrap = true } = {}) {
     const headers = new Headers(init?.headers);
     // Authenticated account/settings calls use the Supabase access token as a
     // bearer token; the backend still owns authorization decisions.
@@ -282,7 +304,7 @@ async function requestAuthenticatedApi(path, accessToken, { init } = {}) {
     }
     let response;
     try {
-        response = await fetchWithTimeout(`${API_BASE_URL}${path}`, {
+        response = await fetchWithTimeout(`${getRequestBaseUrl(preferProxy)}${path}`, {
             ...init,
             headers,
             cache: "no-store"
@@ -290,11 +312,16 @@ async function requestAuthenticatedApi(path, accessToken, { init } = {}) {
     } catch (error) {
         throw new ApiError(error instanceof Error ? isAbortError(error) ? "The account service timed out. Please try again." : isFetchNetworkError(error) ? "Unable to reach the account service. Please try again." : error.message : "A network error occurred while contacting the account service.", 0);
     }
+    // DELETE endpoints commonly return 204. Do not attempt JSON parsing for an
+    // intentionally empty response body.
+    if (response.status === 204) {
+        return undefined;
+    }
     const payload = await parseResponseBody(response);
     if (!response.ok) {
         throw new ApiError(extractApiErrorMessage(payload, "Request failed."), response.status, payload && typeof payload === "object" ? payload.error?.details : undefined, payload && typeof payload === "object" ? payload.error?.code : undefined, getRetryAfterSeconds(response));
     }
-    return unwrapPayload(payload);
+    return unwrap ? unwrapPayload(payload) : payload;
 }
 async function getAuthenticatedUser(accessToken) {
     return requestAuthenticatedApi("/me", accessToken);
@@ -362,6 +389,16 @@ async function createPublicBookingIntake(body) {
         }
     });
 }
+async function captureBookingAttributionContext(handoffToken) {
+    return requestPublicApi("/api/public/booking-attribution-contexts/capture", {
+        init: {
+            method: "POST",
+            body: JSON.stringify({
+                booking_attribution_handoff_token: handoffToken
+            })
+        }
+    });
+}
 async function createPublicBooking(body, options = {}) {
     const headers = new Headers();
     if (options.idempotencyKey) {
@@ -372,6 +409,50 @@ async function createPublicBooking(body, options = {}) {
             method: "POST",
             headers,
             signal: options.signal,
+            body: JSON.stringify(body)
+        }
+    });
+}
+async function createPublicBookingInquirySession(stylist_slug) {
+    return requestPublicApi("/api/public/booking-inquiries/sessions", {
+        init: {
+            method: "POST",
+            body: JSON.stringify({
+                stylist_slug
+            })
+        }
+    });
+}
+async function createPublicBookingInquiry(body) {
+    return requestPublicApi("/api/public/booking-inquiries", {
+        init: {
+            method: "POST",
+            body: JSON.stringify(body)
+        }
+    });
+}
+async function resolveBookingInquiryHandoff(bookingInquiryToken) {
+    return requestPublicApi("/api/public/booking-inquiry-handoffs/resolve", {
+        init: {
+            method: "POST",
+            body: JSON.stringify({
+                booking_inquiry_token: bookingInquiryToken
+            })
+        }
+    });
+}
+async function createPublicBookingInquiryUploadIntent(body) {
+    return requestPublicApi("/api/public/booking-inquiry-uploads/upload-intent", {
+        init: {
+            method: "POST",
+            body: JSON.stringify(body)
+        }
+    });
+}
+async function finalizePublicBookingInquiryUpload(body) {
+    return requestPublicApi("/api/public/booking-inquiry-uploads/finalize", {
+        init: {
+            method: "POST",
             body: JSON.stringify(body)
         }
     });
@@ -490,7 +571,9 @@ async function rescheduleManagedAppointment(token, source, body) {
     return normalizeManagedAppointmentResponse(appointment);
 }
 async function getAccountProfile(accessToken) {
-    return requestAuthenticatedApi("/api/settings/profile", accessToken);
+    return requestAuthenticatedApi("/api/settings/profile", accessToken, {
+        preferProxy: true
+    });
 }
 async function updateAccountProfile(accessToken, body) {
     return requestAuthenticatedApi("/api/settings/profile", accessToken, {
@@ -522,31 +605,107 @@ async function createBookingPreviewSession(accessToken, body) {
 async function getAccountPlan(accessToken) {
     return requestAuthenticatedApi("/api/account/plan", accessToken);
 }
-async function getClients(accessToken) {
-    const clients = await requestAuthenticatedApi("/api/clients", accessToken);
-    return [
-        ...clients
-    ].sort((clientA, clientB)=>{
-        const nameA = `${clientA.first_name} ${clientA.last_name}`.trim();
-        const nameB = `${clientB.first_name} ${clientB.last_name}`.trim();
-        return nameA.localeCompare(nameB, undefined, {
-            sensitivity: "base",
-            numeric: true
-        });
+async function getAccountAccess(accessToken) {
+    return requestAuthenticatedApi("/api/account/access", accessToken, {
+        preferProxy: true
     });
 }
+function normalizeTotalSpend(value) {
+    if (typeof value === "number") {
+        return Number.isFinite(value) ? value : null;
+    }
+    if (typeof value === "string" && value.trim()) {
+        const parsed = Number(value);
+        return Number.isFinite(parsed) ? parsed : null;
+    }
+    return null;
+}
+function normalizeClientRow(client) {
+    return {
+        ...client,
+        total_spend: normalizeTotalSpend(client.total_spend)
+    };
+}
+async function getClients(accessToken, query = {}, options = {}) {
+    const params = new URLSearchParams();
+    const search = query.search?.trim();
+    if (search) {
+        params.set("search", search);
+    }
+    params.set("page", String(query.page ?? 1));
+    params.set("pageSize", String(query.pageSize ?? 25));
+    params.set("sort", query.sort ?? "updated_at");
+    params.set("direction", query.direction ?? "desc");
+    params.set("filter", query.filter ?? "all");
+    const response = await requestAuthenticatedApi(`/api/clients?${params.toString()}`, accessToken, {
+        preferProxy: true,
+        unwrap: false,
+        init: {
+            signal: options.signal
+        }
+    });
+    return {
+        ...response,
+        data: response.data.map(normalizeClientRow)
+    };
+}
+async function createClient(accessToken, body) {
+    const client = await requestAuthenticatedApi("/api/clients", accessToken, {
+        preferProxy: true,
+        init: {
+            method: "POST",
+            body: JSON.stringify(body)
+        }
+    });
+    return normalizeClientRow(client);
+}
+async function updateClient(clientId, accessToken, body) {
+    const client = await requestAuthenticatedApi(`/api/clients/${encodeURIComponent(clientId)}`, accessToken, {
+        preferProxy: true,
+        init: {
+            method: "PATCH",
+            body: JSON.stringify(body)
+        }
+    });
+    return normalizeClientRow(client);
+}
+async function deleteClient(clientId, accessToken) {
+    await requestAuthenticatedApi(`/api/clients/${encodeURIComponent(clientId)}`, accessToken, {
+        preferProxy: true,
+        init: {
+            method: "DELETE"
+        }
+    });
+}
+async function getClientDetail(clientId, accessToken, options = {}) {
+    const detail = await requestAuthenticatedApi(`/api/clients/${encodeURIComponent(clientId)}/detail`, accessToken, {
+        preferProxy: true,
+        init: {
+            signal: options.signal
+        }
+    });
+    return {
+        ...detail,
+        client: normalizeClientRow(detail.client)
+    };
+}
 async function getClientReferralLink(clientId, accessToken) {
-    return requestAuthenticatedApi(`/api/clients/${encodeURIComponent(clientId)}/referral-link`, accessToken);
+    return requestAuthenticatedApi(`/api/clients/${encodeURIComponent(clientId)}/referral-link`, accessToken, {
+        preferProxy: true
+    });
 }
 async function createClientReferralLink(clientId, accessToken) {
     return requestAuthenticatedApi(`/api/clients/${encodeURIComponent(clientId)}/referral-link`, accessToken, {
+        preferProxy: true,
         init: {
             method: "POST"
         }
     });
 }
 async function getClientReferralStats(clientId, accessToken) {
-    return requestAuthenticatedApi(`/api/clients/${encodeURIComponent(clientId)}/referral-stats`, accessToken);
+    return requestAuthenticatedApi(`/api/clients/${encodeURIComponent(clientId)}/referral-stats`, accessToken, {
+        preferProxy: true
+    });
 }
 }),
 "[project]/apps/web/src/app/api/public/[...path]/route.ts [app-route] (ecmascript)", ((__turbopack_context__) => {
@@ -578,6 +737,10 @@ const SENSITIVE_LOG_KEYS = new Set([
     "phone",
     "reference_photo_upload_token",
     "reference_photo_upload_token_expires_at",
+    "booking_attribution_handoff_token",
+    "booking_attribution_token",
+    "bookingAttributionHandoffToken",
+    "bookingAttributionToken",
     "token",
     "preview",
     "preview_token",
@@ -620,7 +783,7 @@ async function forwardRequest(request, context) {
         // Log enough context to diagnose backend failures without dumping the full
         // booking payload. The response body may still contain backend diagnostics,
         // so production logging should be treated as sensitive.
-        const isSensitiveCapabilityRequest = path[0] === "appointment-links" || path[0] === "booking-preview-sessions";
+        const isSensitiveCapabilityRequest = path[0] === "appointment-links" || path[0] === "booking-preview-sessions" || path[0] === "booking-attribution-contexts" && path[1] === "capture";
         const requestSummary = !isSensitiveCapabilityRequest && path.join("/") === "bookings" && requestBody ? summarizeBookingRequest(requestBody) : undefined;
         // Appointment link codes and preview tokens are bearer credentials. Do not
         // include their path segment, target URL, request body, or response body in

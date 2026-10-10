@@ -3,13 +3,9 @@ import { useMemo, useState } from "react";
 import type { PublicSlot } from "@/src/lib/api";
 import {
   addDaysToDate,
-  buildWeekDateOptions,
   formatMonthLabel,
-  formatMonthDay,
-  formatShortWeekday,
   formatTime,
   getTodayDateValue,
-  startOfWeek,
 } from "@/src/lib/booking-format";
 
 type AvailabilityDayPreview = {
@@ -31,6 +27,8 @@ type TimeStepProps = {
   onContinue: () => void;
 };
 
+const WEEKDAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
 export function TimeStep({
   selectedDate,
   selectedSlot,
@@ -45,36 +43,22 @@ export function TimeStep({
   onContinue,
 }: TimeStepProps) {
   const today = useMemo(() => getTodayDateValue(), []);
-  const [expandedDays, setExpandedDays] = useState<Record<string, boolean>>({});
-
   const nextAvailableDay = upcomingDays[0] ?? null;
-  const [calendarWeekStart, setCalendarWeekStart] = useState(() =>
-    startOfWeek(selectedDate || nextAvailableDay?.date || today),
+  const [calendarMonthStart, setCalendarMonthStart] = useState(() =>
+    getMonthStart(selectedDate || nextAvailableDay?.date || today),
   );
   const calendarDates = useMemo(
-    () => buildWeekDateOptions(calendarWeekStart),
-    [calendarWeekStart],
+    () => buildMonthDateOptions(calendarMonthStart),
+    [calendarMonthStart],
   );
-  const visibleUpcomingDays = useMemo(() => {
-    const defaultDays = upcomingDays.slice(0, 3);
-    const selectedDay = selectedDate
-      ? upcomingDays.find((day) => day.date === selectedDate)
-      : null;
-
-    if (
-      selectedDay &&
-      !defaultDays.some((day) => day.date === selectedDay.date)
-    ) {
-      return [...defaultDays, selectedDay];
-    }
-
-    return defaultDays;
-  }, [selectedDate, upcomingDays]);
-
+  const selectedDay = selectedDate
+    ? upcomingDays.find((day) => day.date === selectedDate) ?? null
+    : null;
   const showEmptyState = !loading && !error && upcomingDays.length === 0;
 
-  function handleSlotSelection(date: string, slot: PublicSlot) {
-    onDateSelect(date);
+  function handleSlotSelection(slot: PublicSlot) {
+    if (!selectedDate) return;
+    onDateSelect(selectedDate);
     onSlotSelect(slot);
   }
 
@@ -89,7 +73,7 @@ export function TimeStep({
         </p>
       </div>
 
-      <div className="mt-8">
+      <div className="mt-9">
         {loading && !nextAvailableDay ? <LoadingState /> : null}
 
         {error ? (
@@ -98,176 +82,116 @@ export function TimeStep({
           </InfoCard>
         ) : null}
 
-        <div className="border-y border-[#d7be94] py-6">
+        <section className="border-b border-border/60 pb-7" aria-label="Appointment calendar">
           <div className="flex items-center justify-between gap-3">
             <button
               type="button"
-              onClick={() =>
-                setCalendarWeekStart((currentWeekStart) =>
-                  addDaysToDate(currentWeekStart, -7),
-                )
-              }
-              disabled={addDaysToDate(calendarWeekStart, -7) < startOfWeek(today)}
-              className="inline-flex h-9 w-9 items-center justify-center text-[#a36b2f] transition-colors hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-40"
-              aria-label="Show previous week"
+              onClick={() => setCalendarMonthStart((month) => addMonthsToDate(month, -1))}
+              disabled={calendarMonthStart <= getMonthStart(today)}
+              className="inline-flex h-10 w-10 items-center justify-center text-brand transition-colors hover:bg-brand-soft disabled:cursor-not-allowed disabled:opacity-40"
+              aria-label="Show previous month"
             >
               <ArrowIcon direction="left" />
             </button>
 
-            <p className="font-display text-[27px] font-medium text-foreground">
-              {formatMonthLabel(calendarWeekStart, timezone)}
+            <p className="font-display text-[31px] font-medium text-foreground">
+              {formatMonthLabel(calendarMonthStart, timezone)}
             </p>
 
             <button
               type="button"
-              onClick={() =>
-                setCalendarWeekStart((currentWeekStart) =>
-                  addDaysToDate(currentWeekStart, 7),
-                )
-              }
-              className="inline-flex h-9 w-9 items-center justify-center text-[#a36b2f] transition-colors hover:bg-white/20"
-              aria-label="Show next week"
+              onClick={() => setCalendarMonthStart((month) => addMonthsToDate(month, 1))}
+              className="inline-flex h-10 w-10 items-center justify-center text-brand transition-colors hover:bg-brand-soft"
+              aria-label="Show next month"
             >
               <ArrowIcon />
             </button>
           </div>
 
-          <div className="mt-6 grid grid-cols-7 gap-1 min-[430px]:gap-2">
+          <div className="mt-7 grid grid-cols-7 gap-y-3">
+            {WEEKDAY_LABELS.map((day) => (
+              <span
+                key={day}
+                className="text-center text-[10px] font-semibold tracking-[0.16em] text-[#705640] uppercase"
+              >
+                {day}
+              </span>
+            ))}
+
             {calendarDates.map((date) => {
               const isSelected = date === selectedDate;
               const isPastDate = date < today;
+              const isCurrentMonth = date.slice(0, 7) === calendarMonthStart.slice(0, 7);
 
               return (
                 <button
                   key={date}
                   type="button"
                   onClick={() => {
-                    if (isPastDate) {
-                      return;
-                    }
-
-                    onDateSelect(date);
+                    if (!isPastDate) onDateSelect(date);
                   }}
                   disabled={isPastDate}
                   className={[
-                    "flex h-[64px] min-w-0 flex-col items-center justify-center rounded-[22px] px-0.5 py-2 text-center transition-colors min-[430px]:px-2",
+                    "mx-auto flex h-10 w-10 items-center justify-center rounded-full font-display text-[23px] leading-none transition-colors",
                     isSelected
-                      ? "border border-[#f7b416] bg-[#bb7d31] text-white shadow-[0_2px_0_rgba(255,255,255,0.6)_inset]"
+                      ? "bg-brand text-white shadow-[0_8px_18px_rgba(176,122,62,0.2)]"
                       : isPastDate
-                        ? "text-black/35"
-                        : "text-foreground hover:bg-white/30",
+                        ? "text-foreground/30"
+                        : isCurrentMonth
+                          ? "text-foreground hover:bg-brand-soft"
+                          : "text-foreground/25 hover:bg-brand-soft",
                   ].join(" ")}
                 >
-                  <span className="block text-[10px] leading-none font-bold uppercase tracking-[0.02em] min-[430px]:text-[11px] min-[430px]:tracking-[0.04em]">
-                    {formatShortWeekday(date, timezone)}
-                  </span>
-                  <span className="mt-1 block text-[15px] leading-none font-bold min-[430px]:text-[16px]">
-                    {formatDayNumber(date, timezone)}
-                  </span>
+                  {formatDayNumber(date, timezone)}
                 </button>
               );
             })}
           </div>
-        </div>
+        </section>
 
         {!loading && !error && waitlistCta ? waitlistCta : null}
 
         {!loading && !error && !showEmptyState ? (
-          <section className="mt-8">
-            <div className="mb-4">
-              <h3 className="font-display text-[32px] leading-8 font-medium text-foreground">
-                {selectedDate ? formatMonthDay(selectedDate, timezone) : "Available times"}
-              </h3>
-            </div>
-
-            <div className="space-y-3">
-              {visibleUpcomingDays.map((day) => {
-                const isSelectedDate = day.date === selectedDate;
-                const isExpanded = expandedDays[day.date] ?? false;
-                const previewSlots = isExpanded ? day.slots : day.slots.slice(0, 5);
-                const hiddenCount = Math.max(day.slots.length - previewSlots.length, 0);
-
-                return (
-                  <div
-                    key={day.date}
-                    className={[
-                    "border-b border-[#d7be94] py-4 transition-colors last:border-b-0",
-                    isSelectedDate
-                        ? "bg-white/25"
-                        : "",
-                    ].join(" ")}
-                  >
-                    <div>
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-2">
-                          <p className="text-[16px] leading-5 font-bold text-foreground">
-                            {formatAvailabilityDay(day.date, timezone)}
-                          </p>
-                        </div>
-                        <div className="inline-flex h-[28px] shrink-0 items-center rounded-full bg-white/60 px-[11px] text-[12px] font-bold text-muted">
-                          {day.slots.length}{" "}
-                          {day.slots.length === 1 ? "timeslot" : "timeslots"}
-                        </div>
-                      </div>
-
-                      <div className="mt-3 flex min-w-0 flex-col gap-2.5">
-                        <div className="grid grid-cols-3 gap-2 xl:grid-cols-4">
-                          {previewSlots.map((slot) => (
-                            <TimeSlotPill
-                              key={slot.start}
-                              slot={slot}
-                              selected={selectedSlot?.start === slot.start}
-                              timeZone={timezone}
-                              onSelect={() => handleSlotSelection(day.date, slot)}
-                            />
-                          ))}
-
-                          {hiddenCount > 0 ? (
-                            <TogglePill
-                              onClick={() =>
-                                setExpandedDays((currentDays) => ({
-                                  ...currentDays,
-                                  [day.date]: true,
-                                }))
-                              }
-                            >
-                              +{hiddenCount} more
-                            </TogglePill>
-                          ) : null}
-
-                          {isExpanded && day.slots.length > 5 ? (
-                            <TogglePill
-                              onClick={() =>
-                                setExpandedDays((currentDays) => ({
-                                  ...currentDays,
-                                  [day.date]: false,
-                                }))
-                              }
-                            >
-                              Show less
-                            </TogglePill>
-                          ) : null}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+          <>
+          <section className="mt-7">
+            <div className="flex items-center gap-5" aria-hidden="true">
+              <span className="h-px flex-1 bg-border/60" />
+              <span className="font-display text-[31px] leading-none text-brand">✦</span>
+              <span className="h-px flex-1 bg-border/60" />
             </div>
           </section>
+
+          <section className="mt-7">
+            <h3 className="font-display text-[35px] leading-9 font-medium text-foreground">
+              {selectedDate ? formatSelectedDate(selectedDate, timezone) : "Choose a date"}
+            </h3>
+            {selectedDay ? (
+              <div className="mt-6 grid grid-cols-3 gap-3">
+                {selectedDay.slots.map((slot) => (
+                  <TimeSlotPill
+                    key={slot.start}
+                    slot={slot}
+                    selected={selectedSlot?.start === slot.start}
+                    timeZone={timezone}
+                    onSelect={() => handleSlotSelection(slot)}
+                  />
+                ))}
+              </div>
+            ) : (
+              <p className="mt-4 text-sm leading-6 text-muted">
+                No appointment times are available for this date.
+              </p>
+            )}
+          </section>
+          </>
         ) : null}
 
         {showEmptyState ? (
           <InfoCard>
-            <h3 className="text-xl font-semibold tracking-tight text-foreground">
-              No available times
-            </h3>
-            <p className="mt-2 text-sm leading-6 text-muted">
-              Choose a different date or check back later.
-            </p>
+            <h3 className="font-display text-[28px] font-medium text-foreground">No available times</h3>
+            <p className="mt-2 text-sm leading-6 text-muted">Choose a different date or check back later.</p>
           </InfoCard>
         ) : null}
-
       </div>
 
       <button
@@ -275,7 +199,7 @@ export function TimeStep({
         onClick={onContinue}
         disabled={loading || !selectedSlot}
         aria-disabled={loading || !selectedSlot}
-        className="mt-8 flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-[#b77a2e] px-5 font-display text-[23px] font-medium text-white shadow-[0_18px_32px_rgba(141,91,30,0.22)] transition-transform hover:-translate-y-0.5 hover:bg-[#9e641f] disabled:cursor-not-allowed disabled:transform-none disabled:opacity-50 disabled:shadow-none"
+        className="mt-8 flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-brand px-5 font-display text-[23px] font-medium text-white shadow-[0_18px_32px_rgba(183,121,61,0.24)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark disabled:cursor-not-allowed disabled:transform-none disabled:opacity-50 disabled:shadow-none"
       >
         {loading ? "Checking..." : "Continue"}
         <ArrowIcon />
@@ -293,57 +217,33 @@ export function TimeStep({
 }
 
 function InfoCard({ children }: { children: ReactNode }) {
-  return (
-    <div className="rounded-[16px] border border-border bg-white p-4 shadow-[0_2px_10px_rgba(17,17,17,0.035)]">
-      {children}
-    </div>
-  );
+  return <div className="rounded-2xl border border-border/70 bg-white/70 p-5">{children}</div>;
 }
-
-type TimeSlotPillProps = {
-  slot: PublicSlot;
-  selected: boolean;
-  timeZone?: string | null;
-  onSelect: () => void;
-};
 
 function TimeSlotPill({
   slot,
   selected,
   timeZone,
   onSelect,
-}: TimeSlotPillProps) {
+}: {
+  slot: PublicSlot;
+  selected: boolean;
+  timeZone?: string | null;
+  onSelect: () => void;
+}) {
   return (
     <button
       type="button"
       onClick={onSelect}
       aria-pressed={selected}
       className={[
-        "inline-flex h-[54px] w-full cursor-pointer items-center justify-center whitespace-nowrap rounded-xl border border-[#e5cda9] bg-white/25 px-[10px] font-display text-[19px] leading-none font-medium text-[#b17131] transition-all",
+        "inline-flex h-[54px] w-full items-center justify-center whitespace-nowrap rounded-xl border px-2 font-display text-[19px] leading-none font-medium transition-all",
         selected
-          ? "border-[#b77a2e] bg-[#b77a2e] text-white"
-          : "hover:bg-white/50 active:bg-white/60",
+          ? "border-brand bg-brand text-white shadow-[0_8px_18px_rgba(176,122,62,0.2)]"
+          : "border-border/70 bg-white/65 text-foreground hover:border-brand hover:bg-brand-soft",
       ].join(" ")}
     >
       {formatTime(slot.start, timeZone)}
-    </button>
-  );
-}
-
-function TogglePill({
-  children,
-  onClick,
-}: {
-  children: ReactNode;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="inline-flex h-8 w-full items-center justify-center rounded-[10px] bg-surface-warm px-[10px] text-[13px] font-bold text-muted transition-colors hover:bg-brand-soft active:bg-brand-soft"
-    >
-      {children}
     </button>
   );
 }
@@ -353,7 +253,7 @@ function LoadingState() {
     <div className="space-y-3">
       {Array.from({ length: 3 }).map((_, index) => (
         <InfoCard key={index}>
-          <div className="h-20 animate-pulse rounded-2xl bg-zinc-50" />
+          <div className="h-20 animate-pulse rounded-xl bg-brand-soft" />
         </InfoCard>
       ))}
     </div>
@@ -362,35 +262,35 @@ function LoadingState() {
 
 function ArrowIcon({ direction = "right" }: { direction?: "left" | "right" }) {
   return (
-    <svg
-      viewBox="0 0 20 20"
-      aria-hidden="true"
-      className={["h-4 w-4", direction === "left" ? "rotate-180" : ""].join(" ")}
-    >
-      <path
-        d="M4 10h12m-4-4 4 4-4 4"
-        fill="none"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.7"
-      />
+    <svg viewBox="0 0 20 20" aria-hidden="true" className={["h-5 w-5", direction === "left" ? "rotate-180" : ""].join(" ")}>
+      <path d="M4 10h12m-4-4 4 4-4 4" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.7" />
     </svg>
   );
 }
 
-function formatDayNumber(date: string, timeZone?: string | null) {
-  return new Intl.DateTimeFormat("en-US", {
-    day: "numeric",
-    timeZone: timeZone ?? undefined,
-  }).format(new Date(`${date}T12:00:00`));
+function getMonthStart(date: string) {
+  return `${date.slice(0, 7)}-01`;
 }
 
-function formatAvailabilityDay(date: string, timeZone?: string | null) {
-  return new Intl.DateTimeFormat("en-US", {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    timeZone: timeZone ?? undefined,
-  }).format(new Date(`${date}T12:00:00`));
+function addMonthsToDate(date: string, amount: number) {
+  const target = new Date(`${date}T12:00:00`);
+  target.setMonth(target.getMonth() + amount, 1);
+  return `${target.getFullYear()}-${String(target.getMonth() + 1).padStart(2, "0")}-01`;
+}
+
+function buildMonthDateOptions(monthStart: string) {
+  const monthDate = new Date(`${monthStart}T12:00:00`);
+  const firstWeekday = monthDate.getDay();
+  const daysInMonth = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0).getDate();
+  const cellCount = Math.ceil((firstWeekday + daysInMonth) / 7) * 7;
+  const gridStart = addDaysToDate(monthStart, -firstWeekday);
+  return Array.from({ length: cellCount }, (_, index) => addDaysToDate(gridStart, index));
+}
+
+function formatDayNumber(date: string, timeZone?: string | null) {
+  return new Intl.DateTimeFormat("en-US", { day: "numeric", timeZone: timeZone ?? undefined }).format(new Date(`${date}T12:00:00`));
+}
+
+function formatSelectedDate(date: string, timeZone?: string | null) {
+  return new Intl.DateTimeFormat("en-US", { weekday: "long", month: "long", day: "numeric", timeZone: timeZone ?? undefined }).format(new Date(`${date}T12:00:00`));
 }

@@ -557,8 +557,7 @@ export function BookingFlow({
     },
   });
 
-  const canBeginServiceSelection =
-    Boolean(contactValues.fullName.trim()) && Boolean(contactValues.phone.trim());
+  const canBeginServiceSelection = detailsAreValid(contactValues);
 
   const handleBookingContextRecoveryFailure = useCallback(
     (message: string) => {
@@ -1732,11 +1731,9 @@ export function BookingFlow({
         </div>
         ) : (
         <>
-          {currentStep !== 3 ? (
-            <div className="mt-8 lg:mt-0">
-              <BookingStepper currentStep={currentStep} />
-            </div>
-          ) : null}
+          <div className="mt-8 lg:mt-0">
+            <BookingStepper currentStep={currentStep} />
+          </div>
 
           {currentStep === 1 ? (
             <DetailsStep

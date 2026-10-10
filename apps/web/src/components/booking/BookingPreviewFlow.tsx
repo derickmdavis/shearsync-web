@@ -107,6 +107,15 @@ export function BookingPreviewFlow({
   );
   const servicesLoading = canReadPublicData && serviceState.status === "loading";
   const servicesUnavailable = !canReadPublicData || serviceState.status === "error";
+  const canBeginServiceSelection = useMemo(() => {
+    const parsedName = splitFullName(details.fullName);
+    return Boolean(
+      parsedName.firstName
+      && parsedName.lastName
+      && details.phone.trim()
+      && isValidEmail(details.email.trim()),
+    );
+  }, [details]);
 
   useEffect(() => {
     setActiveBookingPreviewToken(previewToken);
@@ -200,7 +209,7 @@ export function BookingPreviewFlow({
         {currentStep !== 3 ? <PublicBookingProfile stylist={stylist} /> : null}
 
         <div className="mt-8 lg:mt-0 lg:min-w-0">
-          {currentStep !== 3 ? <BookingStepper currentStep={currentStep} /> : null}
+          <BookingStepper currentStep={currentStep} />
 
           {currentStep === 1 ? (
             <>
@@ -219,7 +228,7 @@ export function BookingPreviewFlow({
                     ? "Services could not be loaded for this preview."
                     : null
                 }
-                canBeginServiceSelection={!servicesLoading && !servicesUnavailable}
+                canBeginServiceSelection={canBeginServiceSelection && !servicesLoading && !servicesUnavailable}
                 showServicePicker={false}
                 onChange={updateDetails}
                 onToggleService={toggleService}
@@ -272,7 +281,7 @@ export function BookingPreviewFlow({
                     ? "Services could not be loaded for this preview."
                     : null
                 }
-                canBeginServiceSelection={!servicesLoading && !servicesUnavailable}
+                canBeginServiceSelection={canBeginServiceSelection && !servicesLoading && !servicesUnavailable}
                 showServicePicker
                 onChange={updateDetails}
                 onToggleService={toggleService}

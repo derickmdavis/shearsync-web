@@ -48,11 +48,11 @@ function getMarketingOrigin() {
     return getAbsoluteOrigin("NEXT_PUBLIC_MARKETING_URL", process.env.NEXT_PUBLIC_MARKETING_URL, getDefaultOrigin(LOCAL_MARKETING_ORIGIN, PRODUCTION_MARKETING_ORIGIN));
 }
 function getBrowserApiOrigin() {
-    return getAbsoluteOrigin("NEXT_PUBLIC_API_BASE_URL", process.env.NEXT_PUBLIC_API_BASE_URL, LOCAL_BACKEND_API_ORIGIN);
+    return getAbsoluteOrigin("NEXT_PUBLIC_API_BASE_URL", ("TURBOPACK compile-time value", "https://shearsync-production.up.railway.app"), LOCAL_BACKEND_API_ORIGIN);
 }
 function getSupabaseBrowserConfig() {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
-    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
+    const url = ("TURBOPACK compile-time value", "https://salcfwupnblpgnqogfgl.supabase.co")?.trim();
+    const anonKey = ("TURBOPACK compile-time value", "sb_publishable_vWzs6SpqDOMZCYUpnztErA_2URwtOmi")?.trim();
     if (!url || !anonKey) {
         return null;
     }

@@ -30,7 +30,7 @@ export function ServiceCard({
         <div className="flex items-start justify-between gap-3">
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <p className="font-display text-[26px] leading-6 font-medium tracking-tight text-foreground">{service.name}</p>
+              <p className="font-display text-[20px] leading-6 font-medium tracking-tight text-foreground">{service.name}</p>
               {highlighted ? (
                 <span className="rounded-full bg-brand-soft px-2 py-0.5 text-[11px] font-semibold text-brand">
                   Recommended
@@ -38,7 +38,7 @@ export function ServiceCard({
               ) : null}
             </div>
             {service.description ? (
-              <p className="mt-2 text-[15px] leading-6 text-muted">
+              <p className="mt-2 text-[14px] leading-5 text-muted">
                 {service.description}
               </p>
             ) : null}

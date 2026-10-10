@@ -366,7 +366,7 @@ __turbopack_context__.s([
 ]);
 ;
 function getServerApiOrigin() {
-    const candidate = process.env.API_BASE_URL?.trim() || process.env.NEXT_PUBLIC_API_BASE_URL?.trim() || "http://localhost:3000";
+    const candidate = process.env.API_BASE_URL?.trim() || ("TURBOPACK compile-time value", "https://shearsync-production.up.railway.app")?.trim() || "http://localhost:3000";
     try {
         const url = new URL(candidate);
         if (url.protocol !== "http:" && url.protocol !== "https:") {

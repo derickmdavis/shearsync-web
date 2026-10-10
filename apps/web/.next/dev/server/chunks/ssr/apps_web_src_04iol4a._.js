@@ -92,7 +92,7 @@ __turbopack_context__.s([
 ]);
 ;
 function getServerApiOrigin() {
-    const candidate = process.env.API_BASE_URL?.trim() || process.env.NEXT_PUBLIC_API_BASE_URL?.trim() || "http://localhost:3000";
+    const candidate = process.env.API_BASE_URL?.trim() || ("TURBOPACK compile-time value", "https://shearsync-production.up.railway.app")?.trim() || "http://localhost:3000";
     try {
         const url = new URL(candidate);
         if (url.protocol !== "http:" && url.protocol !== "https:") {
@@ -794,11 +794,11 @@ function getMarketingOrigin() {
     return getAbsoluteOrigin("NEXT_PUBLIC_MARKETING_URL", process.env.NEXT_PUBLIC_MARKETING_URL, getDefaultOrigin(LOCAL_MARKETING_ORIGIN, PRODUCTION_MARKETING_ORIGIN));
 }
 function getBrowserApiOrigin() {
-    return getAbsoluteOrigin("NEXT_PUBLIC_API_BASE_URL", process.env.NEXT_PUBLIC_API_BASE_URL, LOCAL_BACKEND_API_ORIGIN);
+    return getAbsoluteOrigin("NEXT_PUBLIC_API_BASE_URL", ("TURBOPACK compile-time value", "https://shearsync-production.up.railway.app"), LOCAL_BACKEND_API_ORIGIN);
 }
 function getSupabaseBrowserConfig() {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
-    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
+    const url = ("TURBOPACK compile-time value", "https://salcfwupnblpgnqogfgl.supabase.co")?.trim();
+    const anonKey = ("TURBOPACK compile-time value", "sb_publishable_vWzs6SpqDOMZCYUpnztErA_2URwtOmi")?.trim();
     if (!url || !anonKey) {
         return null;
     }

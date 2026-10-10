@@ -15,10 +15,10 @@
   --color-muted-gray: #6b625a;
   --color-text-muted: #8a7e72;
   --color-border-warm: #c8a46b;
-  --background: #f7e8c7;
+  --background: #fffdf8;
   --foreground: #111111;
   --muted: #6b625a;
-  --page: #f7e8c7;
+  --page: #fffdf8;
   --card: #fffdf8;
   --border: #c8a46b;
   --brand: #b07a3e;
@@ -86,12 +86,12 @@
 }
 
 html {
-  background: #f7e8c7;
+  background: #fffdf8;
 }
 
 body {
   min-height: 100vh;
-  background: #f7e8c7;
+  background: #fffdf8;
 }
 
 button,
