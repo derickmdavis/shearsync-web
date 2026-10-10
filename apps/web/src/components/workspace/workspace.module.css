@@ -19,3 +19,25 @@
 .clientDialogBackdrop { position:fixed; z-index:30; inset:0; display:grid; place-items:center; padding:20px; background:rgba(31,25,18,.35); }.clientDialog { width:min(620px,100%); max-height:calc(100vh - 40px); overflow:auto; padding:22px; border:1px solid var(--line); border-radius:14px; background:var(--surface2); box-shadow:0 22px 60px rgba(45,31,14,.24); }.clientDialogHeader { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:18px; }.clientDialogHeader h2 { margin:0; font-family:"Cormorant Garamond",Georgia,serif; font-size:28px; font-weight:650; }.clientDialogHeader p { margin:4px 0 0; color:#68747f; font-size:12px; }.clientFormGrid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px 15px; }.clientFormGrid label { display:grid; gap:5px; color:#56616c; font-size:11px; font-weight:650; }.clientFormGrid input,.clientFormGrid select { width:100%; height:36px; padding:0 10px; border:1px solid var(--line); border-radius:7px; outline-color:var(--bronze); background:#fffdf9; color:#303a43; font:inherit; font-size:12px; }.clientVipToggle { display:flex !important; grid-column:span 2; grid-template-columns:auto 1fr; align-items:center; gap:8px !important; cursor:pointer; }.clientVipToggle input { width:15px; height:15px; margin:0; accent-color:var(--bronze); }.clientFormError { margin:14px 0 0; color:#ae3030; font-size:12px; }.clientDialogActions { display:flex; justify-content:flex-end; gap:8px; margin-top:20px; }.clientDialogActions button:disabled { cursor:wait; opacity:.65; }
 @media (max-width:760px) { .clientFormGrid { grid-template-columns:1fr; }.clientVipToggle { grid-column:auto; }.clientDialog { padding:18px; } }
 .clientsPagination { display:flex; align-items:center; justify-content:flex-end; gap:8px; margin-top:12px; color:#68747f; font-size:11px; }.clientsPagination span { margin-right:auto; }.clientsPagination button:disabled { cursor:not-allowed; opacity:.5; }
+
+/* Authenticated workspace visual refresh. These rules intentionally change
+   presentation only; navigation, page grids, and component behavior remain
+   as implemented above. */
+.workspace { --bg:#fbf7f0; --surface:#fffcf7; --surface2:#ffffff; --ink:#2b2925; --slate:#6d6a64; --muted:#928a81; --line:#eadbc7; --line-light:#f1e6d8; --bronze:#b7791f; --bronze-dark:#945f17; --bronze-soft:#fff0d9; --green:#54755a; }
+.shellMain { background:var(--bg); }
+.topbar { background:rgba(255,252,247,.9); }
+.globalSearch,.clientSearch { background:#fff; }
+.avatar { background:#e9c77f; }
+.primaryButton { background:#b7791f; box-shadow:0 5px 12px rgba(123,79,23,.14); }
+.primaryButton:hover { background:#945f17; }
+.secondaryButton,.squareButton,.dateControl,.editButton,.detailActions button { background:#fff; color:#4e4b46; }
+.metricCard,.calendarGrid,.detailRail,.clientTableWrap,.clientDetail,.formSection,.clientsStatus { border-color:#eadbc7; background:rgba(255,252,247,.92); box-shadow:0 5px 17px rgba(55,38,17,.02); }
+.metricLabel { color:#625f59; }.metricDelta { color:#746f68; }.metricDelta b { color:#54755a; }.deltaDown b { color:#bd5147; }.deltaWarn b { color:#a96f1e; }.sparkline { stroke:#b7791f; }
+.sectionIcon { background:#fff0d9; color:#a96f1e; }
+.segmentedActive,.filterChips .filterChipActive,.settingsNav .settingsActive { background:#fff0d9 !important; border-color:#eadbc7; color:#8a5c1f !important; }
+.calendarHeaders .selectedDay { background:#b7791f; }.calendarHeaders .selectedDay span { color:#fff7eb; }.todayColumn { background-color:rgba(255,240,217,.4); }
+.dayColumn { background:repeating-linear-gradient(to bottom,transparent 0,transparent calc(9.09% - 1px),#f1e6d8 calc(9.09% - 1px),#f1e6d8 9.09%); }
+.statusPill,.nextPill { background:#eef0e6; color:#465144; }.vipPill { background:#fff0d9; color:#9a6419; }.bookPill { border-color:#d8c5a8; background:#fff7eb; color:#9a6419; }.openText { color:#54755a; }
+.clientTable tbody tr:hover,.selectedRow,.calendarHeaders > button:hover { background:#fff7eb; }
+.formGrid input,.formGrid select,.clientFormGrid input,.clientFormGrid select { border-color:#eadbc7; background:#fff; outline-color:#b7791f; }
+.clientDialog { max-height:calc(100dvh - 40px); border-color:#eadbc7; background:#fffcf7; box-shadow:0 22px 60px rgba(45,31,14,.16); }

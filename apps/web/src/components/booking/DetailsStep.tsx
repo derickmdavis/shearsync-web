@@ -48,6 +48,8 @@ type DetailsStepProps = {
 
 export function DetailsStep({
   mode = "details",
+  intro,
+  introDescription,
   values,
   errors,
   services,
@@ -67,10 +69,12 @@ export function DetailsStep({
 }: DetailsStepProps) {
   const isServiceStep = mode === "services";
 
-  const heading = isServiceStep ? "Select service" : "Your details";
+  const heading = isServiceStep
+    ? "Select service"
+    : intro?.trim() || "Your details";
   const description = isServiceStep
     ? "Choose a service for this appointment."
-    : "Share your contact information to get started.";
+    : introDescription?.trim() || "Share your contact information to get started.";
   const disableSubmit =
     intakeLoading ||
     servicesLoading ||
@@ -277,7 +281,7 @@ function IntakeMessage({
       : "We need one more check";
   const toneClass =
     intake.matchStatus === "matched"
-      ? "border-emerald-200 bg-emerald-50 text-emerald-950"
+      ? "border-[#b7bba9] bg-[#eef0e6] text-[#465144]"
       : "border-amber-200 bg-amber-50 text-amber-950";
 
   return (

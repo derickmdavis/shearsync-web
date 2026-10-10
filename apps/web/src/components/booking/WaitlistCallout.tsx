@@ -181,7 +181,7 @@ function WaitlistDialog({
 
   return (
     <div
-      className="fixed inset-0 z-30 flex items-end justify-center bg-[#111827]/45 px-4 py-4 sm:items-center sm:py-6"
+      className="fixed inset-0 z-30 flex items-start justify-center overflow-y-auto bg-[#31291f]/35 px-4 py-4 sm:items-center sm:py-6"
       role="presentation"
       onMouseDown={onClose}
     >
@@ -190,7 +190,7 @@ function WaitlistDialog({
         aria-modal="true"
         aria-labelledby="waitlist-title"
         aria-describedby="waitlist-description"
-        className="max-h-[calc(100vh-2rem)] w-full max-w-[430px] overflow-y-auto rounded-[28px] border border-border/60 bg-[#fffdf8] p-6 shadow-[0_30px_90px_rgba(17,24,39,0.22)]"
+        className="max-h-[calc(100dvh-2rem)] w-full max-w-[430px] overflow-y-auto rounded-[24px] border border-[#eadbc7] bg-[#fffcf7] p-5 shadow-[0_30px_90px_rgba(49,41,31,0.16)] sm:p-6"
         onMouseDown={(event) => event.stopPropagation()}
       >
         {submitted ? (
@@ -235,7 +235,7 @@ function WaitlistDialog({
               <button
                 type="button"
                 onClick={onClose}
-                className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-border/60 text-muted transition-colors hover:bg-surface-warm"
+                className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#eadbc7] text-[#b7791f] transition-colors hover:bg-[#fff7eb]"
                 aria-label="Close waitlist form"
               >
                 <CloseIcon />
@@ -243,12 +243,12 @@ function WaitlistDialog({
             </div>
 
             <form className="mt-5 space-y-4" onSubmit={handleSubmit}>
-              {selectedService ? <div className="rounded-xl border border-border/60 bg-surface-warm px-4 py-3 text-[13px] text-foreground"><strong className="font-display text-[19px] font-medium">{selectedService.name}</strong><p className="mt-1 text-muted">{selectedService.durationMinutes} min · ${selectedService.price}</p></div> : null}
+              {selectedService ? <div className="rounded-xl border border-[#eadbc7] bg-[#fff7eb] px-4 py-3 text-[13px] text-foreground"><strong className="font-display text-[19px] font-medium">{selectedService.name}</strong><p className="mt-1 text-muted">{selectedService.durationMinutes} min · ${selectedService.price}</p></div> : null}
               <Field label="Days that work" htmlFor="waitlist-requested-date">
                 <div className="flex flex-wrap gap-2">
-                  {requestedDates.map((date) => <span key={date} className="inline-flex h-10 items-center gap-2 rounded-xl border border-brand/30 bg-brand-soft px-3 text-sm"><span>{new Intl.DateTimeFormat(undefined, { weekday: "short", month: "short", day: "numeric" }).format(new Date(`${date}T12:00:00`))}</span><button type="button" aria-label={`Remove ${date}`} onClick={() => setRequestedDates((dates) => dates.filter((value) => value !== date))}>×</button></span>)}
+                  {requestedDates.map((date) => <span key={date} className="inline-flex h-10 items-center gap-2 rounded-xl border border-[#d8c5a8] bg-[#fff7eb] px-3 text-sm text-[#5f6062]"><span>{new Intl.DateTimeFormat(undefined, { weekday: "short", month: "short", day: "numeric" }).format(new Date(`${date}T12:00:00`))}</span><button type="button" aria-label={`Remove ${date}`} onClick={() => setRequestedDates((dates) => dates.filter((value) => value !== date))}>×</button></span>)}
                 </div>
-                {requestedDates.length < 3 ? <div className="mt-2 flex gap-2"><input id="waitlist-requested-date" type="date" min={today} value={dateToAdd} onChange={(event) => setDateToAdd(event.target.value)} className="h-11 flex-1 rounded-xl border border-border px-3 text-sm"/><button type="button" onClick={() => { if (dateToAdd && !requestedDates.includes(dateToAdd)) { setRequestedDates((dates) => [...dates, dateToAdd]); setDateToAdd(""); } }} className="rounded-xl border border-brand px-3 text-sm font-semibold text-brand">+ Add another day</button></div> : null}
+                {requestedDates.length < 3 ? <div className="mt-2 flex gap-2"><input id="waitlist-requested-date" type="date" min={today} value={dateToAdd} onChange={(event) => setDateToAdd(event.target.value)} className="h-11 flex-1 rounded-xl border border-[#eadbc7] bg-white px-3 text-sm"/><button type="button" onClick={() => { if (dateToAdd && !requestedDates.includes(dateToAdd)) { setRequestedDates((dates) => [...dates, dateToAdd]); setDateToAdd(""); } }} className="rounded-xl border border-[#d8c5a8] px-3 text-sm font-semibold text-[#b7791f]">+ Add another day</button></div> : null}
                 <p className="mt-2 text-xs text-muted">You can add up to 3 days.</p>
                 {errors.requestedDates ? <ErrorText>{errors.requestedDates}</ErrorText> : null}
               </Field>
@@ -264,7 +264,7 @@ function WaitlistDialog({
                       clientName: undefined,
                     }));
                   }}
-                  className="h-12 w-full rounded-2xl border border-border bg-white px-4 text-sm text-foreground outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-brand/20"
+                  className="h-12 w-full rounded-2xl border border-[#eadbc7] bg-white px-4 text-sm text-foreground outline-none transition-colors focus:border-[#b7791f] focus:ring-2 focus:ring-[#b7791f]/20"
                 />
                 {errors.clientName ? <ErrorText>{errors.clientName}</ErrorText> : null}
               </Field>
@@ -283,7 +283,7 @@ function WaitlistDialog({
                         contact: undefined,
                       }));
                     }}
-                    className="h-12 w-full rounded-2xl border border-border bg-white px-4 text-sm text-foreground outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-brand/20"
+                    className="h-12 w-full rounded-2xl border border-[#eadbc7] bg-white px-4 text-sm text-foreground outline-none transition-colors focus:border-[#b7791f] focus:ring-2 focus:ring-[#b7791f]/20"
                   />
                   {errors.clientEmail ? <ErrorText>{errors.clientEmail}</ErrorText> : null}
                 </Field>
@@ -300,7 +300,7 @@ function WaitlistDialog({
                         contact: undefined,
                       }));
                     }}
-                    className="h-12 w-full rounded-2xl border border-border bg-white px-4 text-sm text-foreground outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-brand/20"
+                    className="h-12 w-full rounded-2xl border border-[#eadbc7] bg-white px-4 text-sm text-foreground outline-none transition-colors focus:border-[#b7791f] focus:ring-2 focus:ring-[#b7791f]/20"
                   />
                 </Field>
               </div>
@@ -317,11 +317,11 @@ function WaitlistDialog({
                   onChange={(event) => setNote(event.target.value)}
                   placeholder="Anything the pro should know?"
                   rows={3}
-                  className="w-full resize-none rounded-2xl border border-border bg-white px-4 py-3 text-sm text-foreground outline-none transition-colors placeholder:text-[#9CA3AF] focus:border-brand focus:ring-2 focus:ring-brand/20"
+                  className="w-full resize-none rounded-2xl border border-[#eadbc7] bg-white px-4 py-3 text-sm text-foreground outline-none transition-colors placeholder:text-[#9CA3AF] focus:border-[#b7791f] focus:ring-2 focus:ring-[#b7791f]/20"
                 />
               </Field>
 
-              <p className="rounded-2xl bg-surface-warm px-4 py-3 text-xs leading-5 text-muted">
+              <p className="rounded-2xl border border-[#eadbc7] bg-[#fff7eb] px-4 py-3 text-xs leading-5 text-muted">
                 If an opening becomes available, we’ll email everyone waiting for that time. Appointments are first come, first served and are not held.
               </p>
 
