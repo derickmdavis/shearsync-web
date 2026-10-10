@@ -1679,7 +1679,7 @@ export function BookingFlow({
 
   if (confirmation && selectedServices.length && selectedSlot) {
     return (
-      <div className="mx-auto max-w-[620px] rounded-[30px] border border-white/80 bg-card p-6 shadow-[0_24px_80px_rgba(17,24,39,0.08)] sm:p-8">
+      <div className="mx-auto max-w-[620px] bg-transparent p-6 sm:rounded-[30px] sm:border sm:border-white/80 sm:bg-card sm:p-8 sm:shadow-[0_24px_80px_rgba(17,24,39,0.08)]">
         <BookedStep
           confirmation={confirmation}
           stylist={stylist}
@@ -1707,7 +1707,7 @@ export function BookingFlow({
   }
 
   return (
-    <div className="rounded-[30px] border border-white/80 bg-card p-6 shadow-[0_24px_80px_rgba(17,24,39,0.08)] sm:p-8 lg:grid lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-8">
+    <div className="bg-transparent p-6 sm:rounded-[30px] sm:border sm:border-white/80 sm:bg-card sm:p-8 sm:shadow-[0_24px_80px_rgba(17,24,39,0.08)] lg:grid lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-8">
       <PublicBookingProfile stylist={stylist} />
 
       <div className="lg:min-w-0">
@@ -1760,6 +1760,7 @@ export function BookingFlow({
                     email: intakeData?.submittedContact.email ?? email,
                   }}
                   validateContact={validateDetails}
+                  variant="details"
                 />}
             />
           ) : null}
@@ -1782,7 +1783,7 @@ export function BookingFlow({
               onToggleService={handleToggleService}
               onBack={() => setCurrentStep(1)}
               onContinue={handleContinueFromServices}
-              inquiryCallout={<BookingInquiryCard
+                inquiryCallout={<BookingInquiryCard
                 slug={slug}
                 config={stylist.booking_request_form}
                 enabled={stylist.booking_request_form_enabled === true}
@@ -1792,7 +1793,8 @@ export function BookingFlow({
                   phone: intakeData?.submittedContact.phoneNormalized ?? phone,
                   email: intakeData?.submittedContact.email ?? email,
                 }}
-                validateContact={validateDetails}
+                  validateContact={validateDetails}
+                  variant="services"
               />}
             />
           ) : null}

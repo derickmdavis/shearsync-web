@@ -19,7 +19,7 @@ export function PublicBookingProfile({ stylist }: PublicBookingProfileProps) {
   const instagramUrl = getInstagramUrl(stylist.instagram);
 
   return (
-    <aside className="lg:sticky lg:top-8 lg:self-start">
+    <aside className="border-b border-border/55 pb-7 lg:sticky lg:top-8 lg:self-start lg:border-b-0 lg:border-r lg:pr-8">
       {stylist.cover_photo_url ? (
         <div
           className="-mx-6 -mt-6 mb-5 h-28 rounded-t-[30px] bg-zinc-100 bg-cover bg-center sm:-mx-8 sm:-mt-8 lg:mx-0 lg:mt-0 lg:h-48 lg:rounded-3xl"
@@ -28,7 +28,7 @@ export function PublicBookingProfile({ stylist }: PublicBookingProfileProps) {
       ) : null}
 
       <div>
-        <p className="font-display text-4xl font-semibold italic text-foreground">
+        <p className="font-display text-[38px] leading-none font-medium italic text-foreground">
           {stylist.display_name}
         </p>
         {stylist.business_name || instagramHandle ? (
@@ -51,7 +51,7 @@ export function PublicBookingProfile({ stylist }: PublicBookingProfileProps) {
       </div>
 
       {stylist.bio ? (
-        <p className="mt-5 rounded-2xl bg-zinc-50 px-4 py-3 text-sm leading-6 text-muted">
+        <p className="mt-5 text-sm leading-6 text-muted">
           {stylist.bio}
         </p>
       ) : null}

@@ -81,11 +81,11 @@ export function TimeStep({
   return (
     <div>
       <div>
-        <h2 className="text-[30px] font-semibold tracking-tight text-foreground">
-          Choose a date &amp; time
+        <h2 className="font-display text-[44px] leading-[0.9] font-medium tracking-[-0.045em] text-foreground sm:text-[52px]">
+          Choose a time
         </h2>
-        <p className="mt-2 text-sm text-muted">
-          Browse upcoming availability or jump to a different date.
+        <p className="mt-3 font-display text-[22px] leading-7 text-muted">
+          Select a date and appointment time.
         </p>
       </div>
 
@@ -98,7 +98,7 @@ export function TimeStep({
           </InfoCard>
         ) : null}
 
-        <div className="mt-3 rounded-[16px] border border-border bg-white p-4 shadow-[0_2px_10px_rgba(17,17,17,0.035)]">
+        <div className="mt-7 border-y border-border/55 py-5">
           <div className="flex items-center justify-between gap-3">
             <button
               type="button"
@@ -108,13 +108,13 @@ export function TimeStep({
                 )
               }
               disabled={addDaysToDate(calendarWeekStart, -7) < startOfWeek(today)}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border text-muted transition-colors hover:bg-surface-warm disabled:cursor-not-allowed disabled:opacity-40"
+              className="inline-flex h-9 w-9 items-center justify-center text-brand transition-colors hover:bg-surface-warm disabled:cursor-not-allowed disabled:opacity-40"
               aria-label="Show previous week"
             >
               <ArrowIcon direction="left" />
             </button>
 
-            <p className="text-[15px] font-bold text-foreground">
+            <p className="font-display text-[30px] font-medium text-foreground">
               {formatMonthLabel(calendarWeekStart, timezone)}
             </p>
 
@@ -125,7 +125,7 @@ export function TimeStep({
                   addDaysToDate(currentWeekStart, 7),
                 )
               }
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border text-muted transition-colors hover:bg-surface-warm"
+              className="inline-flex h-9 w-9 items-center justify-center text-brand transition-colors hover:bg-surface-warm"
               aria-label="Show next week"
             >
               <ArrowIcon />
@@ -150,12 +150,12 @@ export function TimeStep({
                   }}
                   disabled={isPastDate}
                   className={[
-                    "flex h-[72px] min-w-0 flex-col items-center justify-center rounded-[12px] border px-0.5 py-2 text-center transition-colors min-[430px]:px-2",
+                    "flex h-[58px] min-w-0 flex-col items-center justify-center rounded-full px-0.5 py-2 text-center transition-colors min-[430px]:px-2",
                     isSelected
-                      ? "border-brand bg-brand text-white"
+                      ? "bg-brand text-white"
                       : isPastDate
-                        ? "border-[#E5E7EB] bg-zinc-50 text-zinc-400"
-                        : "border-border bg-white text-foreground hover:border-brand hover:bg-brand-soft",
+                        ? "bg-zinc-50 text-zinc-400"
+                        : "text-foreground hover:bg-brand-soft",
                   ].join(" ")}
                 >
                   <span className="block text-[10px] leading-none font-semibold uppercase tracking-[0.02em] min-[430px]:text-[11px] min-[430px]:tracking-[0.04em]">
@@ -174,9 +174,9 @@ export function TimeStep({
 
         {!loading && !error && !showEmptyState ? (
           <section className="mt-7">
-            <div className="mb-3">
-              <h3 className="text-[24px] leading-[30px] font-bold text-foreground">
-                Upcoming
+            <div className="mb-4">
+              <h3 className="font-display text-[32px] leading-[36px] font-medium text-foreground">
+                {selectedDate ? formatMonthDay(selectedDate, timezone) : "Available times"}
               </h3>
             </div>
 
@@ -191,7 +191,7 @@ export function TimeStep({
                   <div
                     key={day.date}
                     className={[
-                      "mb-3 rounded-[16px] border border-border bg-white p-4 shadow-[0_2px_10px_rgba(17,17,17,0.035)] transition-colors active:bg-surface-warm",
+                      "mb-3 border-b border-border/55 pb-4 transition-colors active:bg-surface-warm",
                       isSelectedDate
                         ? "bg-brand-soft"
                         : "",
@@ -278,7 +278,7 @@ export function TimeStep({
         onClick={onContinue}
         disabled={loading || !selectedSlot}
         aria-disabled={loading || !selectedSlot}
-        className="mt-6 flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-brand px-5 text-base font-semibold text-white shadow-[0_18px_32px_rgba(183,121,61,0.24)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark disabled:cursor-not-allowed disabled:transform-none disabled:opacity-50 disabled:shadow-none"
+        className="mt-8 flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-brand px-5 font-display text-[25px] font-medium text-white shadow-[0_18px_32px_rgba(183,121,61,0.24)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark disabled:cursor-not-allowed disabled:transform-none disabled:opacity-50 disabled:shadow-none"
       >
         {loading ? "Checking..." : "Continue"}
         <ArrowIcon />
@@ -287,7 +287,7 @@ export function TimeStep({
       <button
         type="button"
         onClick={onBack}
-        className="mt-3 flex w-full items-center justify-center rounded-2xl px-5 py-3 text-sm font-semibold text-muted transition-colors hover:text-foreground"
+        className="mt-3 flex w-full items-center justify-center rounded-xl px-5 py-3 text-sm font-semibold text-muted transition-colors hover:text-foreground"
       >
         Back
       </button>
@@ -322,7 +322,7 @@ function TimeSlotPill({
       onClick={onSelect}
       aria-pressed={selected}
       className={[
-        "inline-flex h-8 w-full cursor-pointer items-center justify-center whitespace-nowrap rounded-[12px] border px-[10px] text-[13px] leading-none font-semibold transition-all",
+        "inline-flex h-12 w-full cursor-pointer items-center justify-center whitespace-nowrap rounded-xl border px-[10px] font-display text-[21px] leading-none font-medium transition-all",
         selected
           ? "border-brand bg-brand text-white"
           : "border-brand/20 bg-brand-soft text-brand hover:bg-[rgba(183,121,61,0.12)] active:bg-[rgba(183,121,61,0.16)]",

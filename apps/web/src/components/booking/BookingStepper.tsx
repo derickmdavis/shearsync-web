@@ -11,7 +11,7 @@ const steps = [
 
 export function BookingStepper({ currentStep }: BookingStepperProps) {
   return (
-    <div className="mb-8">
+    <div className="mb-11 px-1">
       <div className="flex items-center">
         {steps.map((step, index) => {
           const stepNumber = index + 1;
@@ -23,27 +23,27 @@ export function BookingStepper({ currentStep }: BookingStepperProps) {
               <div className="flex flex-col items-center gap-2">
                 <div
                   className={[
-                    "flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold transition-colors",
+                    "flex h-10 w-10 items-center justify-center rounded-full text-base font-medium transition-colors",
                     isComplete
-                      ? "bg-[#111111] text-white"
+                      ? "bg-brand text-white shadow-[0_8px_18px_rgba(176,122,62,0.2)]"
                       : isActive
-                        ? "bg-brand text-white"
-                        : "bg-zinc-100 text-zinc-500",
+                        ? "bg-brand text-white shadow-[0_8px_18px_rgba(176,122,62,0.2)]"
+                        : "bg-[#f0ece5] text-muted",
                   ].join(" ")}
                 >
                   {isComplete ? <CheckIcon /> : stepNumber}
                 </div>
                 <span
                   className={[
-                    "text-[11px] font-semibold",
-                    isActive ? "text-foreground" : "text-muted",
+                    "text-[11px] font-semibold tracking-wide",
+                    isActive || isComplete ? "text-foreground" : "text-muted",
                   ].join(" ")}
                 >
                   {step.label}
                 </span>
               </div>
               {index < steps.length - 1 ? (
-                <div className="mx-2 mb-6 h-px flex-1 bg-border" />
+                <div className="mx-3 mb-7 h-px flex-1 bg-brand/80" />
               ) : null}
             </div>
           );

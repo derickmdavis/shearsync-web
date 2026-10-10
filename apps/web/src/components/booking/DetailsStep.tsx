@@ -48,8 +48,6 @@ type DetailsStepProps = {
 
 export function DetailsStep({
   mode = "details",
-  intro,
-  introDescription,
   values,
   errors,
   services,
@@ -68,9 +66,10 @@ export function DetailsStep({
   onContinue,
 }: DetailsStepProps) {
   const isServiceStep = mode === "services";
-  const heading = isServiceStep ? "Select service" : intro ?? "Let's get to know you";
-  const description = introDescription
-    ?? "Start with your contact details so we can check whether you're a returning client before you pick a service.";
+  const heading = isServiceStep ? "Select service" : "Your details";
+  const description = isServiceStep
+    ? "Choose a service for this appointment."
+    : "Share your contact information to get started.";
   const disableSubmit =
     intakeLoading ||
     servicesLoading ||
@@ -88,20 +87,20 @@ export function DetailsStep({
       }}
     >
       <div>
-        <h2 className="text-[30px] font-semibold tracking-tight text-foreground">
+        <h2 className="font-display text-[44px] leading-[0.9] font-medium tracking-[-0.045em] text-foreground sm:text-[52px]">
           {heading}
         </h2>
-        <p className="mt-2 text-sm text-muted">
-          {isServiceStep ? "Choose a service for this appointment." : description}
+        <p className="mt-3 font-display text-[22px] leading-7 text-muted">
+          {description}
         </p>
       </div>
 
       {!isServiceStep ? (
-        <div className="mt-8 space-y-4">
+        <div className="mt-9 space-y-5">
           <Field
             id="fullName"
             name="fullName"
-            label="Full Name"
+            label="Full name"
             type="text"
             placeholder="Enter your full name"
             value={values.fullName}
@@ -148,9 +147,11 @@ export function DetailsStep({
         />
       ) : null}
 
+      {showServicePicker && inquiryCallout ? <div className="mt-7">{inquiryCallout}</div> : null}
+
       {showServicePicker ? (
-        <div className="mt-8 overflow-hidden rounded-3xl border border-border bg-surface-warm">
-          <div className="px-5 py-5">
+        <div className="mt-8">
+          <div>
             {servicesLoading ? (
               <EmptyState message="Refreshing the services you can book right now..." />
             ) : services.length ? (
@@ -159,11 +160,11 @@ export function DetailsStep({
                   {serviceGroups.map((group) => (
                     <section key={group.name} aria-label={group.name}>
                       {showCategoryHeadings ? (
-                        <h4 className="mb-3 text-sm font-semibold text-foreground">
+                        <h4 className="mb-4 rounded-xl bg-surface-warm px-4 py-3 text-sm font-semibold tracking-[0.22em] text-[#705640] uppercase">
                           {group.name}
                         </h4>
                       ) : null}
-                      <div className="grid gap-3 xl:grid-cols-2">
+                      <div className="divide-y divide-border/55">
                         {group.services.map((service) => (
                           <ServiceCard
                             key={service.id}
@@ -180,7 +181,7 @@ export function DetailsStep({
                   ))}
                 </div>
 
-                <div className="mt-5 rounded-2xl bg-white p-4">
+                <div className="mt-6 rounded-2xl border border-border/60 bg-surface-warm p-4">
                   <div className="flex items-center justify-between text-sm text-muted">
                     <span>Total Duration</span>
                     <span className="font-semibold text-foreground">
@@ -202,14 +203,14 @@ export function DetailsStep({
         </div>
       ) : null}
 
-      {showServicePicker ? inquiryCallout : null}
+      {!showServicePicker && inquiryCallout ? <div className="mt-7">{inquiryCallout}</div> : null}
 
       {serviceError ? <p className="mt-4 text-sm text-red-500">{serviceError}</p> : null}
 
       <button
         type="submit"
         disabled={disableSubmit}
-        className="mt-8 flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-brand px-5 text-base font-semibold text-white shadow-[0_18px_32px_rgba(183,121,61,0.24)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-55"
+        className="mt-5 flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-brand px-5 font-display text-[25px] font-medium text-white shadow-[0_18px_32px_rgba(183,121,61,0.24)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-55"
       >
         {intakeLoading
           ? "Checking..."
@@ -217,7 +218,7 @@ export function DetailsStep({
             ? "Loading services..."
             : showServicePicker
               ? "Continue"
-              : "Select Services"}
+              : "Select a service"}
         <ArrowIcon />
       </button>
 
@@ -356,7 +357,7 @@ function Field({
 }: FieldProps) {
   return (
     <label className="block" htmlFor={id}>
-      <span className="mb-2 block text-sm font-semibold text-foreground">
+      <span className="mb-2 block text-base font-medium text-foreground">
         {label}
         {required ? <span className="text-brand"> *</span> : null}
       </span>
@@ -373,7 +374,7 @@ function Field({
         inputMode={inputMode}
         aria-invalid={error ? true : undefined}
         className={[
-          "h-14 w-full rounded-2xl border bg-white px-4 text-sm text-foreground outline-none transition-colors placeholder:text-zinc-400 focus:ring-2 focus:ring-brand/20",
+          "h-14 w-full rounded-xl border bg-white px-4 text-base text-foreground outline-none transition-colors placeholder:text-zinc-400 focus:ring-2 focus:ring-brand/20",
           error ? "border-red-400" : "border-border focus:border-brand",
         ].join(" ")}
       />

@@ -70,31 +70,25 @@ export function ConfirmStep({
   return (
     <div>
       <div>
-        <h2 className="text-[30px] font-semibold tracking-tight text-foreground">
-          Review your booking
+        <h2 className="font-display text-[44px] leading-[0.9] font-medium tracking-[-0.045em] text-foreground sm:text-[52px]">
+          Review your appointment
         </h2>
-        <p className="mt-2 text-sm text-muted">
-          Almost done. Please confirm your details.
+        <p className="mt-3 font-display text-[22px] leading-7 text-muted">
+          Please check your details below before booking.
         </p>
       </div>
 
-      <div className="mt-6 space-y-4">
-        <ReviewCard title="Your Details" action={() => onEdit(1)}>
-          <p className="font-medium text-foreground">{fullName}</p>
-          <p className="mt-1 text-sm text-muted">{phone}</p>
-          {email ? <p className="mt-1 text-sm text-muted">{email}</p> : null}
-        </ReviewCard>
-
-        <ReviewCard title="Your Services" action={() => onEdit(2)}>
+      <div className="mt-7 space-y-6">
+        <ReviewCard title="Your appointment" action={() => onEdit(2)}>
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="font-medium text-foreground">{serviceSummary}</p>
+              <p className="font-display text-[26px] leading-7 font-medium text-foreground">{serviceSummary}</p>
               <p className="mt-1 text-sm text-muted">
                 {buildSummaryName(stylist)}
               </p>
             </div>
             <div className="text-right text-sm">
-              <p className="font-medium text-foreground">
+              <p className="font-display text-[22px] font-medium text-foreground">
                 {formatDuration(totalDuration)}
               </p>
               <p className="mt-1 text-muted">{formatCurrency(totalPrice)}</p>
@@ -102,14 +96,19 @@ export function ConfirmStep({
           </div>
         </ReviewCard>
 
-        <ReviewCard title="Date & Time" action={() => onEdit(3)}>
-          <p className="font-medium text-foreground">
+        <ReviewCard title="Date & time" action={() => onEdit(3)}>
+          <p className="font-display text-[26px] leading-7 font-medium text-foreground">
             {formatLongDate(slot.start, timezone)}
           </p>
           <p className="mt-1 text-sm text-muted">
             {formatTime(slot.start, timezone)}
           </p>
           <p className="mt-1 text-sm text-muted">{timezone}</p>
+        </ReviewCard>
+        <ReviewCard title="Your details" action={() => onEdit(1)}>
+          <p className="font-display text-[27px] leading-7 text-foreground">{fullName}</p>
+          <p className="mt-2 text-sm text-muted">{phone}</p>
+          {email ? <p className="mt-1 text-sm text-muted">{email}</p> : null}
         </ReviewCard>
       </div>
 
@@ -272,9 +271,9 @@ export function ConfirmStep({
         type="button"
         disabled={submitting || previewMode}
         onClick={onSubmit}
-        className="mt-4 flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-brand px-5 text-base font-semibold text-white shadow-[0_18px_32px_rgba(183,121,61,0.24)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark disabled:cursor-wait disabled:opacity-70"
+        className="mt-6 flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-brand px-5 font-display text-[25px] font-medium text-white shadow-[0_18px_32px_rgba(183,121,61,0.24)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark disabled:cursor-wait disabled:opacity-70"
       >
-        {previewMode ? "Booking is disabled in preview" : submitting ? "Booking..." : "Book Appointment"}
+        {previewMode ? "Booking is disabled in preview" : submitting ? "Booking..." : "Confirm appointment"}
         <ArrowIcon />
       </button>
     </div>
@@ -348,9 +347,9 @@ type ReviewCardProps = {
 
 function ReviewCard({ title, children, action }: ReviewCardProps) {
   return (
-    <div className="rounded-2xl border border-border bg-white p-4">
+    <div className="rounded-2xl border border-border/70 bg-surface-warm p-5">
       <div className="flex items-center justify-between gap-4">
-        <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+        <h3 className="font-display text-[27px] leading-7 font-medium text-foreground">{title}</h3>
         <button
           type="button"
           onClick={action}

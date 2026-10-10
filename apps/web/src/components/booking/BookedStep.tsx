@@ -67,21 +67,21 @@ export function BookedStep({
   }
 
   return (
-    <div className="text-center">
-      <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-success text-white shadow-[0_20px_35px_rgba(16,185,129,0.22)]">
+    <div className="text-left">
+      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-brand text-white shadow-[0_20px_35px_rgba(176,122,62,0.22)]">
         <CheckIcon />
       </div>
 
-      <h2 className="mt-6 text-[34px] font-semibold tracking-tight text-foreground">
-        {scheduled ? "You're All Set!" : "Request Received"}
+      <h2 className="mt-6 font-display text-[46px] leading-[0.9] font-medium tracking-[-0.045em] text-foreground">
+        {scheduled ? "You’re booked." : "Request received"}
       </h2>
-      <p className="mt-3 text-sm leading-6 text-muted">
+      <p className="mt-3 font-display text-[22px] leading-7 text-muted">
         {scheduled
           ? "Your appointment is confirmed."
           : "Your appointment request is awaiting approval."}
       </p>
 
-      <div className="mt-8 rounded-3xl border border-border bg-white p-5 text-left shadow-sm">
+      <div className="mt-8 rounded-2xl border border-border/70 bg-surface-warm p-5 text-left">
         <div className="space-y-4 text-sm">
           <Row
             label="Date"
@@ -125,7 +125,7 @@ export function BookedStep({
       <button
         type="button"
         onClick={handleAddToCalendar}
-        className="mt-7 flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-brand px-5 text-base font-semibold text-white shadow-[0_18px_32px_rgba(183,121,61,0.24)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark"
+        className="mt-7 flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-brand px-5 font-display text-[25px] font-medium text-white shadow-[0_18px_32px_rgba(183,121,61,0.24)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark"
       >
         Add to Calendar
       </button>
