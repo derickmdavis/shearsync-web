@@ -40,22 +40,22 @@ export function WaitlistCallout({
 
   return (
     <>
-      <div className="mt-4 rounded-[16px] border border-brand/20 bg-brand-soft p-4">
-        <div className="flex items-start gap-3">
-          <span className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-brand shadow-[0_2px_8px_rgba(17,24,39,0.06)]">
+      <div className="mt-7 border-y border-border/60 py-5">
+        <div className="flex items-center gap-4">
+          <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-border/60 bg-white/65 text-brand">
             <CalendarIcon />
           </span>
           <div className="min-w-0 flex-1">
-            <h4 className="text-[15px] font-bold text-foreground">
+            <h4 className="font-display text-[21px] leading-5 font-medium text-foreground">
               No availability for the day you need?
             </h4>
-            <p className="mt-1 text-sm leading-6 text-muted">
+            <p className="mt-1 text-[13px] leading-5 text-muted">
               No time that works? We’ll email you if a matching opening becomes available.
             </p>
             <button
               type="button"
               onClick={() => setOpen(true)}
-              className="mt-3 inline-flex h-11 items-center justify-center rounded-2xl bg-brand px-4 text-sm font-semibold text-white shadow-[0_12px_24px_rgba(183,121,61,0.22)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-brand/25"
+              className="mt-3 inline-flex h-10 items-center justify-center rounded-xl bg-brand px-4 font-display text-[17px] font-medium text-white shadow-[0_12px_24px_rgba(183,121,61,0.22)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-brand/25"
             >
               Join waitlist
             </button>
@@ -190,27 +190,27 @@ function WaitlistDialog({
         aria-modal="true"
         aria-labelledby="waitlist-title"
         aria-describedby="waitlist-description"
-        className="max-h-[calc(100vh-2rem)] w-full max-w-[430px] overflow-y-auto rounded-[28px] border border-white/80 bg-white p-5 shadow-[0_30px_90px_rgba(17,24,39,0.22)] sm:p-6"
+        className="max-h-[calc(100vh-2rem)] w-full max-w-[430px] overflow-y-auto rounded-[28px] border border-border/60 bg-[#fffdf8] p-6 shadow-[0_30px_90px_rgba(17,24,39,0.22)]"
         onMouseDown={(event) => event.stopPropagation()}
       >
         {submitted ? (
           <div>
             <h2
               id="waitlist-title"
-              className="text-2xl font-semibold tracking-tight text-foreground"
+              className="font-display text-[30px] leading-8 font-medium text-foreground"
             >
               You&apos;re on the waitlist
             </h2>
             <p
               id="waitlist-description"
-              className="mt-3 text-sm leading-6 text-muted"
+              className="mt-3 text-[13px] leading-5 text-muted"
             >
               We’ll email you if a matching opening becomes available. Everyone waiting for that opening may be notified; the first person to book gets it.
             </p>
             <button
               type="button"
               onClick={onClose}
-              className="mt-6 flex h-12 w-full items-center justify-center rounded-2xl bg-brand px-5 text-sm font-semibold text-white shadow-[0_14px_28px_rgba(183,121,61,0.22)]"
+              className="mt-6 flex h-12 w-full items-center justify-center rounded-xl bg-brand px-5 font-display text-[18px] font-medium text-white shadow-[0_14px_28px_rgba(183,121,61,0.22)]"
             >
               Done
             </button>
@@ -221,13 +221,13 @@ function WaitlistDialog({
               <div>
                 <h2
                   id="waitlist-title"
-                  className="text-2xl font-semibold tracking-tight text-foreground"
+                  className="font-display text-[30px] leading-8 font-medium text-foreground"
                 >
                   Join the waitlist
                 </h2>
                 <p
                   id="waitlist-description"
-                  className="mt-2 text-sm leading-6 text-muted"
+                  className="mt-3 text-[13px] leading-5 text-muted"
                 >
                   Choose up to 3 days that work for you. We’ll email you if a matching opening becomes available.
                 </p>
@@ -235,7 +235,7 @@ function WaitlistDialog({
               <button
                 type="button"
                 onClick={onClose}
-                className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border text-muted transition-colors hover:bg-surface-warm"
+                className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-border/60 text-muted transition-colors hover:bg-surface-warm"
                 aria-label="Close waitlist form"
               >
                 <CloseIcon />
@@ -243,7 +243,7 @@ function WaitlistDialog({
             </div>
 
             <form className="mt-5 space-y-4" onSubmit={handleSubmit}>
-              {selectedService ? <div className="rounded-2xl bg-surface-warm px-4 py-3 text-sm text-foreground"><strong>{selectedService.name}</strong><p className="mt-1 text-muted">{selectedService.durationMinutes} min · ${selectedService.price}</p></div> : null}
+              {selectedService ? <div className="rounded-xl border border-border/60 bg-surface-warm px-4 py-3 text-[13px] text-foreground"><strong className="font-display text-[19px] font-medium">{selectedService.name}</strong><p className="mt-1 text-muted">{selectedService.durationMinutes} min · ${selectedService.price}</p></div> : null}
               <Field label="Days that work" htmlFor="waitlist-requested-date">
                 <div className="flex flex-wrap gap-2">
                   {requestedDates.map((date) => <span key={date} className="inline-flex h-10 items-center gap-2 rounded-xl border border-brand/30 bg-brand-soft px-3 text-sm"><span>{new Intl.DateTimeFormat(undefined, { weekday: "short", month: "short", day: "numeric" }).format(new Date(`${date}T12:00:00`))}</span><button type="button" aria-label={`Remove ${date}`} onClick={() => setRequestedDates((dates) => dates.filter((value) => value !== date))}>×</button></span>)}
@@ -334,7 +334,7 @@ function WaitlistDialog({
               <button
                 type="submit"
                 disabled={submitting}
-                className="flex h-12 w-full items-center justify-center rounded-2xl bg-brand px-5 text-sm font-semibold text-white shadow-[0_14px_28px_rgba(183,121,61,0.22)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark disabled:cursor-not-allowed disabled:transform-none disabled:opacity-60 disabled:shadow-none"
+                className="flex h-12 w-full items-center justify-center rounded-xl bg-brand px-5 font-display text-[18px] font-medium text-white shadow-[0_14px_28px_rgba(183,121,61,0.22)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark disabled:cursor-not-allowed disabled:transform-none disabled:opacity-60 disabled:shadow-none"
               >
                 {submitting ? "Joining waitlist..." : "Join waitlist"}
               </button>
@@ -359,7 +359,7 @@ function Field({
     <div>
       <label
         htmlFor={htmlFor}
-        className="mb-2 block text-xs font-semibold uppercase tracking-[0.08em] text-[#6B7280]"
+        className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.12em] text-[#705640]"
       >
         {label}
       </label>

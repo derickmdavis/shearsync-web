@@ -94,7 +94,7 @@ export function TimeStep({
               <ArrowIcon direction="left" />
             </button>
 
-            <p className="font-display text-[31px] font-medium text-foreground">
+            <p className="font-display text-[27px] font-medium text-foreground">
               {formatMonthLabel(calendarMonthStart, timezone)}
             </p>
 
@@ -132,7 +132,7 @@ export function TimeStep({
                   }}
                   disabled={isPastDate}
                   className={[
-                    "mx-auto flex h-10 w-10 items-center justify-center rounded-full font-display text-[23px] leading-none transition-colors",
+                    "mx-auto flex h-9 w-9 items-center justify-center rounded-full font-display text-[19px] leading-none transition-colors",
                     isSelected
                       ? "bg-brand text-white shadow-[0_8px_18px_rgba(176,122,62,0.2)]"
                       : isPastDate
@@ -162,7 +162,7 @@ export function TimeStep({
           </section>
 
           <section className="mt-7">
-            <h3 className="font-display text-[35px] leading-9 font-medium text-foreground">
+            <h3 className="font-display text-[27px] leading-7 font-medium text-foreground">
               {selectedDate ? formatSelectedDate(selectedDate, timezone) : "Choose a date"}
             </h3>
             {selectedDay ? (
@@ -237,7 +237,7 @@ function TimeSlotPill({
       onClick={onSelect}
       aria-pressed={selected}
       className={[
-        "inline-flex h-[54px] w-full items-center justify-center whitespace-nowrap rounded-xl border px-2 font-display text-[19px] leading-none font-medium transition-all",
+        "inline-flex h-[52px] w-full items-center justify-center whitespace-nowrap rounded-xl border px-2 font-display text-[17px] leading-none font-medium transition-all",
         selected
           ? "border-brand bg-brand text-white shadow-[0_8px_18px_rgba(176,122,62,0.2)]"
           : "border-border/70 bg-white/65 text-foreground hover:border-brand hover:bg-brand-soft",
