@@ -15,10 +15,10 @@
   --color-muted-gray: #6b625a;
   --color-text-muted: #8a7e72;
   --color-border-warm: #c8a46b;
-  --background: #f6f1e8;
+  --background: #f7e8c7;
   --foreground: #111111;
   --muted: #6b625a;
-  --page: #f6f1e8;
+  --page: #f7e8c7;
   --card: #fffdf8;
   --border: #c8a46b;
   --brand: #b07a3e;
@@ -86,15 +86,12 @@
 }
 
 html {
-  background: var(--page);
+  background: #f7e8c7;
 }
 
 body {
   min-height: 100vh;
-  background:
-    radial-gradient(circle at 12% 24%, rgba(232, 211, 163, 0.42) 0%, rgba(232, 211, 163, 0.12) 28%, transparent 54%),
-    radial-gradient(circle at 92% 18%, rgba(214, 187, 133, 0.35) 0%, rgba(214, 187, 133, 0.1) 34%, transparent 62%),
-    linear-gradient(135deg, #f6f1e8 0%, #fff8e8 48%, #f6f1e8 100%);
+  background: #f7e8c7;
 }
 
 button,

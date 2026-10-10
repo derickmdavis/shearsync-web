@@ -70,10 +70,10 @@ export function ConfirmStep({
   return (
     <div>
       <div>
-        <h2 className="font-display text-[44px] leading-[0.9] font-medium tracking-[-0.045em] text-foreground sm:text-[52px]">
+        <h2 className="font-display text-[40px] leading-[0.92] font-medium tracking-[-0.045em] text-foreground sm:text-[47px]">
           Review your appointment
         </h2>
-        <p className="mt-3 font-display text-[22px] leading-7 text-muted">
+        <p className="mt-3 font-display text-[20px] leading-6 text-muted">
           Please check your details below before booking.
         </p>
       </div>
@@ -82,13 +82,13 @@ export function ConfirmStep({
         <ReviewCard title="Your appointment" action={() => onEdit(2)}>
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="font-display text-[26px] leading-7 font-medium text-foreground">{serviceSummary}</p>
+              <p className="font-display text-[23px] leading-6 font-medium text-foreground">{serviceSummary}</p>
               <p className="mt-1 text-sm text-muted">
                 {buildSummaryName(stylist)}
               </p>
             </div>
             <div className="text-right text-sm">
-              <p className="font-display text-[22px] font-medium text-foreground">
+              <p className="font-display text-[20px] font-medium text-foreground">
                 {formatDuration(totalDuration)}
               </p>
               <p className="mt-1 text-muted">{formatCurrency(totalPrice)}</p>
@@ -97,7 +97,7 @@ export function ConfirmStep({
         </ReviewCard>
 
         <ReviewCard title="Date & time" action={() => onEdit(3)}>
-          <p className="font-display text-[26px] leading-7 font-medium text-foreground">
+          <p className="font-display text-[23px] leading-6 font-medium text-foreground">
             {formatLongDate(slot.start, timezone)}
           </p>
           <p className="mt-1 text-sm text-muted">
@@ -106,7 +106,7 @@ export function ConfirmStep({
           <p className="mt-1 text-sm text-muted">{timezone}</p>
         </ReviewCard>
         <ReviewCard title="Your details" action={() => onEdit(1)}>
-          <p className="font-display text-[27px] leading-7 text-foreground">{fullName}</p>
+          <p className="font-display text-[24px] leading-6 text-foreground">{fullName}</p>
           <p className="mt-2 text-sm text-muted">{phone}</p>
           {email ? <p className="mt-1 text-sm text-muted">{email}</p> : null}
         </ReviewCard>
@@ -271,7 +271,7 @@ export function ConfirmStep({
         type="button"
         disabled={submitting || previewMode}
         onClick={onSubmit}
-        className="mt-6 flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-brand px-5 font-display text-[25px] font-medium text-white shadow-[0_18px_32px_rgba(183,121,61,0.24)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark disabled:cursor-wait disabled:opacity-70"
+        className="mt-6 flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-brand px-5 font-display text-[23px] font-medium text-white shadow-[0_18px_32px_rgba(183,121,61,0.24)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark disabled:cursor-wait disabled:opacity-70"
       >
         {previewMode ? "Booking is disabled in preview" : submitting ? "Booking..." : "Confirm appointment"}
         <ArrowIcon />
@@ -349,7 +349,7 @@ function ReviewCard({ title, children, action }: ReviewCardProps) {
   return (
     <div className="rounded-2xl border border-border/70 bg-surface-warm p-5">
       <div className="flex items-center justify-between gap-4">
-        <h3 className="font-display text-[27px] leading-7 font-medium text-foreground">{title}</h3>
+        <h3 className="font-display text-[24px] leading-6 font-medium text-foreground">{title}</h3>
         <button
           type="button"
           onClick={action}

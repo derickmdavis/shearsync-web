@@ -79,17 +79,17 @@ export function TimeStep({
   }
 
   return (
-    <div>
+    <div className="pb-5">
       <div>
-        <h2 className="font-display text-[44px] leading-[0.9] font-medium tracking-[-0.045em] text-foreground sm:text-[52px]">
+        <h2 className="font-display text-[40px] leading-[0.92] font-medium tracking-[-0.045em] text-foreground sm:text-[47px]">
           Choose a time
         </h2>
-        <p className="mt-3 font-display text-[22px] leading-7 text-muted">
+        <p className="mt-3 font-display text-[20px] leading-6 text-muted">
           Select a date and appointment time.
         </p>
       </div>
 
-      <div className="mt-7">
+      <div className="mt-8">
         {loading && !nextAvailableDay ? <LoadingState /> : null}
 
         {error ? (
@@ -98,7 +98,7 @@ export function TimeStep({
           </InfoCard>
         ) : null}
 
-        <div className="mt-7 border-y border-border/55 py-5">
+        <div className="border-y border-[#d7be94] py-6">
           <div className="flex items-center justify-between gap-3">
             <button
               type="button"
@@ -108,13 +108,13 @@ export function TimeStep({
                 )
               }
               disabled={addDaysToDate(calendarWeekStart, -7) < startOfWeek(today)}
-              className="inline-flex h-9 w-9 items-center justify-center text-brand transition-colors hover:bg-surface-warm disabled:cursor-not-allowed disabled:opacity-40"
+              className="inline-flex h-9 w-9 items-center justify-center text-[#a36b2f] transition-colors hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-40"
               aria-label="Show previous week"
             >
               <ArrowIcon direction="left" />
             </button>
 
-            <p className="font-display text-[30px] font-medium text-foreground">
+            <p className="font-display text-[27px] font-medium text-foreground">
               {formatMonthLabel(calendarWeekStart, timezone)}
             </p>
 
@@ -125,14 +125,14 @@ export function TimeStep({
                   addDaysToDate(currentWeekStart, 7),
                 )
               }
-              className="inline-flex h-9 w-9 items-center justify-center text-brand transition-colors hover:bg-surface-warm"
+              className="inline-flex h-9 w-9 items-center justify-center text-[#a36b2f] transition-colors hover:bg-white/20"
               aria-label="Show next week"
             >
               <ArrowIcon />
             </button>
           </div>
 
-          <div className="mt-4 grid grid-cols-7 gap-1 min-[430px]:gap-2">
+          <div className="mt-6 grid grid-cols-7 gap-1 min-[430px]:gap-2">
             {calendarDates.map((date) => {
               const isSelected = date === selectedDate;
               const isPastDate = date < today;
@@ -150,18 +150,18 @@ export function TimeStep({
                   }}
                   disabled={isPastDate}
                   className={[
-                    "flex h-[58px] min-w-0 flex-col items-center justify-center rounded-full px-0.5 py-2 text-center transition-colors min-[430px]:px-2",
+                    "flex h-[64px] min-w-0 flex-col items-center justify-center rounded-[22px] px-0.5 py-2 text-center transition-colors min-[430px]:px-2",
                     isSelected
-                      ? "bg-brand text-white"
+                      ? "border border-[#f7b416] bg-[#bb7d31] text-white shadow-[0_2px_0_rgba(255,255,255,0.6)_inset]"
                       : isPastDate
-                        ? "bg-zinc-50 text-zinc-400"
-                        : "text-foreground hover:bg-brand-soft",
+                        ? "text-black/35"
+                        : "text-foreground hover:bg-white/30",
                   ].join(" ")}
                 >
-                  <span className="block text-[10px] leading-none font-semibold uppercase tracking-[0.02em] min-[430px]:text-[11px] min-[430px]:tracking-[0.04em]">
+                  <span className="block text-[10px] leading-none font-bold uppercase tracking-[0.02em] min-[430px]:text-[11px] min-[430px]:tracking-[0.04em]">
                     {formatShortWeekday(date, timezone)}
                   </span>
-                  <span className="mt-1 block text-[14px] leading-none font-bold min-[430px]:text-[15px]">
+                  <span className="mt-1 block text-[15px] leading-none font-bold min-[430px]:text-[16px]">
                     {formatDayNumber(date, timezone)}
                   </span>
                 </button>
@@ -173,9 +173,9 @@ export function TimeStep({
         {!loading && !error && waitlistCta ? waitlistCta : null}
 
         {!loading && !error && !showEmptyState ? (
-          <section className="mt-7">
+          <section className="mt-8">
             <div className="mb-4">
-              <h3 className="font-display text-[32px] leading-[36px] font-medium text-foreground">
+              <h3 className="font-display text-[32px] leading-8 font-medium text-foreground">
                 {selectedDate ? formatMonthDay(selectedDate, timezone) : "Available times"}
               </h3>
             </div>
@@ -191,30 +191,27 @@ export function TimeStep({
                   <div
                     key={day.date}
                     className={[
-                      "mb-3 border-b border-border/55 pb-4 transition-colors active:bg-surface-warm",
-                      isSelectedDate
-                        ? "bg-brand-soft"
+                    "border-b border-[#d7be94] py-4 transition-colors last:border-b-0",
+                    isSelectedDate
+                        ? "bg-white/25"
                         : "",
                     ].join(" ")}
                   >
                     <div>
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-2">
-                          <p className="text-[15px] leading-5 font-bold text-foreground">
-                            {formatShortWeekday(day.date, timezone)}
-                          </p>
-                          <p className="text-[15px] leading-5 font-bold text-foreground">
-                            {formatMonthDay(day.date, timezone)}
+                          <p className="text-[16px] leading-5 font-bold text-foreground">
+                            {formatAvailabilityDay(day.date, timezone)}
                           </p>
                         </div>
-                        <div className="inline-flex h-[26px] shrink-0 items-center rounded-full bg-surface-warm px-[10px] text-[12px] font-bold text-muted">
+                        <div className="inline-flex h-[28px] shrink-0 items-center rounded-full bg-white/60 px-[11px] text-[12px] font-bold text-muted">
                           {day.slots.length}{" "}
                           {day.slots.length === 1 ? "timeslot" : "timeslots"}
                         </div>
                       </div>
 
                       <div className="mt-3 flex min-w-0 flex-col gap-2.5">
-                        <div className="grid grid-cols-3 gap-[6px] xl:grid-cols-4">
+                        <div className="grid grid-cols-3 gap-2 xl:grid-cols-4">
                           {previewSlots.map((slot) => (
                             <TimeSlotPill
                               key={slot.start}
@@ -278,7 +275,7 @@ export function TimeStep({
         onClick={onContinue}
         disabled={loading || !selectedSlot}
         aria-disabled={loading || !selectedSlot}
-        className="mt-8 flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-brand px-5 font-display text-[25px] font-medium text-white shadow-[0_18px_32px_rgba(183,121,61,0.24)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark disabled:cursor-not-allowed disabled:transform-none disabled:opacity-50 disabled:shadow-none"
+        className="mt-8 flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-[#b77a2e] px-5 font-display text-[23px] font-medium text-white shadow-[0_18px_32px_rgba(141,91,30,0.22)] transition-transform hover:-translate-y-0.5 hover:bg-[#9e641f] disabled:cursor-not-allowed disabled:transform-none disabled:opacity-50 disabled:shadow-none"
       >
         {loading ? "Checking..." : "Continue"}
         <ArrowIcon />
@@ -322,10 +319,10 @@ function TimeSlotPill({
       onClick={onSelect}
       aria-pressed={selected}
       className={[
-        "inline-flex h-12 w-full cursor-pointer items-center justify-center whitespace-nowrap rounded-xl border px-[10px] font-display text-[21px] leading-none font-medium transition-all",
+        "inline-flex h-[54px] w-full cursor-pointer items-center justify-center whitespace-nowrap rounded-xl border border-[#e5cda9] bg-white/25 px-[10px] font-display text-[19px] leading-none font-medium text-[#b17131] transition-all",
         selected
-          ? "border-brand bg-brand text-white"
-          : "border-brand/20 bg-brand-soft text-brand hover:bg-[rgba(183,121,61,0.12)] active:bg-[rgba(183,121,61,0.16)]",
+          ? "border-[#b77a2e] bg-[#b77a2e] text-white"
+          : "hover:bg-white/50 active:bg-white/60",
       ].join(" ")}
     >
       {formatTime(slot.start, timeZone)}
@@ -384,6 +381,15 @@ function ArrowIcon({ direction = "right" }: { direction?: "left" | "right" }) {
 
 function formatDayNumber(date: string, timeZone?: string | null) {
   return new Intl.DateTimeFormat("en-US", {
+    day: "numeric",
+    timeZone: timeZone ?? undefined,
+  }).format(new Date(`${date}T12:00:00`));
+}
+
+function formatAvailabilityDay(date: string, timeZone?: string | null) {
+  return new Intl.DateTimeFormat("en-US", {
+    weekday: "short",
+    month: "short",
     day: "numeric",
     timeZone: timeZone ?? undefined,
   }).format(new Date(`${date}T12:00:00`));

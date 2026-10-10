@@ -191,11 +191,16 @@ export function BookingPreviewFlow({
         <span>Booking cannot be submitted; preview changes stay in this browser.</span>
       </section>
 
-      <div className="bg-transparent p-6 sm:rounded-[30px] sm:border sm:border-white/80 sm:bg-card sm:p-8 sm:shadow-[0_24px_80px_rgba(17,24,39,0.08)] lg:grid lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-8">
-        <PublicBookingProfile stylist={stylist} />
+      <div
+        className={[
+          "bg-transparent p-6 sm:rounded-[30px] sm:border sm:border-white/80 sm:bg-card sm:p-8 sm:shadow-[0_24px_80px_rgba(17,24,39,0.08)]",
+          currentStep === 3 ? "mx-auto max-w-[430px]" : "lg:grid lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-8",
+        ].join(" ")}
+      >
+        {currentStep !== 3 ? <PublicBookingProfile stylist={stylist} /> : null}
 
         <div className="mt-8 lg:mt-0 lg:min-w-0">
-          <BookingStepper currentStep={currentStep} />
+          {currentStep !== 3 ? <BookingStepper currentStep={currentStep} /> : null}
 
           {currentStep === 1 ? (
             <>

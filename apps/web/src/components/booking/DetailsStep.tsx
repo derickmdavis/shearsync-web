@@ -66,6 +66,7 @@ export function DetailsStep({
   onContinue,
 }: DetailsStepProps) {
   const isServiceStep = mode === "services";
+
   const heading = isServiceStep ? "Select service" : "Your details";
   const description = isServiceStep
     ? "Choose a service for this appointment."
@@ -87,10 +88,10 @@ export function DetailsStep({
       }}
     >
       <div>
-        <h2 className="font-display text-[44px] leading-[0.9] font-medium tracking-[-0.045em] text-foreground sm:text-[52px]">
+        <h2 className="font-display text-[40px] leading-[0.92] font-medium tracking-[-0.045em] text-foreground sm:text-[47px]">
           {heading}
         </h2>
-        <p className="mt-3 font-display text-[22px] leading-7 text-muted">
+        <p className="mt-3 font-display text-[20px] leading-6 text-muted">
           {description}
         </p>
       </div>
@@ -203,14 +204,12 @@ export function DetailsStep({
         </div>
       ) : null}
 
-      {!showServicePicker && inquiryCallout ? <div className="mt-7">{inquiryCallout}</div> : null}
-
       {serviceError ? <p className="mt-4 text-sm text-red-500">{serviceError}</p> : null}
 
       <button
         type="submit"
         disabled={disableSubmit}
-        className="mt-5 flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-brand px-5 font-display text-[25px] font-medium text-white shadow-[0_18px_32px_rgba(183,121,61,0.24)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-55"
+        className="mt-5 flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-brand px-5 font-display text-[23px] font-medium text-white shadow-[0_18px_32px_rgba(183,121,61,0.24)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-55"
       >
         {intakeLoading
           ? "Checking..."

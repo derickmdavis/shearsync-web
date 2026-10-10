@@ -28,7 +28,7 @@ export function PublicBookingProfile({ stylist }: PublicBookingProfileProps) {
       ) : null}
 
       <div>
-        <p className="font-display text-[38px] leading-none font-medium italic text-foreground">
+        <p className="font-display text-[34px] leading-none font-medium italic text-foreground">
           {stylist.display_name}
         </p>
         {stylist.business_name || instagramHandle ? (

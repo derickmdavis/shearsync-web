@@ -23,19 +23,17 @@ export function BookingStepper({ currentStep }: BookingStepperProps) {
               <div className="flex flex-col items-center gap-2">
                 <div
                   className={[
-                    "flex h-10 w-10 items-center justify-center rounded-full text-base font-medium transition-colors",
-                    isComplete
-                      ? "bg-brand text-white shadow-[0_8px_18px_rgba(176,122,62,0.2)]"
-                      : isActive
-                        ? "bg-brand text-white shadow-[0_8px_18px_rgba(176,122,62,0.2)]"
-                        : "bg-[#f0ece5] text-muted",
+                    "flex h-10 w-10 items-center justify-center rounded-full text-sm font-medium transition-colors",
+                    isComplete || isActive
+                      ? "bg-black text-white shadow-[0_8px_18px_rgba(17,17,17,0.16)]"
+                      : "border border-border/70 bg-white text-muted",
                   ].join(" ")}
                 >
                   {isComplete ? <CheckIcon /> : stepNumber}
                 </div>
                 <span
                   className={[
-                    "text-[11px] font-semibold tracking-wide",
+                    "text-[10px] font-semibold tracking-wide",
                     isActive || isComplete ? "text-foreground" : "text-muted",
                   ].join(" ")}
                 >
@@ -43,7 +41,7 @@ export function BookingStepper({ currentStep }: BookingStepperProps) {
                 </span>
               </div>
               {index < steps.length - 1 ? (
-                <div className="mx-3 mb-7 h-px flex-1 bg-brand/80" />
+                <div className="mx-3 mb-7 h-px flex-1 bg-black/75" />
               ) : null}
             </div>
           );

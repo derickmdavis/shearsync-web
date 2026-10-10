@@ -30,7 +30,7 @@ export function ServiceCard({
         <div className="flex items-start justify-between gap-3">
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <p className="font-display text-[29px] leading-7 font-medium tracking-tight text-foreground">{service.name}</p>
+              <p className="font-display text-[26px] leading-6 font-medium tracking-tight text-foreground">{service.name}</p>
               {highlighted ? (
                 <span className="rounded-full bg-brand-soft px-2 py-0.5 text-[11px] font-semibold text-brand">
                   Recommended

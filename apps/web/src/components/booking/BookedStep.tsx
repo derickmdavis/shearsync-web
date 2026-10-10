@@ -72,10 +72,10 @@ export function BookedStep({
         <CheckIcon />
       </div>
 
-      <h2 className="mt-6 font-display text-[46px] leading-[0.9] font-medium tracking-[-0.045em] text-foreground">
+      <h2 className="mt-6 font-display text-[41px] leading-[0.92] font-medium tracking-[-0.045em] text-foreground">
         {scheduled ? "You’re booked." : "Request received"}
       </h2>
-      <p className="mt-3 font-display text-[22px] leading-7 text-muted">
+      <p className="mt-3 font-display text-[20px] leading-6 text-muted">
         {scheduled
           ? "Your appointment is confirmed."
           : "Your appointment request is awaiting approval."}
@@ -125,7 +125,7 @@ export function BookedStep({
       <button
         type="button"
         onClick={handleAddToCalendar}
-        className="mt-7 flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-brand px-5 font-display text-[25px] font-medium text-white shadow-[0_18px_32px_rgba(183,121,61,0.24)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark"
+        className="mt-7 flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-brand px-5 font-display text-[23px] font-medium text-white shadow-[0_18px_32px_rgba(183,121,61,0.24)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark"
       >
         Add to Calendar
       </button>
