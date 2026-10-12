@@ -1,10 +1,21 @@
-import { Suspense } from "react";
 import { DeletionRequestedScreen } from "@/src/components/settings/AccountDeletionFlow";
 
-export default function DeletionRequestedPage() {
+type DeletionRequestedPageProps = {
+  searchParams: Promise<{
+    scheduledDeletionAt?: string | string[];
+  }>;
+};
+
+export default async function DeletionRequestedPage({
+  searchParams,
+}: DeletionRequestedPageProps) {
+  const { scheduledDeletionAt } = await searchParams;
+
   return (
-    <Suspense fallback={null}>
-      <DeletionRequestedScreen />
-    </Suspense>
+    <DeletionRequestedScreen
+      scheduledDeletionAt={
+        typeof scheduledDeletionAt === "string" ? scheduledDeletionAt : null
+      }
+    />
   );
 }

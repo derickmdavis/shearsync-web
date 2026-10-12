@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { WorkspaceShell, workspaceStyles as shell } from "@/src/components/workspace/WorkspaceShell";
 import { ApiError, createAccountDeletionRequest, type AccountDeletionRequest } from "@/src/lib/api";
@@ -129,8 +129,12 @@ export function DeleteAccountScreen() {
   );
 }
 
-export function DeletionRequestedScreen() {
-  const formattedDeletionDate = formatDeletionDate(useSearchParams().get("scheduledDeletionAt"));
+export function DeletionRequestedScreen({
+  scheduledDeletionAt,
+}: {
+  scheduledDeletionAt: string | null;
+}) {
+  const formattedDeletionDate = formatDeletionDate(scheduledDeletionAt);
   return <WorkspaceShell active="settings"><section className={styles.flowPage}>
     <Breadcrumb current="Delete Account" />
     <section className={styles.successBanner}><span aria-hidden="true">✓</span><div><h1>Account deletion requested</h1><p>Your account access and public booking page have been disabled.</p><small>Your account and data are scheduled for permanent deletion <strong>{formattedDeletionDate}</strong>. You have been signed out; self-service undo is not available.</small></div></section>
