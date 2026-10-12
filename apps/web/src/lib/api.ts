@@ -468,9 +468,35 @@ export type AccountPlan = {
 export type AccountAccess = {
   status: string;
   isActive: boolean;
+  deletionStatus?: "active" | "pending" | "processing" | "failed";
   activatedAt: string | null;
   currentPeriodEndsAt: string | null;
   deactivatedAt: string | null;
+};
+
+export type AccountDeletionStatus = {
+  status:
+    | "none"
+    | "pending"
+    | "processing"
+    | "failed_retryable"
+    | "completed"
+    | "cancelled";
+  requestId: string | null;
+  requestedAt: string | null;
+  scheduledDeletionAt: string | null;
+  completedAt: string | null;
+};
+
+export type CreateAccountDeletionRequest = {
+  confirmation: "DELETE";
+  reason?: string;
+  clientRequestId: string;
+};
+
+export type AccountDeletionRequest = AccountDeletionStatus & {
+  publicBookingDisabled: boolean;
+  message: string;
 };
 
 export type PublicService = {
@@ -1611,6 +1637,28 @@ export async function getAccountAccess(accessToken: string) {
   return requestAuthenticatedApi<AccountAccess>("/api/account/access", accessToken, {
     preferProxy: true,
   });
+}
+
+export async function getAccountDeletionStatus(accessToken: string) {
+  return requestAuthenticatedApi<AccountDeletionStatus>(
+    "/api/account/deletion-request",
+    accessToken,
+    { preferProxy: true },
+  );
+}
+
+export async function createAccountDeletionRequest(
+  accessToken: string,
+  body: CreateAccountDeletionRequest,
+) {
+  return requestAuthenticatedApi<AccountDeletionRequest>(
+    "/api/account/deletion-request",
+    accessToken,
+    {
+      preferProxy: true,
+      init: { method: "POST", body: JSON.stringify(body) },
+    },
+  );
 }
 
 function normalizeTotalSpend(value: ClientRow["total_spend"]) {

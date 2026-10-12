@@ -3,6 +3,7 @@ import {
   captureBookingAttributionContext,
   cancelManagedAppointment,
   createBookingPreviewSession,
+  createAccountDeletionRequest,
   createClient,
   createClientReferralLink,
   createPublicBooking,
@@ -922,6 +923,39 @@ describe("authenticated clients api helpers", () => {
         "Authorization",
       ),
     ).toBe("Bearer token-1");
+  });
+
+  it("submits an account deletion request through the same-origin account proxy", async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(JSON.stringify({
+        data: {
+          status: "pending",
+          requestId: "request-1",
+          requestedAt: "2026-10-11T18:00:00.000Z",
+          scheduledDeletionAt: "2026-10-18T18:00:00.000Z",
+          completedAt: null,
+          publicBookingDisabled: true,
+          message: "Your account deletion request has been received.",
+        },
+      }), { status: 200, headers: { "Content-Type": "application/json" } }),
+    );
+
+    await expect(createAccountDeletionRequest("token-1", {
+      confirmation: "DELETE",
+      reason: "Closing my business",
+      clientRequestId: "attempt-1",
+    })).resolves.toMatchObject({ status: "pending", requestId: "request-1" });
+
+    expect(fetch).toHaveBeenCalledWith(
+      "/api/account/deletion-request",
+      expect.objectContaining({ method: "POST", cache: "no-store", headers: expect.any(Headers) }),
+    );
+    expect((vi.mocked(fetch).mock.calls[0]?.[1]?.headers as Headers).get("Authorization")).toBe("Bearer token-1");
+    expect(vi.mocked(fetch).mock.calls[0]?.[1]?.body).toBe(JSON.stringify({
+      confirmation: "DELETE",
+      reason: "Closing my business",
+      clientRequestId: "attempt-1",
+    }));
   });
 
   it("unwraps null referral-link responses", async () => {

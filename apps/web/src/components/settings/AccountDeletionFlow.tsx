@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { WorkspaceShell, workspaceStyles as shell } from "@/src/components/workspace/WorkspaceShell";
+import { ApiError, createAccountDeletionRequest, type AccountDeletionRequest } from "@/src/lib/api";
+import { getSupabaseBrowserClient } from "@/src/lib/supabase";
 import styles from "./account-deletion.module.css";
 
 const settingsItems = ["Business Details", "Services", "Billing", "Account"];
@@ -62,8 +64,42 @@ function AccountRow({ label, detail, value, action }: { label: string; detail: s
 export function DeleteAccountScreen() {
   const router = useRouter();
   const [confirmation, setConfirmation] = useState("");
-  const [password, setPassword] = useState("");
-  const canSubmit = confirmation === "DELETE" && password.length > 0;
+  const [reason, setReason] = useState("");
+  const [clientRequestId, setClientRequestId] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const canSubmit = confirmation === "DELETE" && !isSubmitting;
+
+  function getClientRequestId() {
+    if (clientRequestId) return clientRequestId;
+    const nextId = crypto.randomUUID();
+    setClientRequestId(nextId);
+    return nextId;
+  }
+
+  async function submitDeletionRequest() {
+    setErrorMessage(null);
+    setIsSubmitting(true);
+    try {
+      const { data, error } = await getSupabaseBrowserClient().auth.getSession();
+      const accessToken = data.session?.access_token;
+      if (error || !accessToken) throw new ApiError("Your session has expired. Please sign in again.", 401);
+
+      const response = await createAccountDeletionRequest(accessToken, {
+        confirmation: "DELETE",
+        ...(reason.trim() ? { reason: reason.trim() } : {}),
+        clientRequestId: getClientRequestId(),
+      });
+      if (!isAcceptedDeletion(response)) throw new ApiError("The account service returned an invalid response.", 502);
+
+      // Do not leave protected product data rendered after acceptance.
+      await getSupabaseBrowserClient().auth.signOut();
+      router.replace(`/settings/account/delete/requested?scheduledDeletionAt=${encodeURIComponent(response.scheduledDeletionAt)}`);
+    } catch (error) {
+      setErrorMessage(getSubmissionError(error));
+      setIsSubmitting(false);
+    }
+  }
 
   return (
     <WorkspaceShell active="settings">
@@ -71,18 +107,19 @@ export function DeleteAccountScreen() {
         <Breadcrumb current="Delete Account" />
         <h1>Delete Your Account</h1>
         <p className={styles.intro}>We&apos;re sorry to see you go. Before you continue, please review the following information and confirm that you understand what will happen.</p>
-        <section className={styles.warning} role="alert"><span aria-hidden="true">△</span><div><strong>This action cannot be undone.</strong><p>Your account, business information, clients, appointments, and all data will be permanently deleted.</p></div></section>
+        <section className={styles.warning} role="alert"><span aria-hidden="true">△</span><div><strong>This request is final.</strong><p>Account access and public booking stop immediately. The account service will permanently delete your data at its scheduled time; self-service undo is not available.</p></div></section>
         <section className={styles.confirmCard}>
           <h2>What will be deleted?</h2>
           <ul>
             <li>Your business profile and settings</li><li>All client information and appointment history</li><li>Messages and notes</li><li>Your public booking page <em>(disabled immediately)</em></li><li>All integrations and connected services</li>
           </ul>
-          <form onSubmit={(event) => { event.preventDefault(); if (canSubmit) router.push("/settings/account/delete/requested"); }}>
+          <form onSubmit={(event) => { event.preventDefault(); if (canSubmit) void submitDeletionRequest(); }}>
             <div className={styles.confirmFields}>
               <label>Type “DELETE” to confirm<input value={confirmation} onChange={(event) => setConfirmation(event.target.value)} autoComplete="off" /></label>
-              <label>Your password<input type="password" value={password} onChange={(event) => setPassword(event.target.value)} autoComplete="current-password" /></label>
+              <label>Optional feedback<textarea value={reason} onChange={(event) => setReason(event.target.value.slice(0, 1000))} maxLength={1000} /></label>
             </div>
-            <div className={styles.actions}><Link className={styles.cancelButton} href="/settings/account">Cancel</Link><button className={styles.deleteButton} type="submit" disabled={!canSubmit}>Delete My Account</button></div>
+            {errorMessage ? <p className={styles.errorMessage} role="alert">{errorMessage}</p> : null}
+            <div className={styles.actions}><Link className={styles.cancelButton} href="/settings/account">Cancel</Link><button className={styles.deleteButton} type="submit" disabled={!canSubmit}>{isSubmitting ? "Submitting…" : "Delete My Account"}</button></div>
           </form>
         </section>
       </section>
@@ -91,18 +128,40 @@ export function DeleteAccountScreen() {
 }
 
 export function DeletionRequestedScreen() {
+  const formattedDeletionDate = formatDeletionDate(useSearchParams().get("scheduledDeletionAt"));
   return <WorkspaceShell active="settings"><section className={styles.flowPage}>
     <Breadcrumb current="Delete Account" />
-    <section className={styles.successBanner}><span aria-hidden="true">✓</span><div><h1>Account deletion requested</h1><p>Your account is scheduled for permanent deletion.</p><small>We&apos;ve disabled your public booking page immediately. Your account and all data will be permanently deleted in <strong>14 days (Oct 21, 2026)</strong> unless you cancel this request.</small></div></section>
+    <section className={styles.successBanner}><span aria-hidden="true">✓</span><div><h1>Account deletion requested</h1><p>Your account access and public booking page have been disabled.</p><small>Your account and data are scheduled for permanent deletion <strong>{formattedDeletionDate}</strong>. You have been signed out; self-service undo is not available.</small></div></section>
     <div className={styles.requestGrid}>
       <section className={styles.timelineCard}><h2>What happens next?</h2><ol>
-        <li className={styles.complete}><span>✓</span><div><strong>Public booking page disabled</strong><p>Your booking page is no longer visible to new clients.</p></div><small>Completed<br />Oct 7, 2026, 2:14 PM</small></li>
-        <li className={styles.current}><span>2</span><div><strong>14-day waiting period</strong><p>You can cancel this request anytime within 14 days.</p></div><small>In progress<br />Oct 7 – Oct 21, 2026</small></li>
-        <li><span>3</span><div><strong>Account permanently deleted</strong><p>All data will be permanently removed after 14 days.</p></div><small>Pending<br />Oct 21, 2026</small></li>
+        <li className={styles.complete}><span>✓</span><div><strong>Access and public booking disabled</strong><p>Your account is no longer available for sign-in or new client bookings.</p></div><small>Completed</small></li>
+        <li className={styles.current}><span>2</span><div><strong>Deletion scheduled</strong><p>The account service will permanently remove account data at the scheduled time.</p></div><small>{formattedDeletionDate}</small></li>
       </ol></section>
-      <aside className={styles.cancelCard}><h2>Need to change your mind?</h2><p>You can cancel your deletion request within 14 days and your account will be fully restored.</p><Link className={styles.cancelDeletion} href="/settings/account">Cancel Deletion Request</Link><h3>Questions?</h3><p>If you have any questions, please contact our support team.</p><a href="mailto:support@rootandfoil.com">Contact Support →</a></aside>
+      <aside className={styles.cancelCard}><h2>Questions?</h2><p>If you have questions about this deletion request, contact our support team.</p><a href="mailto:support@rootandfoil.com">Contact Support →</a></aside>
     </div>
   </section></WorkspaceShell>;
+}
+
+function isAcceptedDeletion(
+  response: AccountDeletionRequest,
+): response is AccountDeletionRequest & { scheduledDeletionAt: string } {
+  return response.status === "pending" && typeof response.requestId === "string" && response.requestId.length > 0 && typeof response.requestedAt === "string" && !Number.isNaN(Date.parse(response.requestedAt)) && typeof response.scheduledDeletionAt === "string" && !Number.isNaN(Date.parse(response.scheduledDeletionAt)) && response.completedAt === null && response.publicBookingDisabled === true && typeof response.message === "string";
+}
+
+function getSubmissionError(error: unknown) {
+  if (!(error instanceof ApiError)) return "We could not submit your request. Please try again.";
+  if (error.status === 400) return "Please review your confirmation and try again.";
+  if (error.status === 401) return "Your session has expired. Please sign in again.";
+  if (error.status === 409 && error.code === "active_administrator") return "Transfer or disable your administrator role before requesting deletion.";
+  if (error.status === 429) return "Too many deletion requests. Please try again later.";
+  if (error.status === 0 || error.status >= 500) return "We could not submit your request. Please try again.";
+  return error.message;
+}
+
+function formatDeletionDate(value: string | null) {
+  if (!value || Number.isNaN(Date.parse(value))) return "at the scheduled time provided by the account service";
+  const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "your local time";
+  return `${new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short", timeZoneName: "short" }).format(new Date(value))} (${timezone})`;
 }
 
 export function AccountDeletedScreen() {
