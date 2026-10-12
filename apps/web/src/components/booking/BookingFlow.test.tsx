@@ -207,7 +207,7 @@ function fillContactDetails({
 
 async function openServicesStep() {
   fillContactDetails();
-  fireEvent.click(screen.getByRole("button", { name: "Select Services" }));
+  fireEvent.click(screen.getByRole("button", { name: "Select a service" }));
   await screen.findByRole("heading", { name: "Select service" });
   expect(screen.queryByPlaceholderText("Enter your full name")).toBeNull();
   expect(
@@ -375,7 +375,7 @@ describe("BookingFlow", () => {
       fullName: "Jenny Stone",
       email: "jenny@example.com",
     });
-    fireEvent.click(screen.getByRole("button", { name: "Select Services" }));
+    fireEvent.click(screen.getByRole("button", { name: "Select a service" }));
     await screen.findByRole("heading", { name: "Select service" });
     fireEvent.click(screen.getByRole("button", { name: "Answer a few questions" }));
 
@@ -436,7 +436,7 @@ describe("BookingFlow", () => {
     render(<BookingFlow slug="maya-johnson" stylist={baseStylist} />);
 
     fillContactDetails({ email: "" });
-    fireEvent.click(screen.getByRole("button", { name: "Select Services" }));
+    fireEvent.click(screen.getByRole("button", { name: "Select a service" }));
 
     expect(screen.getByText("Email is required.")).toBeTruthy();
     expect(createPublicBookingIntake).not.toHaveBeenCalled();
@@ -638,7 +638,7 @@ describe("BookingFlow", () => {
 
     await screen.findByPlaceholderText("Enter your full name");
     fillContactDetails();
-    fireEvent.click(screen.getByRole("button", { name: "Select Services" }));
+    fireEvent.click(screen.getByRole("button", { name: "Select a service" }));
     const serviceButton = await screen.findByRole("button", { name: /Haircut/i });
     expect(serviceButton.getAttribute("aria-pressed")).toBe("true");
 
@@ -721,7 +721,7 @@ describe("BookingFlow", () => {
     render(<BookingFlow slug="maya-johnson" stylist={baseStylist} />);
 
     fillContactDetails();
-    fireEvent.click(screen.getByRole("button", { name: "Select Services" }));
+    fireEvent.click(screen.getByRole("button", { name: "Select a service" }));
 
     await waitFor(() => {
       expect(
@@ -744,7 +744,7 @@ describe("BookingFlow", () => {
     render(<BookingFlow slug="maya-johnson" stylist={baseStylist} />);
 
     fillContactDetails();
-    fireEvent.click(screen.getByRole("button", { name: "Select Services" }));
+    fireEvent.click(screen.getByRole("button", { name: "Select a service" }));
 
     expect(await screen.findByText("Stylist not found")).toBeTruthy();
     expect(
@@ -778,7 +778,7 @@ describe("BookingFlow", () => {
       expect(screen.queryByRole("heading", { name: "Select service" })).toBeNull();
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "Select Services" }));
+    fireEvent.click(screen.getByRole("button", { name: "Select a service" }));
 
     await screen.findByText("Blowout");
 
@@ -1027,7 +1027,7 @@ describe("BookingFlow", () => {
     expect(screen.queryByRole("heading", { name: "Services" })).toBeNull();
   });
 
-  it("groups categorized services and collects uncategorized services under Other services", async () => {
+  it("groups categorized services into collapsed categories and collects uncategorized services under Other services", async () => {
     const { getPublicServices } = setupMockReferences();
     getPublicServices.mockResolvedValue([
       createService("service-1", "Haircut", 60, "Cuts"),
@@ -1050,6 +1050,10 @@ describe("BookingFlow", () => {
     expect(
       otherServices.compareDocumentPosition(color) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).not.toBe(0);
+    expect(screen.queryByText("Blowout")).toBeNull();
+    expect(screen.getByRole("button", { name: "Other services" }).getAttribute("aria-expanded")).toBe("false");
+
+    fireEvent.click(screen.getByRole("button", { name: "Other services" }));
     expect(within(screen.getByLabelText("Other services")).getByText("Blowout")).toBeTruthy();
     expect(within(screen.getByLabelText("Other services")).getByText("Treatment")).toBeTruthy();
   });

@@ -18,6 +18,8 @@ function AccountSettingsNav() {
       {settingsItems.map((item) => (
         item === "Account" ? (
           <Link className={styles.settingsActive} href="/settings/account" key={item}><span aria-hidden="true">◉</span>{item}</Link>
+        ) : item === "Services" ? (
+          <Link href="/settings/services" key={item}><span aria-hidden="true">○</span>{item}</Link>
         ) : (
           <Link href="/settings/business-details" key={item}><span aria-hidden="true">○</span>{item}</Link>
         )

@@ -22,6 +22,53 @@ export function InsightsScreen() {
     </section>)}</section></WorkspaceShell>;
 }
 
+const importTools = [
+  {
+    name: "GlossGenius",
+    description: "Import your client list, appointments, and service history from GlossGenius.",
+    mark: "G",
+  },
+  {
+    name: "Square",
+    description: "Import your client list, appointments, and service history from Square.",
+    mark: "S",
+  },
+] as const;
+
+export function ImportScreen() {
+  return <WorkspaceShell active="import"><section className={styles.importPage}>
+    <PageHeading title="Import your data" subtitle="Which tool would you like to import your data from?" />
+    <div className={styles.importOptions} role="list" aria-label="Import tools">
+      {importTools.map((tool) => <button className={styles.importOption} type="button" role="listitem" key={tool.name}>
+        <span className={styles.importMark} aria-hidden="true">{tool.mark}</span>
+        <span><strong>{tool.name}</strong><small>{tool.description}</small></span>
+        <span className={styles.importArrow} aria-hidden="true">→</span>
+      </button>)}
+    </div>
+  </section></WorkspaceShell>;
+}
+
+export function ServicesScreen() {
+  return <WorkspaceShell active="settings"><section className={styles.settingsPage}>
+    <SettingsNav activeItem="Services" />
+    <div className={styles.settingsContent}>
+      <PageHeading title="Services" subtitle="Manage the services available for clients to book." />
+    </div>
+  </section></WorkspaceShell>;
+}
+
+export function SettingsHomeScreen() {
+  return <WorkspaceShell active="help"><section>
+    <PageHeading title="Settings" subtitle="Manage your workspace preferences." />
+  </section></WorkspaceShell>;
+}
+
+export function HelpScreen() {
+  return <WorkspaceShell active="settings"><section>
+    <PageHeading title="Help" subtitle="How can we help?" />
+  </section></WorkspaceShell>;
+}
+
 const settingsItems = ["Business Details", "Services", "Billing", "Account"];
 type FormField = readonly [label: string, value: string, width?: "wide"];
 
@@ -31,8 +78,16 @@ const fields: ReadonlyArray<readonly [title: string, fields: readonly FormField[
 ];
 
 export function SettingsScreen() {
-  return <WorkspaceShell active="settings"><section className={styles.settingsPage}><aside className={styles.settingsNav}><h2>Settings</h2>{settingsItems.map((item, index) => item === "Account" ? <Link className={styles.settingsNavLink} href="/settings/account" key={item}><span>◉</span>{item}</Link> : <button className={index === 0 ? styles.settingsActive : ""} key={item}><span>{["▣", "▤", "▧"][index]}</span>{item}</button>)}</aside><div className={styles.settingsContent}><PageHeading title="Business Details" subtitle="Manage your business information and preferences." />
+  return <WorkspaceShell active="settings"><section className={styles.settingsPage}><SettingsNav activeItem="Business Details" /><div className={styles.settingsContent}><PageHeading title="Business Details" subtitle="Manage your business information and preferences." />
     <form className={styles.businessForm}>{fields.map(([section, group]) => <FormSection key={section} title={section} fields={group} />)}<section className={styles.formSection}><h2>Business Preferences</h2><div className={`${styles.formGrid} ${styles.preferenceGrid}`}><SelectInput label="Time Zone" value="(GMT-7) Mountain Time (Denver)" /><SelectInput label="Currency" value="USD ($)" /></div></section><div className={styles.saveRow}><button className={styles.primaryButton} type="button">Save Changes</button></div></form></div></section></WorkspaceShell>;
+}
+
+function SettingsNav({ activeItem }: { activeItem: "Business Details" | "Services" }) {
+  return <aside className={styles.settingsNav}><h2>Settings</h2>{settingsItems.map((item, index) => {
+    if (item === "Account") return <Link className={styles.settingsNavLink} href="/settings/account" key={item}><span>◉</span>{item}</Link>;
+    if (item === "Services") return <Link className={`${styles.settingsNavLink} ${activeItem === item ? styles.settingsActive : ""}`} href="/settings/services" key={item}><span>▤</span>{item}</Link>;
+    return <button className={activeItem === item ? styles.settingsActive : ""} key={item}><span>{index === 0 ? "▣" : "▧"}</span>{item}</button>;
+  })}</aside>;
 }
 
 function FormSection({ title, fields }: { title: string; fields: readonly FormField[] }) { return <section className={styles.formSection}><h2>{title}</h2><div className={styles.formGrid}>{fields.map(([label, value, width]) => <label className={width === "wide" ? styles.wideField : ""} key={label}><span>{label}</span><input defaultValue={value} /></label>)}</div></section>; }

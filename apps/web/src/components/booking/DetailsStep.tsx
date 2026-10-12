@@ -9,7 +9,7 @@ import {
   sumServicePrices,
 } from "@/src/lib/booking-format";
 import { ServiceCard } from "@/src/components/booking/ServiceCard";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 
 type DetailsState = {
   fullName: string;
@@ -83,6 +83,11 @@ export function DetailsStep({
   const totalPrice = sumServicePrices(selectedServices);
   const serviceGroups = groupServicesByCategory(services);
   const showCategoryHeadings = services.some((service) => service.category?.trim());
+  // Categories keep long menus scannable. They intentionally start closed each
+  // time the service picker mounts; uncategorized menus remain flat.
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
+    () => new Set(),
+  );
 
   return (
     <form
@@ -165,23 +170,42 @@ export function DetailsStep({
                   {serviceGroups.map((group) => (
                     <section key={group.name} aria-label={group.name}>
                       {showCategoryHeadings ? (
-                        <h4 className="mb-4 border-y border-border/60 py-3 text-sm font-semibold tracking-[0.22em] text-[#705640] uppercase">
-                          {group.name}
+                        <h4 className="border-y border-border/60">
+                          <button
+                            type="button"
+                            aria-expanded={expandedCategories.has(group.name)}
+                            onClick={() => {
+                              setExpandedCategories((current) => {
+                                const next = new Set(current);
+                                if (next.has(group.name)) next.delete(group.name);
+                                else next.add(group.name);
+                                return next;
+                              });
+                            }}
+                            className="flex w-full items-center justify-between py-3 text-left text-sm font-semibold tracking-[0.22em] text-[#705640] uppercase"
+                          >
+                            {group.name}
+                            <span aria-hidden="true" className="text-base leading-none normal-case">
+                              {expandedCategories.has(group.name) ? "−" : "+"}
+                            </span>
+                          </button>
                         </h4>
                       ) : null}
-                      <div className="divide-y divide-border/55">
-                        {group.services.map((service) => (
-                          <ServiceCard
-                            key={service.id}
-                            service={service}
-                            highlighted={service.id === recommendedServiceId}
-                            selected={selectedServices.some(
-                              (selectedService) => selectedService.id === service.id,
-                            )}
-                            onSelect={onToggleService}
-                          />
-                        ))}
-                      </div>
+                      {!showCategoryHeadings || expandedCategories.has(group.name) ? (
+                        <div className="divide-y divide-border/55">
+                          {group.services.map((service) => (
+                            <ServiceCard
+                              key={service.id}
+                              service={service}
+                              highlighted={service.id === recommendedServiceId}
+                              selected={selectedServices.some(
+                                (selectedService) => selectedService.id === service.id,
+                              )}
+                              onSelect={onToggleService}
+                            />
+                          ))}
+                        </div>
+                      ) : null}
                     </section>
                   ))}
                 </div>

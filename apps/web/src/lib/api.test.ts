@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   captureBookingAttributionContext,
   cancelManagedAppointment,
+  createAppointment,
   createBookingPreviewSession,
   createAccountDeletionRequest,
   createClient,
@@ -10,6 +11,9 @@ import {
   deleteClient,
   type ClientRow,
   getAccountAccess,
+  getCalendarDay,
+  getBookingRules,
+  getClientAppointmentHistory,
   getClientReferralLink,
   getClientReferralStats,
   getClients,
@@ -17,6 +21,8 @@ import {
   getPublicAvailability,
   getPublicServices,
   getPublicSlots,
+  getServices,
+  reorderServices,
   joinWaitlist,
   rescheduleManagedAppointment,
   resolveBookingInquiryHandoff,
@@ -25,7 +31,152 @@ import {
   resolvePublicReferral,
   setActiveBookingPreviewToken,
   updateStylistSettingsProfile,
+  updateBookingRules,
 } from "@/src/lib/api";
+
+describe("authenticated appointments and services api helpers", () => {
+  beforeEach(() => {
+    vi.stubGlobal("fetch", vi.fn());
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("loads the authenticated catalog through the same-origin proxy", async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(JSON.stringify({ data: [] }), {
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    await getServices("token-1");
+
+    const [url, init] = vi.mocked(fetch).mock.calls[0] ?? [];
+    expect(url).toBe("/api/services");
+    expect(new Headers(init?.headers).get("Authorization")).toBe("Bearer token-1");
+  });
+
+  it("keeps inactive catalog entries and replaces order from the server response", async () => {
+    const ordered = [{ id: "inactive", name: "Archived color", durationMinutes: 30, price: 20, isActive: false, isDefault: false, sortOrder: 0 }];
+    vi.mocked(fetch)
+      .mockResolvedValueOnce(new Response(JSON.stringify({ data: ordered }), { headers: { "Content-Type": "application/json" } }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ data: ordered }), { headers: { "Content-Type": "application/json" } }));
+
+    await expect(getServices("token-1")).resolves.toEqual(ordered);
+    await expect(reorderServices("token-1", ["inactive"])).resolves.toEqual(ordered);
+    expect(vi.mocked(fetch).mock.calls[1]).toEqual([
+      "/api/services/reorder",
+      expect.objectContaining({ method: "PATCH", body: JSON.stringify({ serviceIds: ["inactive"] }) }),
+    ]);
+  });
+
+  it("preserves the calendar endpoint's bare response shape", async () => {
+    const calendarDay = {
+      date: "2026-10-16",
+      appointments: [],
+      availableSlots: [],
+      summary: {
+        selectedDateLabel: "Friday, October 16",
+        totalAppointments: 0,
+        bookedRevenueCents: 0,
+        bookedMinutes: 0,
+        workingMinutes: 480,
+        freeMinutesRemaining: 480,
+        openGapCount: 1,
+        comparisonVsLastWeekPercent: null,
+      },
+    };
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(JSON.stringify(calendarDay), {
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    await expect(getCalendarDay("2026-10-16", "token-1")).resolves.toEqual(calendarDay);
+    expect(vi.mocked(fetch).mock.calls[0]?.[0]).toBe("/api/calendar?date=2026-10-16");
+  });
+
+  it("posts ordered appointment service IDs with an idempotency key", async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(JSON.stringify({ data: { id: "appointment-1" } }), {
+        status: 201,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    await createAppointment(
+      "token-1",
+      {
+        client_id: "client-1",
+        appointment_date: "2026-10-16T09:00:00-06:00",
+        duration_minutes: 120,
+        booking_source: "internal",
+        service_ids: ["service-2", "service-1"],
+      },
+      "appointment-save-1",
+    );
+
+    const [url, init] = vi.mocked(fetch).mock.calls[0] ?? [];
+    expect(url).toBe("/api/appointments");
+    expect(init).toMatchObject({
+      method: "POST",
+      body: JSON.stringify({
+        client_id: "client-1",
+        appointment_date: "2026-10-16T09:00:00-06:00",
+        duration_minutes: 120,
+        booking_source: "internal",
+        service_ids: ["service-2", "service-1"],
+      }),
+    });
+    expect(new Headers(init?.headers).get("Idempotency-Key")).toBe("appointment-save-1");
+  });
+
+  it("normalizes unpaginated client appointment history", async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(JSON.stringify({ data: [] }), {
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    await expect(getClientAppointmentHistory("client-1", "token-1")).resolves.toEqual({
+      data: [],
+      next_cursor: null,
+    });
+  });
+
+  it("reads and independently patches new-client service restrictions", async () => {
+    vi.mocked(fetch)
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({
+          data: { restrictServicesForNewClients: true, restrictedServiceIds: ["service-1"] },
+        }), { headers: { "Content-Type": "application/json" } }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({
+          data: { restrictServicesForNewClients: false, restrictedServiceIds: [] },
+        }), { headers: { "Content-Type": "application/json" } }),
+      );
+
+    await expect(getBookingRules("token-1")).resolves.toMatchObject({
+      restrictServicesForNewClients: true,
+      restrictedServiceIds: ["service-1"],
+    });
+    await updateBookingRules("token-1", {
+      restrictServicesForNewClients: false,
+      restrictedServiceIds: [],
+    });
+
+    expect(vi.mocked(fetch).mock.calls[0]?.[0]).toBe("/api/settings/booking-rules");
+    expect(vi.mocked(fetch).mock.calls[1]).toEqual([
+      "/api/settings/booking-rules",
+      expect.objectContaining({
+        method: "PATCH",
+        body: JSON.stringify({ restrictServicesForNewClients: false, restrictedServiceIds: [] }),
+      }),
+    ]);
+  });
+});
 
 describe("public booking api helpers", () => {
   beforeEach(() => {

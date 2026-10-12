@@ -511,6 +511,176 @@ export type PublicService = {
   sortOrder: number;
 };
 
+/** A service in the authenticated stylist's complete catalog. */
+export type Service = PublicService;
+
+export type CreateServiceBody = {
+  name: string;
+  durationMinutes: number;
+  price: number;
+  isActive: boolean;
+  isDefault?: boolean;
+  category?: string;
+  description?: string;
+};
+
+export type UpdateServiceBody = Partial<CreateServiceBody>;
+
+export type BookingRules = {
+  restrictServicesForNewClients: boolean;
+  restrictedServiceIds: string[];
+  [key: string]: unknown;
+};
+
+export type UpdateBookingRulesBody = Pick<
+  BookingRules,
+  "restrictServicesForNewClients" | "restrictedServiceIds"
+>;
+
+export type AppointmentStatus =
+  | "pending"
+  | "scheduled"
+  | "completed"
+  | "cancelled"
+  | "no_show";
+
+export type CalendarAppointment = {
+  id: string;
+  client_id: string;
+  client_name: string | null;
+  appointment_date: string;
+  start_time: string;
+  end_time: string;
+  service_name: string | null;
+  services: string[];
+  duration_minutes: number;
+  price: number;
+  revenue: number;
+  status: AppointmentStatus;
+  notes: string | null;
+};
+
+export type CalendarAvailableSlot = {
+  id: string;
+  startTime: string;
+  endTime: string;
+  durationMinutes: number;
+  canBook: boolean;
+};
+
+export type CalendarDay = {
+  date: string;
+  appointments: CalendarAppointment[];
+  availableSlots: CalendarAvailableSlot[];
+  summary: {
+    selectedDateLabel: string;
+    totalAppointments: number;
+    bookedRevenueCents: number;
+    bookedMinutes: number;
+    workingMinutes: number;
+    freeMinutesRemaining: number | null;
+    openGapCount: number;
+    comparisonVsLastWeekPercent: number | null;
+  };
+};
+
+export type AppointmentServiceLine = {
+  id: string;
+  appointment_id: string;
+  service_id: string | null;
+  service_name_snapshot: string;
+  category_key_snapshot: string | null;
+  category_label_snapshot: string | null;
+  booked_amount_minor: number;
+  line_position: number;
+};
+
+export type Appointment = {
+  id: string;
+  client_id: string;
+  appointment_date: string;
+  duration_minutes: number;
+  status: AppointmentStatus;
+  booking_source: string;
+  notes: string | null;
+  service_name?: string | null;
+  price?: number;
+  client_name?: string;
+  client_phone?: string | null;
+  client_email?: string | null;
+  client_preferred_contact_method?: string | null;
+  client_contact?: string | null;
+  start_time?: string;
+  end_time?: string;
+  services?: string[];
+  revenue?: number;
+  service_ids?: Array<string | null>;
+  service_lines?: AppointmentServiceLine[];
+};
+
+export type AppointmentServiceLineInput = {
+  service_id?: string | null;
+  service_name: string;
+  category_key?: string | null;
+  category_label?: string | null;
+  booked_amount_minor: number;
+};
+
+type AppointmentServiceSelection = {
+  service_ids: string[];
+  service_id?: never;
+  service_lines?: never;
+  service_name?: never;
+  price?: never;
+};
+
+type AppointmentExplicitServiceLines = {
+  service_lines: AppointmentServiceLineInput[];
+  service_ids?: never;
+  service_id?: never;
+  service_name?: never;
+  price?: never;
+};
+
+export type CreateAppointmentBody = {
+  client_id: string;
+  appointment_date: string;
+  duration_minutes: number;
+  status?: AppointmentStatus;
+  booking_source: "internal";
+  notes?: string | null;
+} & (AppointmentServiceSelection | AppointmentExplicitServiceLines);
+
+export type UpdateAppointmentBody = Partial<
+  Pick<
+    CreateAppointmentBody,
+    "client_id" | "appointment_date" | "duration_minutes" | "status" | "notes"
+  >
+> &
+  (
+    | { service_ids?: string[]; service_lines?: never }
+    | { service_lines?: AppointmentServiceLineInput[]; service_ids?: never }
+  );
+
+export type AppointmentActivity = {
+  id: string;
+  appointment_id: string;
+  event_type: string;
+  created_at: string;
+  [key: string]: unknown;
+};
+
+export type ClientAppointmentHistoryQuery = {
+  status?: "all" | "past" | "upcoming";
+  limit?: number;
+  cursor?: string;
+};
+
+export type ClientAppointmentHistoryPage = {
+  data: Appointment[];
+  next_cursor: string | null;
+};
+
 export type AvailabilitySummary = {
   timezone?: string | null;
   dates?: string[];
@@ -1789,4 +1959,156 @@ export async function getClientReferralStats(
     accessToken,
     { preferProxy: true },
   );
+}
+
+export async function getServices(
+  accessToken: string,
+  options: { signal?: AbortSignal } = {},
+) {
+  return requestAuthenticatedApi<Service[]>("/api/services", accessToken, {
+    preferProxy: true,
+    init: { signal: options.signal },
+  });
+}
+
+export async function createService(accessToken: string, body: CreateServiceBody) {
+  return requestAuthenticatedApi<Service>("/api/services", accessToken, {
+    preferProxy: true,
+    init: { method: "POST", body: JSON.stringify(body) },
+  });
+}
+
+export async function updateService(
+  serviceId: string,
+  accessToken: string,
+  body: UpdateServiceBody,
+) {
+  return requestAuthenticatedApi<Service>(
+    `/api/services/${encodeURIComponent(serviceId)}`,
+    accessToken,
+    { preferProxy: true, init: { method: "PATCH", body: JSON.stringify(body) } },
+  );
+}
+
+export async function reorderServices(accessToken: string, serviceIds: string[]) {
+  return requestAuthenticatedApi<Service[]>("/api/services/reorder", accessToken, {
+    preferProxy: true,
+    init: { method: "PATCH", body: JSON.stringify({ serviceIds }) },
+  });
+}
+
+export async function deleteService(serviceId: string, accessToken: string) {
+  await requestAuthenticatedApi<void>(
+    `/api/services/${encodeURIComponent(serviceId)}`,
+    accessToken,
+    { preferProxy: true, init: { method: "DELETE" } },
+  );
+}
+
+export async function getBookingRules(accessToken: string) {
+  return requestAuthenticatedApi<BookingRules>(
+    "/api/settings/booking-rules",
+    accessToken,
+    { preferProxy: true },
+  );
+}
+
+export async function updateBookingRules(
+  accessToken: string,
+  body: UpdateBookingRulesBody,
+) {
+  return requestAuthenticatedApi<BookingRules>(
+    "/api/settings/booking-rules",
+    accessToken,
+    {
+      preferProxy: true,
+      init: { method: "PATCH", body: JSON.stringify(body) },
+    },
+  );
+}
+
+export async function getCalendarDay(
+  date: string,
+  accessToken: string,
+  options: { signal?: AbortSignal } = {},
+) {
+  const params = new URLSearchParams({ date });
+  // Calendar intentionally returns a bare day object instead of a { data }
+  // envelope; requestAuthenticatedApi supports both response shapes.
+  return requestAuthenticatedApi<CalendarDay>(
+    `/api/calendar?${params.toString()}`,
+    accessToken,
+    { preferProxy: true, init: { signal: options.signal } },
+  );
+}
+
+export async function getAppointment(appointmentId: string, accessToken: string) {
+  return requestAuthenticatedApi<Appointment>(
+    `/api/appointments/${encodeURIComponent(appointmentId)}`,
+    accessToken,
+    { preferProxy: true },
+  );
+}
+
+export async function getAppointmentActivity(
+  appointmentId: string,
+  accessToken: string,
+) {
+  return requestAuthenticatedApi<AppointmentActivity[]>(
+    `/api/appointments/${encodeURIComponent(appointmentId)}/activity`,
+    accessToken,
+    { preferProxy: true },
+  );
+}
+
+export async function createAppointment(
+  accessToken: string,
+  body: CreateAppointmentBody,
+  idempotencyKey: string,
+) {
+  return requestAuthenticatedApi<Appointment>("/api/appointments", accessToken, {
+    preferProxy: true,
+    init: {
+      method: "POST",
+      headers: { "Idempotency-Key": idempotencyKey },
+      body: JSON.stringify(body),
+    },
+  });
+}
+
+export async function updateAppointment(
+  appointmentId: string,
+  accessToken: string,
+  body: UpdateAppointmentBody,
+) {
+  return requestAuthenticatedApi<Appointment>(
+    `/api/appointments/${encodeURIComponent(appointmentId)}`,
+    accessToken,
+    { preferProxy: true, init: { method: "PATCH", body: JSON.stringify(body) } },
+  );
+}
+
+export async function getClientAppointmentHistory(
+  clientId: string,
+  accessToken: string,
+  query: ClientAppointmentHistoryQuery = {},
+) {
+  const params = new URLSearchParams();
+  if (query.status) params.set("status", query.status);
+  if (query.limit !== undefined) params.set("limit", String(query.limit));
+  if (query.cursor) params.set("cursor", query.cursor);
+  const search = params.toString();
+  const response = await requestAuthenticatedApi<
+    { data: Appointment[]; next_cursor?: string | null } | Appointment[]
+  >(
+    `/api/clients/${encodeURIComponent(clientId)}/appointments${search ? `?${search}` : ""}`,
+    accessToken,
+    { preferProxy: true, unwrap: false },
+  );
+
+  if (Array.isArray(response)) {
+    return { data: response, next_cursor: null } satisfies ClientAppointmentHistoryPage;
+  }
+
+  return { data: response.data, next_cursor: response.next_cursor ?? null };
 }

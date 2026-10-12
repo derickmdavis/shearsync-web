@@ -3,7 +3,7 @@ import Image from "next/image";
 import type { ReactNode } from "react";
 import styles from "./workspace.module.css";
 
-export type WorkspaceSection = "insights" | "calendar" | "clients" | "settings";
+export type WorkspaceSection = "insights" | "calendar" | "clients" | "import" | "settings" | "help";
 
 type WorkspaceShellProps = {
   active: WorkspaceSection;
@@ -13,7 +13,8 @@ type WorkspaceShellProps = {
 const navItems = [
   { href: "/calendar", label: "Calendar", icon: "□", section: "calendar" },
   { href: "/clients", label: "Clients", icon: "♧", section: "clients" },
-  { href: "/settings/business-details", label: "Settings", icon: "⚙", section: "settings" },
+  { href: "/import", label: "Import", icon: "⇩", section: "import" },
+  { href: "/settings", label: "Settings", icon: "⚙", section: "settings" },
 ] as const;
 
 export function WorkspaceShell({ active, children }: WorkspaceShellProps) {
@@ -38,7 +39,7 @@ export function WorkspaceShell({ active, children }: WorkspaceShellProps) {
         </nav>
 
         <nav className={styles.utilityNav} aria-label="Utility navigation">
-          <a className={styles.navItem} href="#help"><span className={styles.navIcon} aria-hidden="true">?</span>Help</a>
+          <Link className={`${styles.navItem} ${active === "help" ? styles.navItemActive : ""}`} href="/help"><span className={styles.navIcon} aria-hidden="true">?</span>Help</Link>
         </nav>
       </aside>
 
