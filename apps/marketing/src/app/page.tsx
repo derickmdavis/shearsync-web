@@ -194,24 +194,19 @@ function BrandLogo({ className = "" }: { className?: string }) {
   );
 }
 
-function HomeNav({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
+function HomeNav() {
   return (
     <nav
       className="relative z-20 mx-auto flex h-[72px] max-w-[1280px] items-center justify-between px-5 sm:px-8 lg:h-[84px] lg:px-12"
       aria-label="Primary"
     >
-      <Link href="#top" className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#D6A85A] focus:outline-none focus:ring-2 focus:ring-[#D6A85A]/70 lg:hidden">
-        Root &amp; Foil
-      </Link>
-
       <div className="ml-auto flex items-center">
-        <MarketingButton
-          onClick={onJoinWaitlist}
-          variant="nav"
-          className="h-9 border-[#D6A85A]/70 !bg-transparent px-3 text-xs !text-[#FAF7F2] !shadow-none hover:!border-[#F0CD8A] hover:!bg-[#D6A85A]/10 sm:px-4 lg:h-10 lg:px-5 lg:text-sm"
+        <Link
+          href={loginHref}
+          className="inline-flex h-9 items-center justify-center rounded-[8px] border border-[#D6A85A]/70 bg-transparent px-3 text-xs font-semibold text-[#FAF7F2] transition-colors hover:border-[#F0CD8A] hover:bg-[#D6A85A]/10 focus:outline-none focus:ring-2 focus:ring-[#D6A85A]/70 sm:px-4 lg:h-10 lg:px-5 lg:text-sm"
         >
-          Join Waitlist
-        </MarketingButton>
+          Sign in
+        </Link>
       </div>
     </nav>
   );
@@ -282,19 +277,45 @@ function HeroCarousel() {
         moveSlide(start > end ? 1 : -1);
       }}
     >
-      <div className="relative aspect-[450/460] overflow-hidden" aria-live="polite">
-        {heroSlides.map((slide, index) => (
-          <Image
-            key={slide.src}
-            src={slide.src}
-            alt={index === activeIndex ? slide.alt : ""}
-            width={450}
-            height={460}
-            priority={index === 2}
-            sizes="(min-width: 1024px) 52vw, (min-width: 640px) 620px, 100vw"
-            className={`absolute inset-0 h-full w-full object-contain transition-[opacity,transform] duration-500 motion-reduce:transition-none ${index === activeIndex ? "translate-x-0 opacity-100" : "pointer-events-none translate-x-3 opacity-0"}`}
-          />
-        ))}
+      <div className="group relative aspect-[450/460] overflow-hidden" aria-live="polite">
+        <div
+          className="flex h-full w-full transition-transform duration-500 ease-out motion-reduce:transition-none"
+          style={{ transform: `translateX(-${activeIndex * 100}%)` }}
+        >
+          {heroSlides.map((slide, index) => (
+            <div key={slide.src} className="h-full w-full shrink-0">
+              <Image
+                src={slide.src}
+                alt={index === activeIndex ? slide.alt : ""}
+                width={450}
+                height={460}
+                priority={index === 2}
+                sizes="(min-width: 1024px) 52vw, (min-width: 640px) 620px, 100vw"
+                className="h-full w-full object-contain"
+              />
+            </div>
+          ))}
+        </div>
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,#080807_0%,transparent_11%,transparent_89%,#080807_100%),linear-gradient(to_bottom,#080807_0%,transparent_9%,transparent_88%,#080807_100%)]"
+        />
+        <button
+          type="button"
+          onClick={() => moveSlide(-1)}
+          aria-label="Show previous product preview"
+          className="absolute left-1 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full border border-[#D6A85A]/60 bg-[#080807]/70 text-xl text-[#FAF7F2] opacity-0 backdrop-blur-sm transition hover:bg-[#D6A85A] hover:text-[#17120C] focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-[#F0CD8A] group-hover:opacity-100 sm:left-3 sm:h-10 sm:w-10"
+        >
+          <span aria-hidden="true">‹</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => moveSlide(1)}
+          aria-label="Show next product preview"
+          className="absolute right-1 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full border border-[#D6A85A]/60 bg-[#080807]/70 text-xl text-[#FAF7F2] opacity-0 backdrop-blur-sm transition hover:bg-[#D6A85A] hover:text-[#17120C] focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-[#F0CD8A] group-hover:opacity-100 sm:right-3 sm:h-10 sm:w-10"
+        >
+          <span aria-hidden="true">›</span>
+        </button>
       </div>
       <div className="mt-2 flex justify-center gap-3" role="tablist" aria-label="Product preview slides">
         {heroSlides.map((slide, index) => (
@@ -319,7 +340,7 @@ function HomeHero({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
       id="top"
       className="relative isolate overflow-hidden bg-[#080807] text-[#FAF7F2]"
     >
-      <HomeNav onJoinWaitlist={onJoinWaitlist} />
+      <HomeNav />
 
       <div className="relative z-10 mx-auto grid max-w-[1280px] gap-8 px-5 pb-10 pt-2 sm:px-8 sm:pb-14 lg:min-h-[620px] lg:grid-cols-[0.8fr_1.2fr] lg:items-center lg:gap-3 lg:px-12 lg:pb-10 lg:pt-0">
         <div className="mx-auto max-w-[560px] text-center lg:mx-0 lg:text-left">
@@ -335,8 +356,8 @@ function HomeHero({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
             Designed for independent stylists and barbers
           </p>
 
-          <h1 className="mt-5 max-w-[530px] font-display text-[clamp(43px,12vw,58px)] font-semibold leading-[0.91] tracking-[-0.025em] text-[#FAF7F2] sm:text-[68px] lg:mt-6 lg:text-[68px] xl:text-[76px]">
-            Growth starts<br className="hidden lg:block" /> at the roots.
+          <h1 className="mt-5 whitespace-nowrap font-display text-[clamp(23px,7.4vw,38px)] font-semibold leading-[0.91] tracking-[-0.05em] text-[#FAF7F2] sm:text-[52px] lg:mt-6 lg:text-[68px] lg:tracking-[-0.025em] xl:text-[76px]">
+            Growth starts at the roots.
           </h1>
 
           <h2 className="mt-4 font-display text-[clamp(20px,5.7vw,27px)] font-semibold leading-tight tracking-[-0.01em] text-[#D6A85A] lg:mt-5 lg:text-[27px]">
