@@ -46,6 +46,9 @@ export function WorkspaceShell({ active, children }: WorkspaceShellProps) {
 
       <section className={styles.shellMain}>
         <header className={styles.topbar}>
+          <Link className={styles.mobileBrand} href="/calendar" aria-label="Root and Foil calendar">
+            <Image src="/branding/root-and-foil-logo.png" width={1137} height={1132} alt="" />
+          </Link>
           <label className={styles.globalSearch}>
             <span aria-hidden="true">⌕</span>
             <input aria-label="Search" placeholder="Search clients, appointments, or notes..." />
@@ -54,6 +57,15 @@ export function WorkspaceShell({ active, children }: WorkspaceShellProps) {
             <span className={styles.avatar} aria-hidden="true">DD</span>
             <span className={styles.userMenu}>Derick Davis</span>
           </div>
+          <details className={styles.mobileNavigation}>
+            <summary aria-label="Open navigation"><span aria-hidden="true">☰</span><span>Menu</span></summary>
+            <nav aria-label="Mobile primary navigation">
+              {navItems.map((item) => <Link className={`${styles.mobileNavItem} ${item.section === active ? styles.mobileNavItemActive : ""}`} href={item.href} key={item.label}>
+                <span aria-hidden="true">{item.icon}</span>{item.label}
+              </Link>)}
+              <Link className={`${styles.mobileNavItem} ${active === "help" ? styles.mobileNavItemActive : ""}`} href="/help"><span aria-hidden="true">?</span>Help</Link>
+            </nav>
+          </details>
         </header>
         <div className={styles.pageCanvas}>{children}</div>
       </section>

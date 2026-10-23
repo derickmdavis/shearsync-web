@@ -1813,6 +1813,21 @@ export async function getAutomationBootstrap(accessToken: string) {
   );
 }
 
+export async function setAutomationEnabled(
+  accessToken: string,
+  automationKey: string,
+  enabled: boolean,
+) {
+  return requestAuthenticatedApi<unknown>(
+    `/api/activity/automation/settings/${encodeURIComponent(automationKey)}`,
+    accessToken,
+    {
+      preferProxy: true,
+      init: { method: "PATCH", body: JSON.stringify({ enabled }) },
+    },
+  );
+}
+
 export async function updateAccountProfile(
   accessToken: string,
   body: AccountProfileUpdate,

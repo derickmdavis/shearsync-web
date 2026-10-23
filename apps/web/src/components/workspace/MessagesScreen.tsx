@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   ApiError,
   getAutomationBootstrap,
+  setAutomationEnabled,
   type AutomationBootstrap,
   type AutomationChannelCapability,
   type AutomationControl,
@@ -36,7 +37,7 @@ function channelDescription(name: string, channel: AutomationChannelCapability) 
   return channel.enabled ? `${name} enabled` : `${name} off`;
 }
 
-function AutomationCard({ control }: { control: AutomationControl }) {
+function AutomationCard({ control, changing, onEnabledChange }: { control: AutomationControl; changing: boolean; onEnabledChange: (enabled: boolean) => void }) {
   const channels: ReadonlyArray<readonly [string, AutomationChannelCapability]> = [
     ["Email", control.channels.email],
     ["SMS", control.channels.sms],
@@ -49,7 +50,14 @@ function AutomationCard({ control }: { control: AutomationControl }) {
         <h2>{control.label}</h2>
         <p>{control.mode === "approval_required" ? "Approval required before sending" : control.mode === "automatic" ? "Sends automatically" : "Automation status"}</p>
       </div>
-      <span className={`${styles.automationStatus} ${control.enabled && control.feature_available ? styles.automationStatusOn : ""}`}>{control.status_label}</span>
+      <div className={styles.automationCardActions}>
+        <span className={`${styles.automationStatus} ${control.enabled && control.feature_available ? styles.automationStatusOn : ""}`}>{control.status_label}</span>
+        <label className={styles.automationToggle}>
+          <span>Automation</span>
+          <input type="checkbox" checked={control.enabled} disabled={!control.feature_available || changing} onChange={(event) => onEnabledChange(event.target.checked)} />
+          <i aria-hidden="true" />
+        </label>
+      </div>
     </header>
 
     {!control.feature_available ? <p className={styles.automationNotice}>{control.unavailable_reason || "This automation is unavailable for this account."}</p> : null}
@@ -81,6 +89,7 @@ export function MessagesScreen() {
   const [data, setData] = useState<AutomationBootstrap | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [reload, setReload] = useState(0);
+  const [changingKey, setChangingKey] = useState<string | null>(null);
   const requestVersion = useRef(0);
 
   useEffect(() => {
@@ -102,6 +111,24 @@ export function MessagesScreen() {
     setReload((value) => value + 1);
   }
 
+  async function changeAutomation(control: AutomationControl, enabled: boolean) {
+    setChangingKey(control.key);
+    setError(null);
+    try {
+      const refreshed = await withActiveAccount(async (accessToken) => {
+        await setAutomationEnabled(accessToken, control.key, enabled);
+        return getAutomationBootstrap(accessToken);
+      });
+      setData(refreshed);
+      setState("ready");
+    } catch (cause) {
+      setError(errorText(cause));
+      setState("error");
+    } finally {
+      setChangingKey(null);
+    }
+  }
+
   return <WorkspaceShell active="messages"><section className={styles.messagesPage}>
     <PageHeading title="Messages" subtitle="See which client communications are active and the message each automation will send." action={<button className={styles.secondaryButton} type="button" onClick={reloadMessages} disabled={state === "loading"}>Refresh</button>} />
     {state === "error" ? <section className={styles.messagesStatus} role="alert"><p>{error}</p><button className={styles.secondaryButton} type="button" onClick={reloadMessages}>Try again</button></section> : null}
@@ -112,7 +139,7 @@ export function MessagesScreen() {
         <div><strong>{data.summary.available_count}</strong><span>Available</span></div>
         <div><strong>{data.customers_reached.unique_clients}</strong><span>Clients reached in the last {data.customers_reached.window_days} days</span></div>
       </section>
-      <div className={styles.automationGrid}>{data.controls.map((control) => <AutomationCard control={control} key={control.key} />)}</div>
+      <div className={styles.automationGrid}>{data.controls.map((control) => <AutomationCard control={control} changing={changingKey === control.key} onEnabledChange={(enabled) => void changeAutomation(control, enabled)} key={control.key} />)}</div>
     </> : null}
   </section></WorkspaceShell>;
 }
