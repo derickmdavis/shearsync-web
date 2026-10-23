@@ -197,16 +197,18 @@ function BrandLogo({ className = "" }: { className?: string }) {
 function HomeNav({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
   return (
     <nav
-      className="relative z-20 mx-auto flex h-[76px] max-w-[1180px] items-center justify-between px-5 sm:px-8 lg:h-[84px]"
+      className="relative z-20 mx-auto flex h-[72px] max-w-[1280px] items-center justify-between px-5 sm:px-8 lg:h-[84px] lg:px-12"
       aria-label="Primary"
     >
-      <BrandLogo className="lg:hidden" />
+      <Link href="#top" className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#D6A85A] focus:outline-none focus:ring-2 focus:ring-[#D6A85A]/70 lg:hidden">
+        Root &amp; Foil
+      </Link>
 
       <div className="ml-auto flex items-center">
         <MarketingButton
           onClick={onJoinWaitlist}
           variant="nav"
-          className="h-9 px-3 text-xs sm:px-4 lg:h-10 lg:px-5 lg:text-sm"
+          className="h-9 border-[#D6A85A]/70 !bg-transparent px-3 text-xs !text-[#FAF7F2] !shadow-none hover:!border-[#F0CD8A] hover:!bg-[#D6A85A]/10 sm:px-4 lg:h-10 lg:px-5 lg:text-sm"
         >
           Join Waitlist
         </MarketingButton>
@@ -215,55 +217,149 @@ function HomeNav({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
   );
 }
 
+const heroSlides = [
+  {
+    src: "/assets/hero/hero-stay-booked.png",
+    alt: "Root & Foil booking experience shown across two phone screens",
+  },
+  {
+    src: "/assets/hero/hero-keep-clients.png",
+    alt: "Root & Foil client management screens",
+  },
+  {
+    src: "/assets/hero/hero-grow-confidence.png",
+    alt: "Root & Foil insights and calendar screens",
+  },
+];
+
+function HeroCarousel() {
+  const [activeIndex, setActiveIndex] = useState(2);
+  const [paused, setPaused] = useState(false);
+  const touchStartX = useRef<number | null>(null);
+
+  useEffect(() => {
+    const prefersReducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+    if (paused || prefersReducedMotion) return;
+
+    const interval = window.setInterval(() => {
+      setActiveIndex((current) => (current + 1) % heroSlides.length);
+    }, 5000);
+
+    return () => window.clearInterval(interval);
+  }, [paused]);
+
+  const selectSlide = (index: number) => {
+    setActiveIndex(index);
+    setPaused(true);
+  };
+
+  const moveSlide = (direction: 1 | -1) => {
+    setActiveIndex((current) => (current + direction + heroSlides.length) % heroSlides.length);
+    setPaused(true);
+  };
+
+  return (
+    <div
+      className="relative mx-auto w-full max-w-[600px] select-none"
+      role="region"
+      aria-roledescription="carousel"
+      aria-label="Root & Foil product previews"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocus={() => setPaused(true)}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setPaused(false);
+      }}
+      onTouchStart={(event) => {
+        touchStartX.current = event.touches[0]?.clientX ?? null;
+        setPaused(true);
+      }}
+      onTouchEnd={(event) => {
+        const start = touchStartX.current;
+        const end = event.changedTouches[0]?.clientX;
+        touchStartX.current = null;
+        if (start === null || end === undefined || Math.abs(start - end) < 42) return;
+        moveSlide(start > end ? 1 : -1);
+      }}
+    >
+      <div className="relative aspect-[450/460] overflow-hidden" aria-live="polite">
+        {heroSlides.map((slide, index) => (
+          <Image
+            key={slide.src}
+            src={slide.src}
+            alt={index === activeIndex ? slide.alt : ""}
+            width={450}
+            height={460}
+            priority={index === 2}
+            sizes="(min-width: 1024px) 52vw, (min-width: 640px) 620px, 100vw"
+            className={`absolute inset-0 h-full w-full object-contain transition-[opacity,transform] duration-500 motion-reduce:transition-none ${index === activeIndex ? "translate-x-0 opacity-100" : "pointer-events-none translate-x-3 opacity-0"}`}
+          />
+        ))}
+      </div>
+      <div className="mt-2 flex justify-center gap-3" role="tablist" aria-label="Product preview slides">
+        {heroSlides.map((slide, index) => (
+          <button
+            key={slide.src}
+            type="button"
+            role="tab"
+            aria-selected={index === activeIndex}
+            aria-label={`Show product preview ${index + 1}`}
+            onClick={() => selectSlide(index)}
+            className={`h-3 w-3 rounded-full border border-transparent transition-colors focus:outline-none focus:ring-2 focus:ring-[#F0CD8A] focus:ring-offset-2 focus:ring-offset-[#080807] ${index === activeIndex ? "bg-[#D6A85A]" : "bg-[#69635B] hover:bg-[#A39A8C]"}`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function HomeHero({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
   return (
     <section
       id="top"
-      className="relative isolate overflow-hidden bg-[#F6F1E8] text-[#111111]"
+      className="relative isolate overflow-hidden bg-[#080807] text-[#FAF7F2]"
     >
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_24%,rgba(232,211,163,0.42)_0%,rgba(232,211,163,0.12)_28%,transparent_54%),radial-gradient(circle_at_92%_18%,rgba(214,187,133,0.35)_0%,rgba(214,187,133,0.10)_34%,transparent_62%),linear-gradient(135deg,#F6F1E8_0%,#FFF8E8_48%,#F6F1E8_100%)]" />
-      <div className="absolute inset-0 bg-[linear-gradient(120deg,transparent_0%,rgba(255,255,255,0.32)_44%,transparent_56%),linear-gradient(300deg,transparent_0%,rgba(200,164,107,0.12)_42%,transparent_65%)] opacity-60" />
       <HomeNav onJoinWaitlist={onJoinWaitlist} />
 
-      <div className="relative z-10 mx-auto grid max-w-[1180px] gap-8 px-5 pb-14 pt-7 sm:px-8 lg:min-h-[610px] lg:grid-cols-[0.86fr_1.14fr] lg:items-center lg:pb-0 lg:pt-0">
-        <div className="max-w-[560px] lg:-translate-y-6 lg:pb-8">
+      <div className="relative z-10 mx-auto grid max-w-[1280px] gap-8 px-5 pb-10 pt-2 sm:px-8 sm:pb-14 lg:min-h-[620px] lg:grid-cols-[0.8fr_1.2fr] lg:items-center lg:gap-3 lg:px-12 lg:pb-10 lg:pt-0">
+        <div className="mx-auto max-w-[560px] text-center lg:mx-0 lg:text-left">
           <Image
-            src="/assets/brand/root-foil-full-logo-light.png"
+            src="/assets/brand/root-foil-full-logo-transparent.png"
             alt="Root & Foil"
-            width={1536}
-            height={1024}
+            width={1169}
+            height={1157}
             priority
-            className="mx-auto mb-5 w-[300px] object-contain sm:w-[320px] lg:mx-0 lg:mb-5 lg:w-[260px]"
+            className="mx-auto mb-4 w-[116px] object-contain sm:w-[132px] lg:mx-0 lg:mb-5 lg:w-[158px]"
           />
-          <p className="inline-flex items-center gap-2 rounded-[4px] border border-[#C8A46B] bg-[#FFFDF8]/35 px-3 py-1 text-[9px] font-extrabold uppercase tracking-[0.07em] text-brand sm:whitespace-nowrap">
+          <p className="inline-flex items-center rounded-[5px] border border-[#D6A85A]/85 bg-black/20 px-3 py-1.5 text-[8px] font-extrabold uppercase tracking-[0.15em] text-[#E9BB6C] sm:text-[9px] sm:whitespace-nowrap">
             Designed for independent stylists and barbers
           </p>
 
-          <h1 className="mt-6 max-w-[530px] font-display text-[54px] font-bold leading-[0.9] tracking-normal text-[#111111] sm:text-[72px] lg:text-[78px]">
-            Growth starts at the roots.
+          <h1 className="mt-5 max-w-[530px] font-display text-[clamp(43px,12vw,58px)] font-semibold leading-[0.91] tracking-[-0.025em] text-[#FAF7F2] sm:text-[68px] lg:mt-6 lg:text-[68px] xl:text-[76px]">
+            Growth starts<br className="hidden lg:block" /> at the roots.
           </h1>
 
-          <h2 className="mt-5 max-w-[520px] whitespace-nowrap font-display text-[clamp(16px,4.8vw,28px)] font-bold leading-tight tracking-[-0.01em] text-brand sm:text-[32px]">
-            You built the roots - we add the lift.
+          <h2 className="mt-4 font-display text-[clamp(20px,5.7vw,27px)] font-semibold leading-tight tracking-[-0.01em] text-[#D6A85A] lg:mt-5 lg:text-[27px]">
+            You built the roots – we add the lift.
           </h2>
 
-          <p className="mt-5 max-w-[520px] text-[16px] leading-7 text-[#4F4A45] sm:text-[17px] lg:mt-8 lg:max-w-[500px]">
+          <p className="mx-auto mt-4 max-w-[500px] text-[15px] leading-6 text-[#E5DED4] sm:text-[16px] sm:leading-7 lg:mx-0 lg:mt-6">
             Root &amp; Foil helps you stay booked, remember every client, and
             understand your business. You get the tools you need without the
-            complexity you don&apos;t, at a price that makes sense
+            complexity you don&apos;t, at a price that makes sense.
           </p>
 
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-6 flex gap-2 sm:justify-center sm:gap-3 lg:justify-start lg:mt-7">
             <MarketingButton
               onClick={onJoinWaitlist}
-              className="w-full sm:w-auto"
+              className="h-11 flex-1 border-[#E3B166] !bg-[#D6A85A] px-3 !font-sans !text-[13px] !font-semibold !text-[#17120C] !shadow-[0_10px_24px_rgba(214,168,90,0.18)] hover:!bg-[#E3B166] sm:flex-none sm:px-6"
             >
               Join Waitlist
             </MarketingButton>
             <MarketingLink
               href="#product"
               variant="secondary"
-              className="w-full !font-sans !text-sm !font-semibold sm:w-auto"
+              className="h-11 flex-1 border-[#D6A85A] !bg-transparent px-3 !font-sans !text-[13px] !font-semibold !text-[#FAF7F2] hover:!bg-[#D6A85A]/10 hover:!text-white sm:flex-none sm:px-6"
             >
               See What&apos;s Included
             </MarketingLink>
@@ -271,20 +367,8 @@ function HomeHero({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
 
         </div>
 
-        <div className="relative -mr-5 min-h-[390px] sm:-mr-8 sm:min-h-[500px] lg:-mr-[calc((100vw-1180px)/2)] lg:-mt-8 lg:h-[712px] lg:min-h-0 lg:self-end">
-          <Image
-            src="/marketing/stylist-hero.png"
-            alt="Female stylist using a tablet in a salon"
-            fill
-            priority
-            sizes="(min-width: 1180px) 660px, (min-width: 1024px) 56vw, 100vw"
-            className="object-cover object-[58%_center]"
-            style={{
-              maskImage: "linear-gradient(to bottom, transparent 0, black 96px)",
-              WebkitMaskImage: "linear-gradient(to bottom, transparent 0, black 96px)",
-            }}
-          />
-          <div className="absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-[#F6F1E8] via-[#F6F1E8]/72 to-transparent lg:w-[38%] lg:from-[#F6F1E8]/90 lg:via-[#F6F1E8]/45" />
+        <div className="relative -mx-5 mt-1 sm:-mx-8 sm:mt-3 lg:mx-0 lg:mt-0">
+          <HeroCarousel />
         </div>
       </div>
     </section>
