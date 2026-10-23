@@ -3,7 +3,7 @@ import Image from "next/image";
 import type { ReactNode } from "react";
 import styles from "./workspace.module.css";
 
-export type WorkspaceSection = "insights" | "calendar" | "clients" | "import" | "settings" | "help";
+export type WorkspaceSection = "insights" | "calendar" | "clients" | "messages" | "import" | "settings" | "help";
 
 type WorkspaceShellProps = {
   active: WorkspaceSection;
@@ -13,6 +13,7 @@ type WorkspaceShellProps = {
 const navItems = [
   { href: "/calendar", label: "Calendar", icon: "□", section: "calendar" },
   { href: "/clients", label: "Clients", icon: "♧", section: "clients" },
+  { href: "/messages", label: "Messages", icon: "✉", section: "messages" },
   { href: "/import", label: "Import", icon: "⇩", section: "import" },
   { href: "/settings", label: "Settings", icon: "⚙", section: "settings" },
 ] as const;

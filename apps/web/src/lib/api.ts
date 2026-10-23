@@ -167,6 +167,66 @@ export type AccountProfileUpdate = {
   timezone?: string;
 };
 
+export type AutomationChannelCapability = {
+  available: boolean;
+  enabled: boolean;
+  unavailable_reason_code: string | null;
+  unavailable_reason: string | null;
+};
+
+export type AutomationTemplate = {
+  automationKey: string;
+  effectiveSubject: string;
+  effectiveBody: string;
+  source: "default" | "custom";
+  allowedVariables: string[];
+};
+
+export type AutomationControl = {
+  key: string;
+  label: string;
+  enabled: boolean;
+  feature_available: boolean;
+  unavailable_reason: string | null;
+  mode: "automatic" | "approval_required" | null;
+  pending_approval_count: number;
+  queued_count: number;
+  scheduled_count: number;
+  status_label: string;
+  settings_version: number;
+  channels: {
+    email: AutomationChannelCapability;
+    sms: AutomationChannelCapability;
+  };
+  timing: Record<string, number | boolean | null>;
+  settings: Record<string, unknown>;
+  content_rules: {
+    subject_max_length: number;
+    message_max_length: number;
+    available_tokens: string[];
+  } | null;
+  templates: AutomationTemplate[];
+};
+
+export type AutomationBootstrap = {
+  account_timezone: string;
+  summary: {
+    enabled_count: number;
+    available_count: number;
+    total_count: number;
+  };
+  controls: AutomationControl[];
+  customers_reached: {
+    unique_clients: number;
+    window_start: string;
+    window_end: string;
+    timezone: string;
+    window_kind: string;
+    window_days: number;
+    included_message_types: string[];
+  };
+};
+
 export type AuthBootstrapResponse = {
   auth: {
     userId: string;
@@ -1741,6 +1801,15 @@ export async function getAccountProfile(accessToken: string) {
     "/api/settings/profile",
     accessToken,
     { preferProxy: true },
+  );
+}
+
+/** Returns the backend's canonical, effective automation status projection. */
+export async function getAutomationBootstrap(accessToken: string) {
+  return requestAuthenticatedApi<AutomationBootstrap>(
+    "/api/outreach/automations",
+    accessToken,
+    { preferProxy: true, unwrap: false },
   );
 }
 
