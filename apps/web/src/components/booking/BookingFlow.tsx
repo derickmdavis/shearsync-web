@@ -1530,6 +1530,10 @@ export function BookingFlow({
           };
       const response = await createPublicBooking(bookingRequest, { idempotencyKey });
 
+      // A booking attribution token is a one-booking capability. Consume the
+      // browser copy once the backend has accepted the booking so a later
+      // direct booking cannot inherit this campaign's attribution.
+      clearBookingAttribution();
       clearStoredReferralCode(slug);
       referralCodeRef.current = null;
       setReferralCode(null);

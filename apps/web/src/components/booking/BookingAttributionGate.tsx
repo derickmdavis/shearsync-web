@@ -9,7 +9,6 @@ import {
   type ReactNode,
 } from "react";
 import {
-  ApiError,
   captureBookingAttributionContext,
   type BookingAttributionCapture,
   type StoredAttribution,
@@ -38,7 +37,7 @@ const capturePromises = new Map<string, Promise<BookingAttributionCapture>>();
 type PendingAttributionHandoff = {
   handoff: string;
   stylistSlug: string;
-  retryAttempted: boolean;
+  captureAttempted: boolean;
 };
 
 type BookingAttributionGateProps = {
@@ -69,11 +68,11 @@ export function BookingAttributionGate({
       };
     }
 
-    if (pendingHandoff.retryAttempted) {
-      // A previous page instance already made the one permitted retry. Do not
-      // turn reloads into unbounded capture attempts; discard the handoff and
-      // continue with an unattributed normal booking flow.
-      clearPendingAttributionHandoff();
+    const captureInFlight = capturePromises.has(pendingHandoff.handoff);
+
+    if (pendingHandoff.captureAttempted && !captureInFlight) {
+      // Handoffs are single-use. Never retry after an ambiguous failed
+      // response: the backend may have consumed the capability already.
       setAttribution(null);
       setReady(true);
       return () => {
@@ -81,7 +80,11 @@ export function BookingAttributionGate({
       };
     }
 
-    void captureAttributionWithRetry(pendingHandoff)
+    if (!pendingHandoff.captureAttempted) {
+      savePendingAttributionHandoff({ ...pendingHandoff, captureAttempted: true });
+    }
+
+    void captureAttribution(pendingHandoff)
       .then((captured) => {
         if (!active) {
           return;
@@ -94,17 +97,14 @@ export function BookingAttributionGate({
         };
         clearPendingAttributionHandoff();
         saveStoredBookingAttribution(storedAttribution);
+        removeAttributionParamsFromUrl();
         // This page-scoped value remains authoritative for the active tab,
         // even if another tab later updates the last-known local record.
         setAttribution(storedAttribution);
       })
-      .catch((error: unknown) => {
-        // Invalid and malformed handoffs cannot recover. Other failures are
-        // allowed to continue into the normal booking flow with the pending
-        // handoff retained for no more than one controlled retry.
-        if (isTerminalHandoffFailure(error)) {
-          clearPendingAttributionHandoff();
-        }
+      .catch(() => {
+        // Attribution is additive. Continue booking normally, but retain the
+        // attempted marker so this single-use handoff is never captured again.
       })
       .finally(() => {
         if (active) {
@@ -161,18 +161,15 @@ function takeAttributionHandoff(
   const handoff = url.searchParams.get(HANDOFF_PARAM);
 
   if (url.searchParams.has(HANDOFF_PARAM)) {
+    const existing = readPendingAttributionHandoff();
     const pending = handoff
-      ? { handoff, stylistSlug, retryAttempted: false }
+      ? existing?.handoff === handoff && existing.stylistSlug === stylistSlug
+        ? existing
+        : { handoff, stylistSlug, captureAttempted: false }
       : null;
     if (pending) {
       savePendingAttributionHandoff(pending);
     }
-    url.searchParams.delete(HANDOFF_PARAM);
-    window.history.replaceState(
-      window.history.state,
-      "",
-      `${url.pathname}${url.search}${url.hash}`,
-    );
     return pending;
   }
 
@@ -202,12 +199,12 @@ function readPendingAttributionHandoff(): PendingAttributionHandoff | null {
         && parsed.handoff
         && typeof parsed.stylistSlug === "string"
         && parsed.stylistSlug
-        && typeof parsed.retryAttempted === "boolean"
+        && typeof parsed.captureAttempted === "boolean"
       ) {
         return {
           handoff: parsed.handoff,
           stylistSlug: parsed.stylistSlug,
-          retryAttempted: parsed.retryAttempted,
+          captureAttempted: parsed.captureAttempted,
         };
       }
     } catch {
@@ -229,25 +226,14 @@ function savePendingAttributionHandoff(pending: PendingAttributionHandoff) {
   }
 }
 
-function captureAttributionWithRetry(pending: PendingAttributionHandoff) {
+function captureAttribution(pending: PendingAttributionHandoff) {
   const existing = capturePromises.get(pending.handoff);
 
   if (existing) {
     return existing;
   }
 
-  const capture = (async () => {
-    try {
-      return await captureBookingAttributionContext(pending.handoff);
-    } catch (error) {
-      if (!isRetryableCaptureFailure(error) || pending.retryAttempted) {
-        throw error;
-      }
-
-      savePendingAttributionHandoff({ ...pending, retryAttempted: true });
-      return captureBookingAttributionContext(pending.handoff);
-    }
-  })();
+  const capture = captureBookingAttributionContext(pending.handoff);
   capturePromises.set(pending.handoff, capture);
   void capture
     .finally(() => {
@@ -264,24 +250,23 @@ function captureAttributionWithRetry(pending: PendingAttributionHandoff) {
   return capture;
 }
 
-function isTerminalHandoffFailure(error: unknown) {
-  return (
-    error instanceof ApiError
-    && ((error.status === 404 && error.code === "booking_attribution_handoff_invalid")
-      || (error.status === 400 && error.code === "validation_failed"))
-  );
-}
-
-function isRetryableCaptureFailure(error: unknown) {
-  return error instanceof ApiError && error.status === 0;
-}
-
 function clearPendingAttributionHandoff() {
   try {
     sessionStorage.removeItem(PENDING_HANDOFF_STORAGE_KEY);
   } catch {
     // Storage cleanup must not interrupt booking.
   }
+}
+
+function removeAttributionParamsFromUrl() {
+  const url = new URL(window.location.href);
+  url.searchParams.delete(HANDOFF_PARAM);
+  url.searchParams.delete("booking_attribution_token");
+  window.history.replaceState(
+    window.history.state,
+    "",
+    `${url.pathname}${url.search}${url.hash}`,
+  );
 }
 
 export function getStoredBookingAttribution(stylistSlug: string) {

@@ -61,7 +61,7 @@ describe("BookingAttributionGate", () => {
     window.history.replaceState({}, "", "/");
   });
 
-  it("scrubs only the handoff, captures it, and exposes the page-scoped record", async () => {
+  it("captures before scrubbing the handoff and exposes the page-scoped record", async () => {
     captureBookingAttributionContext.mockResolvedValue({
       bookingAttributionToken: "opaque-booking-token",
       expiresAt: "2026-11-06T12:00:00.000Z",
@@ -97,7 +97,7 @@ describe("BookingAttributionGate", () => {
     });
   });
 
-  it("allows the normal booking flow after a terminal capture failure", async () => {
+  it("keeps the handoff URL after a capture failure and does not retry it", async () => {
     captureBookingAttributionContext.mockRejectedValue(
       new ApiError("Invalid handoff", 404, undefined, "booking_attribution_handoff_invalid"),
     );
@@ -113,7 +113,12 @@ describe("BookingAttributionGate", () => {
       expect(screen.getByTestId("attribution").textContent).toBe("none");
     });
 
-    expect(sessionStorage.getItem("rf.pending_attribution_handoff")).toBeNull();
+    expect(window.location.search).toBe(
+      "?booking_attribution_handoff_token=expired-handoff",
+    );
+    expect(sessionStorage.getItem("rf.pending_attribution_handoff")).toContain(
+      '"captureAttempted":true',
+    );
   });
 
   it("discards a pending handoff when the current stylist does not match", async () => {
@@ -122,7 +127,7 @@ describe("BookingAttributionGate", () => {
       JSON.stringify({
         handoff: "stylist-a-handoff",
         stylistSlug: "stylist-a",
-        retryAttempted: false,
+        captureAttempted: false,
       }),
     );
     window.history.replaceState({}, "", "/book/stylist-b");
@@ -259,13 +264,10 @@ describe("BookingAttributionGate", () => {
     expect(getStoredBookingAttribution("other-stylist")?.token).toBe("other-token");
   });
 
-  it("makes one controlled retry after an ambiguous capture network failure", async () => {
-    captureBookingAttributionContext
-      .mockRejectedValueOnce(new ApiError("Network unavailable", 0))
-      .mockResolvedValueOnce({
-        bookingAttributionToken: "retried-token",
-        expiresAt: "2026-11-06T12:00:00.000Z",
-      });
+  it("does not retry after an ambiguous capture network failure", async () => {
+    captureBookingAttributionContext.mockRejectedValueOnce(
+      new ApiError("Network unavailable", 0),
+    );
     window.history.replaceState(
       {},
       "",
@@ -274,18 +276,18 @@ describe("BookingAttributionGate", () => {
 
     renderGate();
 
-    await waitFor(() => {
-      expect(screen.getByTestId("attribution").textContent).toBe("retried-token");
-    });
+    await waitFor(() => expect(screen.getByTestId("attribution").textContent).toBe("none"));
 
-    expect(captureBookingAttributionContext).toHaveBeenCalledTimes(2);
-    expect(sessionStorage.getItem("rf.pending_attribution_handoff")).toBeNull();
+    expect(captureBookingAttributionContext).toHaveBeenCalledTimes(1);
+    expect(sessionStorage.getItem("rf.pending_attribution_handoff")).toContain(
+      '"captureAttempted":true',
+    );
   });
 
-  it("stops after the single controlled retry across a reload", async () => {
-    captureBookingAttributionContext
-      .mockRejectedValueOnce(new ApiError("Network unavailable", 0))
-      .mockRejectedValueOnce(new ApiError("Network unavailable", 0));
+  it("does not retry a failed capture across a reload", async () => {
+    captureBookingAttributionContext.mockRejectedValueOnce(
+      new ApiError("Network unavailable", 0),
+    );
     window.history.replaceState(
       {},
       "",
@@ -298,9 +300,9 @@ describe("BookingAttributionGate", () => {
       expect(screen.getByTestId("attribution").textContent).toBe("none");
     });
 
-    expect(captureBookingAttributionContext).toHaveBeenCalledTimes(2);
+    expect(captureBookingAttributionContext).toHaveBeenCalledTimes(1);
     expect(sessionStorage.getItem("rf.pending_attribution_handoff")).toContain(
-      '"retryAttempted":true',
+      '"captureAttempted":true',
     );
 
     firstRender.unmount();
@@ -309,8 +311,10 @@ describe("BookingAttributionGate", () => {
     await waitFor(() => {
       expect(screen.getByTestId("attribution").textContent).toBe("none");
     });
-    expect(captureBookingAttributionContext).toHaveBeenCalledTimes(2);
-    expect(sessionStorage.getItem("rf.pending_attribution_handoff")).toBeNull();
+    expect(captureBookingAttributionContext).toHaveBeenCalledTimes(1);
+    expect(sessionStorage.getItem("rf.pending_attribution_handoff")).toContain(
+      '"captureAttempted":true',
+    );
   });
 
   it("keeps each tab's captured context after another tab updates local storage", async () => {

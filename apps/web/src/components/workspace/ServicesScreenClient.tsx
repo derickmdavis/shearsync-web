@@ -223,7 +223,7 @@ export function ServicesScreenClient() {
   </section></WorkspaceShell>;
 }
 
-function ServicesSettingsNav() { return <aside className={styles.settingsNav}><h2>Settings</h2><button type="button"><span>▣</span>Business Details</button><Link className={`${styles.settingsNavLink} ${styles.settingsActive}`} href="/settings/services"><span>▤</span>Services</Link><button type="button"><span>▧</span>Billing</button><Link className={styles.settingsNavLink} href="/settings/account"><span>◉</span>Account</Link></aside>; }
+function ServicesSettingsNav() { return <aside className={styles.settingsNav}><h2>Settings</h2><Link className={styles.settingsNavLink} href="/settings/business-details"><span>▣</span>Business Details</Link><Link className={`${styles.settingsNavLink} ${styles.settingsActive}`} href="/settings/services"><span>▤</span>Services</Link><button type="button"><span>▧</span>Billing</button><Link className={styles.settingsNavLink} href="/settings/account"><span>◉</span>Account</Link></aside>; }
 
 function ServiceDialog({ service, submitting, onClose, onSave }: { service: Service | null; submitting: boolean; onClose: () => void; onSave: (draft: ServiceDraft) => Promise<void> }) {
   const [draft, setDraft] = useState<ServiceDraft>(() => service ? draftFor(service) : EMPTY_DRAFT);

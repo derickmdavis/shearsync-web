@@ -220,12 +220,12 @@ async function completeSuccessfulBooking() {
   fireEvent.click(screen.getByRole("button", { name: /Haircut/i }));
   fireEvent.click(screen.getByRole("button", { name: "Continue" }));
 
-  await screen.findByText("Choose a date & time");
+  await screen.findByText("Choose a time");
   fireEvent.click(await screen.findByRole("button", { name: /9:00/i }));
   fireEvent.click(screen.getByRole("button", { name: "Continue" }));
 
-  await screen.findByText("Review your booking");
-  fireEvent.click(screen.getByRole("button", { name: /Book Appointment/i }));
+  await screen.findByText("Review your appointment");
+  fireEvent.click(screen.getByRole("button", { name: /Confirm appointment/i }));
 }
 
 describe("BookingFlow", () => {
@@ -1453,11 +1453,15 @@ describe("BookingFlow", () => {
       ],
     });
     createPublicBooking.mockResolvedValue(createBookingConfirmation());
+    const clearAttribution = vi.fn();
     bookingAttributionMocks.useBookingAttribution.mockReturnValue({
       token: "opaque-booking-token",
       expiresAt: "2026-11-06T12:00:00.000Z",
       stylistSlug: "maya-johnson",
     });
+    bookingAttributionMocks.useClearBookingAttribution.mockReturnValue(
+      clearAttribution,
+    );
 
     render(
       <BookingFlow
@@ -1479,6 +1483,7 @@ describe("BookingFlow", () => {
         expect.objectContaining({ idempotencyKey: expect.any(String) }),
       );
     });
+    expect(clearAttribution).toHaveBeenCalledTimes(1);
   });
 
   it("withholds unavailable, expired, and cross-stylist attribution tokens", () => {
