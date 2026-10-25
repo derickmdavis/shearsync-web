@@ -1,0 +1,5 @@
+import { API_BASE_URL, fetchWithTimeout } from "@/src/lib/api";
+import { buildSafeProxyResponseHeaders } from "@/src/lib/api-proxy";
+type Context = { params: Promise<{ path: string[] }> };
+async function handle(request: Request, context: Context) { try { const { path } = await context.params; const target = new URL(`/api/off-days/${path.map(encodeURIComponent).join("/")}`, API_BASE_URL); target.search = new URL(request.url).search; const headers = new Headers(request.headers); headers.delete("host"); const response = await fetchWithTimeout(target, { method: request.method, headers, body: request.method === "GET" ? undefined : await request.text(), cache: "no-store" }); return new Response(response.body, { status: response.status, statusText: response.statusText, headers: buildSafeProxyResponseHeaders(response.headers) }); } catch { return Response.json({ error: { message: "Unable to reach time off settings." } }, { status: 502 }); } }
+export const GET = handle; export const PATCH = handle; export const DELETE = handle;

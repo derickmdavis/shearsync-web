@@ -1,0 +1,18 @@
+import { API_BASE_URL, fetchWithTimeout } from "@/src/lib/api";
+import { buildSafeProxyResponseHeaders } from "@/src/lib/api-proxy";
+
+type RouteContext = { params: Promise<{ path: string[] }> };
+
+export async function GET(request: Request, context: RouteContext) {
+  try {
+    const { path } = await context.params;
+    const target = new URL(`/api/calendar/${path.map(encodeURIComponent).join("/")}`, API_BASE_URL);
+    target.search = new URL(request.url).search;
+    const headers = new Headers(request.headers);
+    headers.delete("host");
+    const response = await fetchWithTimeout(target, { method: "GET", headers, cache: "no-store" });
+    return new Response(response.body, { status: response.status, statusText: response.statusText, headers: buildSafeProxyResponseHeaders(response.headers) });
+  } catch {
+    return Response.json({ error: { message: "Unable to reach the calendar service." } }, { status: 502 });
+  }
+}

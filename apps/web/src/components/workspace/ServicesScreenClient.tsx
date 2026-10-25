@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import {
   ApiError,
@@ -191,9 +190,7 @@ export function ServicesScreenClient() {
     } catch (error) { setMessage(errorMessage(error)); await refreshAfterMutation(); } finally { setSavingRules(false); }
   }
 
-  return <WorkspaceShell active="settings"><section className={styles.settingsPage}>
-    <ServicesSettingsNav />
-    <div className={styles.settingsContent}>
+  return <WorkspaceShell active="settings"><section className={styles.settingsContent}>
       <PageHeading title="Services" subtitle="Manage the services available for clients to book." action={<button className={styles.primaryButton} type="button" onClick={() => setEditing(null)}>Add service</button>} />
       {message ? <p className={styles.servicesMessage} role="alert">{message}</p> : null}
       {loadState === "loading" ? <section className={styles.servicesPanel}><p>Loading your service catalog…</p></section> : null}
@@ -217,13 +214,10 @@ export function ServicesScreenClient() {
           <div className={styles.saveRow}><button className={styles.primaryButton} type="button" disabled={savingRules} onClick={() => void saveRules()}>{savingRules ? "Saving…" : "Save restrictions"}</button></div>
         </section> : null}
       </> : null}
-    </div>
     {editing !== undefined ? <ServiceDialog service={editing} submitting={submitting} onClose={() => setEditing(undefined)} onSave={saveService} /> : null}
     {deleteTarget ? <DeleteServiceDialog service={deleteTarget} submitting={submitting} onClose={() => setDeleteTarget(null)} onConfirm={confirmDelete} /> : null}
   </section></WorkspaceShell>;
 }
-
-function ServicesSettingsNav() { return <aside className={styles.settingsNav}><h2>Settings</h2><Link className={styles.settingsNavLink} href="/settings/business-details"><span>▣</span>Business Details</Link><Link className={`${styles.settingsNavLink} ${styles.settingsActive}`} href="/settings/services"><span>▤</span>Services</Link><button type="button"><span>▧</span>Billing</button><Link className={styles.settingsNavLink} href="/settings/account"><span>◉</span>Account</Link></aside>; }
 
 function ServiceDialog({ service, submitting, onClose, onSave }: { service: Service | null; submitting: boolean; onClose: () => void; onSave: (draft: ServiceDraft) => Promise<void> }) {
   const [draft, setDraft] = useState<ServiceDraft>(() => service ? draftFor(service) : EMPTY_DRAFT);

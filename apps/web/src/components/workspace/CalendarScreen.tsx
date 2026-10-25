@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ApiError, getAccountProfile, getCalendarDay, type CalendarAppointment, type CalendarAvailableSlot, type CalendarDay } from "@/src/lib/api";
+import { ApiError, getAccountProfile, getCalendarDay, getCalendarSummary, type CalendarAppointment, type CalendarAvailableSlot, type CalendarDay } from "@/src/lib/api";
 import { AccountLifecycleError, withActiveAccount } from "@/src/lib/auth/active-account";
 import { AppointmentDialog } from "./AppointmentDialog";
 import { PageHeading, WorkspaceShell, workspaceStyles as styles } from "./WorkspaceShell";
 
 type LoadState = "loading" | "ready" | "error";
+type CalendarView = "day" | "week" | "month";
 type BookingPrefill = CalendarAvailableSlot & { date: string };
 const cache = new Map<string, CalendarDay>();
 const DEFAULT_TIMEZONE = "America/Denver";
@@ -29,8 +30,11 @@ function blockStyle(startTime: string, duration: number, timezone: string) { con
 function tone(status: CalendarAppointment["status"]) { return status === "completed" ? styles.green : status === "pending" ? styles.yellow : status === "no_show" ? styles.lavender : styles.blush; }
 function errorText(error: unknown) { if (error instanceof AccountLifecycleError) return "Your account is not active. Restore access to view the calendar."; if (error instanceof ApiError && error.status === 403) return "You no longer have access to this calendar."; if (error instanceof ApiError && (error.status === 0 || error.status >= 500)) return "The calendar service is temporarily unavailable. Try again."; return "Unable to load the calendar. Try again."; }
 function formatMinutes(value: number) { const hours = Math.floor(value / 60); const minutes = value % 60; return hours ? `${hours}h${minutes ? ` ${minutes}m` : ""}` : `${minutes}m`; }
+function capacityValue(summary?: CalendarDay["summary"]) { if (!summary) return "—"; const status = summary.capacity_status; if (status === "not_configured") return "Set up schedule"; if (status === "closed") return "Closed"; if (status === "unavailable" || summary.capacity_filled_rate == null) return "Unavailable"; return `${Math.round(summary.capacity_filled_rate * 100)}%`; }
+function aggregateSummaries(dates: string[], days: Record<string, CalendarDay>) { const loaded = dates.map((date) => days[date]); if (!loaded.length || loaded.some((day) => !day)) return null; const summaries = loaded.map((day) => day.summary); const capacityReady = summaries.every((summary) => summary.capacity_status === "available" && typeof summary.capacity_filled_rate === "number" && typeof summary.workingMinutes === "number" && summary.workingMinutes > 0); return { totalAppointments: summaries.reduce((total, summary) => total + summary.totalAppointments, 0), bookedMinutes: summaries.reduce((total, summary) => total + summary.bookedMinutes, 0), capacity: capacityReady ? `${Math.round((summaries.reduce((total, summary) => total + summary.bookedMinutes, 0) / summaries.reduce((total, summary) => total + summary.workingMinutes, 0)) * 100)}%` : "Unavailable" }; }
 
 export function CalendarScreen() {
+  const [view, setView] = useState<CalendarView>("week");
   const [timezone, setTimezone] = useState(DEFAULT_TIMEZONE);
   const [selectedDate, setSelectedDate] = useState(() => dateInTimezone(new Date(), DEFAULT_TIMEZONE));
   const [days, setDays] = useState<Record<string, CalendarDay>>({});
@@ -39,38 +43,65 @@ export function CalendarScreen() {
   const [refresh, setRefresh] = useState(0);
   const [prefill, setPrefill] = useState<BookingPrefill | null>(null);
   const [appointmentTarget, setAppointmentTarget] = useState<{ appointmentId: string } | { prefill?: BookingPrefill } | null>(null);
+  const [monthSummary, setMonthSummary] = useState<unknown>(null);
   const requestVersion = useRef(0);
   const weekStart = startOfWeek(selectedDate);
-  const visibleDates = useMemo(() => Array.from({ length: 7 }, (_, index) => addDays(weekStart, index)), [weekStart]);
+  const visibleDates = useMemo(() => view === "day" ? [selectedDate] : view === "week" ? Array.from({ length: 7 }, (_, index) => addDays(weekStart, index)) : [], [selectedDate, view, weekStart]);
 
   useEffect(() => {
     const controller = new AbortController(); const version = ++requestVersion.current;
     setLoadState("loading"); setError(null);
     void withActiveAccount(async (accessToken, _access, accountId) => {
-      const profile = await getAccountProfile(accessToken);
-      const loaded = await Promise.all(visibleDates.map(async (date) => {
+      // A profile lookup supplies the business timezone, but calendar data must
+      // remain usable when that separate settings request is temporarily down.
+      const profile = await getAccountProfile(accessToken).catch(() => null);
+      if (!visibleDates.length) return { timezone: profile?.timezone || DEFAULT_TIMEZONE, loaded: [] as Array<readonly [string, CalendarDay]> };
+      const results = await Promise.allSettled(visibleDates.map(async (date) => {
         const key = `${accountId}:${date}`; const cached = cache.get(key);
         if (cached && refresh === 0) return [date, cached] as const;
         const day = await getCalendarDay(date, accessToken, { signal: controller.signal }); cache.set(key, day); return [date, day] as const;
       }));
-      return { timezone: profile.timezone || DEFAULT_TIMEZONE, loaded };
+      const loaded = results.flatMap((result) => result.status === "fulfilled" ? [result.value] : []);
+      if (!loaded.length) {
+        const failure = results.find((result): result is PromiseRejectedResult => result.status === "rejected");
+        throw failure?.reason ?? new Error("No calendar days could be loaded.");
+      }
+      return { timezone: profile?.timezone || DEFAULT_TIMEZONE, loaded };
     }).then((result) => { if (controller.signal.aborted || version !== requestVersion.current) return; setTimezone(result.timezone); setDays(Object.fromEntries(result.loaded)); setLoadState("ready"); }).catch((cause: unknown) => { if (controller.signal.aborted || version !== requestVersion.current) return; setLoadState("error"); setError(errorText(cause)); });
     return () => controller.abort();
   }, [refresh, visibleDates]);
 
-  const heading = `${formatDate(visibleDates[0], timezone, { month: "short", day: "numeric" })} – ${formatDate(visibleDates[6], timezone, { month: "short", day: "numeric", year: "numeric" })}`;
-  const selectGap = (date: string, slot: CalendarAvailableSlot) => { const next = { ...slot, date }; setSelectedDate(date); setPrefill(next); setAppointmentTarget({ prefill: next }); };
-  const move = (amount: number) => { setSelectedDate((date) => addDays(date, amount)); setPrefill(null); };
-  const handleMutation = (appointment: { appointment_date: string }, _previousDate?: string) => { const nextDate = dateInTimezone(new Date(appointment.appointment_date), timezone); cache.clear(); setSelectedDate(nextDate); setRefresh((value) => value + 1); };
-  const selectedDay = days[selectedDate];
+  useEffect(() => {
+    if (view !== "month") { setMonthSummary(null); return; }
+    const start = `${selectedDate.slice(0, 7)}-01`;
+    const end = new Date(Date.UTC(Number(start.slice(0, 4)), Number(start.slice(5, 7)), 0)).toISOString().slice(0, 10);
+    void withActiveAccount((token) => getCalendarSummary(start, end, "week", token)).then(setMonthSummary).catch((cause) => setError(errorText(cause)));
+  }, [selectedDate, view]);
 
-  return <WorkspaceShell active="calendar"><section><PageHeading title="Calendar" subtitle="Your schedule, designed around your day." action={<button className={styles.primaryButton} type="button" onClick={() => setAppointmentTarget({})}>＋ Book Appointment</button>} />
+  const heading = view === "month" ? formatDate(`${selectedDate.slice(0, 7)}-01`, timezone, { month: "long", year: "numeric" }) : view === "day" ? formatDate(selectedDate, timezone, { weekday: "long", month: "short", day: "numeric", year: "numeric" }) : `${formatDate(visibleDates[0], timezone, { month: "short", day: "numeric" })} – ${formatDate(visibleDates[6], timezone, { month: "short", day: "numeric", year: "numeric" })}`;
+  const selectGap = (date: string, slot: CalendarAvailableSlot) => { const next = { ...slot, date }; setSelectedDate(date); setPrefill(next); setAppointmentTarget({ prefill: next }); };
+  const move = (amount: number) => { setSelectedDate((date) => addDays(date, amount * (view === "day" ? 1 : view === "month" ? 30 : 7))); setPrefill(null); };
+  const handleMutation = (appointment: { appointment_date: string }, _previousDate?: string) => { const nextDate = dateInTimezone(new Date(appointment.appointment_date), timezone); cache.clear(); globalThis.dispatchEvent(new CustomEvent("rootfoil:appointments-changed")); setSelectedDate(nextDate); setRefresh((value) => value + 1); };
+  const selectedDay = days[selectedDate];
+  const aggregate = aggregateSummaries(visibleDates, days);
+  const summary = view === "day" ? selectedDay?.summary : undefined;
+  const totalAppointments = view === "day" ? summary?.totalAppointments : aggregate?.totalAppointments;
+  const bookedMinutes = view === "day" ? summary?.bookedMinutes : aggregate?.bookedMinutes;
+  const capacity = view === "day" ? capacityValue(summary) : aggregate?.capacity ?? "Unavailable";
+
+  return <WorkspaceShell active="calendar"><section><PageHeading title="Calendar" subtitle="Your schedule, designed around your day." action={<button className={styles.primaryButton} type="button" onClick={() => setAppointmentTarget({})}>＋ New</button>} />
     {error ? <p className={styles.calendarMessage} role="alert">{error}</p> : null}
-    <div className={styles.calendarControls}><button className={styles.secondaryButton} type="button" onClick={() => { setSelectedDate(dateInTimezone(new Date(), timezone)); setPrefill(null); }}>Today</button><button className={styles.squareButton} type="button" onClick={() => move(-7)} aria-label="Previous week">‹</button><strong aria-live="polite">{heading}</strong><button className={styles.squareButton} type="button" onClick={() => move(7)} aria-label="Next week">›</button></div>
-    {loadState === "error" ? <section className={styles.calendarStatus}><p>Calendar data could not be loaded.</p><button className={styles.secondaryButton} type="button" onClick={() => setRefresh((value) => value + 1)}>Try again</button></section> : <div className={styles.calendarLayout}><section className={styles.calendarGrid} aria-label="Weekly calendar" aria-busy={loadState === "loading"}><div className={styles.calendarHeaders} style={{ gridTemplateColumns: "45px repeat(7, minmax(120px, 1fr))" }}><div />{visibleDates.map((date) => <button type="button" className={date === selectedDate ? styles.selectedDay : ""} onClick={() => setSelectedDate(date)} key={date}><b>{formatDate(date, timezone, { weekday: "short" })}</b><span>{formatDate(date, timezone, { month: "short", day: "numeric" })}</span></button>)}</div><div className={styles.calendarBody}><div className={styles.timeLabels}>{labels.map((label) => <span key={label}>{label}</span>)}</div><div className={styles.calendarDays} style={{ gridTemplateColumns: "repeat(7, minmax(120px, 1fr))" }}>{visibleDates.map((date) => <DayColumn date={date} day={days[date]} timezone={timezone} selected={date === selectedDate} onSelect={() => setSelectedDate(date)} onGap={selectGap} onAppointment={(appointmentId) => setAppointmentTarget({ appointmentId })} key={date} />)}</div></div></section><DayRail date={selectedDate} day={selectedDay} timezone={timezone} loading={loadState === "loading"} prefill={prefill} onGap={selectGap} /></div>}
+    <nav className={styles.calendarTabs} aria-label="Calendar view"><button className={view === "day" ? styles.calendarTabActive : ""} type="button" onClick={() => setView("day")} aria-current={view === "day" ? "page" : undefined}>Daily</button><button className={view === "week" ? styles.calendarTabActive : ""} type="button" onClick={() => setView("week")} aria-current={view === "week" ? "page" : undefined}>Weekly</button><button className={view === "month" ? styles.calendarTabActive : ""} type="button" onClick={() => setView("month")} aria-current={view === "month" ? "page" : undefined}>Monthly</button></nav>
+    <div className={styles.calendarControls}><button className={styles.secondaryButton} type="button" onClick={() => { setSelectedDate(dateInTimezone(new Date(), timezone)); setPrefill(null); }}>Today</button><button className={styles.squareButton} type="button" onClick={() => move(-1)} aria-label="Previous period">‹</button><strong aria-live="polite">{heading}</strong><button className={styles.squareButton} type="button" onClick={() => move(1)} aria-label="Next period">›</button></div>
+    <section className={styles.calendarMetrics} aria-label="Calendar summary" aria-busy={loadState === "loading"}><article><span aria-hidden="true">▣</span><strong>{totalAppointments ?? "—"}</strong><small>Appointments</small></article><article><span aria-hidden="true">◷</span><strong>{bookedMinutes === undefined ? "—" : formatMinutes(bookedMinutes)}</strong><small>Booked time</small></article><article><span aria-hidden="true">◔</span><strong>{capacity}</strong><small>Capacity filled</small></article></section>
+    {view === "month" ? <MonthlySummary summary={monthSummary} /> : loadState === "error" ? <section className={styles.calendarStatus}><p>Calendar data could not be loaded.</p><button className={styles.secondaryButton} type="button" onClick={() => setRefresh((value) => value + 1)}>Try again</button></section> : <div className={styles.calendarLayout}><section className={styles.calendarGrid} aria-label={`${view === "day" ? "Daily" : "Weekly"} calendar`} aria-busy={loadState === "loading"}><div className={styles.calendarHeaders} style={{ gridTemplateColumns: `45px repeat(${visibleDates.length}, minmax(120px, 1fr))` }}><div />{visibleDates.map((date) => <button type="button" className={date === selectedDate ? styles.selectedDay : ""} onClick={() => setSelectedDate(date)} key={date}><b>{formatDate(date, timezone, { weekday: "short" })}</b><span>{formatDate(date, timezone, { month: "short", day: "numeric" })}</span></button>)}</div><div className={styles.calendarBody}><div className={styles.timeLabels}>{labels.map((label) => <span key={label}>{label}</span>)}</div><div className={styles.calendarDays} style={{ gridTemplateColumns: `repeat(${visibleDates.length}, minmax(120px, 1fr))` }}>{visibleDates.map((date) => <DayColumn date={date} day={days[date]} timezone={timezone} selected={date === selectedDate} onSelect={() => setSelectedDate(date)} onGap={selectGap} onAppointment={(appointmentId) => setAppointmentTarget({ appointmentId })} key={date} />)}</div></div></section><DayRail date={selectedDate} day={selectedDay} timezone={timezone} loading={loadState === "loading"} prefill={prefill} onGap={selectGap} /></div>}
     {appointmentTarget ? <AppointmentDialog target={appointmentTarget} timezone={timezone} onClose={() => setAppointmentTarget(null)} onMutated={handleMutation} /> : null}
   </section></WorkspaceShell>;
 }
+
+type MonthlyBucket = { key: string; label: string; appointments: number | null; bookedMinutes: number | null; capacity: string };
+function monthlyBuckets(summary: unknown): MonthlyBucket[] { const root = summary && typeof summary === "object" ? summary as Record<string, unknown> : {}; const body = root.data && typeof root.data === "object" ? root.data as Record<string, unknown> : root; const values = Array.isArray(body.buckets) ? body.buckets : Array.isArray(body.days) ? body.days : []; return values.map((raw, index) => { const item = raw as Record<string, unknown>; const nested = item.summary && typeof item.summary === "object" ? item.summary as Record<string, unknown> : item; const appointments = typeof (nested.total_appointments ?? nested.totalAppointments) === "number" ? Number(nested.total_appointments ?? nested.totalAppointments) : null; const bookedMinutes = typeof (nested.booked_minutes ?? nested.bookedMinutes) === "number" ? Number(nested.booked_minutes ?? nested.bookedMinutes) : null; const rate = nested.capacity_filled_rate ?? nested.capacityFilledRate; const status = nested.capacity_status ?? nested.capacityStatus; const capacity = status === "not_configured" ? "Set up schedule" : status === "closed" ? "Closed" : status === "unavailable" || typeof rate !== "number" ? "Unavailable" : `${Math.round(rate * 100)}%`; const start = String(item.start_date ?? item.startDate ?? item.date ?? item.label ?? `Week ${index + 1}`); const end = item.end_date ?? item.endDate; return { key: `${start}-${index}`, label: end ? `${start} – ${end}` : start, appointments, bookedMinutes, capacity }; }); }
+function MonthlySummary({ summary }: { summary: unknown }) { const buckets = monthlyBuckets(summary); return <section className={styles.monthCalendar} aria-label="Monthly calendar summary">{!summary ? <p className={styles.emptySchedule}>Loading monthly calendar…</p> : buckets.length ? <div className={styles.monthBucketGrid}>{buckets.map((bucket) => <article key={bucket.key}><h2>{bucket.label}</h2><dl><div><dt>Appointments</dt><dd>{bucket.appointments ?? "—"}</dd></div><div><dt>Booked time</dt><dd>{bucket.bookedMinutes === null ? "—" : formatMinutes(bucket.bookedMinutes)}</dd></div><div><dt>Capacity</dt><dd>{bucket.capacity}</dd></div></dl></article>)}</div> : <p className={styles.emptySchedule}>No monthly calendar data is available.</p>}</section>; }
 
 function DayColumn({ date, day, timezone, selected, onSelect, onGap, onAppointment }: { date: string; day?: CalendarDay; timezone: string; selected: boolean; onSelect: () => void; onGap: (date: string, slot: CalendarAvailableSlot) => void; onAppointment: (appointmentId: string) => void }) { return <div className={`${styles.dayColumn} ${selected ? styles.selectedCalendarColumn : ""}`} onClick={onSelect} role="presentation">{day?.appointments.map((appointment) => <button className={`${styles.eventBlock} ${tone(appointment.status)}`} style={blockStyle(appointment.start_time, appointment.duration_minutes, timezone)} type="button" onClick={(event) => { event.stopPropagation(); onAppointment(appointment.id); }} key={appointment.id}><b>{appointment.client_name ?? "Client"}</b><span>{appointment.services.join(", ") || appointment.service_name || "Service"}</span><small>{appointment.status.replace("_", " ")}</small></button>)}{day?.availableSlots.filter((slot) => slot.canBook).map((slot) => <button className={`${styles.eventBlock} ${styles.openSlot}`} style={blockStyle(slot.startTime, slot.durationMinutes, timezone)} type="button" onClick={(event) => { event.stopPropagation(); onGap(date, slot); }} key={slot.id}><b>Open</b><span>Book now</span></button>)}</div>; }
 

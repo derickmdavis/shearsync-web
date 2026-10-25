@@ -26,3 +26,11 @@ export async function PATCH(request: Request, context: RouteContext) {
     return Response.json({ error: { message: "Unable to reach the messaging service." } }, { status: 502 });
   }
 }
+
+export async function GET(request: Request, context: RouteContext) {
+  try {
+    return await forwardActivityRequest(request, context);
+  } catch {
+    return Response.json({ error: { message: "Unable to reach the messaging service." } }, { status: 502 });
+  }
+}

@@ -1,25 +1,9 @@
 import Link from "next/link";
 import { PageHeading, WorkspaceShell, workspaceStyles as styles } from "./WorkspaceShell";
-
-const sparkPaths = ["2,25 14,20 25,22 36,14 48,18 60,10 72,15 86,5", "2,25 14,23 25,18 37,21 48,14 60,16 72,9 86,6", "2,24 14,25 25,16 37,20 49,12 60,15 72,10 86,4"];
-
-const insightSections = [
-  { title: "Business Health", icon: "$", metrics: [["$5,220", "Booked Revenue", "+12%", "up"], ["30", "Appointments Booked", "+8%", "up"], ["$110.48", "Avg. $ / Hour", "+6%", "up"]] },
-  { title: "Schedule Health", icon: "▣", metrics: [["12%", "Capacity Filled", "+4%", "up"], ["97%", "Remaining Capacity", "-2%", "down"], ["4h 18m", "Avg. Booking Length", "+12%", "up"]] },
-  { title: "Client Health", icon: "♧", metrics: [["33", "At-Risk Clients", "-5%", "down"], ["—", "Rebooking Rate", "Checkout history unavailable", "warn"], ["123", "Total Clients", "+11%", "up"]] },
-] as const;
+import { InsightsScreenClient } from "./InsightsScreenClient";
 
 export function InsightsScreen() {
-  return <WorkspaceShell active="insights"><section className={styles.insights}>
-    <PageHeading title="Insights" subtitle="A snapshot of your business health and opportunities." action={<div className={styles.dateControl}><b>▣ &nbsp; Last 30 Days</b><span>Sep 8, 2026 – Oct 7, 2026</span></div>} />
-    {insightSections.map((section, sectionIndex) => <section className={styles.metricSection} key={section.title}>
-      <h2><span className={styles.sectionIcon}>{section.icon}</span>{section.title}</h2>
-      <div className={styles.metricGrid}>{section.metrics.map(([value, label, delta, direction], metricIndex) => <article className={styles.metricCard} key={label}>
-        <p className={styles.metricValue}>{value}</p><p className={styles.metricLabel}>{label}</p>
-        <svg className={styles.sparkline} viewBox="0 0 90 32" role="img" aria-label={`${label} trend`}><polyline points={sparkPaths[(sectionIndex + metricIndex) % sparkPaths.length]} /></svg>
-        <p className={`${styles.metricDelta} ${direction === "down" ? styles.deltaDown : direction === "warn" ? styles.deltaWarn : ""}`}><b>{direction === "up" ? "↑" : direction === "down" ? "↓" : ""} {delta}</b>{direction !== "warn" && " vs. previous period"}</p>
-      </article>)}</div>
-    </section>)}</section></WorkspaceShell>;
+  return <InsightsScreenClient />;
 }
 
 const importTools = [
@@ -77,7 +61,33 @@ const fields: ReadonlyArray<readonly [title: string, fields: readonly FormField[
   ["Location", [["Address Line 1", "123 Main Street", "wide"], ["Address Line 2 (optional)", "Suite, unit, or floor", "wide"], ["City", "Denver"], ["State", "CO"], ["Zip Code", "80202"]]],
 ];
 
+type SettingsHubItem = { label: string; description: string; icon: string; href?: string };
+const settingsGroups: ReadonlyArray<{ title: string; items: ReadonlyArray<SettingsHubItem> }> = [
+  { title: "Business", items: [
+    { label: "Profile", description: "Name, contact info, location, and timezone", icon: "⌖", href: "/settings/profile" },
+    { label: "Services", description: "Manage bookable services", icon: "✂", href: "/settings/services" },
+    { label: "Schedule", description: "Working hours and time off", icon: "▣", href: "/settings/schedule" },
+  ] },
+  { title: "Booking", items: [
+    { label: "Booking settings", description: "Availability rules and preferences", icon: "⚙", href: "/settings/booking-settings" },
+    { label: "Booking page", description: "Public page, request form, and sharing", icon: "↗", href: "/settings/booking-page" },
+    { label: "Payment methods", description: "Payment links and instructions", icon: "▤" },
+  ] },
+  { title: "Account", items: [
+    { label: "Account", description: "Sign-in and account details", icon: "◎", href: "/settings/account" },
+    { label: "Subscription", description: "Plan and billing", icon: "▭" },
+    { label: "Help & support", description: "Get in touch", icon: "?", href: "/help" },
+  ] },
+];
+
 export function SettingsScreen() {
+  return <WorkspaceShell active="settings"><section className={styles.settingsHub}>
+    <PageHeading title="Settings" subtitle="Manage your business, your way." />
+    <div className={styles.settingsGroupGrid}>{settingsGroups.map((group) => <section className={styles.settingsGroup} key={group.title}><h2>{group.title}</h2><div className={styles.settingsCard} style={{ display: "grid", overflow: "hidden", borderRadius: 18, background: "rgba(255, 251, 245, .94)", boxShadow: "0 9px 24px rgba(81, 54, 22, .055)" }}>{group.items.map((item) => item.href ? <Link className={styles.settingsCardRow} style={{ display: "grid", gridTemplateColumns: "48px minmax(0, 1fr) auto", alignItems: "center", gap: 11, minHeight: 81, padding: "12px 13px", borderBottom: "1px solid #eee2d2" }} href={item.href} key={item.label}><span className={styles.settingsCardIcon} style={{ display: "grid", placeItems: "center", width: 48, height: 48, border: "1px solid #efddc4", borderRadius: "50%", background: "#fff4e3", color: "#b77928", fontSize: 21 }} aria-hidden="true">{item.icon}</span><span><b style={{ display: "block", fontFamily: "Cormorant Garamond, Georgia, serif", fontSize: 18 }}> {item.label}</b><small style={{ display: "block", marginTop: 4, color: "#61708a", fontSize: 12, lineHeight: 1.3 }}>{item.description}</small></span><i style={{ color: "#60728d", fontSize: 27, fontStyle: "normal" }} aria-hidden="true">›</i></Link> : <div className={`${styles.settingsCardRow} ${styles.settingsUnavailable}`} style={{ display: "grid", gridTemplateColumns: "48px minmax(0, 1fr) auto", alignItems: "center", gap: 11, minHeight: 81, padding: "12px 13px", borderBottom: "1px solid #eee2d2" }} key={item.label}><span className={styles.settingsCardIcon} style={{ display: "grid", placeItems: "center", width: 48, height: 48, border: "1px solid #efddc4", borderRadius: "50%", background: "#fff4e3", color: "#b77928", fontSize: 21 }} aria-hidden="true">{item.icon}</span><span><b style={{ display: "block", fontFamily: "Cormorant Garamond, Georgia, serif", fontSize: 18 }}>{item.label}</b><small style={{ display: "block", marginTop: 4, color: "#867a6c", fontSize: 12, lineHeight: 1.3 }}>{item.description} · Coming soon</small></span><i style={{ color: "#60728d", fontSize: 27, fontStyle: "normal" }} aria-hidden="true">›</i></div>)}</div></section>)}</div>
+  </section></WorkspaceShell>;
+}
+
+export function BusinessDetailsScreen() {
   return <WorkspaceShell active="settings"><section className={styles.settingsPage}><SettingsNav activeItem="Business Details" /><div className={styles.settingsContent}><PageHeading title="Business Details" subtitle="Manage your business information and preferences." />
     <form className={styles.businessForm}>{fields.map(([section, group]) => <FormSection key={section} title={section} fields={group} />)}<section className={styles.formSection}><h2>Business Preferences</h2><div className={`${styles.formGrid} ${styles.preferenceGrid}`}><SelectInput label="Time Zone" value="(GMT-7) Mountain Time (Denver)" /><SelectInput label="Currency" value="USD ($)" /></div></section><div className={styles.saveRow}><button className={styles.primaryButton} type="button">Save Changes</button></div></form></div></section></WorkspaceShell>;
 }

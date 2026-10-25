@@ -1,2 +1,0 @@
-{"timestamp":"00:00:02.393","source":"Server","level":"LOG","message":""}
-{"timestamp":"00:00:23.785","source":"Server","level":"ERROR","message":"Public API proxy received 5xx response {\"path\":\"/api/public/booking-intake\",\"target\":\"https://shearsync-production.up.railway.app/api/public/booking-intake\",\"method\":\"POST\",\"status\":500,\"responseBody\":\"{\\\"error\\\":{\\\"message\\\":\\\"Internal server error\\\"}}\"}"}

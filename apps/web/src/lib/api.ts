@@ -402,6 +402,37 @@ export type ClientsPage = {
   };
 };
 
+function emptyClientInsights(): ClientsPage["insights"] {
+  return {
+    overdue: { count: 0, supportingText: "" },
+    firstTime: { count: 0, supportingText: "" },
+    topSpenders: { count: 0, supportingText: "", thresholdAmount: 0, period: "lifetime", percentile: 10 },
+  };
+}
+
+function normalizeClientsPageResponse(payload: unknown, requestedPage: number, requestedPageSize: number): ClientsPage {
+  const value = payload && typeof payload === "object" && "data" in payload && !Array.isArray(payload)
+    && (payload as { data?: unknown }).data && typeof (payload as { data?: unknown }).data === "object"
+    && !Array.isArray((payload as { data?: unknown }).data)
+    ? (payload as { data: unknown }).data
+    : payload;
+  if (Array.isArray(value)) {
+    return { data: value as ClientRow[], page: 1, pageSize: value.length, totalCount: value.length, nextCursor: null, insights: emptyClientInsights() };
+  }
+  if (!value || typeof value !== "object" || !Array.isArray((value as { data?: unknown }).data)) {
+    throw new ApiError("The client list returned an unexpected response.", 502);
+  }
+  const page = value as Partial<ClientsPage> & { data: ClientRow[] };
+  return {
+    data: page.data,
+    page: typeof page.page === "number" ? page.page : requestedPage,
+    pageSize: typeof page.pageSize === "number" ? page.pageSize : requestedPageSize,
+    totalCount: typeof page.totalCount === "number" ? page.totalCount : page.data.length,
+    nextCursor: typeof page.nextCursor === "string" ? page.nextCursor : null,
+    insights: page.insights ?? emptyClientInsights(),
+  };
+}
+
 export type CreateClientBody = {
   first_name: string;
   last_name: string;
@@ -641,7 +672,16 @@ export type CalendarDay = {
     freeMinutesRemaining: number | null;
     openGapCount: number;
     comparisonVsLastWeekPercent: number | null;
+    capacity_status?: "available" | "unavailable" | "not_configured" | "closed" | string | null;
+    capacity_filled_rate?: number | null;
   };
+};
+
+export type InternalAppointmentContext = {
+  available?: boolean;
+  can_book?: boolean;
+  reason?: string | null;
+  unavailable_reason?: string | null;
 };
 
 export type AppointmentServiceLine = {
@@ -1150,6 +1190,19 @@ function isBrowser() {
   return typeof window !== "undefined";
 }
 
+function isWriteRequest(init?: RequestInit) {
+  const method = (init?.method ?? "GET").toUpperCase();
+  return method !== "GET" && method !== "HEAD" && method !== "OPTIONS";
+}
+
+function blockOfflineWrite(init?: RequestInit) {
+  // Reads may use cached browser/proxy data, but a write must never be allowed
+  // to appear queued or partially successful when the browser is offline.
+  if (isBrowser() && isWriteRequest(init) && navigator.onLine === false) {
+    throw new ApiError("You’re offline. Reconnect to the internet before making changes.", 0, undefined, "offline");
+  }
+}
+
 function getRequestBaseUrl(preferProxy: boolean) {
   // Browser public calls prefer same-origin Next route handlers so RLS-sensitive
   // public mutations, like waitlist joins, go through the backend API instead
@@ -1263,6 +1316,7 @@ async function requestPublicApi<T>(
   path: string,
   { init, preferProxy = true }: RequestOptions = {},
 ) {
+  blockOfflineWrite(init);
   const baseUrl = getRequestBaseUrl(preferProxy);
   const headers = new Headers(init?.headers);
 
@@ -1321,6 +1375,7 @@ async function requestAuthenticatedApi<T>(
   accessToken: string,
   { init, preferProxy = false, unwrap = true }: RequestOptions = {},
 ) {
+  blockOfflineWrite(init);
   const headers = new Headers(init?.headers);
 
   // Authenticated account/settings calls use the Supabase access token as a
@@ -1813,6 +1868,50 @@ export async function getAutomationBootstrap(accessToken: string) {
   );
 }
 
+export async function getActivityDashboard(accessToken: string) {
+  return requestAuthenticatedApi<unknown>("/api/activity/dashboard", accessToken, {
+    preferProxy: true,
+    unwrap: false,
+  });
+}
+
+export type InsightsSelection = { startDate: string; endDate: string; preset: "last7" | "last30" | "custom"; comparisonMode: "none" | "previous" | "custom"; comparisonStartDate?: string };
+export async function getInsights(selection: InsightsSelection, accessToken: string, trends = false) {
+  const params = new URLSearchParams({ start_date: selection.startDate, end_date: selection.endDate, preset: selection.preset, comparison_mode: selection.comparisonMode });
+  if (selection.comparisonMode === "custom" && selection.comparisonStartDate) params.set("comparison_start_date", selection.comparisonStartDate);
+  return requestAuthenticatedApi<unknown>(`/api/insights${trends ? "/trends" : ""}?${params.toString()}`, accessToken, { preferProxy: true, unwrap: false, init: { headers: { "X-Insights-Contract-Version": trends ? "insights.v6.trends.2" : "insights.v7" } } });
+}
+
+const insightDetailContracts = {
+  booked_revenue: { path: "/api/insights/booked-revenue/detail", version: "booked_revenue.detail.v1" },
+  appointments_booked: { path: "/api/insights/appointments-booked/drivers", version: "appointments_booked.drivers.v1" },
+  capacity_filled: { path: "/api/insights/capacity-filled/utilization", version: "capacity_filled.utilization.v1" },
+  booked_revenue_per_hour: { path: "/api/insights/booked-revenue-per-hour/detail", version: "booked_revenue_per_hour.detail.v1" },
+  rebooking_rate: { path: "/api/insights/rebooking-rate/drivers", version: "rebooking_rate.drivers.v1" },
+  at_risk_clients: { path: "/api/insights/at-risk-clients/attention", version: "at_risk_clients.attention.v4" },
+} as const;
+
+export async function getInsightMetricDetail(metricId: keyof typeof insightDetailContracts, selection: InsightsSelection, accessToken: string) {
+  const contract = insightDetailContracts[metricId];
+  const params = new URLSearchParams();
+  if (metricId !== "at_risk_clients") {
+    params.set("start_date", selection.startDate);
+    params.set("end_date", selection.endDate);
+    params.set("preset", selection.preset);
+    params.set("comparison_mode", selection.comparisonMode);
+    if (selection.comparisonMode === "custom" && selection.comparisonStartDate) params.set("comparison_start_date", selection.comparisonStartDate);
+  }
+  return requestAuthenticatedApi<unknown>(`${contract.path}${params.size ? `?${params.toString()}` : ""}`, accessToken, { preferProxy: true, unwrap: false, init: { headers: { "X-Insights-Contract-Version": contract.version } } });
+}
+
+export async function getBookingInquiries(accessToken: string) {
+  return requestAuthenticatedApi<unknown>("/api/booking-inquiries?status=actionable&limit=25", accessToken, { preferProxy: true, unwrap: false });
+}
+
+export async function getSentOutreach(accessToken: string) {
+  return requestAuthenticatedApi<unknown>("/api/outreach/sent?limit=25", accessToken, { preferProxy: true, unwrap: false });
+}
+
 export async function setAutomationEnabled(
   accessToken: string,
   automationKey: string,
@@ -1843,6 +1942,14 @@ export async function updateAccountProfile(
     },
   );
 }
+
+export type AvailabilityDay = { day_of_week: number; enabled: boolean; start_time: string; end_time: string };
+export type OffDay = { id: string; start_date?: string; end_date?: string; date?: string; reason?: string | null };
+export async function getAvailability(accessToken: string) { return requestAuthenticatedApi<{ days?: AvailabilityDay[] }>("/api/settings/availability", accessToken, { preferProxy: true, unwrap: false }); }
+export async function updateAvailability(accessToken: string, days: AvailabilityDay[]) { return requestAuthenticatedApi<{ days?: AvailabilityDay[] }>("/api/settings/availability", accessToken, { preferProxy: true, unwrap: false, init: { method: "PUT", body: JSON.stringify({ days }) } }); }
+export async function getOffDays(accessToken: string, startDate: string, endDate: string) { const query = new URLSearchParams({ startDate, endDate }); return requestAuthenticatedApi<unknown>(`/api/off-days?${query}`, accessToken, { preferProxy: true, unwrap: false }); }
+export async function createOffDay(accessToken: string, body: { start_date: string; end_date?: string; reason?: string }) { return requestAuthenticatedApi<OffDay>("/api/off-days", accessToken, { preferProxy: true, init: { method: "POST", body: JSON.stringify(body) } }); }
+export async function deleteOffDay(accessToken: string, id: string) { return requestAuthenticatedApi<void>(`/api/off-days/${encodeURIComponent(id)}`, accessToken, { preferProxy: true, init: { method: "DELETE" } }); }
 
 export async function getStylistSettingsProfile(accessToken: string) {
   return requestAuthenticatedApi<StylistSettingsProfile>(
@@ -1950,16 +2057,14 @@ export async function getClients(
   params.set("direction", query.direction ?? "desc");
   params.set("filter", query.filter ?? "all");
 
-  const response = await requestAuthenticatedApi<ClientsPage>(
+  const response = await requestAuthenticatedApi<unknown>(
     `/api/clients?${params.toString()}`,
     accessToken,
     { preferProxy: true, unwrap: false, init: { signal: options.signal } },
   );
 
-  return {
-    ...response,
-    data: response.data.map(normalizeClientRow),
-  };
+  const page = normalizeClientsPageResponse(response, query.page ?? 1, query.pageSize ?? 25);
+  return { ...page, data: page.data.map(normalizeClientRow) };
 }
 
 export async function createClient(accessToken: string, body: CreateClientBody) {
@@ -2006,6 +2111,29 @@ export async function getClientDetail(
 
   return { ...detail, client: normalizeClientRow(detail.client) };
 }
+
+export type CursorPage<T = Record<string, unknown>> = { data: T[]; nextCursor: string | null };
+function normalizeCursorPage(value: unknown): CursorPage {
+  if (Array.isArray(value)) return { data: value.filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === "object"), nextCursor: null };
+  const root = value && typeof value === "object" ? value as Record<string, unknown> : {};
+  const body = root.data && typeof root.data === "object" && !Array.isArray(root.data) ? root.data as Record<string, unknown> : root;
+  const data = Array.isArray(body.data) ? body.data : Array.isArray(body.items) ? body.items : [];
+  return { data: data.filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === "object"), nextCursor: typeof (body.next_cursor ?? body.nextCursor) === "string" ? String(body.next_cursor ?? body.nextCursor) : null };
+}
+export async function getClientAppointmentsPage(clientId: string, accessToken: string, cursor?: string | null) {
+  const params = new URLSearchParams({ limit: "25" }); if (cursor) params.set("cursor", cursor);
+  return normalizeCursorPage(await requestAuthenticatedApi<unknown>(`/api/clients/${encodeURIComponent(clientId)}/appointments?${params}`, accessToken, { preferProxy: true, unwrap: false }));
+}
+export async function getClientMessageHistoryPage(clientId: string, accessToken: string, cursor?: string | null) {
+  const params = new URLSearchParams({ limit: "25" }); if (cursor) params.set("cursor", cursor);
+  return normalizeCursorPage(await requestAuthenticatedApi<unknown>(`/api/clients/${encodeURIComponent(clientId)}/message-history?${params}`, accessToken, { preferProxy: true, unwrap: false }));
+}
+export async function getClientFormulasPage(clientId: string, accessToken: string, cursor?: string | null) {
+  const params = new URLSearchParams({ limit: "25", view: "client-detail" }); if (cursor) params.set("cursor", cursor);
+  return normalizeCursorPage(await requestAuthenticatedApi<unknown>(`/api/clients/${encodeURIComponent(clientId)}/formulas?${params}`, accessToken, { preferProxy: true, unwrap: false }));
+}
+export async function getClientFormula(clientId: string, formulaId: string, accessToken: string) { return requestAuthenticatedApi<unknown>(`/api/clients/${encodeURIComponent(clientId)}/formulas/${encodeURIComponent(formulaId)}`, accessToken, { preferProxy: true, unwrap: false }); }
+export async function createClientFormula(clientId: string, accessToken: string, body: { service_id: string; notes?: string }) { return requestAuthenticatedApi<unknown>(`/api/clients/${encodeURIComponent(clientId)}/formulas`, accessToken, { preferProxy: true, unwrap: false, init: { method: "POST", body: JSON.stringify(body) } }); }
 
 export async function getClientReferralLink(
   clientId: string,
@@ -2124,6 +2252,16 @@ export async function getCalendarDay(
     accessToken,
     { preferProxy: true, init: { signal: options.signal } },
   );
+}
+
+export async function getCalendarSummary(startDate: string, endDate: string, bucket: "day" | "week", accessToken: string) {
+  const params = new URLSearchParams({ start_date: startDate, end_date: endDate, bucket });
+  return requestAuthenticatedApi<unknown>(`/api/calendar/summary?${params.toString()}`, accessToken, { preferProxy: true, unwrap: false });
+}
+
+export async function getInternalAppointmentContext(date: string, durationMinutes: number, accessToken: string) {
+  const params = new URLSearchParams({ date, durationMinutes: String(durationMinutes) });
+  return requestAuthenticatedApi<InternalAppointmentContext>(`/api/appointments/internal-context?${params.toString()}`, accessToken, { preferProxy: true, unwrap: false });
 }
 
 export async function getAppointment(appointmentId: string, accessToken: string) {

@@ -132,6 +132,15 @@ describe("authenticated appointments and services api helpers", () => {
     expect(new Headers(init?.headers).get("Idempotency-Key")).toBe("appointment-save-1");
   });
 
+  it("blocks authenticated writes before they reach the network when offline", async () => {
+    vi.stubGlobal("navigator", { onLine: false });
+
+    await expect(createAppointment("token-1", {
+      client_id: "client-1", appointment_date: "2026-10-16T09:00:00-06:00", duration_minutes: 60, booking_source: "internal", service_ids: ["service-1"],
+    }, "offline-write")).rejects.toMatchObject({ status: 0, code: "offline" });
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
   it("normalizes unpaginated client appointment history", async () => {
     vi.mocked(fetch).mockResolvedValue(
       new Response(JSON.stringify({ data: [] }), {

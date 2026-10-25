@@ -68,3 +68,11 @@ export async function PATCH(request: Request, context: RouteContext) {
     return accountProxyError();
   }
 }
+
+export async function PUT(request: Request, context: RouteContext) {
+  try {
+    return await forwardSettingsRequest(request, context);
+  } catch {
+    return accountProxyError();
+  }
+}
