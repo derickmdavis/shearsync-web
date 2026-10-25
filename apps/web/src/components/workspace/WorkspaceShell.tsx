@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import styles from "./workspace.module.css";
 
@@ -20,7 +21,7 @@ const navItems = [
 ] as const;
 
 function BrandLockup() {
-  return <span className={styles.brandLockup}><svg viewBox="0 0 42 52" aria-hidden="true"><path d="M21 2v35M21 12 9 27m12-9 12 12M21 23 4 35m17-5 17 10M21 37l-8 12m8-12 8 12" /><path d="M21 9 15 20m6-4 6 11M21 28l-4 13m4-13 4 13" /></svg><span>Root <i>&amp;</i> Foil</span></span>;
+  return <span className={styles.brandLockup}><Image className={styles.brandRootMark} src="/branding/root-and-foil-root-mark.jpeg" alt="" width={48} height={48} /><span>Root <i>&amp;</i> Foil</span></span>;
 }
 
 function NavigationIcon({ name }: { name: (typeof navItems)[number]["icon"] }) {
@@ -76,9 +77,7 @@ export function WorkspaceShell({ active, children }: WorkspaceShellProps) {
 
       <section className={styles.shellMain}>
         <header className={styles.topbar}>
-          <Link className={styles.mobileBrand} href="/calendar" aria-label="Root and Foil calendar">
-            <BrandLockup />
-          </Link>
+          <Link className={styles.mobileBrand} href="/calendar" aria-label="Root and Foil calendar"><span className={styles.mobileWordmark}>Root <i>&amp;</i> Foil</span></Link>
           <label className={styles.globalSearch}>
             <span aria-hidden="true">⌕</span>
             <input aria-label="Search" placeholder="Search clients, appointments, or notes..." />
@@ -100,6 +99,11 @@ export function WorkspaceShell({ active, children }: WorkspaceShellProps) {
           </div>
         </header>
         <div className={styles.pageCanvas}>{children}</div>
+        <nav className={styles.mobileTabBar} aria-label="Primary navigation">
+          {navItems.map((item) => <Link className={`${styles.mobileTab} ${item.section === active ? styles.mobileTabActive : ""}`} href={item.href} aria-current={item.section === active ? "page" : undefined} key={item.label}>
+            <span className={styles.navIcon}><NavigationIcon name={item.icon} /></span><span>{item.label}</span>
+          </Link>)}
+        </nav>
       </section>
     </main>
   );
