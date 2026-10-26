@@ -15,10 +15,10 @@ function getAuthMode(mode?: string) {
   return "sign-in";
 }
 
-function getSafeNextPath(next?: string) {
+function getSafeNextPath(next?: string, mode?: string) {
   // Prevent open redirects by allowing only same-origin relative paths.
   if (!next || !next.startsWith("/") || next.startsWith("//")) {
-    return "/calendar";
+    return mode === "sign-up" ? "/onboarding" : "/calendar";
   }
 
   return next;
@@ -30,7 +30,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   return (
     <LoginScreen
       initialMode={getAuthMode(params.mode)}
-      nextPath={getSafeNextPath(params.next)}
+      nextPath={getSafeNextPath(params.next, params.mode)}
     />
   );
 }

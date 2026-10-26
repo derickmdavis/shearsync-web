@@ -27,6 +27,8 @@ export function LoginScreen({ initialMode, nextPath }: LoginScreenProps) {
   const router = useRouter();
   const [mode, setMode] = useState<AuthMode>(initialMode);
   const [email, setEmail] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const [isBusy, setIsBusy] = useState(false);
   const [message, setMessage] = useState("");
@@ -112,12 +114,20 @@ export function LoginScreen({ initialMode, nextPath }: LoginScreenProps) {
         return;
       }
 
-      const credentials = { email, password };
+      const credentials = { email: email.trim().toLowerCase(), password };
       // Auth is intentionally client-side with the public anon key; protected
       // app data is fetched later through API calls with the session token.
       const { data, error } =
         mode === "sign-up"
-          ? await supabase.auth.signUp(credentials)
+          ? await supabase.auth.signUp({
+              ...credentials,
+              options: {
+                data: {
+                  full_name: fullName.trim(),
+                  phone_number: phoneNumber.trim(),
+                },
+              },
+            })
           : await supabase.auth.signInWithPassword(credentials);
 
       if (error) {
@@ -183,6 +193,18 @@ export function LoginScreen({ initialMode, nextPath }: LoginScreenProps) {
           </h2>
 
           <form onSubmit={handleSubmit} className="mt-6 grid gap-4">
+            {mode === "sign-up" ? (
+              <>
+                <label className="block">
+                  <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.08em] text-[#6B7280]">Your name</span>
+                  <input value={fullName} onChange={(event) => setFullName(event.target.value)} className="h-12 w-full rounded-2xl border border-border bg-white px-4 text-sm outline-none focus:border-brand focus:ring-2 focus:ring-brand/20" autoComplete="name" required />
+                </label>
+                <label className="block">
+                  <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.08em] text-[#6B7280]">Phone number</span>
+                  <input value={phoneNumber} onChange={(event) => setPhoneNumber(event.target.value)} className="h-12 w-full rounded-2xl border border-border bg-white px-4 text-sm outline-none focus:border-brand focus:ring-2 focus:ring-brand/20" autoComplete="tel" required />
+                </label>
+              </>
+            ) : null}
             <label className="block">
               <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.08em] text-[#6B7280]">
                 Email

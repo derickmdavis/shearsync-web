@@ -21,7 +21,7 @@ const navItems = [
 ] as const;
 
 function BrandLockup() {
-  return <span className={styles.brandLockup}><Image className={styles.brandRootMark} src="/branding/root-and-foil-root-mark.jpeg" alt="" width={48} height={48} /><span>Root <i>&amp;</i> Foil</span></span>;
+  return <Image className={styles.sidebarLogo} src="/branding/root-and-foil-sidebar-logo.png" alt="Root & Foil" width={160} height={160} priority />;
 }
 
 function NavigationIcon({ name }: { name: (typeof navItems)[number]["icon"] }) {
