@@ -559,11 +559,38 @@ export type AccountPlan = {
 export type AccountAccess = {
   status: string;
   isActive: boolean;
+  mode?: "full" | "read_only" | "blocked";
   deletionStatus?: "active" | "pending" | "processing" | "failed";
   activatedAt: string | null;
   currentPeriodEndsAt: string | null;
   deactivatedAt: string | null;
+  entitlement?: {
+    reason?: string;
+    effective_until?: string | null;
+    billing_action_needed?: boolean;
+  };
 };
+
+export type BillingSummary = {
+  access: {
+    mode: "full" | "read_only" | "blocked";
+    reason?: string;
+    effective_until?: string | null;
+    billing_action_needed?: boolean;
+  };
+  subscription: {
+    provider: "stripe";
+    plan: string;
+    interval: "month" | "year";
+    status: string;
+    paid_through: string | null;
+    grace_ends_at: string | null;
+    cancels_at_period_end: boolean;
+  } | null;
+};
+
+export type BillingCheckout = { url: string; sessionId: string };
+export type BillingPortal = { url: string };
 
 export type AccountDeletionStatus = {
   status:
@@ -1997,6 +2024,26 @@ export async function getAccountPlan(accessToken: string) {
 export async function getAccountAccess(accessToken: string) {
   return requestAuthenticatedApi<AccountAccess>("/api/account/access", accessToken, {
     preferProxy: true,
+  });
+}
+
+export async function getBillingSummary(accessToken: string) {
+  return requestAuthenticatedApi<BillingSummary>("/api/billing/summary", accessToken, {
+    preferProxy: true,
+  });
+}
+
+export async function createBillingCheckout(accessToken: string, interval: "month" | "year") {
+  return requestAuthenticatedApi<BillingCheckout>("/api/billing/checkout", accessToken, {
+    preferProxy: true,
+    init: { method: "POST", body: JSON.stringify({ interval }) },
+  });
+}
+
+export async function createBillingPortal(accessToken: string) {
+  return requestAuthenticatedApi<BillingPortal>("/api/billing/portal", accessToken, {
+    preferProxy: true,
+    init: { method: "POST" },
   });
 }
 

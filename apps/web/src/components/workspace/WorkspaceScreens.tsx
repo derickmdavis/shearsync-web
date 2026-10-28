@@ -75,7 +75,7 @@ const settingsGroups: ReadonlyArray<{ title: string; items: ReadonlyArray<Settin
   ] },
   { title: "Account", items: [
     { label: "Account", description: "Sign-in and account details", icon: "◎", href: "/settings/account" },
-    { label: "Subscription", description: "Plan and billing", icon: "▭" },
+    { label: "Subscription", description: "Plan and billing", icon: "▭", href: "/billing" },
     { label: "Help & support", description: "Get in touch", icon: "?", href: "/help" },
   ] },
 ];
@@ -97,6 +97,7 @@ function SettingsNav({ activeItem }: { activeItem: "Business Details" | "Service
     if (item === "Account") return <Link className={styles.settingsNavLink} href="/settings/account" key={item}><span>◉</span>{item}</Link>;
     if (item === "Services") return <Link className={`${styles.settingsNavLink} ${activeItem === item ? styles.settingsActive : ""}`} href="/settings/services" key={item}><span>▤</span>{item}</Link>;
     if (item === "Business Details") return <Link className={`${styles.settingsNavLink} ${activeItem === item ? styles.settingsActive : ""}`} href="/settings/business-details" key={item}><span>▣</span>{item}</Link>;
+    if (item === "Billing") return <Link className={styles.settingsNavLink} href="/billing" key={item}><span>▧</span>{item}</Link>;
     return <button className={activeItem === item ? styles.settingsActive : ""} key={item}><span>{index === 0 ? "▣" : "▧"}</span>{item}</button>;
   })}</aside>;
 }

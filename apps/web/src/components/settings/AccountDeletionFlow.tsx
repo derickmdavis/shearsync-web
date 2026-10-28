@@ -20,6 +20,8 @@ function AccountSettingsNav() {
           <Link className={styles.settingsActive} href="/settings/account" key={item}><span aria-hidden="true">◉</span>{item}</Link>
         ) : item === "Services" ? (
           <Link href="/settings/services" key={item}><span aria-hidden="true">○</span>{item}</Link>
+        ) : item === "Billing" ? (
+          <Link href="/billing" key={item}><span aria-hidden="true">○</span>{item}</Link>
         ) : (
           <Link href="/settings/business-details" key={item}><span aria-hidden="true">○</span>{item}</Link>
         )
