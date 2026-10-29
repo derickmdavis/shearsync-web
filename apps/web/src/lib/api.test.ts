@@ -7,6 +7,7 @@ import {
   createAccountDeletionRequest,
   createClient,
   createClientReferralLink,
+  createBillingCheckout,
   createPublicBooking,
   deleteClient,
   type ClientRow,
@@ -55,6 +56,23 @@ describe("authenticated appointments and services api helpers", () => {
     const [url, init] = vi.mocked(fetch).mock.calls[0] ?? [];
     expect(url).toBe("/api/services");
     expect(new Headers(init?.headers).get("Authorization")).toBe("Bearer token-1");
+  });
+
+  it("requests embedded billing checkout and returns only its short-lived browser secret", async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(JSON.stringify({
+        data: { clientSecret: "cs_test_secret", sessionId: "cs_test_123" },
+      }), { headers: { "Content-Type": "application/json" } }),
+    );
+
+    await expect(createBillingCheckout("token-1", "year")).resolves.toEqual({
+      clientSecret: "cs_test_secret",
+      sessionId: "cs_test_123",
+    });
+    expect(fetch).toHaveBeenCalledWith(
+      "/api/billing/checkout",
+      expect.objectContaining({ method: "POST", body: JSON.stringify({ interval: "year" }) }),
+    );
   });
 
   it("keeps inactive catalog entries and replaces order from the server response", async () => {

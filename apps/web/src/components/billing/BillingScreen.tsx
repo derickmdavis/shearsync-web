@@ -1,7 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { EmbeddedCheckout, EmbeddedCheckoutProvider } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
 import { WorkspaceShell } from "@/src/components/workspace/WorkspaceShell";
 import {
   ApiError,
@@ -13,10 +16,15 @@ import {
   type BillingSummary,
 } from "@/src/lib/api";
 import { getSupabaseBrowserClient } from "@/src/lib/supabase";
+import { getStripePublishableKey } from "@/src/lib/config/public";
 import styles from "./billing.module.css";
 
 type BillingData = { access: AccountAccess; summary: BillingSummary };
 type LoadState = "loading" | "ready" | "unavailable" | "error";
+
+// Load Stripe only once, outside React rendering.
+const stripePublishableKey = getStripePublishableKey();
+const stripePromise = stripePublishableKey ? loadStripe(stripePublishableKey) : null;
 
 const reasonCopy: Record<string, string> = {
   paid_subscription: "Your subscription is active.",
@@ -60,10 +68,12 @@ function BillingSettingsNav() {
 }
 
 export function BillingScreen({ confirmation = false }: { confirmation?: boolean }) {
+  const router = useRouter();
   const [state, setState] = useState<LoadState>("loading");
   const [billing, setBilling] = useState<BillingData | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [checkoutLoading, setCheckoutLoading] = useState<"month" | "year" | null>(null);
+  const [checkout, setCheckout] = useState<{ clientSecret: string; interval: "month" | "year" } | null>(null);
   const [portalLoading, setPortalLoading] = useState(false);
   const [pollAttempts, setPollAttempts] = useState(0);
 
@@ -105,16 +115,26 @@ export function BillingScreen({ confirmation = false }: { confirmation?: boolean
   }
 
   async function startCheckout(interval: "month" | "year") {
+    if (!stripePromise) {
+      setMessage("Checkout is temporarily unavailable because Stripe is not configured for this deployment.");
+      return;
+    }
     setMessage(null);
     setCheckoutLoading(interval);
     try {
       const checkout = await withToken((token) => createBillingCheckout(token, interval));
-      window.location.assign(checkout.url);
+      setCheckout({ clientSecret: checkout.clientSecret, interval });
     } catch (error) {
       if (error instanceof ApiError && error.status === 409 && error.code === "billing_subscription_exists") void load();
       setMessage(getErrorMessage(error, "checkout"));
       setCheckoutLoading(null);
     }
+  }
+
+  function returnToPlans() {
+    setCheckout(null);
+    setCheckoutLoading(null);
+    setMessage(null);
   }
 
   async function openPortal() {
@@ -132,7 +152,14 @@ export function BillingScreen({ confirmation = false }: { confirmation?: boolean
 
   const mode = billing ? accessMode(billing) : null;
   const subscription = billing?.summary.subscription ?? null;
-  const confirmed = Boolean(billing && mode === "full" && subscription);
+  // Stripe completion is only a UI signal. Access remains pending until the
+  // webhook-projected API state reports an eligible subscription.
+  const confirmed = Boolean(
+    billing
+      && mode === "full"
+      && subscription
+      && ["active", "trialing", "canceling"].includes(subscription.status),
+  );
   const processingTimedOut = confirmation && state === "ready" && !confirmed && pollAttempts >= 10;
 
   return <WorkspaceShell active="settings"><section className={styles.page}>
@@ -151,9 +178,13 @@ export function BillingScreen({ confirmation = false }: { confirmation?: boolean
         billing={billing}
         message={message}
         checkoutLoading={checkoutLoading}
+        checkout={checkout}
+        checkoutAvailable={Boolean(stripePromise)}
         portalLoading={portalLoading}
         onCheckout={startCheckout}
         onPortal={openPortal}
+        onBackToPlans={returnToPlans}
+        onCheckoutComplete={() => router.push("/billing/success")}
       /> : null}
     </main>
   </section></WorkspaceShell>;
@@ -169,7 +200,7 @@ function LoadingCard() { return <section className={styles.loadingCard} aria-liv
 function StatusCard({ title, detail, onRefresh }: { title: string; detail: string; onRefresh: () => Promise<unknown> }) { return <section className={styles.statusCard} role="alert"><h2>{title}</h2><p>{detail}</p><button type="button" onClick={() => void onRefresh()}>Try again</button></section>; }
 function BlockedCard() { return <section className={styles.blocked} role="alert"><h2>This account is currently unavailable.</h2><p>Purchases are unavailable while this account is in its current state. If you need help, contact support.</p><a href="mailto:support@rootandfoil.com">Contact support</a></section>; }
 
-function BillingDetails({ billing, message, checkoutLoading, portalLoading, onCheckout, onPortal }: { billing: BillingData; message: string | null; checkoutLoading: "month" | "year" | null; portalLoading: boolean; onCheckout: (interval: "month" | "year") => void; onPortal: () => void }) {
+function BillingDetails({ billing, message, checkoutLoading, checkout, checkoutAvailable, portalLoading, onCheckout, onPortal, onBackToPlans, onCheckoutComplete }: { billing: BillingData; message: string | null; checkoutLoading: "month" | "year" | null; checkout: { clientSecret: string; interval: "month" | "year" } | null; checkoutAvailable: boolean; portalLoading: boolean; onCheckout: (interval: "month" | "year") => void; onPortal: () => void; onBackToPlans: () => void; onCheckoutComplete: () => void }) {
   const subscription = billing.summary.subscription;
   const mode = accessMode(billing);
   const reason = billing.summary.access.reason ?? billing.access.entitlement?.reason;
@@ -184,10 +215,14 @@ function BillingDetails({ billing, message, checkoutLoading, portalLoading, onCh
       <dl><div><dt>Access ends</dt><dd>{endDate ?? "No scheduled end"}</dd></div>{subscription ? <div><dt>{subscription.cancels_at_period_end ? "Access through" : "Renews on"}</dt><dd>{paidThrough ?? "—"}</dd></div> : null}</dl>
     </section>
     {message ? <p className={styles.error} role="alert">{message}</p> : null}
-    {subscription ? <section className={styles.subscriptionCard}><div><span className={styles.eyebrow}>Your plan</span><h2>{subscription.plan}</h2><p>{subscription.interval === "year" ? "Annual plan" : "Monthly plan"}{paidThrough ? ` · Access through ${paidThrough}` : ""}</p>{subscription.cancels_at_period_end ? <p className={styles.cancellation}>Cancels at the end of the current billing period.</p> : null}</div><button className={styles.secondaryButton} type="button" onClick={onPortal} disabled={portalLoading}>{portalLoading ? "Opening…" : "Manage billing"}</button></section> : <PlanOptions loading={purchasing} active={checkoutLoading} onCheckout={onCheckout} />}
+    {subscription ? <section className={styles.subscriptionCard}><div><span className={styles.eyebrow}>Your plan</span><h2>{subscription.plan}</h2><p>{subscription.interval === "year" ? "Annual plan" : "Monthly plan"}{paidThrough ? ` · Access through ${paidThrough}` : ""}</p>{subscription.cancels_at_period_end ? <p className={styles.cancellation}>Cancels at the end of the current billing period.</p> : null}</div><button className={styles.secondaryButton} type="button" onClick={onPortal} disabled={portalLoading}>{portalLoading ? "Opening…" : "Manage billing"}</button></section> : checkout ? <EmbeddedCheckoutPanel checkout={checkout} onBack={onBackToPlans} onComplete={onCheckoutComplete} /> : <PlanOptions loading={purchasing} active={checkoutLoading} onCheckout={onCheckout} unavailable={!checkoutAvailable} />}
   </>;
 }
 
-function PlanOptions({ loading, active, onCheckout }: { loading: boolean; active: "month" | "year" | null; onCheckout: (interval: "month" | "year") => void }) {
-  return <section className={styles.plans} aria-label="Subscription plans"><div className={styles.plan}><span>Monthly</span><strong>$25<small>/month</small></strong><button type="button" onClick={() => onCheckout("month")} disabled={loading}>{active === "month" ? "Starting checkout…" : "Choose monthly"}</button></div><div className={`${styles.plan} ${styles.featured}`}><span>Annual <i>Best value</i></span><strong>$250<small>/year</small></strong><button type="button" onClick={() => onCheckout("year")} disabled={loading}>{active === "year" ? "Starting checkout…" : "Choose annual"}</button></div></section>;
+function PlanOptions({ loading, active, onCheckout, unavailable }: { loading: boolean; active: "month" | "year" | null; onCheckout: (interval: "month" | "year") => void; unavailable: boolean }) {
+  return <section className={styles.plans} aria-label="Subscription plans"><div className={styles.plan}><span>Monthly</span><strong>$25<small>/month</small></strong><button type="button" onClick={() => onCheckout("month")} disabled={loading || unavailable}>{active === "month" ? "Starting checkout…" : "Choose monthly"}</button></div><div className={`${styles.plan} ${styles.featured}`}><span>Annual <i>Best value</i></span><strong>$250<small>/year</small></strong><button type="button" onClick={() => onCheckout("year")} disabled={loading || unavailable}>{active === "year" ? "Starting checkout…" : "Choose annual"}</button></div>{unavailable ? <p className={styles.error} role="alert">Checkout is temporarily unavailable. Please try again later or contact support.</p> : null}</section>;
+}
+
+function EmbeddedCheckoutPanel({ checkout, onBack, onComplete }: { checkout: { clientSecret: string; interval: "month" | "year" }; onBack: () => void; onComplete: () => void }) {
+  return <section className={styles.subscriptionCard} style={{ display: "block" }} aria-label="Secure checkout"><div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 18, marginBottom: 18 }}><div><span className={styles.eyebrow}>Secure checkout</span><h2>{checkout.interval === "year" ? "Annual plan" : "Monthly plan"}</h2><p>Payment is securely collected by Stripe.</p></div><button className={styles.secondaryButton} type="button" onClick={onBack}>Back to plans</button></div>{stripePromise ? <EmbeddedCheckoutProvider stripe={stripePromise} options={{ clientSecret: checkout.clientSecret, onComplete }}><EmbeddedCheckout /></EmbeddedCheckoutProvider> : null}</section>;
 }

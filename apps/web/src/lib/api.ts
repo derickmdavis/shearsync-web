@@ -589,7 +589,7 @@ export type BillingSummary = {
   } | null;
 };
 
-export type BillingCheckout = { url: string; sessionId: string };
+export type BillingCheckout = { clientSecret: string; sessionId: string };
 export type BillingPortal = { url: string };
 
 export type AccountDeletionStatus = {

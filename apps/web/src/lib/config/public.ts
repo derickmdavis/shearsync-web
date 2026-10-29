@@ -79,6 +79,12 @@ export function getSupabaseBrowserConfig() {
   return { url, anonKey };
 }
 
+/** Stripe publishable keys are intentionally safe for browser use. */
+export function getStripePublishableKey() {
+  const key = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY?.trim();
+  return key && /^pk_(?:test|live)_/.test(key) ? key : null;
+}
+
 export function getWebAppUrl(path = "/") {
   return joinOriginAndPath(getWebAppOrigin(), path);
 }
