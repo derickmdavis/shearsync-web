@@ -16,24 +16,25 @@ import {
   hasSupabaseBrowserConfig,
 } from "@/src/lib/supabase";
 
-type RecoveryView = "request" | "loading" | "update" | "complete";
+type RecoveryView = "request" | "loading" | "update" | "invalid" | "complete";
 
-function getErrorMessage(error: unknown) {
-  if (error instanceof Error) {
-    return error.message;
-  }
-
-  return "Something went wrong. Please try again.";
-}
+type PasswordRecoveryScreenProps = {
+  mode?: "forgot" | "reset";
+};
 
 function getRecoveryErrorMessage() {
   return "This password-reset link is invalid or has expired. Request a new link to continue.";
 }
 
-export function PasswordRecoveryScreen() {
+export function PasswordRecoveryScreen({
+  mode = "reset",
+}: PasswordRecoveryScreenProps) {
   const router = useRouter();
   const attemptedCallback = useRef<string | null>(null);
-  const [view, setView] = useState<RecoveryView>("request");
+  const redirectTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [view, setView] = useState<RecoveryView>(
+    mode === "forgot" ? "request" : "loading",
+  );
   const [email, setEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -46,6 +47,10 @@ export function PasswordRecoveryScreen() {
   );
 
   useEffect(() => {
+    if (mode === "forgot") {
+      return;
+    }
+
     if (!hasSupabaseBrowserConfig()) {
       return;
     }
@@ -75,27 +80,26 @@ export function PasswordRecoveryScreen() {
         } catch {
           clearPasswordRecoveryInProgress();
           if (isActive) {
-            setView("request");
+            setView("invalid");
             setErrorMessage(getRecoveryErrorMessage());
           }
         }
         return;
       }
 
-      if (isPasswordRecoveryInProgress()) {
-        const { data, error } = await supabase.auth.getSession();
-        if (!isActive) {
-          return;
-        }
-
-        if (error || !data.session) {
-          clearPasswordRecoveryInProgress();
-          setErrorMessage(getRecoveryErrorMessage());
-          return;
-        }
-
-        setView("update");
+      const { data, error } = await supabase.auth.getSession();
+      if (!isActive) {
+        return;
       }
+
+      if (isPasswordRecoveryInProgress() && !error && data.session) {
+        setView("update");
+        return;
+      }
+
+      clearPasswordRecoveryInProgress();
+      setView("invalid");
+      setErrorMessage(getRecoveryErrorMessage());
     }
 
     void initializeRecovery();
@@ -116,6 +120,14 @@ export function PasswordRecoveryScreen() {
       isActive = false;
       subscription.unsubscribe();
     };
+  }, [mode]);
+
+  useEffect(() => {
+    return () => {
+      if (redirectTimeout.current) {
+        clearTimeout(redirectTimeout.current);
+      }
+    };
   }, []);
 
   async function handleRequest(event: FormEvent<HTMLFormElement>) {
@@ -129,22 +141,20 @@ export function PasswordRecoveryScreen() {
     setErrorMessage("");
 
     try {
-      const { error } =
-        await getSupabaseBrowserClient().auth.resetPasswordForEmail(
-          email.trim().toLowerCase(),
-          { redirectTo: getAuthRecoveryUrl() },
-        );
+      await getSupabaseBrowserClient().auth.resetPasswordForEmail(
+        email.trim().toLowerCase(),
+        { redirectTo: getAuthRecoveryUrl() },
+      );
 
-      if (error) {
-        throw error;
-      }
-
-      // This wording must be the same whether or not the email belongs to an account.
+      // This wording is deliberately identical for every address and response.
       setMessage(
         "If an account exists for that email, we’ve sent a password-reset link.",
       );
-    } catch (error) {
-      setErrorMessage(getErrorMessage(error));
+    } catch {
+      // Do not reveal auth-provider errors from a password-recovery request.
+      setMessage(
+        "If an account exists for that email, we’ve sent a password-reset link.",
+      );
     } finally {
       setIsBusy(false);
     }
@@ -174,24 +184,18 @@ export function PasswordRecoveryScreen() {
         throw error;
       }
 
-      await supabase.auth.getSession();
+      await supabase.auth.signOut();
       clearPasswordRecoveryInProgress();
       setView("complete");
-      setMessage("Your password has been updated.");
-    } catch (error) {
-      setErrorMessage(getErrorMessage(error));
+      setMessage("Password updated. You can now sign in.");
+      redirectTimeout.current = setTimeout(() => {
+        router.replace("/login?passwordReset=success");
+      }, 2000);
+    } catch {
+      setErrorMessage("We couldn’t update your password. Please request a new link and try again.");
     } finally {
       setIsBusy(false);
     }
-  }
-
-  function startOver() {
-    clearPasswordRecoveryInProgress();
-    setView("request");
-    setNewPassword("");
-    setConfirmPassword("");
-    setMessage("");
-    setErrorMessage("");
   }
 
   const title =
@@ -199,7 +203,9 @@ export function PasswordRecoveryScreen() {
       ? "Choose a new password"
       : view === "complete"
         ? "Password updated"
-        : "Reset your password";
+        : view === "invalid"
+          ? "Reset link expired"
+          : "Reset your password";
 
   return (
     <main className="flex min-h-screen items-center justify-center px-4 py-10 text-foreground sm:px-6">
@@ -220,7 +226,7 @@ export function PasswordRecoveryScreen() {
 
           {view === "loading" ? (
             <p className="mt-6 text-sm text-muted">
-              Verifying your password-reset link…
+              Verifying your reset link…
             </p>
           ) : null}
 
@@ -255,11 +261,13 @@ export function PasswordRecoveryScreen() {
                 label="New password"
                 value={newPassword}
                 onChange={setNewPassword}
+                disabled={isBusy}
               />
               <PasswordField
                 label="Confirm new password"
                 value={confirmPassword}
                 onChange={setConfirmPassword}
+                disabled={isBusy}
               />
               <SubmitButton isBusy={isBusy}>Update password</SubmitButton>
             </form>
@@ -268,30 +276,34 @@ export function PasswordRecoveryScreen() {
           {view === "complete" ? (
             <div className="mt-6 grid gap-4">
               <p className="text-sm leading-6 text-muted">
-                You can now continue to your account.
+                You can now sign in. Redirecting you to sign in…
               </p>
               <button
                 type="button"
-                onClick={() => router.replace("/account")}
+                onClick={() => router.replace("/login?passwordReset=success")}
                 className="inline-flex h-12 items-center justify-center rounded-2xl bg-brand px-5 text-sm font-semibold text-white shadow-[0_16px_30px_rgba(183,121,61,0.23)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-brand/30"
               >
-                Continue to account
+                Continue to sign in
               </button>
+            </div>
+          ) : null}
+
+          {view === "invalid" ? (
+            <div className="mt-6 grid gap-4">
+              <p className="text-sm leading-6 text-muted">
+                This reset link has expired or has already been used. Request a new one to continue.
+              </p>
+              <Link
+                href="/forgot-password"
+                className="inline-flex h-12 items-center justify-center rounded-2xl bg-brand px-5 text-sm font-semibold text-white shadow-[0_16px_30px_rgba(183,121,61,0.23)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-brand/30"
+              >
+                Send a new link
+              </Link>
             </div>
           ) : null}
 
           {message ? <Notice tone="success">{message}</Notice> : null}
           {errorMessage ? <Notice tone="error">{errorMessage}</Notice> : null}
-
-          {view === "request" && errorMessage ? (
-            <button
-              type="button"
-              onClick={startOver}
-              className="mt-4 text-sm font-semibold text-brand underline"
-            >
-              Try another link
-            </button>
-          ) : null}
 
           <p className="mt-6 text-sm text-muted">
             <Link href="/login" className="font-semibold text-brand underline">
@@ -308,10 +320,12 @@ function PasswordField({
   label,
   value,
   onChange,
+  disabled,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
+  disabled?: boolean;
 }) {
   return (
     <label className="block">
@@ -324,6 +338,7 @@ function PasswordField({
         className="h-12 w-full rounded-2xl border border-border bg-white px-4 text-sm outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
         type="password"
         autoComplete="new-password"
+        disabled={disabled}
         required
       />
     </label>

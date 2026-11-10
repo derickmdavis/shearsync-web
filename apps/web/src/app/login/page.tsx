@@ -4,6 +4,7 @@ type LoginPageProps = {
   searchParams: Promise<{
     mode?: string;
     next?: string;
+    passwordReset?: string;
   }>;
 };
 
@@ -31,6 +32,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
     <LoginScreen
       initialMode={getAuthMode(params.mode)}
       nextPath={getSafeNextPath(params.next, params.mode)}
+      passwordResetSuccess={params.passwordReset === "success"}
     />
   );
 }

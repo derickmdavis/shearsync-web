@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import {
@@ -13,6 +14,7 @@ type AuthMode = "sign-in" | "sign-up" | "reset";
 type LoginScreenProps = {
   initialMode: AuthMode;
   nextPath: string;
+  passwordResetSuccess?: boolean;
 };
 
 function getErrorMessage(error: unknown) {
@@ -23,7 +25,11 @@ function getErrorMessage(error: unknown) {
   return "Something went wrong.";
 }
 
-export function LoginScreen({ initialMode, nextPath }: LoginScreenProps) {
+export function LoginScreen({
+  initialMode,
+  nextPath,
+  passwordResetSuccess = false,
+}: LoginScreenProps) {
   const router = useRouter();
   const [mode, setMode] = useState<AuthMode>(initialMode);
   const [email, setEmail] = useState("");
@@ -31,7 +37,9 @@ export function LoginScreen({ initialMode, nextPath }: LoginScreenProps) {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const [isBusy, setIsBusy] = useState(false);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState(() =>
+    passwordResetSuccess ? "Password updated. You can now sign in." : "",
+  );
   const [errorMessage, setErrorMessage] = useState(() =>
     hasSupabaseBrowserConfig()
       ? ""
@@ -100,14 +108,15 @@ export function LoginScreen({ initialMode, nextPath }: LoginScreenProps) {
 
       if (mode === "reset") {
         // All recovery links return to the dedicated public callback route.
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: getAuthRecoveryUrl(),
-        });
-
-        if (error) {
-          throw error;
+        try {
+          await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
+            redirectTo: getAuthRecoveryUrl(),
+          });
+        } catch {
+          // The confirmation remains generic to avoid leaking recovery details.
         }
 
+        // Use the same response for every address and auth-provider outcome.
         setMessage(
           "If an account exists for that email, we’ve sent a password-reset link.",
         );
@@ -235,6 +244,15 @@ export function LoginScreen({ initialMode, nextPath }: LoginScreenProps) {
                   required
                 />
               </label>
+            ) : null}
+
+            {mode === "sign-in" ? (
+              <Link
+                href="/forgot-password"
+                className="-mt-1 w-fit text-sm font-semibold text-brand underline"
+              >
+                Forgot password?
+              </Link>
             ) : null}
 
             {message ? (
