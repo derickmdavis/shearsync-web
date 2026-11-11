@@ -108,3 +108,43 @@ a {
 ::selection {
   background: rgba(176, 122, 62, 0.22);
 }
+
+.share-primary,
+.share-secondary {
+  min-height: 48px;
+  width: 100%;
+  border-radius: 10px;
+  font-weight: 700;
+  transition: background-color 150ms ease, color 150ms ease, transform 150ms ease;
+}
+
+.share-primary {
+  border: 1px solid #1c1713;
+  background: #1c1713;
+  color: #fffdf8;
+}
+
+.share-primary:hover:not(:disabled) {
+  background: #3a2f28;
+}
+
+.share-secondary {
+  border: 1px solid #302822;
+  background: transparent;
+  color: #1c1713;
+}
+
+.share-secondary:hover {
+  background: #f1ece4;
+}
+
+.share-primary:focus-visible,
+.share-secondary:focus-visible {
+  outline: 3px solid #b07a3e;
+  outline-offset: 3px;
+}
+
+.share-primary:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}

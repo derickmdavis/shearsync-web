@@ -11,6 +11,7 @@ import {
   type BookingPreviewContext,
   type PublicStylist,
 } from "@/src/lib/api";
+import { getWebAppOrigin } from "@/src/lib/config/public";
 
 type BookingPageProps = {
   params: Promise<{
@@ -48,15 +49,38 @@ const PREVIEW_RESOLVER_CODES = new Set([
 ]);
 
 export async function generateMetadata({
+  params: routeParams,
   searchParams,
-}: Pick<BookingPageProps, "searchParams">): Promise<Metadata> {
+}: Pick<BookingPageProps, "params" | "searchParams">): Promise<Metadata> {
   const params = await searchParams;
 
-  return params.preview !== undefined
+  if (params.preview !== undefined
     || params.booking_inquiry_token !== undefined
-    || params.booking_attribution_handoff_token !== undefined
-    ? { referrer: "no-referrer" }
-    : {};
+    || params.booking_attribution_handoff_token !== undefined) {
+    return { referrer: "no-referrer" };
+  }
+
+  try {
+    const { slug } = await routeParams;
+    const stylist = await getPublicStylist(slug);
+    const displayName = stylist.display_name?.trim() || stylist.business_name?.trim() || "your stylist";
+    const bookingUrl = new URL(`/book/${encodeURIComponent(slug)}`, getWebAppOrigin()).toString();
+
+    return {
+      title: `Book with ${displayName}`,
+      description: "View services and book an appointment.",
+      alternates: { canonical: bookingUrl },
+      openGraph: {
+        title: `Book with ${displayName}`,
+        description: "View services and book an appointment.",
+        url: bookingUrl,
+        type: "website",
+        images: [{ url: new URL("/icon.jpeg", getWebAppOrigin()).toString() }],
+      },
+    };
+  } catch {
+    return {};
+  }
 }
 
 export default async function BookingPage(props: BookingPageProps) {

@@ -965,6 +965,18 @@ export type PublicReferralResponse = {
   expiresAt: string;
 };
 
+export type PublicReferralShare = {
+  stylist: {
+    displayName: string;
+    businessName?: string;
+  };
+  referralUrl: string;
+  share: {
+    title: string;
+    text: string;
+  };
+};
+
 export type CreateWaitlistInput = {
   requestedDates: string[];
   serviceId: string;
@@ -1647,6 +1659,17 @@ export async function finalizePublicBookingInquiryUpload(body: {
 export async function resolvePublicReferral(referralCode: string) {
   return requestPublicApi<PublicReferralResponse>(
     `/api/public/referrals/${encodeURIComponent(referralCode)}`,
+  );
+}
+
+/**
+ * Resolves the deliberately small public model used by /share/[code]. In a
+ * browser this is served by the same-origin BFF route, keeping the existing
+ * referral resolver's internal fields out of the sharing UI.
+ */
+export async function resolvePublicReferralShare(referralCode: string) {
+  return requestPublicApi<PublicReferralShare>(
+    `/api/public/referral-shares/${encodeURIComponent(referralCode)}`,
   );
 }
 

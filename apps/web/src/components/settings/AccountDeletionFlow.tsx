@@ -35,6 +35,27 @@ function Breadcrumb({ current }: { current: string }) {
 }
 
 export function AccountSecurityScreen() {
+  const router = useRouter();
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  const [signOutError, setSignOutError] = useState<string | null>(null);
+
+  async function signOut() {
+    setIsSigningOut(true);
+    setSignOutError(null);
+
+    try {
+      const { error } = await getSupabaseBrowserClient().auth.signOut();
+      if (error) {
+        throw error;
+      }
+
+      router.replace("/login");
+    } catch {
+      setSignOutError("We couldn’t sign you out. Please try again.");
+      setIsSigningOut(false);
+    }
+  }
+
   return (
     <WorkspaceShell active="settings">
       <section className={styles.settingsPage}>
@@ -48,7 +69,24 @@ export function AccountSecurityScreen() {
             <AccountRow label="Email Address" detail="Used for sign in and important notifications." value="derick@dendobarber.com" action="Edit" />
             <AccountRow label="Password" detail="Keep your account secure with a strong password." value="••••••••••••" action="Edit" />
             <AccountRow label="Two-Factor Authentication" detail="Add an extra layer of security to your account." value="Not enabled" action="Enable" />
+            <div className={styles.accountRow}>
+              <div>
+                <h2>Sign out</h2>
+                <p>Sign out of Root &amp; Foil on this device.</p>
+              </div>
+              <span className={styles.rowValue} />
+              <button
+                type="button"
+                className={styles.rowAction}
+                onClick={() => void signOut()}
+                disabled={isSigningOut}
+              >
+                {isSigningOut ? "Signing out…" : "Sign out"}
+              </button>
+            </div>
           </section>
+
+          {signOutError ? <p className={styles.errorMessage} role="alert">{signOutError}</p> : null}
 
           <section className={styles.dangerCard}>
             <span className={styles.dangerIcon} aria-hidden="true">♲</span>
