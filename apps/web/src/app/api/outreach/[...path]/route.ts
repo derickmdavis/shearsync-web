@@ -9,6 +9,9 @@ async function forwardOutreachRequest(request: Request, context: RouteContext) {
   const { path } = await context.params;
   const target = new URL(`/api/outreach/${path.join("/")}`, API_BASE_URL);
   target.search = new URL(request.url).search;
+  const requestBody = request.method === "GET" || request.method === "HEAD"
+    ? undefined
+    : await request.text();
 
   const headers = new Headers(request.headers);
   headers.delete("host");
@@ -16,6 +19,7 @@ async function forwardOutreachRequest(request: Request, context: RouteContext) {
   const response = await fetchWithTimeout(target, {
     method: request.method,
     headers,
+    body: requestBody,
     cache: "no-store",
   });
 
@@ -27,6 +31,17 @@ async function forwardOutreachRequest(request: Request, context: RouteContext) {
 }
 
 export async function GET(request: Request, context: RouteContext) {
+  try {
+    return await forwardOutreachRequest(request, context);
+  } catch {
+    return Response.json(
+      { error: { message: "Unable to reach the messaging service." } },
+      { status: 502 },
+    );
+  }
+}
+
+export async function PATCH(request: Request, context: RouteContext) {
   try {
     return await forwardOutreachRequest(request, context);
   } catch {

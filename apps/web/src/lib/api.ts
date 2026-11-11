@@ -1,4 +1,8 @@
 import { getBrowserApiOrigin } from "@/src/lib/config/public";
+import {
+  lifecycleCodeFromApiError,
+  notifyAccountLifecycle,
+} from "@/src/lib/auth/account-lifecycle-events";
 
 function getServerApiOrigin() {
   const candidate =
@@ -151,20 +155,38 @@ export type AccountProfile = {
   full_name: string | null;
   phone_number: string | null;
   business_name: string | null;
-  timezone: string;
+  timezone: string | null;
+  avatar_image_id: string | null;
+  location: BusinessLocation | null;
+  waitlist_enabled: boolean;
+  client_formulas_tab_enabled: boolean;
+  /** @deprecated Server fallback only. New settings screens must use location. */
   location_label?: string | null;
-  avatar_image_id?: string | null;
   created_at: string;
   updated_at: string;
 };
 
+export type BusinessLocation = {
+  name: string | null;
+  address_line_1: string;
+  address_line_2: string | null;
+  city: string;
+  region: string | null;
+  postal_code: string | null;
+  country_code: string | null;
+};
+
 export type AccountProfileUpdate = {
-  full_name?: string;
-  phone_number?: string;
-  business_name?: string;
+  full_name?: string | null;
+  phone_number?: string | null;
+  business_name?: string | null;
+  avatar_image_id?: string | null;
+  timezone?: string | null;
+  location?: BusinessLocation | null;
+  waitlist_enabled?: boolean;
+  client_formulas_tab_enabled?: boolean;
+  /** @deprecated Compatibility only; new settings must save structured location. */
   location_label?: string;
-  avatar_image_id?: string;
-  timezone?: string;
 };
 
 export type AutomationChannelCapability = {
@@ -252,13 +274,15 @@ export type StylistSettingsProfile = {
   cover_photo_url: string | null;
   booking_enabled: boolean;
   booking_request_form_enabled: boolean;
+  booking_request_form_questions: BookingInquiryPrompts | null;
+  intelligent_scheduling_enabled: boolean;
   created_at: string;
   updated_at: string;
 };
 
 export type StylistSettingsUpdate = {
   slug?: string;
-  display_name?: string;
+  display_name?: string | null;
   bio?: string | null;
   intro?: string | null;
   intro_description?: string | null;
@@ -266,6 +290,14 @@ export type StylistSettingsUpdate = {
   cover_photo_url?: string | null;
   booking_enabled?: boolean;
   booking_request_form_enabled?: boolean;
+  booking_request_form_questions?: BookingInquiryPrompts;
+  intelligent_scheduling_enabled?: boolean;
+};
+
+export type BookingInquiryPrompts = {
+  desired_outcome: string;
+  hair_history: string;
+  optional_photos: string;
 };
 
 export type BookingPreviewDraftOverrides = {
@@ -275,18 +307,14 @@ export type BookingPreviewDraftOverrides = {
   intro?: string | null;
   intro_description?: string | null;
   booking_request_form_enabled?: boolean;
-  booking_request_form_questions?: {
-    desired_outcome: string;
-    hair_history: string;
-    optional_photos: string;
-  };
+  booking_request_form_questions?: BookingInquiryPrompts;
 };
 
 export type CreateBookingPreviewSessionInput = {
   slug: string;
   draft_overrides: BookingPreviewDraftOverrides;
   client_context?: {
-    source: "booking-settings-preview";
+    source: "booking-settings-preview" | "web-settings";
     schema_version: "booking_preview_draft.v1";
   };
 };
@@ -587,6 +615,13 @@ export type BillingSummary = {
     grace_ends_at: string | null;
     cancels_at_period_end: boolean;
   } | null;
+  management?: { available: boolean };
+};
+
+export type AccountBillingStatus = {
+  status: string;
+  refreshedAt?: string | null;
+  [key: string]: unknown;
 };
 
 export type BillingCheckout = { clientSecret: string; sessionId: string };
@@ -645,15 +680,26 @@ export type CreateServiceBody = {
 export type UpdateServiceBody = Partial<CreateServiceBody>;
 
 export type BookingRules = {
+  leadTimeHours: number;
+  sameDayBookingAllowed: boolean;
+  sameDayBookingCutoff: string | null;
+  maxBookingWindowDays: number;
+  cancellationWindowHours: number;
+  lateCancellationFeeEnabled: boolean;
+  lateCancellationFeeType: "flat" | "percent";
+  lateCancellationFeeValue: number;
+  allowCancellationAfterCutoff: boolean;
+  rescheduleWindowHours: number;
+  maxReschedules: number | "unlimited" | null;
+  sameDayReschedulingAllowed: boolean;
+  preserveAppointmentHistory: boolean;
+  newClientApprovalRequired: boolean;
+  newClientBookingWindowDays: number;
   restrictServicesForNewClients: boolean;
   restrictedServiceIds: string[];
-  [key: string]: unknown;
 };
 
-export type UpdateBookingRulesBody = Pick<
-  BookingRules,
-  "restrictServicesForNewClients" | "restrictedServiceIds"
->;
+export type UpdateBookingRulesBody = Partial<BookingRules>;
 
 export type AppointmentStatus =
   | "pending"
@@ -1253,15 +1299,13 @@ function getRequestBaseUrl(preferProxy: boolean) {
   return API_BASE_URL;
 }
 
+const INVALID_JSON_RESPONSE = Symbol("invalid-json-response");
+
 async function parseResponseBody(response: Response) {
   const contentType = response.headers.get("content-type") ?? "";
-
-  // Some backend/proxy errors return text, so parse defensively rather than
-  // assuming every response is JSON.
-  if (contentType.includes("application/json")) {
-    return response.json();
-  }
-
+  // Read once and parse defensively. response.json() throws for a malformed
+  // upstream body and would otherwise leak a raw SyntaxError into a Settings
+  // screen, masking the HTTP failure that users can act on.
   const text = await response.text();
 
   if (!text) {
@@ -1271,6 +1315,12 @@ async function parseResponseBody(response: Response) {
   try {
     return JSON.parse(text);
   } catch {
+    // A few legacy routes send JSON without the header. Preserve their
+    // text-body compatibility, while also handling malformed declared JSON
+    // through the normal API error path below.
+    if (contentType.includes("json")) {
+      return INVALID_JSON_RESPONSE;
+    }
     return text;
   }
 }
@@ -1392,16 +1442,22 @@ async function requestPublicApi<T>(
 
   const payload = await parseResponseBody(response);
 
+  if (payload === INVALID_JSON_RESPONSE) {
+    throw new ApiError("The booking service returned an invalid response. Please try again.", 502);
+  }
+
   if (!response.ok) {
+    const details = payload && typeof payload === "object"
+      ? (payload as ApiEnvelope<unknown>).error?.details
+      : undefined;
+    const code = payload && typeof payload === "object"
+      ? (payload as ApiEnvelope<unknown>).error?.code
+      : undefined;
     throw new ApiError(
       extractApiErrorMessage(payload, "Request failed."),
       response.status,
-      payload && typeof payload === "object"
-        ? (payload as ApiEnvelope<unknown>).error?.details
-        : undefined,
-      payload && typeof payload === "object"
-        ? (payload as ApiEnvelope<unknown>).error?.code
-        : undefined,
+      details,
+      code,
       getRetryAfterSeconds(response),
     );
   }
@@ -1454,16 +1510,26 @@ async function requestAuthenticatedApi<T>(
 
   const payload = await parseResponseBody(response);
 
+  if (payload === INVALID_JSON_RESPONSE) {
+    throw new ApiError("The account service returned an invalid response. Please try again.", 502);
+  }
+
   if (!response.ok) {
+    const details = payload && typeof payload === "object"
+      ? (payload as ApiEnvelope<unknown>).error?.details
+      : undefined;
+    const code = payload && typeof payload === "object"
+      ? (payload as ApiEnvelope<unknown>).error?.code
+      : undefined;
+    const lifecycleCode = response.status === 403
+      ? lifecycleCodeFromApiError(code, details)
+      : null;
+    if (lifecycleCode) notifyAccountLifecycle(lifecycleCode);
     throw new ApiError(
       extractApiErrorMessage(payload, "Request failed."),
       response.status,
-      payload && typeof payload === "object"
-        ? (payload as ApiEnvelope<unknown>).error?.details
-        : undefined,
-      payload && typeof payload === "object"
-        ? (payload as ApiEnvelope<unknown>).error?.code
-        : undefined,
+      details,
+      code,
       getRetryAfterSeconds(response),
     );
   }
@@ -1977,6 +2043,143 @@ export async function setAutomationEnabled(
   );
 }
 
+export type AutomationChannelUpdate = {
+  settings_version: number;
+  email: boolean;
+  sms: boolean;
+};
+
+export type AutomationChannelUpdateResult = AutomationChannelUpdate & {
+  queue_reconciliation?: {
+    cancelled_count?: number;
+    [key: string]: unknown;
+  };
+};
+
+export async function updateAutomationChannels(
+  accessToken: string,
+  automationKey: "booking_confirmations" | "appointment_reminders",
+  body: AutomationChannelUpdate,
+) {
+  return requestAuthenticatedApi<AutomationChannelUpdateResult>(
+    `/api/outreach/automations/${encodeURIComponent(automationKey)}/channels`,
+    accessToken,
+    { preferProxy: true, init: { method: "PATCH", body: JSON.stringify(body) } },
+  );
+}
+
+export type EmailCopySettings = {
+  approvalRequired: boolean;
+  subjectTemplate: string | null;
+  greeting: string;
+  customMessageBlock: string | null;
+  configured: boolean;
+  availableTokens: string[];
+};
+
+export type RebookNudgeSettings = EmailCopySettings & {
+  defaultRebookIntervalDays: number;
+};
+
+export type ThankYouEmailSettings = EmailCopySettings & {
+  sendDelayHours: number;
+};
+
+export type EmailCopyPreview = { subject: string; text: string; html: string };
+export type EmailCopyUpdate = Partial<Pick<EmailCopySettings, "approvalRequired" | "subjectTemplate" | "greeting" | "customMessageBlock">>;
+export type RebookNudgeUpdate = EmailCopyUpdate & Partial<Pick<RebookNudgeSettings, "defaultRebookIntervalDays">>;
+export type ThankYouEmailUpdate = EmailCopyUpdate & Partial<Pick<ThankYouEmailSettings, "sendDelayHours">>;
+
+export type BirthdayReminderSettings = {
+  approvalRequired: boolean;
+  configured: boolean;
+};
+
+export async function getRebookNudgeSettings(accessToken: string) {
+  return requestAuthenticatedApi<RebookNudgeSettings>("/api/settings/rebook-nudges", accessToken, { preferProxy: true });
+}
+
+export async function updateRebookNudgeSettings(accessToken: string, body: RebookNudgeUpdate) {
+  return requestAuthenticatedApi<RebookNudgeSettings>("/api/settings/rebook-nudges", accessToken, { preferProxy: true, init: { method: "PATCH", body: JSON.stringify(body) } });
+}
+
+export async function previewRebookNudgeSettings(accessToken: string, body: Pick<EmailCopySettings, "subjectTemplate" | "greeting" | "customMessageBlock">) {
+  return requestAuthenticatedApi<EmailCopyPreview>("/api/settings/rebook-nudges/preview", accessToken, { preferProxy: true, init: { method: "POST", body: JSON.stringify(body) } });
+}
+
+export async function getThankYouEmailSettings(accessToken: string) {
+  return requestAuthenticatedApi<ThankYouEmailSettings>("/api/settings/thank-you-emails", accessToken, { preferProxy: true });
+}
+
+export async function updateThankYouEmailSettings(accessToken: string, body: ThankYouEmailUpdate) {
+  return requestAuthenticatedApi<ThankYouEmailSettings>("/api/settings/thank-you-emails", accessToken, { preferProxy: true, init: { method: "PATCH", body: JSON.stringify(body) } });
+}
+
+export async function previewThankYouEmailSettings(accessToken: string, body: Pick<EmailCopySettings, "subjectTemplate" | "greeting" | "customMessageBlock">) {
+  return requestAuthenticatedApi<EmailCopyPreview>("/api/settings/thank-you-emails/preview", accessToken, { preferProxy: true, init: { method: "POST", body: JSON.stringify(body) } });
+}
+
+export async function getBirthdayReminderSettings(accessToken: string) {
+  return requestAuthenticatedApi<BirthdayReminderSettings>("/api/settings/birthday-reminders", accessToken, { preferProxy: true });
+}
+
+export async function updateBirthdayReminderSettings(accessToken: string, body: Partial<Pick<BirthdayReminderSettings, "approvalRequired">>) {
+  return requestAuthenticatedApi<BirthdayReminderSettings>("/api/settings/birthday-reminders", accessToken, { preferProxy: true, init: { method: "PATCH", body: JSON.stringify(body) } });
+}
+
+export type EmailTemplateKey = "booking_confirmation" | "appointment_reminder" | "rebook_nudge" | "thank_you" | "birthday";
+export type EmailTemplate = {
+  subject: string;
+  body: string;
+  allowedVariables: string[];
+  source?: "default" | "custom";
+  defaultVersion?: string;
+  updatedAt?: string | null;
+  configuration?: { mode: "simple" | "advanced"; layoutVersion?: string };
+  [key: string]: unknown;
+};
+export type EmailTemplateContent = { subject: string; body: string };
+export type SimpleEmailTemplateContent = { notes: string | null };
+
+function emailTemplatePath(key: EmailTemplateKey) { return `/api/email-templates/${encodeURIComponent(key)}`; }
+export async function getEmailTemplate(accessToken: string, key: EmailTemplateKey) { return requestAuthenticatedApi<EmailTemplate>(emailTemplatePath(key), accessToken, { preferProxy: true }); }
+export async function updateEmailTemplate(accessToken: string, key: EmailTemplateKey, body: EmailTemplateContent) { return requestAuthenticatedApi<EmailTemplate>(emailTemplatePath(key), accessToken, { preferProxy: true, init: { method: "PUT", body: JSON.stringify(body) } }); }
+export async function previewEmailTemplate(accessToken: string, key: EmailTemplateKey, body: EmailTemplateContent) { return requestAuthenticatedApi<EmailCopyPreview>(`${emailTemplatePath(key)}/preview`, accessToken, { preferProxy: true, init: { method: "POST", body: JSON.stringify(body) } }); }
+export async function resetEmailTemplate(accessToken: string, key: EmailTemplateKey) { return requestAuthenticatedApi<EmailTemplate>(`${emailTemplatePath(key)}/reset`, accessToken, { preferProxy: true, init: { method: "POST" } }); }
+export async function updateEmailTemplateMode(accessToken: string, key: "booking_confirmation" | "appointment_reminder", mode: "simple" | "advanced") { return requestAuthenticatedApi<EmailTemplate>(`${emailTemplatePath(key)}/mode`, accessToken, { preferProxy: true, init: { method: "PATCH", body: JSON.stringify({ mode }) } }); }
+export async function updateSimpleEmailTemplate(accessToken: string, key: "booking_confirmation" | "appointment_reminder", body: SimpleEmailTemplateContent) { return requestAuthenticatedApi<EmailTemplate>(`${emailTemplatePath(key)}/simple`, accessToken, { preferProxy: true, init: { method: "PUT", body: JSON.stringify(body) } }); }
+export async function previewSimpleEmailTemplate(accessToken: string, key: "booking_confirmation" | "appointment_reminder", body: SimpleEmailTemplateContent) { return requestAuthenticatedApi<EmailCopyPreview>(`${emailTemplatePath(key)}/simple/preview`, accessToken, { preferProxy: true, init: { method: "POST", body: JSON.stringify(body) } }); }
+export async function updateAdvancedEmailTemplate(accessToken: string, key: "booking_confirmation" | "appointment_reminder", body: EmailTemplateContent) { return requestAuthenticatedApi<EmailTemplate>(`${emailTemplatePath(key)}/advanced`, accessToken, { preferProxy: true, init: { method: "PUT", body: JSON.stringify(body) } }); }
+export async function previewAdvancedEmailTemplate(accessToken: string, key: "booking_confirmation" | "appointment_reminder", body: EmailTemplateContent) { return requestAuthenticatedApi<EmailCopyPreview>(`${emailTemplatePath(key)}/advanced/preview`, accessToken, { preferProxy: true, init: { method: "POST", body: JSON.stringify(body) } }); }
+
+export type ReferralProgramSettings = {
+  enabled: boolean;
+  offerName: string | null;
+  offerDescription: string | null;
+  configured: boolean;
+  createdAt: string | null;
+  updatedAt: string | null;
+  active: boolean;
+  program_enabled: boolean;
+  offer_configured: boolean;
+  thank_you_referral_enabled: boolean;
+  active_campaign_count: number;
+  setup_state: { icon_key: string; title: string; body: string; cta_label: string; accessibility_label: string };
+};
+export type ReferralProgramUpdate = Partial<Pick<ReferralProgramSettings, "enabled" | "offerName" | "offerDescription">>;
+export async function getReferralProgramSettings(accessToken: string) { return requestAuthenticatedApi<ReferralProgramSettings>("/api/settings/referrals", accessToken, { preferProxy: true }); }
+export async function updateReferralProgramSettings(accessToken: string, body: ReferralProgramUpdate) { return requestAuthenticatedApi<ReferralProgramSettings>("/api/settings/referrals", accessToken, { preferProxy: true, init: { method: "PATCH", body: JSON.stringify(body) } }); }
+
+export type ProjectedReturnReminderSettings = {
+  offset_days: number;
+  revision: number;
+  timezone: string;
+  local_send_time: string;
+};
+export type ProjectedReturnReminderUpdate = { offset_days: number; expected_revision: number };
+export async function getProjectedReturnReminderSettings(accessToken: string) { return requestAuthenticatedApi<ProjectedReturnReminderSettings>("/api/v2/settings/rebook-reminders", accessToken, { preferProxy: true }); }
+export async function updateProjectedReturnReminderSettings(accessToken: string, body: ProjectedReturnReminderUpdate) { return requestAuthenticatedApi<ProjectedReturnReminderSettings>("/api/v2/settings/rebook-reminders", accessToken, { preferProxy: true, init: { method: "PATCH", body: JSON.stringify(body) } }); }
+
 export async function updateAccountProfile(
   accessToken: string,
   body: AccountProfileUpdate,
@@ -1993,10 +2196,25 @@ export async function updateAccountProfile(
   );
 }
 
-export type AvailabilityDay = { day_of_week: number; enabled: boolean; start_time: string; end_time: string };
+export type AvailabilityWindow = {
+  startTime: string;
+  endTime: string;
+  clientAudience: ClientAudience;
+};
+
+export type AvailabilityDay = {
+  dayOfWeek: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  isOpen: boolean;
+  windows: AvailabilityWindow[];
+};
+
+export type AvailabilitySettings = {
+  timezone: string;
+  days: AvailabilityDay[];
+};
 export type OffDay = { id: string; start_date?: string; end_date?: string; date?: string; reason?: string | null };
-export async function getAvailability(accessToken: string) { return requestAuthenticatedApi<{ days?: AvailabilityDay[] }>("/api/settings/availability", accessToken, { preferProxy: true, unwrap: false }); }
-export async function updateAvailability(accessToken: string, days: AvailabilityDay[]) { return requestAuthenticatedApi<{ days?: AvailabilityDay[] }>("/api/settings/availability", accessToken, { preferProxy: true, unwrap: false, init: { method: "PUT", body: JSON.stringify({ days }) } }); }
+export async function getAvailability(accessToken: string) { return requestAuthenticatedApi<AvailabilitySettings>("/api/settings/availability", accessToken, { preferProxy: true }); }
+export async function updateAvailability(accessToken: string, days: AvailabilityDay[]) { return requestAuthenticatedApi<AvailabilitySettings>("/api/settings/availability", accessToken, { preferProxy: true, init: { method: "PUT", body: JSON.stringify({ days }) } }); }
 export async function getOffDays(accessToken: string, startDate: string, endDate: string) { const query = new URLSearchParams({ startDate, endDate }); return requestAuthenticatedApi<unknown>(`/api/off-days?${query}`, accessToken, { preferProxy: true, unwrap: false }); }
 export async function createOffDay(accessToken: string, body: { start_date: string; end_date?: string; reason?: string }) { return requestAuthenticatedApi<OffDay>("/api/off-days", accessToken, { preferProxy: true, init: { method: "POST", body: JSON.stringify(body) } }); }
 export async function deleteOffDay(accessToken: string, id: string) { return requestAuthenticatedApi<void>(`/api/off-days/${encodeURIComponent(id)}`, accessToken, { preferProxy: true, init: { method: "DELETE" } }); }
@@ -2047,6 +2265,19 @@ export async function getAccountPlan(accessToken: string) {
 export async function getAccountAccess(accessToken: string) {
   return requestAuthenticatedApi<AccountAccess>("/api/account/access", accessToken, {
     preferProxy: true,
+  });
+}
+
+export async function getAccountBillingStatus(accessToken: string) {
+  return requestAuthenticatedApi<AccountBillingStatus>("/api/account/billing-status", accessToken, {
+    preferProxy: true,
+  });
+}
+
+export async function refreshAccountBillingStatus(accessToken: string) {
+  return requestAuthenticatedApi<AccountBillingStatus>("/api/account/billing-status/refresh", accessToken, {
+    preferProxy: true,
+    init: { method: "POST" },
   });
 }
 

@@ -49,6 +49,12 @@ export function CalendarScreen() {
   const visibleDates = useMemo(() => view === "day" ? [selectedDate] : view === "week" ? Array.from({ length: 7 }, (_, index) => addDays(weekStart, index)) : [], [selectedDate, view, weekStart]);
 
   useEffect(() => {
+    const refreshAvailability = () => { cache.clear(); setRefresh((value) => value + 1); };
+    globalThis.addEventListener("rootfoil:availability-settings-changed", refreshAvailability);
+    return () => globalThis.removeEventListener("rootfoil:availability-settings-changed", refreshAvailability);
+  }, []);
+
+  useEffect(() => {
     const controller = new AbortController(); const version = ++requestVersion.current;
     setLoadState("loading"); setError(null);
     void withActiveAccount(async (accessToken, _access, accountId) => {

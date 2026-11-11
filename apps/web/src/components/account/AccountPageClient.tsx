@@ -81,7 +81,7 @@ function toProfileForm(profile: AccountProfile): ProfileForm {
     business_name: profile.business_name ?? "",
     location_label: profile.location_label ?? "",
     avatar_image_id: profile.avatar_image_id ?? "",
-    timezone: profile.timezone,
+    timezone: profile.timezone ?? "",
   };
 }
 

@@ -8,6 +8,7 @@ import {
   getSentOutreach,
   getAutomationBootstrap,
   setAutomationEnabled,
+  updateAutomationChannels,
   type AutomationBootstrap,
   type AutomationChannelCapability,
   type AutomationControl,
@@ -61,7 +62,9 @@ function channelDescription(name: string, channel: AutomationChannelCapability) 
   return channel.enabled ? `${name} enabled` : `${name} off`;
 }
 
-function AutomationCard({ control, changing, onEnabledChange }: { control: AutomationControl; changing: boolean; onEnabledChange: (enabled: boolean) => void }) {
+function supportsChannelEditing(control: AutomationControl) { return control.key === "booking_confirmations" || control.key === "appointment_reminders"; }
+
+function AutomationCard({ control, changing, onEnabledChange, onChannelChange }: { control: AutomationControl; changing: boolean; onEnabledChange: (enabled: boolean) => void; onChannelChange: (email: boolean, sms: boolean) => void }) {
   const channels: ReadonlyArray<readonly [string, AutomationChannelCapability]> = [
     ["Email", control.channels.email],
     ["SMS", control.channels.sms],
@@ -88,7 +91,7 @@ function AutomationCard({ control, changing, onEnabledChange }: { control: Autom
 
     <dl className={styles.automationDetails}>
       <div><dt>Master automation</dt><dd>{control.enabled ? "On" : "Off"}</dd></div>
-      {channels.map(([name, channel]) => <div key={name}><dt>{name}</dt><dd>{channelDescription(name, channel)}</dd></div>)}
+      {channels.map(([name, channel]) => <div key={name}><dt>{name}</dt><dd>{channelDescription(name, channel)}{supportsChannelEditing(control) && channel.available ? <label className={styles.automationToggle}><span className="sr-only">Enable {name} for {control.label}</span><input type="checkbox" checked={channel.enabled} disabled={changing} onChange={(event) => onChannelChange(name === "Email" ? event.target.checked : control.channels.email.enabled, name === "SMS" ? event.target.checked : control.channels.sms.enabled)} /><i aria-hidden="true" /></label> : null}</dd></div>)}
       <div><dt>Pending approval</dt><dd>{control.pending_approval_count}</dd></div>
       <div><dt>Queued / scheduled</dt><dd>{control.queued_count} / {control.scheduled_count}</dd></div>
       {timing.map(([key, value]) => <div key={key}><dt>{titleFromKey(key)}</dt><dd>{timingValue(value)}</dd></div>)}
@@ -108,7 +111,7 @@ function AutomationCard({ control, changing, onEnabledChange }: { control: Autom
   </article>;
 }
 
-export function MessagesScreen() {
+export function MessagesScreen({ settingsMode = false }: { settingsMode?: boolean }) {
   const [tab, setTab] = useState<MessageTab>("manage");
   const [state, setState] = useState<LoadState>("loading");
   const [data, setData] = useState<AutomationBootstrap | null>(null);
@@ -120,6 +123,7 @@ export function MessagesScreen() {
   const [error, setError] = useState<string | null>(null);
   const [reload, setReload] = useState(0);
   const [changingKey, setChangingKey] = useState<string | null>(null);
+  const [reconciliationNotice, setReconciliationNotice] = useState<string | null>(null);
   const requestVersion = useRef(0);
 
   useEffect(() => {
@@ -139,7 +143,7 @@ export function MessagesScreen() {
     })
       .then((result) => {
         if (version !== requestVersion.current) return;
-        setData(result.automation); setDashboard(result.attention); setState("ready");
+        setData(result.automation); setDashboard(result.attention); setError(null); setState("ready");
       })
       .catch((cause: unknown) => {
         if (version !== requestVersion.current) return;
@@ -182,11 +186,41 @@ export function MessagesScreen() {
     }
   }
 
-  return <WorkspaceShell active="messages"><section className={styles.messagesPage}>
-    <PageHeading title="Messages" subtitle="Keep your clients engaged." action={<button className={styles.secondaryButton} type="button" onClick={reloadMessages} disabled={state === "loading"}>Refresh</button>} />
-    <nav className={styles.localTabs} aria-label="Messages sections"><button className={tab === "overview" ? styles.localTabActive : ""} type="button" onClick={() => setTab("overview")} aria-current={tab === "overview" ? "page" : undefined}>Overview</button><button className={tab === "sent" ? styles.localTabActive : ""} type="button" onClick={() => setTab("sent")} aria-current={tab === "sent" ? "page" : undefined}>Sent</button><button className={tab === "manage" ? styles.localTabActive : ""} type="button" onClick={() => setTab("manage")} aria-current={tab === "manage" ? "page" : undefined}>Manage</button></nav>
+  async function changeChannels(control: AutomationControl, email: boolean, sms: boolean) {
+    setChangingKey(control.key); setError(null); setReconciliationNotice(null);
+    try {
+      const refreshed = await withActiveAccount(async (accessToken) => {
+        const result = await updateAutomationChannels(accessToken, control.key as "booking_confirmations" | "appointment_reminders", { settings_version: control.settings_version, email, sms });
+        const [automation, attention] = await Promise.all([getAutomationBootstrap(accessToken), getActivityDashboard(accessToken).catch(() => null)]);
+        return { automation, attention, result };
+      });
+      setData(refreshed.automation); setDashboard(refreshed.attention); setState("ready");
+      const cancelled = refreshed.result.queue_reconciliation?.cancelled_count;
+      if (typeof cancelled === "number" && cancelled > 0) setReconciliationNotice(`${cancelled} queued message${cancelled === 1 ? " was" : "s were"} cancelled after the channel change.`);
+      else if (refreshed.result.queue_reconciliation) setReconciliationNotice("Queued delivery was reconciled with the updated channel settings.");
+    } catch (cause) {
+      if ((cause instanceof ApiError || (cause && typeof cause === "object")) && (cause as ApiError).status === 409 && (cause as ApiError).code === "settings_version_conflict") {
+        try {
+          const refreshed = await withActiveAccount(async (accessToken) => {
+            const [automation, attention] = await Promise.all([getAutomationBootstrap(accessToken), getActivityDashboard(accessToken).catch(() => null)]);
+            return { automation, attention };
+          });
+          setData(refreshed.automation); setDashboard(refreshed.attention); setState("ready");
+        } catch (refreshCause) {
+          setError(errorText(refreshCause));
+          setState("error");
+          return;
+        }
+        setError("Channel preferences changed elsewhere. The latest settings were loaded; review them and try again.");
+      } else { setError(errorText(cause)); setState("error"); }
+    } finally { setChangingKey(null); }
+  }
+
+  return <WorkspaceShell active={settingsMode ? "settings" : "messages"}><section className={styles.messagesPage}>
+    <PageHeading title={settingsMode ? "Automations" : "Messages"} subtitle={settingsMode ? "Manage your automated client communications." : "Keep your clients engaged."} action={<button className={styles.secondaryButton} type="button" onClick={reloadMessages} disabled={state === "loading"}>Refresh</button>} />
+    {!settingsMode ? <nav className={styles.localTabs} aria-label="Messages sections"><button className={tab === "overview" ? styles.localTabActive : ""} type="button" onClick={() => setTab("overview")} aria-current={tab === "overview" ? "page" : undefined}>Overview</button><button className={tab === "sent" ? styles.localTabActive : ""} type="button" onClick={() => setTab("sent")} aria-current={tab === "sent" ? "page" : undefined}>Sent</button><button className={tab === "manage" ? styles.localTabActive : ""} type="button" onClick={() => setTab("manage")} aria-current={tab === "manage" ? "page" : undefined}>Manage</button></nav> : null}
     {tab === "manage" ? <header className={styles.messagesSectionHeading}><h2>Always on</h2><p>Automated touchpoints that keep clients engaged.</p></header> : null}
-    {state === "error" ? <section className={styles.messagesStatus} role="alert"><p>{error}</p><button className={styles.secondaryButton} type="button" onClick={reloadMessages}>Try again</button></section> : null}
+    {error ? <section className={styles.messagesStatus} role="alert"><p>{error}</p>{state === "error" ? <button className={styles.secondaryButton} type="button" onClick={reloadMessages}>Try again</button> : null}</section> : null}{reconciliationNotice ? <p className={styles.servicesMessage} role="status">{reconciliationNotice}</p> : null}
     {state === "loading" && !data ? <section className={styles.messagesStatus} aria-busy="true"><p>Loading message automation status…</p></section> : null}
     {tab === "overview" ? <MessageList title="Booking inquiries" description="Actionable requests from your booking page." items={inquiries} loading={tabLoading} error={tabError} empty="No actionable booking inquiries." /> : null}
     {tab === "sent" ? <MessageList title="Sent communications" description="Recent outreach sent to clients." items={sent} loading={tabLoading} error={tabError} empty="No sent communications yet." /> : null}
@@ -196,7 +230,7 @@ export function MessagesScreen() {
         <div><strong>{dashboardCount(dashboard, ["pending_approvals", "pendingApprovals", "approvals"]) ?? "—"}</strong><span>Pending approvals</span></div>
         <div><strong>{dashboardCount(dashboard, ["waitlist", "active_waitlist", "activeWaitlist"]) ?? "—"}</strong><span>Clients on the waitlist</span></div>
       </section>
-      <div className={styles.automationGrid}>{data.controls.map((control) => <AutomationCard control={control} changing={changingKey === control.key} onEnabledChange={(enabled) => void changeAutomation(control, enabled)} key={control.key} />)}</div>
+      <div className={styles.automationGrid}>{data.controls.map((control) => <AutomationCard control={control} changing={changingKey !== null} onEnabledChange={(enabled) => void changeAutomation(control, enabled)} onChannelChange={(email, sms) => void changeChannels(control, email, sms)} key={control.key} />)}</div>
     </> : null}
   </section></WorkspaceShell>;
 }

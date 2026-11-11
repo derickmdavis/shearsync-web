@@ -73,6 +73,16 @@ const settingsGroups: ReadonlyArray<{ title: string; items: ReadonlyArray<Settin
     { label: "Booking page", description: "Public page, request form, and sharing", icon: "↗", href: "/settings/booking-page" },
     { label: "Payment methods", description: "Payment links and instructions", icon: "▤" },
   ] },
+  { title: "Rebooking", items: [
+    { label: "Projected-return timing", description: "Choose when return reminders are processed", icon: "↻", href: "/settings/rebooking" },
+  ] },
+  { title: "Automations", items: [
+    { label: "Client communications", description: "Automation status, delivery channels, and timing", icon: "✉", href: "/settings/automations" },
+    { label: "Rebook nudges", description: "Approval, timing, and reminder copy", icon: "↻", href: "/settings/automations/rebook-nudges" },
+    { label: "Thank-you emails", description: "Approval, delay, and message copy", icon: "♡", href: "/settings/automations/thank-you-emails" },
+    { label: "Birthday reminders", description: "Approval behavior for birthday messages", icon: "♢", href: "/settings/automations/birthday-reminders" },
+    { label: "Email templates", description: "Edit message content and delivery modes", icon: "✎", href: "/settings/email-templates" },
+  ] },
   { title: "Account", items: [
     { label: "Account", description: "Sign-in and account details", icon: "◎", href: "/settings/account" },
     { label: "Subscription", description: "Plan and billing", icon: "▭", href: "/billing" },

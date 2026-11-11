@@ -47,6 +47,7 @@ const INITIAL_QUERY: Required<Omit<ClientsListQuery, "search">> = {
 
 const clientsPageCache = new Map<string, ClientsPage>();
 const accountTimezoneCache = new Map<string, string>();
+const formulasTabCache = new Map<string, boolean>();
 const clientDetailCache = new Map<string, ClientDetail>();
 const EMPTY_CREATE_FORM: CreateClientFormState = {
   firstName: "",
@@ -182,6 +183,7 @@ export function ClientsScreenClient() {
   const [searchInput, setSearchInput] = useState("");
   const [page, setPage] = useState<ClientsPage | null>(null);
   const [timezone, setTimezone] = useState<string | null>(null);
+  const [formulasEnabled, setFormulasEnabled] = useState(true);
   const [loadState, setLoadState] = useState<ClientsLoadState>("loading");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
@@ -228,21 +230,25 @@ export function ClientsScreenClient() {
       const scopedCacheKey = `${accountId}:${cacheKey}`;
       const cached = clientsPageCache.get(scopedCacheKey);
       let accountTimezone = accountTimezoneCache.get(accountId);
+      let accountFormulasEnabled = formulasTabCache.get(accountId);
 
-      if (!accountTimezone) {
-        accountTimezone = (await getAccountProfile(accessToken)).timezone;
+      if (!accountTimezone || accountFormulasEnabled === undefined) {
+        const profile = await getAccountProfile(accessToken);
+        accountTimezone = profile.timezone ?? "UTC";
+        accountFormulasEnabled = profile.client_formulas_tab_enabled ?? true;
         accountTimezoneCache.set(accountId, accountTimezone);
+        formulasTabCache.set(accountId, accountFormulasEnabled);
       }
 
       if (cached && !isRefresh) {
-        return { page: cached, timezone: accountTimezone };
+        return { page: cached, timezone: accountTimezone, formulasEnabled: accountFormulasEnabled };
       }
 
       const result = await getClients(accessToken, query, {
         signal: controller.signal,
       });
       clientsPageCache.set(scopedCacheKey, result);
-      return { page: result, timezone: accountTimezone };
+      return { page: result, timezone: accountTimezone, formulasEnabled: accountFormulasEnabled };
     })
       .then((result) => {
         if (controller.signal.aborted || version !== requestVersion.current) {
@@ -252,6 +258,7 @@ export function ClientsScreenClient() {
         pageRef.current = result.page;
         setPage(result.page);
         setTimezone(result.timezone);
+        setFormulasEnabled(result.formulasEnabled);
         setLoadState("ready");
       })
       .catch((error: unknown) => {
@@ -265,6 +272,20 @@ export function ClientsScreenClient() {
 
     return () => controller.abort();
   }, [cacheKey, query, refreshVersion]);
+
+  useEffect(() => {
+    const refreshProfilePreferences = () => {
+      formulasTabCache.clear();
+      void withActiveAccount(async (accessToken, _access, accountId) => {
+        const profile = await getAccountProfile(accessToken);
+        const enabled = profile.client_formulas_tab_enabled ?? true;
+        formulasTabCache.set(accountId, enabled);
+        return enabled;
+      }).then(setFormulasEnabled).catch(() => undefined);
+    };
+    globalThis.addEventListener("rootfoil:profile-settings-changed", refreshProfilePreferences);
+    return () => globalThis.removeEventListener("rootfoil:profile-settings-changed", refreshProfilePreferences);
+  }, []);
 
   useEffect(() => {
     if (!selectedClientId) {
@@ -372,7 +393,7 @@ export function ClientsScreenClient() {
     {loadState === "error" ? <ClientsStatus title="Unable to load clients" message={errorMessage ?? undefined} action={<button className={styles.secondaryButton} type="button" onClick={() => setRefreshVersion((value) => value + 1)}>Try again</button>} /> : null}
     {loadState !== "loading" && loadState !== "error" && isEmpty ? <ClientsStatus title="No clients yet" message="Clients you add or book will appear here." /> : null}
     {loadState !== "loading" && loadState !== "error" && isNoResults ? <ClientsStatus title="No clients found" message="Try a different search." /> : null}
-    {page && timezone && page.data.length > 0 ? <><div className={styles.clientsLayout}><section className={styles.clientTableWrap}><p className={styles.clientCount}>{page.totalCount} client{page.totalCount === 1 ? "" : "s"}</p>{!isMobile ? <table className={styles.clientTable}><thead><tr><th>Name</th><th>Last Seen</th><th>Visits</th><th>Total Spent</th><th>Next Appointment</th></tr></thead><tbody>{page.data.map((client) => <tr className={selectedClientId === client.id ? styles.selectedRow : ""} key={client.id}><td><button className={styles.clientRowSelect} type="button" onClick={() => selectClient(client.id)} aria-pressed={selectedClientId === client.id}><span className={styles.clientAvatar}>{initials(client)}</span><strong>{displayName(client)}</strong>{client.is_vip ? <span className={styles.vipPill}>VIP</span> : null}</button></td><td>{formatDate(client.last_visit_at, timezone)}</td><td>{client.completed_visit_count}</td><td>{formatMoney(client.total_spend)}</td><td>{client.has_future_appointment && client.next_appointment_at ? <span className={styles.nextPill}>{formatAppointment(client.next_appointment_at, timezone)}</span> : <span className={styles.muted}>No upcoming appointment</span>}</td></tr>)}</tbody></table> : <div className={styles.clientMobileList}>{page.data.map((client) => <button className={`${styles.clientMobileRow} ${selectedClientId === client.id ? styles.selectedRow : ""}`} type="button" onClick={() => selectClient(client.id)} aria-pressed={selectedClientId === client.id} key={client.id}><span className={styles.clientMobileIdentity}><strong>{displayName(client)}</strong>{client.is_vip ? <span className={styles.vipPill}>VIP</span> : null}</span><strong className={styles.clientMobileSpend}>{formatMoney(client.total_spend)}</strong><span>{formatDate(client.last_visit_at, timezone)} · {client.completed_visit_count} visit{client.completed_visit_count === 1 ? "" : "s"}</span><span className={styles.clientMobileNext}>{client.has_future_appointment && client.next_appointment_at ? formatAppointment(client.next_appointment_at, timezone) : "No upcoming appointment"}</span></button>)}</div>}</section><ClientDetailPanel selectedClientId={selectedClientId} detail={detail} loadState={detailLoadState} errorMessage={detailErrorMessage} onRetry={retryClientDetail} onChanged={() => { clientDetailCache.clear(); clientsPageCache.clear(); setDetailRefreshVersion((value) => value + 1); setRefreshVersion((value) => value + 1); }} /></div>{page.totalCount > page.pageSize ? <nav className={styles.clientsPagination} aria-label="Client list pagination"><span>Page {page.page} of {Math.max(1, Math.ceil(page.totalCount / page.pageSize))}</span><button className={styles.secondaryButton} type="button" onClick={() => changePage(page.page - 1)} disabled={page.page <= 1 || loadState === "refreshing"}>Previous</button><button className={styles.secondaryButton} type="button" onClick={() => changePage(page.page + 1)} disabled={(!page.nextCursor && page.page * page.pageSize >= page.totalCount) || loadState === "refreshing"}>Next</button></nav> : null}</> : null}
+    {page && timezone && page.data.length > 0 ? <><div className={styles.clientsLayout}><section className={styles.clientTableWrap}><p className={styles.clientCount}>{page.totalCount} client{page.totalCount === 1 ? "" : "s"}</p>{!isMobile ? <table className={styles.clientTable}><thead><tr><th>Name</th><th>Last Seen</th><th>Visits</th><th>Total Spent</th><th>Next Appointment</th></tr></thead><tbody>{page.data.map((client) => <tr className={selectedClientId === client.id ? styles.selectedRow : ""} key={client.id}><td><button className={styles.clientRowSelect} type="button" onClick={() => selectClient(client.id)} aria-pressed={selectedClientId === client.id}><span className={styles.clientAvatar}>{initials(client)}</span><strong>{displayName(client)}</strong>{client.is_vip ? <span className={styles.vipPill}>VIP</span> : null}</button></td><td>{formatDate(client.last_visit_at, timezone)}</td><td>{client.completed_visit_count}</td><td>{formatMoney(client.total_spend)}</td><td>{client.has_future_appointment && client.next_appointment_at ? <span className={styles.nextPill}>{formatAppointment(client.next_appointment_at, timezone)}</span> : <span className={styles.muted}>No upcoming appointment</span>}</td></tr>)}</tbody></table> : <div className={styles.clientMobileList}>{page.data.map((client) => <button className={`${styles.clientMobileRow} ${selectedClientId === client.id ? styles.selectedRow : ""}`} type="button" onClick={() => selectClient(client.id)} aria-pressed={selectedClientId === client.id} key={client.id}><span className={styles.clientMobileIdentity}><strong>{displayName(client)}</strong>{client.is_vip ? <span className={styles.vipPill}>VIP</span> : null}</span><strong className={styles.clientMobileSpend}>{formatMoney(client.total_spend)}</strong><span>{formatDate(client.last_visit_at, timezone)} · {client.completed_visit_count} visit{client.completed_visit_count === 1 ? "" : "s"}</span><span className={styles.clientMobileNext}>{client.has_future_appointment && client.next_appointment_at ? formatAppointment(client.next_appointment_at, timezone) : "No upcoming appointment"}</span></button>)}</div>}</section><ClientDetailPanel selectedClientId={selectedClientId} detail={detail} loadState={detailLoadState} errorMessage={detailErrorMessage} formulasEnabled={formulasEnabled} onRetry={retryClientDetail} onChanged={() => { clientDetailCache.clear(); clientsPageCache.clear(); setDetailRefreshVersion((value) => value + 1); setRefreshVersion((value) => value + 1); }} /></div>{page.totalCount > page.pageSize ? <nav className={styles.clientsPagination} aria-label="Client list pagination"><span>Page {page.page} of {Math.max(1, Math.ceil(page.totalCount / page.pageSize))}</span><button className={styles.secondaryButton} type="button" onClick={() => changePage(page.page - 1)} disabled={page.page <= 1 || loadState === "refreshing"}>Previous</button><button className={styles.secondaryButton} type="button" onClick={() => changePage(page.page + 1)} disabled={(!page.nextCursor && page.page * page.pageSize >= page.totalCount) || loadState === "refreshing"}>Next</button></nav> : null}</> : null}
     {isCreateOpen ? <CreateClientDialog onClose={() => setIsCreateOpen(false)} onCreated={handleClientCreated} /> : null}
     {isImportOpen ? <ImportClientsDialog onClose={() => setIsImportOpen(false)} onImported={() => setRefreshVersion((value) => value + 1)} /> : null}
   </section></WorkspaceShell>;
@@ -383,7 +404,7 @@ function ClientsStatus({ title, message, action }: { title: string; message?: st
 }
 
 type ProfileTab = "profile" | "bookings" | "messages" | "formulas" | "preferences";
-function ClientDetailPanel({ selectedClientId, detail, loadState, errorMessage, onRetry, onChanged }: { selectedClientId: string | null; detail: ClientDetail | null; loadState: ClientDetailLoadState; errorMessage: string | null; onRetry: () => void; onChanged: () => void }) {
+function ClientDetailPanel({ selectedClientId, detail, loadState, errorMessage, formulasEnabled, onRetry, onChanged }: { selectedClientId: string | null; detail: ClientDetail | null; loadState: ClientDetailLoadState; errorMessage: string | null; formulasEnabled: boolean; onRetry: () => void; onChanged: () => void }) {
   if (!selectedClientId) {
     return <aside className={styles.clientDetail}><p className={styles.clientDetailPlaceholder}>Select a client to view their details.</p></aside>;
   }
@@ -394,15 +415,17 @@ function ClientDetailPanel({ selectedClientId, detail, loadState, errorMessage, 
     return <aside className={styles.clientDetail}><p className={styles.clientDetailPlaceholder}>Unable to load client details{errorMessage ? `: ${errorMessage}` : "."}</p><button className={styles.secondaryButton} type="button" onClick={onRetry}>Try again</button></aside>;
   }
   if (!detail) return <aside className={styles.clientDetail}><p className={styles.clientDetailPlaceholder}>Unable to load client details{errorMessage ? `: ${errorMessage}` : "."}</p><button className={styles.secondaryButton} type="button" onClick={onRetry}>Try again</button></aside>;
-  return <ClientLoadedDetail detail={detail} onChanged={onChanged} />;
+  return <ClientLoadedDetail detail={detail} formulasEnabled={formulasEnabled} onChanged={onChanged} />;
 }
 
-function ClientLoadedDetail({ detail, onChanged }: { detail: ClientDetail; onChanged: () => void }) {
+function ClientLoadedDetail({ detail, formulasEnabled, onChanged }: { detail: ClientDetail; formulasEnabled: boolean; onChanged: () => void }) {
   const { client, identity, snapshot, next_appointment: nextAppointment, next_appointment_summary: nextSummary } = detail;
   const [tab, setTab] = useState<ProfileTab>("profile"); const [notes, setNotes] = useState(client.notes ?? ""); const [saving, setSaving] = useState(false); const [mutationError, setMutationError] = useState<string | null>(null);
   useEffect(() => { setNotes(client.notes ?? ""); setTab("profile"); }, [client.id, client.notes]);
   async function save(body: Parameters<typeof updateClient>[2]) { setSaving(true); setMutationError(null); try { await withActiveAccount((token) => updateClient(client.id, token, body)); onChanged(); } catch (cause) { setMutationError(getClientErrorMessage(cause, "mutation")); } finally { setSaving(false); } }
-  return <aside className={styles.clientDetail}><div className={styles.clientProfile}><span className={`${styles.clientAvatar} ${styles.largeAvatar}`}>{identity.avatar_initials || initials(client)}</span><div><h2>{identity.display_name}</h2>{identity.is_vip ? <span className={styles.vipPill}>VIP Client</span> : null}</div></div><nav className={styles.clientProfileTabs} aria-label="Client profile sections">{(["profile", "bookings", "messages", "formulas", "preferences"] as ProfileTab[]).map((item) => <button type="button" className={tab === item ? styles.clientProfileTabActive : ""} onClick={() => setTab(item)} key={item}>{item}</button>)}</nav>{mutationError ? <p className={styles.clientFormError}>{mutationError}</p> : null}{tab === "profile" ? <><DetailSection title="Contact"><p>{client.phone ?? "No phone number"}</p><p>{client.email ?? "No email address"}</p></DetailSection><DetailSection title="Client Stats"><div className={styles.clientStats}><div><b>{snapshot.total_completed_visits}</b><span>Total Visits</span></div><div><b>{formatMoney(snapshot.total_spent)}</b><span>Total Value</span></div><div><b>{snapshot.last_visit_label ?? "—"}</b><span>Last Seen</span></div></div></DetailSection><DetailSection title="Next Appointment">{nextAppointment && nextSummary ? <><strong>{nextSummary.when_label ?? "Upcoming appointment"}</strong><p>{[nextSummary.duration_label, nextSummary.status_label].filter(Boolean).join(" · ")}</p></> : <p>No upcoming appointment.</p>}</DetailSection></> : null}{tab === "bookings" ? <ClientHistory clientId={client.id} kind="bookings" /> : null}{tab === "messages" ? <ClientHistory clientId={client.id} kind="messages" /> : null}{tab === "formulas" ? <ClientFormulas clientId={client.id} /> : null}{tab === "preferences" ? <DetailSection title="Preferences"><label className={styles.clientVipToggle}><input type="checkbox" checked={identity.is_vip} disabled={saving} onChange={(event) => void save({ is_vip: event.target.checked })} /> VIP client</label><label className={styles.clientNotes}>Notes<textarea value={notes} onChange={(event) => setNotes(event.target.value)} /><button className={styles.secondaryButton} type="button" disabled={saving} onClick={() => void save({ notes: notes.trim() })}>{saving ? "Saving…" : "Save notes"}</button></label></DetailSection> : null}</aside>;
+  const activeTab = !formulasEnabled && tab === "formulas" ? "profile" : tab;
+  const tabs = (["profile", "bookings", "messages", "preferences"] as ProfileTab[]).concat(formulasEnabled ? ["formulas"] : []);
+  return <aside className={styles.clientDetail}><div className={styles.clientProfile}><span className={`${styles.clientAvatar} ${styles.largeAvatar}`}>{identity.avatar_initials || initials(client)}</span><div><h2>{identity.display_name}</h2>{identity.is_vip ? <span className={styles.vipPill}>VIP Client</span> : null}</div></div><nav className={styles.clientProfileTabs} aria-label="Client profile sections">{tabs.map((item) => <button type="button" className={activeTab === item ? styles.clientProfileTabActive : ""} onClick={() => setTab(item)} key={item}>{item}</button>)}</nav>{mutationError ? <p className={styles.clientFormError}>{mutationError}</p> : null}{activeTab === "profile" ? <><DetailSection title="Contact"><p>{client.phone ?? "No phone number"}</p><p>{client.email ?? "No email address"}</p></DetailSection><DetailSection title="Client Stats"><div className={styles.clientStats}><div><b>{snapshot.total_completed_visits}</b><span>Total Visits</span></div><div><b>{formatMoney(snapshot.total_spent)}</b><span>Total Value</span></div><div><b>{snapshot.last_visit_label ?? "—"}</b><span>Last Seen</span></div></div></DetailSection><DetailSection title="Next Appointment">{nextAppointment && nextSummary ? <><strong>{nextSummary.when_label ?? "Upcoming appointment"}</strong><p>{[nextSummary.duration_label, nextSummary.status_label].filter(Boolean).join(" · ")}</p></> : <p>No upcoming appointment.</p>}</DetailSection></> : null}{activeTab === "bookings" ? <ClientHistory clientId={client.id} kind="bookings" /> : null}{activeTab === "messages" ? <ClientHistory clientId={client.id} kind="messages" /> : null}{activeTab === "formulas" ? <ClientFormulas clientId={client.id} /> : null}{activeTab === "preferences" ? <DetailSection title="Preferences"><label className={styles.clientVipToggle}><input type="checkbox" checked={identity.is_vip} disabled={saving} onChange={(event) => void save({ is_vip: event.target.checked })} /> VIP client</label><label className={styles.clientNotes}>Notes<textarea value={notes} onChange={(event) => setNotes(event.target.value)} /><button className={styles.secondaryButton} type="button" disabled={saving} onClick={() => void save({ notes: notes.trim() })}>{saving ? "Saving…" : "Save notes"}</button></label></DetailSection> : null}</aside>;
 }
 
 function ClientHistory({ clientId, kind }: { clientId: string; kind: "bookings" | "messages" }) { const [items, setItems] = useState<Array<Record<string, unknown>>>([]); const [cursor, setCursor] = useState<string | null>(null); const [state, setState] = useState<"loading" | "ready" | "error">("loading"); const load = (next?: string | null) => { setState("loading"); void withActiveAccount((token) => kind === "bookings" ? getClientAppointmentsPage(clientId, token, next) : getClientMessageHistoryPage(clientId, token, next)).then((page) => { setItems((current) => next ? [...current, ...page.data] : page.data); setCursor(page.nextCursor); setState("ready"); }).catch(() => setState("error")); }; useEffect(() => { load(); }, [clientId, kind]); return <DetailSection title={kind === "bookings" ? "Bookings" : "Message history"}>{state === "loading" && !items.length ? <p>Loading…</p> : null}{state === "error" ? <p>Unable to load this history.</p> : null}{items.length ? <div className={styles.clientHistory}>{items.map((item, index) => <div key={String(item.id ?? index)}><strong>{String(item.service_name ?? item.subject ?? item.event_type ?? item.status ?? "Record")}</strong><span>{String(item.appointment_date ?? item.sent_at ?? item.created_at ?? item.message ?? "")}</span></div>)}</div> : state === "ready" ? <p>No {kind} yet.</p> : null}{cursor ? <button className={styles.secondaryButton} type="button" onClick={() => load(cursor)} disabled={state === "loading"}>Load more</button> : null}</DetailSection>; }

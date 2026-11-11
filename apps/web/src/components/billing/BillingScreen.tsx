@@ -11,15 +11,18 @@ import {
   createBillingCheckout,
   createBillingPortal,
   getAccountAccess,
+  getAccountBillingStatus,
   getBillingSummary,
+  refreshAccountBillingStatus,
   type AccountAccess,
+  type AccountBillingStatus,
   type BillingSummary,
 } from "@/src/lib/api";
 import { getSupabaseBrowserClient } from "@/src/lib/supabase";
 import { getStripePublishableKey } from "@/src/lib/config/public";
 import styles from "./billing.module.css";
 
-type BillingData = { access: AccountAccess; summary: BillingSummary };
+type BillingData = { access: AccountAccess; summary: BillingSummary; status: AccountBillingStatus };
 type LoadState = "loading" | "ready" | "unavailable" | "error";
 
 // Load Stripe only once, outside React rendering.
@@ -77,17 +80,18 @@ export function BillingScreen({ confirmation = false }: { confirmation?: boolean
   const [portalLoading, setPortalLoading] = useState(false);
   const [pollAttempts, setPollAttempts] = useState(0);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (refreshStatus = false) => {
     setState("loading");
     setMessage(null);
     try {
       const { data, error } = await getSupabaseBrowserClient().auth.getSession();
       const token = data.session?.access_token;
       if (error || !token) throw new ApiError("Your session has expired.", 401);
-      const [access, summary] = await Promise.all([getAccountAccess(token), getBillingSummary(token)]);
-      setBilling({ access, summary });
+      if (refreshStatus) await refreshAccountBillingStatus(token);
+      const [access, summary, status] = await Promise.all([getAccountAccess(token), getBillingSummary(token), getAccountBillingStatus(token)]);
+      setBilling({ access, summary, status });
       setState("ready");
-      return { access, summary };
+      return { access, summary, status };
     } catch (error) {
       setState(error instanceof ApiError && (error.status === 0 || error.status >= 500) ? "unavailable" : "error");
       setMessage(getErrorMessage(error, "load"));
@@ -96,14 +100,20 @@ export function BillingScreen({ confirmation = false }: { confirmation?: boolean
   }, []);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => { void load(); }, 0);
+    const timer = window.setTimeout(() => { void load(confirmation); }, 0);
     return () => window.clearTimeout(timer);
-  }, [load]);
+  }, [confirmation, load]);
+
+  useEffect(() => {
+    const refreshAfterProviderReturn = () => { if (billing && !checkout) void load(true); };
+    window.addEventListener("focus", refreshAfterProviderReturn);
+    return () => window.removeEventListener("focus", refreshAfterProviderReturn);
+  }, [billing, checkout, load]);
 
   useEffect(() => {
     if (!confirmation || state !== "ready" || !billing || (accessMode(billing) === "full" && !!billing.summary.subscription)) return;
     if (pollAttempts >= 10) return;
-    const timer = window.setTimeout(() => { setPollAttempts((attempt) => attempt + 1); void load(); }, 3000);
+    const timer = window.setTimeout(() => { setPollAttempts((attempt) => attempt + 1); void load(true); }, 3000);
     return () => window.clearTimeout(timer);
   }, [billing, confirmation, load, pollAttempts, state]);
 
@@ -138,6 +148,10 @@ export function BillingScreen({ confirmation = false }: { confirmation?: boolean
   }
 
   async function openPortal() {
+    if (billing?.summary.management?.available !== true) {
+      setMessage("Subscription management is not available for this account.");
+      return;
+    }
     setMessage(null);
     setPortalLoading(true);
     try {
@@ -165,14 +179,14 @@ export function BillingScreen({ confirmation = false }: { confirmation?: boolean
   return <WorkspaceShell active="settings"><section className={styles.page}>
     <BillingSettingsNav />
     <main className={styles.content}>
-      {confirmation ? <ConfirmationBanner confirmed={confirmed} timedOut={processingTimedOut} onRefresh={load} loading={state === "loading"} /> : null}
+      {confirmation ? <ConfirmationBanner confirmed={confirmed} timedOut={processingTimedOut} onRefresh={() => load(true)} loading={state === "loading"} /> : null}
       <p className={styles.breadcrumb}><Link href="/settings">Settings</Link><span>/</span><strong>Billing</strong></p>
       <h1>Billing &amp; Access</h1>
       <p className={styles.intro}>Manage your Root &amp; Foil subscription and account access.</p>
 
       {state === "loading" ? <LoadingCard /> : null}
-      {state === "unavailable" ? <StatusCard title="Billing is temporarily unavailable" detail={message ?? "Please try again later."} onRefresh={load} /> : null}
-      {state === "error" ? <StatusCard title="We couldn’t load billing" detail={message ?? "Please try again."} onRefresh={load} /> : null}
+      {state === "unavailable" ? <StatusCard title="Billing is temporarily unavailable" detail={message ?? "Please try again later."} onRefresh={() => load(true)} /> : null}
+      {state === "error" ? <StatusCard title="We couldn’t load billing" detail={message ?? "Please try again."} onRefresh={() => load(true)} /> : null}
       {state === "ready" && billing && mode === "blocked" ? <BlockedCard /> : null}
       {state === "ready" && billing && mode !== "blocked" ? <BillingDetails
         billing={billing}
@@ -212,17 +226,17 @@ function BillingDetails({ billing, message, checkoutLoading, checkout, checkoutA
   return <>
     <section className={`${styles.accessCard} ${isReadOnly ? styles.recovery : ""}`}>
       <div><span className={styles.eyebrow}>Current access</span><h2>{isReadOnly ? "Read-only" : "Full access"}</h2><p>{reasonCopy[reason ?? ""] ?? (isReadOnly ? reasonCopy.no_qualifying_entitlement : "Your account has access to Root & Foil.")}</p></div>
-      <dl><div><dt>Access ends</dt><dd>{endDate ?? "No scheduled end"}</dd></div>{subscription ? <div><dt>{subscription.cancels_at_period_end ? "Access through" : "Renews on"}</dt><dd>{paidThrough ?? "—"}</dd></div> : null}</dl>
+      <dl><div><dt>Access ends</dt><dd>{endDate ?? "No scheduled end"}</dd></div><div><dt>Billing status</dt><dd>{billing.status.status}</dd></div>{subscription ? <div><dt>{subscription.cancels_at_period_end ? "Access through" : "Renews on"}</dt><dd>{paidThrough ?? "—"}</dd></div> : null}</dl>
     </section>
     {message ? <p className={styles.error} role="alert">{message}</p> : null}
-    {subscription ? <section className={styles.subscriptionCard}><div><span className={styles.eyebrow}>Your plan</span><h2>{subscription.plan}</h2><p>{subscription.interval === "year" ? "Annual plan" : "Monthly plan"}{paidThrough ? ` · Access through ${paidThrough}` : ""}</p>{subscription.cancels_at_period_end ? <p className={styles.cancellation}>Cancels at the end of the current billing period.</p> : null}</div><button className={styles.secondaryButton} type="button" onClick={onPortal} disabled={portalLoading}>{portalLoading ? "Opening…" : "Manage billing"}</button></section> : checkout ? <EmbeddedCheckoutPanel checkout={checkout} onBack={onBackToPlans} onComplete={onCheckoutComplete} /> : <PlanOptions loading={purchasing} active={checkoutLoading} onCheckout={onCheckout} unavailable={!checkoutAvailable} />}
+    {subscription ? <section className={styles.subscriptionCard}><div><span className={styles.eyebrow}>Subscription</span><h2>{subscription.plan}</h2><p>{subscription.interval === "year" ? "Annual billing" : "Monthly billing"}{paidThrough ? ` · Access through ${paidThrough}` : ""}</p>{subscription.cancels_at_period_end ? <p className={styles.cancellation}>Cancels at the end of the current billing period.</p> : null}</div>{billing.summary.management?.available ? <button className={styles.secondaryButton} type="button" onClick={onPortal} disabled={portalLoading}>{portalLoading ? "Opening…" : "Manage billing"}</button> : <p>Subscription management is not available for this account. Contact support if you need help.</p>}</section> : checkout ? <EmbeddedCheckoutPanel checkout={checkout} onBack={onBackToPlans} onComplete={onCheckoutComplete} /> : <PlanOptions loading={purchasing} active={checkoutLoading} onCheckout={onCheckout} unavailable={!checkoutAvailable} />}
   </>;
 }
 
 function PlanOptions({ loading, active, onCheckout, unavailable }: { loading: boolean; active: "month" | "year" | null; onCheckout: (interval: "month" | "year") => void; unavailable: boolean }) {
-  return <section className={styles.plans} aria-label="Subscription plans"><div className={styles.plan}><span>Monthly</span><strong>$25<small>/month</small></strong><button type="button" onClick={() => onCheckout("month")} disabled={loading || unavailable}>{active === "month" ? "Starting checkout…" : "Choose monthly"}</button></div><div className={`${styles.plan} ${styles.featured}`}><span>Annual <i>Best value</i></span><strong>$250<small>/year</small></strong><button type="button" onClick={() => onCheckout("year")} disabled={loading || unavailable}>{active === "year" ? "Starting checkout…" : "Choose annual"}</button></div>{unavailable ? <p className={styles.error} role="alert">Checkout is temporarily unavailable. Please try again later or contact support.</p> : null}</section>;
+  return <section className={styles.plans} aria-label="Subscription checkout"><div className={styles.plan}><span>Monthly billing</span><p>Continue to secure checkout for the current monthly subscription terms.</p><button type="button" onClick={() => onCheckout("month")} disabled={loading || unavailable}>{active === "month" ? "Starting checkout…" : "Start monthly checkout"}</button></div><div className={styles.plan}><span>Annual billing</span><p>Continue to secure checkout for the current annual subscription terms.</p><button type="button" onClick={() => onCheckout("year")} disabled={loading || unavailable}>{active === "year" ? "Starting checkout…" : "Start annual checkout"}</button></div>{unavailable ? <p className={styles.error} role="alert">Checkout is temporarily unavailable. Please try again later or contact support.</p> : null}</section>;
 }
 
 function EmbeddedCheckoutPanel({ checkout, onBack, onComplete }: { checkout: { clientSecret: string; interval: "month" | "year" }; onBack: () => void; onComplete: () => void }) {
-  return <section className={styles.subscriptionCard} style={{ display: "block" }} aria-label="Secure checkout"><div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 18, marginBottom: 18 }}><div><span className={styles.eyebrow}>Secure checkout</span><h2>{checkout.interval === "year" ? "Annual plan" : "Monthly plan"}</h2><p>Payment is securely collected by Stripe.</p></div><button className={styles.secondaryButton} type="button" onClick={onBack}>Back to plans</button></div>{stripePromise ? <EmbeddedCheckoutProvider stripe={stripePromise} options={{ clientSecret: checkout.clientSecret, onComplete }}><EmbeddedCheckout /></EmbeddedCheckoutProvider> : null}</section>;
+  return <section className={styles.subscriptionCard} style={{ display: "block" }} aria-label="Secure checkout"><div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 18, marginBottom: 18 }}><div><span className={styles.eyebrow}>Secure checkout</span><h2>{checkout.interval === "year" ? "Annual billing" : "Monthly billing"}</h2><p>Payment is securely collected by Stripe.</p></div><button className={styles.secondaryButton} type="button" onClick={onBack}>Back to options</button></div>{stripePromise ? <EmbeddedCheckoutProvider stripe={stripePromise} options={{ clientSecret: checkout.clientSecret, onComplete }}><EmbeddedCheckout /></EmbeddedCheckoutProvider> : null}</section>;
 }

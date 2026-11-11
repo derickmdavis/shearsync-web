@@ -33,6 +33,30 @@ import {
   setActiveBookingPreviewToken,
   updateStylistSettingsProfile,
   updateBookingRules,
+  getAccountBillingStatus,
+  getBirthdayReminderSettings,
+  getEmailTemplate,
+  getProjectedReturnReminderSettings,
+  getRebookNudgeSettings,
+  getReferralProgramSettings,
+  getThankYouEmailSettings,
+  previewAdvancedEmailTemplate,
+  previewEmailTemplate,
+  previewRebookNudgeSettings,
+  previewSimpleEmailTemplate,
+  previewThankYouEmailSettings,
+  refreshAccountBillingStatus,
+  resetEmailTemplate,
+  updateAdvancedEmailTemplate,
+  updateAutomationChannels,
+  updateBirthdayReminderSettings,
+  updateEmailTemplate,
+  updateEmailTemplateMode,
+  updateProjectedReturnReminderSettings,
+  updateRebookNudgeSettings,
+  updateReferralProgramSettings,
+  updateSimpleEmailTemplate,
+  updateThankYouEmailSettings,
 } from "@/src/lib/api";
 
 describe("authenticated appointments and services api helpers", () => {
@@ -56,6 +80,19 @@ describe("authenticated appointments and services api helpers", () => {
     const [url, init] = vi.mocked(fetch).mock.calls[0] ?? [];
     expect(url).toBe("/api/services");
     expect(new Headers(init?.headers).get("Authorization")).toBe("Bearer token-1");
+  });
+
+  it("turns a malformed JSON response into a recoverable API error", async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response("{not valid json", {
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    await expect(getServices("token-1")).rejects.toMatchObject({
+      status: 502,
+      message: "The account service returned an invalid response. Please try again.",
+    });
   });
 
   it("requests embedded billing checkout and returns only its short-lived browser secret", async () => {
@@ -938,6 +975,73 @@ describe("booking preview api helpers", () => {
         }),
       }),
     );
+  });
+});
+
+describe("settings parity api helpers", () => {
+  beforeEach(() => {
+    vi.stubGlobal("fetch", vi.fn());
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("uses the documented automation-channel version payload", async () => {
+    vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify({ data: {} }), { headers: { "Content-Type": "application/json" } }));
+    await updateAutomationChannels("token-1", "booking_confirmations", { settings_version: 7, email: true, sms: false });
+    expect(vi.mocked(fetch).mock.calls[0]).toEqual([
+      "/api/outreach/automations/booking_confirmations/channels",
+      expect.objectContaining({ method: "PATCH", body: JSON.stringify({ settings_version: 7, email: true, sms: false }) }),
+    ]);
+  });
+
+  it("unwraps a bare settings response as well as the usual data envelope", async () => {
+    const bare = { offset_days: -7, revision: 4, timezone: "America/Denver", local_send_time: "10:00" };
+    vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify(bare), { headers: { "Content-Type": "application/json" } }));
+    await expect(getProjectedReturnReminderSettings("token-1")).resolves.toEqual(bare);
+  });
+
+  it.each([
+    ["rebook settings", () => getRebookNudgeSettings("token-1"), "/api/settings/rebook-nudges", undefined, undefined],
+    ["rebook update", () => updateRebookNudgeSettings("token-1", { defaultRebookIntervalDays: 42 }), "/api/settings/rebook-nudges", "PATCH", { defaultRebookIntervalDays: 42 }],
+    ["rebook preview", () => previewRebookNudgeSettings("token-1", { subjectTemplate: null, greeting: "Hi", customMessageBlock: null }), "/api/settings/rebook-nudges/preview", "POST", { subjectTemplate: null, greeting: "Hi", customMessageBlock: null }],
+    ["thank-you settings", () => getThankYouEmailSettings("token-1"), "/api/settings/thank-you-emails", undefined, undefined],
+    ["thank-you update", () => updateThankYouEmailSettings("token-1", { sendDelayHours: 24 }), "/api/settings/thank-you-emails", "PATCH", { sendDelayHours: 24 }],
+    ["thank-you preview", () => previewThankYouEmailSettings("token-1", { subjectTemplate: "Thanks", greeting: "Hello", customMessageBlock: null }), "/api/settings/thank-you-emails/preview", "POST", { subjectTemplate: "Thanks", greeting: "Hello", customMessageBlock: null }],
+    ["birthday settings", () => getBirthdayReminderSettings("token-1"), "/api/settings/birthday-reminders", undefined, undefined],
+    ["birthday update", () => updateBirthdayReminderSettings("token-1", { approvalRequired: false }), "/api/settings/birthday-reminders", "PATCH", { approvalRequired: false }],
+    ["referral settings", () => getReferralProgramSettings("token-1"), "/api/settings/referrals", undefined, undefined],
+    ["referral update", () => updateReferralProgramSettings("token-1", { enabled: true, offerName: "Welcome" }), "/api/settings/referrals", "PATCH", { enabled: true, offerName: "Welcome" }],
+    ["projected-return settings", () => getProjectedReturnReminderSettings("token-1"), "/api/v2/settings/rebook-reminders", undefined, undefined],
+    ["projected-return update", () => updateProjectedReturnReminderSettings("token-1", { offset_days: -7, expected_revision: 4 }), "/api/v2/settings/rebook-reminders", "PATCH", { offset_days: -7, expected_revision: 4 }],
+    ["billing status", () => getAccountBillingStatus("token-1"), "/api/account/billing-status", undefined, undefined],
+    ["billing status refresh", () => refreshAccountBillingStatus("token-1"), "/api/account/billing-status/refresh", "POST", undefined],
+  ] as const)("uses the %s route and body", async (_name, request, path, method, body) => {
+    vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify({ data: {} }), { headers: { "Content-Type": "application/json" } }));
+    await request();
+    const [url, init] = vi.mocked(fetch).mock.calls[0] ?? [];
+    expect(url).toBe(path);
+    expect(new Headers(init?.headers).get("Authorization")).toBe("Bearer token-1");
+    if (method) expect(init).toEqual(expect.objectContaining({ method, ...(body === undefined ? {} : { body: JSON.stringify(body) }) }));
+  });
+
+  it.each([
+    ["get", () => getEmailTemplate("token-1", "birthday"), "/api/email-templates/birthday", undefined, undefined],
+    ["save", () => updateEmailTemplate("token-1", "birthday", { subject: "Happy birthday", body: "Hello {{client_name}}" }), "/api/email-templates/birthday", "PUT", { subject: "Happy birthday", body: "Hello {{client_name}}" }],
+    ["preview", () => previewEmailTemplate("token-1", "birthday", { subject: "Happy birthday", body: "Hello" }), "/api/email-templates/birthday/preview", "POST", { subject: "Happy birthday", body: "Hello" }],
+    ["reset", () => resetEmailTemplate("token-1", "birthday"), "/api/email-templates/birthday/reset", "POST", undefined],
+    ["mode", () => updateEmailTemplateMode("token-1", "appointment_reminder", "advanced"), "/api/email-templates/appointment_reminder/mode", "PATCH", { mode: "advanced" }],
+    ["simple save", () => updateSimpleEmailTemplate("token-1", "booking_confirmation", { notes: null }), "/api/email-templates/booking_confirmation/simple", "PUT", { notes: null }],
+    ["simple preview", () => previewSimpleEmailTemplate("token-1", "booking_confirmation", { notes: "Bring parking details." }), "/api/email-templates/booking_confirmation/simple/preview", "POST", { notes: "Bring parking details." }],
+    ["advanced save", () => updateAdvancedEmailTemplate("token-1", "booking_confirmation", { subject: "Confirmed", body: "See you" }), "/api/email-templates/booking_confirmation/advanced", "PUT", { subject: "Confirmed", body: "See you" }],
+    ["advanced preview", () => previewAdvancedEmailTemplate("token-1", "booking_confirmation", { subject: "Confirmed", body: "See you" }), "/api/email-templates/booking_confirmation/advanced/preview", "POST", { subject: "Confirmed", body: "See you" }],
+  ] as const)("uses the email-template %s route and body", async (_name, request, path, method, body) => {
+    vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify({ data: { subject: "Preview", text: "Preview", html: "<p>Preview</p>" } }), { headers: { "Content-Type": "application/json" } }));
+    await request();
+    const [url, init] = vi.mocked(fetch).mock.calls[0] ?? [];
+    expect(url).toBe(path);
+    if (method) expect(init).toEqual(expect.objectContaining({ method, ...(body === undefined ? {} : { body: JSON.stringify(body) }) }));
   });
 });
 

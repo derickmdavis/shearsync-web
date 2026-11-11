@@ -1,13 +1,15 @@
-import { ApiError, getAccountAccess, type AccountAccess } from "@/src/lib/api";
+import { ApiError, getAccountAccess, getAccountDeletionStatus, type AccountAccess, type AccountDeletionStatus } from "@/src/lib/api";
 import { getSupabaseBrowserClient } from "@/src/lib/supabase";
 
 export class AccountLifecycleError extends Error {
   readonly access: AccountAccess;
+  readonly deletion: AccountDeletionStatus | null;
 
-  constructor(access: AccountAccess) {
-    super("This account is not active.");
+  constructor(access: AccountAccess, deletion: AccountDeletionStatus | null = null) {
+    super(deletion ? "This account is being deleted." : "This account is not active.");
     this.name = "AccountLifecycleError";
     this.access = access;
+    this.deletion = deletion;
   }
 }
 
@@ -23,7 +25,10 @@ async function getAccessToken() {
   return { accessToken, accountId };
 }
 
-function assertActiveAccount(access: AccountAccess) {
+function assertActiveAccount(access: AccountAccess, deletion: AccountDeletionStatus) {
+  if (["pending", "processing", "failed_retryable"].includes(deletion.status)) {
+    throw new AccountLifecycleError(access, deletion);
+  }
   if (!access.isActive || access.status !== "active") {
     throw new AccountLifecycleError(access);
   }
@@ -42,8 +47,11 @@ export async function withActiveAccount<T>(
   ) => Promise<T>,
 ) {
   async function attempt(accessToken: string, accountId: string) {
-    const access = await getAccountAccess(accessToken);
-    assertActiveAccount(access);
+    const [access, deletion] = await Promise.all([
+      getAccountAccess(accessToken),
+      getAccountDeletionStatus(accessToken),
+    ]);
+    assertActiveAccount(access, deletion);
     return request(accessToken, access, accountId);
   }
 

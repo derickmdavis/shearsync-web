@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { WorkspaceShell, workspaceStyles as shell } from "@/src/components/workspace/WorkspaceShell";
 import { ApiError, createAccountDeletionRequest, type AccountDeletionRequest } from "@/src/lib/api";
+import { notifyAccountLifecycle } from "@/src/lib/auth/account-lifecycle-events";
+import { clearProtectedAccountData } from "@/src/lib/auth/protected-data";
 import { getSupabaseBrowserClient } from "@/src/lib/supabase";
 import styles from "./account-deletion.module.css";
 
@@ -134,9 +136,12 @@ export function DeleteAccountScreen() {
       });
       if (!isAcceptedDeletion(response)) throw new ApiError("The account service returned an invalid response.", 502);
 
-      // Do not leave protected product data rendered after acceptance.
-      await getSupabaseBrowserClient().auth.signOut();
+      // Clear drafts and hide the protected shell before waiting on sign-out.
+      // A stalled client auth request must never leave normal Settings visible.
+      clearProtectedAccountData();
+      notifyAccountLifecycle("account_deletion_pending");
       router.replace(`/settings/account/delete/requested?scheduledDeletionAt=${encodeURIComponent(response.scheduledDeletionAt)}`);
+      void getSupabaseBrowserClient().auth.signOut();
     } catch (error) {
       setErrorMessage(getSubmissionError(error));
       setIsSubmitting(false);
