@@ -135,3 +135,11 @@
 @media (max-width:1023px) { .mobileNavigation { display:none !important; } }
 @media (max-width:760px) { .settingsPage > .settingsNav { display:none; } }
 @media (max-width:600px) { .mobileTabBar { border-top-color:rgba(255,255,255,.12); background:#11100f; box-shadow:0 -6px 18px rgba(0,0,0,.22); }.mobileTab { color:#c8c3bd; }.mobileTabActive,.mobileTabActive .navIcon { color:#d8a54d; } }
+
+/* Message rows do not have the drag handle or action columns used by service rows. */
+.messageList { display:grid; border-top:1px solid var(--line-light); }
+.messageRow { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:12px; min-height:72px; border-bottom:1px solid var(--line-light); }
+.messageRowContent { min-width:0; }
+.messageRowContent strong,.messageRowContent span { display:block; }
+.messageRowContent strong { font-size:13px; }
+.messageRowContent span { margin-top:3px; overflow:hidden; color:var(--slate); font-size:11px; text-overflow:ellipsis; white-space:nowrap; }

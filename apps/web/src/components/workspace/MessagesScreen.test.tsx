@@ -13,7 +13,16 @@ import { MessagesScreen } from "./MessagesScreen";
 const bootstrap = { account_timezone: "America/Denver", summary: { enabled_count: 1, available_count: 1, total_count: 1 }, customers_reached: { unique_clients: 0, window_start: "", window_end: "", timezone: "America/Denver", window_kind: "", window_days: 0, included_message_types: [] }, controls: [{ key: "booking_confirmations", label: "Booking confirmations", enabled: true, feature_available: true, unavailable_reason: null, mode: "automatic", pending_approval_count: 0, queued_count: 1, scheduled_count: 0, status_label: "Active", settings_version: 7, channels: { email: { available: true, enabled: true, unavailable_reason: null, unavailable_reason_code: null }, sms: { available: true, enabled: false, unavailable_reason: null, unavailable_reason_code: null } }, timing: {}, settings: {}, content_rules: null, templates: [] }] };
 
 describe("MessagesScreen channel controls", () => {
-  beforeEach(() => { vi.clearAllMocks(); auth.withActiveAccount.mockImplementation((request: (token: string) => unknown) => request("token-1")); api.getAutomationBootstrap.mockResolvedValue(bootstrap); api.getActivityDashboard.mockResolvedValue({}); api.updateAutomationChannels.mockResolvedValue({ settings_version: 8, email: false, sms: false, queue_reconciliation: { cancelled_count: 1 } }); });
+  beforeEach(() => { vi.clearAllMocks(); auth.withActiveAccount.mockImplementation((request: (token: string) => unknown) => request("token-1")); api.getAutomationBootstrap.mockResolvedValue(bootstrap); api.getActivityDashboard.mockResolvedValue({}); api.getSentOutreach.mockResolvedValue([]); api.updateAutomationChannels.mockResolvedValue({ settings_version: 8, email: false, sms: false, queue_reconciliation: { cancelled_count: 1 } }); });
+
+  it("renders sent-message content beside its delivery status", async () => {
+    api.getSentOutreach.mockResolvedValue([{ id: "outreach-1", recipient_name: "Katie Stohs", message: "Thanks for visiting—let's plan your next appointment.", status: "sent" }]);
+    render(<MessagesScreen />);
+    fireEvent.click(screen.getByRole("button", { name: "Sent" }));
+    expect(await screen.findByText("Katie Stohs")).not.toBeNull();
+    expect(screen.getByText("Thanks for visiting—let's plan your next appointment.")).not.toBeNull();
+    expect(screen.getByText("sent")).not.toBeNull();
+  });
 
   it("sends the bootstrap version, then refetches and acknowledges queue reconciliation", async () => {
     render(<MessagesScreen />);
