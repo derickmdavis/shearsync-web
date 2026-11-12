@@ -17,7 +17,7 @@ import { AccountLifecycleError, withActiveAccount } from "@/src/lib/auth/active-
 import { PageHeading, WorkspaceShell, workspaceStyles as styles } from "./WorkspaceShell";
 
 type LoadState = "loading" | "ready" | "error";
-type MessageTab = "overview" | "sent" | "manage";
+type MessageTab = "overview" | "sent" | "automations";
 
 function errorText(error: unknown) {
   if (error instanceof AccountLifecycleError) return "Your account is not active. Restore access to view messages.";
@@ -111,8 +111,8 @@ function AutomationCard({ control, changing, onEnabledChange, onChannelChange }:
   </article>;
 }
 
-export function MessagesScreen({ settingsMode = false }: { settingsMode?: boolean }) {
-  const [tab, setTab] = useState<MessageTab>("manage");
+export function MessagesScreen() {
+  const [tab, setTab] = useState<MessageTab>("automations");
   const [state, setState] = useState<LoadState>("loading");
   const [data, setData] = useState<AutomationBootstrap | null>(null);
   const [dashboard, setDashboard] = useState<unknown>(null);
@@ -152,7 +152,7 @@ export function MessagesScreen({ settingsMode = false }: { settingsMode?: boolea
   }, [reload]);
 
   useEffect(() => {
-    if (tab === "manage") return;
+    if (tab === "automations") return;
     let active = true; setTabLoading(true); setTabError(null);
     void withActiveAccount((token) => tab === "overview" ? getBookingInquiries(token) : getSentOutreach(token))
       .then((result) => { if (!active) return; if (tab === "overview") setInquiries(listItems(result)); else setSent(listItems(result)); })
@@ -216,15 +216,15 @@ export function MessagesScreen({ settingsMode = false }: { settingsMode?: boolea
     } finally { setChangingKey(null); }
   }
 
-  return <WorkspaceShell active={settingsMode ? "settings" : "messages"}><section className={styles.messagesPage}>
-    <PageHeading title={settingsMode ? "Automations" : "Messages"} subtitle={settingsMode ? "Manage your automated client communications." : "Keep your clients engaged."} action={<button className={styles.secondaryButton} type="button" onClick={reloadMessages} disabled={state === "loading"}>Refresh</button>} />
-    {!settingsMode ? <nav className={styles.localTabs} aria-label="Messages sections"><button className={tab === "overview" ? styles.localTabActive : ""} type="button" onClick={() => setTab("overview")} aria-current={tab === "overview" ? "page" : undefined}>Overview</button><button className={tab === "sent" ? styles.localTabActive : ""} type="button" onClick={() => setTab("sent")} aria-current={tab === "sent" ? "page" : undefined}>Sent</button><button className={tab === "manage" ? styles.localTabActive : ""} type="button" onClick={() => setTab("manage")} aria-current={tab === "manage" ? "page" : undefined}>Manage</button></nav> : null}
-    {tab === "manage" ? <header className={styles.messagesSectionHeading}><h2>Always on</h2><p>Automated touchpoints that keep clients engaged.</p></header> : null}
+  return <WorkspaceShell active="messages"><section className={styles.messagesPage}>
+    <PageHeading title="Messages" subtitle="Keep your clients engaged." action={<button className={styles.secondaryButton} type="button" onClick={reloadMessages} disabled={state === "loading"}>Refresh</button>} />
+    <nav className={styles.localTabs} aria-label="Messages sections"><button className={tab === "overview" ? styles.localTabActive : ""} type="button" onClick={() => setTab("overview")} aria-current={tab === "overview" ? "page" : undefined}>Overview</button><button className={tab === "sent" ? styles.localTabActive : ""} type="button" onClick={() => setTab("sent")} aria-current={tab === "sent" ? "page" : undefined}>Sent</button><button className={tab === "automations" ? styles.localTabActive : ""} type="button" onClick={() => setTab("automations")} aria-current={tab === "automations" ? "page" : undefined}>Automations</button></nav>
+    {tab === "automations" ? <header className={styles.messagesSectionHeading}><h2>Automations</h2><p>Manage the client messages that send automatically.</p></header> : null}
     {error ? <section className={styles.messagesStatus} role="alert"><p>{error}</p>{state === "error" ? <button className={styles.secondaryButton} type="button" onClick={reloadMessages}>Try again</button> : null}</section> : null}{reconciliationNotice ? <p className={styles.servicesMessage} role="status">{reconciliationNotice}</p> : null}
     {state === "loading" && !data ? <section className={styles.messagesStatus} aria-busy="true"><p>Loading message automation status…</p></section> : null}
     {tab === "overview" ? <MessageList title="Booking inquiries" description="Actionable requests from your booking page." items={inquiries} loading={tabLoading} error={tabError} empty="No actionable booking inquiries." /> : null}
     {tab === "sent" ? <MessageList title="Sent communications" description="Recent outreach sent to clients." items={sent} loading={tabLoading} error={tabError} empty="No sent communications yet." /> : null}
-    {tab === "manage" && data ? <>
+    {tab === "automations" && data ? <>
       <section className={styles.messagesOverview} aria-label="Messaging overview">
         <div><strong>{dashboardCount(dashboard, ["booking_inquiries", "bookingInquiries", "inquiries"]) ?? "—"}</strong><span>Booking inquiries needing attention</span></div>
         <div><strong>{dashboardCount(dashboard, ["pending_approvals", "pendingApprovals", "approvals"]) ?? "—"}</strong><span>Pending approvals</span></div>

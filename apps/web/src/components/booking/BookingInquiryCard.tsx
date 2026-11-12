@@ -97,14 +97,14 @@ export function BookingInquiryCard({ slug, config, enabled: enabledByStylist, co
   const prompt = (id: string) => form?.questions.find((question) => question.id === id)?.prompt;
   const serviceEntry = variant === "services";
   return <>
-    <section className="rounded-2xl border border-[#eadbc7] bg-[#fffcf7] p-5">
-      <div className="flex items-center gap-4">
-        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[#b7791f] font-display text-[24px] text-[#b7791f]" aria-hidden="true">{serviceEntry ? "?" : "✦"}</span>
+    <section className="rounded-2xl border border-[#eadbc7] bg-[#fffcf7] p-4">
+      <div className="flex items-center gap-3">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#b7791f] font-display text-[21px] text-[#b7791f]" aria-hidden="true">{serviceEntry ? "?" : "✦"}</span>
         <div className="min-w-0 flex-1">
-          <h3 className="font-display text-[19px] leading-5 font-medium text-[#5f6062]">{serviceEntry ? "Need help choosing?" : "Booking inquiry"}</h3>
-          <p className="mt-1 text-[15px] leading-5 font-medium text-[#b7791f]">{serviceEntry ? "Send a booking inquiry." : "Not sure what to book? I’d like help choosing."}</p>
+          <h3 className={`font-display leading-5 font-medium text-[#5f6062] ${serviceEntry ? "whitespace-nowrap text-[17px]" : "text-[19px]"}`}>{serviceEntry ? "Need help choosing?" : "Booking inquiry"}</h3>
+          <p className={`mt-1 leading-5 font-medium text-[#b7791f] ${serviceEntry ? "whitespace-nowrap text-[14px]" : "text-[15px]"}`}>{serviceEntry ? "Send a booking inquiry." : "Not sure what to book? I’d like help choosing."}</p>
         </div>
-        <button type="button" onClick={() => void openInquiry()} aria-label="Open booking inquiry" className="flex h-10 w-10 shrink-0 items-center justify-center text-2xl text-[#b7791f] transition-transform hover:translate-x-0.5">›</button>
+        <button type="button" onClick={() => void openInquiry()} aria-label="Open booking inquiry" className="flex h-8 w-8 shrink-0 items-center justify-center text-xl text-[#b7791f] transition-transform hover:translate-x-0.5">›</button>
       </div>
     </section>
     {open ? <div className="fixed inset-0 z-50 flex items-end bg-black/45 p-0 sm:items-center sm:justify-center sm:p-6" role="presentation">

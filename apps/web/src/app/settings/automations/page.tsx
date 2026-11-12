@@ -1,5 +1,5 @@
-import { MessagesScreen } from "@/src/components/workspace/MessagesScreen";
+import { redirect } from "next/navigation";
 
 export default function AutomationSettingsPage() {
-  return <MessagesScreen settingsMode />;
+  redirect("/messages");
 }

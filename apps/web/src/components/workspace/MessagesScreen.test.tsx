@@ -16,7 +16,7 @@ describe("MessagesScreen channel controls", () => {
   beforeEach(() => { vi.clearAllMocks(); auth.withActiveAccount.mockImplementation((request: (token: string) => unknown) => request("token-1")); api.getAutomationBootstrap.mockResolvedValue(bootstrap); api.getActivityDashboard.mockResolvedValue({}); api.updateAutomationChannels.mockResolvedValue({ settings_version: 8, email: false, sms: false, queue_reconciliation: { cancelled_count: 1 } }); });
 
   it("sends the bootstrap version, then refetches and acknowledges queue reconciliation", async () => {
-    render(<MessagesScreen settingsMode />);
+    render(<MessagesScreen />);
     const email = await screen.findByRole("checkbox", { name: "Enable Email for Booking confirmations" });
     fireEvent.click(email);
     await waitFor(() => expect(api.updateAutomationChannels).toHaveBeenCalledWith("token-1", "booking_confirmations", { settings_version: 7, email: false, sms: false }));
@@ -26,7 +26,7 @@ describe("MessagesScreen channel controls", () => {
 
   it("discards a stale channel draft and reloads bootstrap after a version conflict", async () => {
     api.updateAutomationChannels.mockRejectedValue({ status: 409, code: "settings_version_conflict" });
-    render(<MessagesScreen settingsMode />);
+    render(<MessagesScreen />);
     fireEvent.click(await screen.findByRole("checkbox", { name: "Enable Email for Booking confirmations" }));
     expect(await screen.findByText(/Channel preferences changed elsewhere/)).not.toBeNull();
     expect(api.getAutomationBootstrap).toHaveBeenCalledTimes(2);
