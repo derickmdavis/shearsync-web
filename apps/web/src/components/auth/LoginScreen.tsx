@@ -1,288 +1,83 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import {
-  getSupabaseBrowserClient,
-  hasSupabaseBrowserConfig,
-} from "@/src/lib/supabase";
+import { getSupabaseBrowserClient, hasSupabaseBrowserConfig } from "@/src/lib/supabase";
 import { getAuthRecoveryUrl } from "@/src/lib/config/public";
+import styles from "./auth.module.css";
 
 type AuthMode = "sign-in" | "sign-up" | "reset";
+type LoginScreenProps = { initialMode: AuthMode; nextPath: string; passwordResetSuccess?: boolean };
 
-type LoginScreenProps = {
-  initialMode: AuthMode;
-  nextPath: string;
-  passwordResetSuccess?: boolean;
-};
+function getErrorMessage(error: unknown) { return error instanceof Error ? error.message : "Something went wrong."; }
 
-function getErrorMessage(error: unknown) {
-  if (error instanceof Error) {
-    return error.message;
-  }
-
-  return "Something went wrong.";
-}
-
-export function LoginScreen({
-  initialMode,
-  nextPath,
-  passwordResetSuccess = false,
-}: LoginScreenProps) {
+export function LoginScreen({ initialMode, nextPath, passwordResetSuccess = false }: LoginScreenProps) {
   const router = useRouter();
-  const [mode, setMode] = useState<AuthMode>(initialMode);
+  const [mode] = useState<AuthMode>(initialMode);
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [isBusy, setIsBusy] = useState(false);
-  const [message, setMessage] = useState(() =>
-    passwordResetSuccess ? "Password updated. You can now sign in." : "",
-  );
-  const [errorMessage, setErrorMessage] = useState(() =>
-    hasSupabaseBrowserConfig()
-      ? ""
-      : "Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY.",
-  );
-
-  const title = useMemo(() => {
-    if (mode === "sign-up") {
-      return "Create your account";
-    }
-
-    if (mode === "reset") {
-      return "Reset your password";
-    }
-
-    return "Welcome back";
-  }, [mode]);
+  const [message, setMessage] = useState(() => passwordResetSuccess ? "Password updated. You can now sign in." : "");
+  const [errorMessage, setErrorMessage] = useState(() => hasSupabaseBrowserConfig() ? "" : "Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY.");
+  const title = useMemo(() => mode === "sign-up" ? "Create your account" : mode === "reset" ? "Reset your password" : "Welcome back.", [mode]);
+  const subtitle = mode === "sign-up" ? "Create your Root & Foil account." : mode === "reset" ? "Enter your email to receive a reset link." : "Sign in to your account.";
+  const signupHref = `/login?mode=sign-up${nextPath !== "/onboarding" ? `&next=${encodeURIComponent(nextPath)}` : ""}`;
 
   useEffect(() => {
-    if (!hasSupabaseBrowserConfig()) {
-      return;
-    }
-
-    // Supabase owns the browser session. This screen only redirects after a
-    // valid session exists, and password recovery temporarily switches modes.
+    if (!hasSupabaseBrowserConfig()) return;
     const supabase = getSupabaseBrowserClient();
-
-    void supabase.auth.getSession().then(({ data }) => {
-      if (data.session && mode !== "reset") {
-        router.replace(nextPath);
-      }
+    void supabase.auth.getSession().then(({ data }) => { if (data.session && mode !== "reset") router.replace(nextPath); });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "PASSWORD_RECOVERY") { router.replace("/reset-password"); return; }
+      if (session && mode !== "reset") router.replace(nextPath);
     });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "PASSWORD_RECOVERY") {
-        router.replace("/reset-password");
-        return;
-      }
-
-      if (session && mode !== "reset") {
-        router.replace(nextPath);
-      }
-    });
-
     return () => subscription.unsubscribe();
   }, [mode, nextPath, router]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
-    if (!hasSupabaseBrowserConfig()) {
-      setErrorMessage(
-        "Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY.",
-      );
-      return;
-    }
-
-    setIsBusy(true);
-    setMessage("");
-    setErrorMessage("");
-
+    if (!hasSupabaseBrowserConfig()) { setErrorMessage("Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY."); return; }
+    setIsBusy(true); setMessage(""); setErrorMessage("");
     try {
       const supabase = getSupabaseBrowserClient();
-
       if (mode === "reset") {
-        // All recovery links return to the dedicated public callback route.
-        try {
-          await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
-            redirectTo: getAuthRecoveryUrl(),
-          });
-        } catch {
-          // The confirmation remains generic to avoid leaking recovery details.
-        }
-
-        // Use the same response for every address and auth-provider outcome.
-        setMessage(
-          "If an account exists for that email, we’ve sent a password-reset link.",
-        );
+        try { await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), { redirectTo: getAuthRecoveryUrl() }); } catch { /* Generic response protects account privacy. */ }
+        setMessage("If an account exists for that email, we’ve sent a password-reset link.");
         return;
       }
-
       const credentials = { email: email.trim().toLowerCase(), password };
-      // Auth is intentionally client-side with the public anon key; protected
-      // app data is fetched later through API calls with the session token.
-      const { data, error } =
-        mode === "sign-up"
-          ? await supabase.auth.signUp({
-              ...credentials,
-              options: {
-                data: {
-                  full_name: fullName.trim(),
-                  phone_number: phoneNumber.trim(),
-                },
-              },
-            })
-          : await supabase.auth.signInWithPassword(credentials);
-
-      if (error) {
-        throw error;
-      }
-
-      if (data.session) {
-        router.replace(nextPath);
-        return;
-      }
-
+      const { data, error } = mode === "sign-up" ? await supabase.auth.signUp({ ...credentials, options: { data: { full_name: fullName.trim(), phone_number: phoneNumber.trim() } } }) : await supabase.auth.signInWithPassword(credentials);
+      if (error) throw error;
+      if (data.session) { router.replace(nextPath); return; }
       setMessage("Check your email to confirm your account.");
-    } catch (error) {
-      setErrorMessage(getErrorMessage(error));
-    } finally {
-      setIsBusy(false);
-    }
+    } catch (error) { setErrorMessage(getErrorMessage(error)); } finally { setIsBusy(false); }
   }
 
-  return (
-    <main className="flex min-h-screen items-center justify-center px-4 py-10 text-foreground sm:px-6">
-      <section className="grid w-full max-w-5xl overflow-hidden rounded-[28px] border border-white/80 bg-white shadow-[0_28px_90px_rgba(17,17,17,0.12)] lg:grid-cols-[0.9fr_1.1fr]">
-        <div className="flex min-h-[22rem] flex-col justify-between bg-[#111111] px-6 py-7 text-white sm:px-8">
-          <div>
-            <p className="font-display text-4xl font-semibold tracking-tight">
-              Root &amp; Foil
-            </p>
-            <h1 className="mt-8 max-w-sm text-3xl font-semibold tracking-tight sm:text-4xl">
-              The business side of beauty
-            </h1>
-          </div>
-        </div>
-
-        <div className="px-5 py-7 sm:px-8 sm:py-9">
-          <div className="flex flex-wrap gap-2">
-            {(["sign-in", "sign-up", "reset"] as const).map((item) => (
-              <button
-                key={item}
-                type="button"
-                onClick={() => {
-                  setMode(item);
-                  setMessage("");
-                  setErrorMessage("");
-                }}
-                className={[
-                  "h-10 rounded-2xl px-4 text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-brand/25",
-                  mode === item
-                    ? "bg-brand text-white"
-                    : "border border-border bg-surface-warm text-muted",
-                ].join(" ")}
-              >
-                {item === "sign-in"
-                  ? "Sign in"
-                  : item === "sign-up"
-                    ? "Sign up"
-                    : "Reset"}
-              </button>
-            ))}
-          </div>
-
-          <h2 className="mt-8 text-3xl font-semibold tracking-tight">
-            {title}
-          </h2>
-
-          <form onSubmit={handleSubmit} className="mt-6 grid gap-4">
-            {mode === "sign-up" ? (
-              <>
-                <label className="block">
-                  <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.08em] text-[#6B7280]">Your name</span>
-                  <input value={fullName} onChange={(event) => setFullName(event.target.value)} className="h-12 w-full rounded-2xl border border-border bg-white px-4 text-sm outline-none focus:border-brand focus:ring-2 focus:ring-brand/20" autoComplete="name" required />
-                </label>
-                <label className="block">
-                  <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.08em] text-[#6B7280]">Phone number</span>
-                  <input value={phoneNumber} onChange={(event) => setPhoneNumber(event.target.value)} className="h-12 w-full rounded-2xl border border-border bg-white px-4 text-sm outline-none focus:border-brand focus:ring-2 focus:ring-brand/20" autoComplete="tel" required />
-                </label>
-              </>
-            ) : null}
-            <label className="block">
-              <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.08em] text-[#6B7280]">
-                Email
-              </span>
-              <input
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                className="h-12 w-full rounded-2xl border border-border bg-white px-4 text-sm outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
-                type="email"
-                autoComplete="email"
-                required
-              />
-            </label>
-
-            {mode === "sign-in" || mode === "sign-up" ? (
-              <label className="block">
-                <span className="mb-2 block text-xs font-semibold uppercase tracking-[0.08em] text-[#6B7280]">
-                  Password
-                </span>
-                <input
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  className="h-12 w-full rounded-2xl border border-border bg-white px-4 text-sm outline-none focus:border-brand focus:ring-2 focus:ring-brand/20"
-                  type="password"
-                  autoComplete={
-                    mode === "sign-up" ? "new-password" : "current-password"
-                  }
-                  required
-                />
-              </label>
-            ) : null}
-
-            {mode === "sign-in" ? (
-              <Link
-                href="/forgot-password"
-                className="-mt-1 w-fit text-sm font-semibold text-brand underline"
-              >
-                Forgot password?
-              </Link>
-            ) : null}
-
-            {message ? (
-              <p className="rounded-2xl border border-[#BBF7D0] bg-[#F0FDF4] px-4 py-3 text-sm font-semibold text-[#15803D]">
-                {message}
-              </p>
-            ) : null}
-
-            {errorMessage ? (
-              <p className="rounded-2xl border border-[#FECACA] bg-[#FFF7F7] px-4 py-3 text-sm font-semibold text-[#B91C1C]">
-                {errorMessage}
-              </p>
-            ) : null}
-
-            <button
-              type="submit"
-              disabled={isBusy}
-              className="mt-2 inline-flex h-12 items-center justify-center rounded-2xl bg-brand px-5 text-sm font-semibold text-white shadow-[0_16px_30px_rgba(183,121,61,0.23)] transition-transform hover:-translate-y-0.5 hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-brand/30 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {isBusy
-                ? "Working..."
-                : mode === "sign-up"
-                  ? "Create account"
-                  : mode === "reset"
-                    ? "Send reset email"
-                    : "Sign in"}
-            </button>
-          </form>
-        </div>
-      </section>
-    </main>
-  );
+  return <main className={styles.shell}>
+    <div className={styles.content}>
+      <Image className={styles.brand} src="/branding/root-and-foil-logo.png" alt="Root & Foil" width={1137} height={1132} priority />
+      <h1 className={styles.heading}>{title}</h1>
+      <p className={styles.subtitle}>{subtitle}</p>
+      <form onSubmit={handleSubmit} className={styles.form}>
+        {mode === "sign-up" ? <><Field label="Your name"><input value={fullName} onChange={(event) => setFullName(event.target.value)} className={styles.input} autoComplete="name" required /></Field><Field label="Phone number"><input value={phoneNumber} onChange={(event) => setPhoneNumber(event.target.value)} className={styles.input} autoComplete="tel" required /></Field></> : null}
+        <Field label="Email"><input value={email} onChange={(event) => setEmail(event.target.value)} className={styles.input} type="email" autoComplete="email" autoCapitalize="none" placeholder="you@example.com" disabled={isBusy} required /></Field>
+        {mode !== "reset" ? <Field label="Password"><div className={styles.inputWrap}><input value={password} onChange={(event) => setPassword(event.target.value)} className={`${styles.input} ${styles.inputPassword}`} type={showPassword ? "text" : "password"} autoComplete={mode === "sign-up" ? "new-password" : "current-password"} disabled={isBusy} required /><button className={styles.passwordToggle} type="button" onClick={() => setShowPassword((visible) => !visible)} aria-label={showPassword ? "Hide password" : "Show password"}>{showPassword ? <EyeOff /> : <Eye />}</button></div></Field> : null}
+        {mode === "sign-in" ? <p className={styles.forgot}><Link href="/forgot-password" className={styles.link}>Forgot password?</Link></p> : null}
+        {message ? <p className={`${styles.notice} ${styles.success}`} role="status">{message}</p> : null}
+        {errorMessage ? <p className={`${styles.notice} ${styles.error}`} role="alert">{errorMessage}</p> : null}
+        <button type="submit" disabled={isBusy} className={styles.button}>{isBusy ? mode === "sign-in" ? "Signing in…" : "Working…" : mode === "sign-up" ? "Create account" : mode === "reset" ? "Send reset email" : "Sign in"}</button>
+        {mode === "sign-in" ? <p className={styles.account}>New to Root &amp; Foil? <Link href={signupHref} className={styles.link}>Create an account</Link></p> : <p className={styles.account}><Link href={`/login${nextPath !== "/calendar" ? `?next=${encodeURIComponent(nextPath)}` : ""}`} className={styles.link}>Back to sign in</Link></p>}
+      </form>
+    </div>
+    <footer className={styles.footer}><a className={styles.legalLink} href="https://www.rootfoil.com/privacy-policy" target="_blank" rel="noreferrer">Privacy</a><span className={styles.footerSeparator}>·</span><a className={styles.legalLink} href="https://www.rootfoil.com/terms-of-service" target="_blank" rel="noreferrer">Terms</a></footer>
+  </main>;
 }
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) { return <label className={styles.field}><span>{label}</span>{children}</label>; }
+function Eye() { return <svg width="22" height="16" viewBox="0 0 22 16" fill="none" aria-hidden="true"><path d="M1 8s3.7-6.5 10-6.5S21 8 21 8s-3.7 6.5-10 6.5S1 8 1 8Z" stroke="currentColor" strokeWidth="1.7"/><circle cx="11" cy="8" r="2.7" stroke="currentColor" strokeWidth="1.7"/></svg>; }
+function EyeOff() { return <svg width="22" height="18" viewBox="0 0 22 18" fill="none" aria-hidden="true"><path d="m2 2 18 14M9.2 3.5A10.7 10.7 0 0 1 11 3.3C17.3 3.3 21 9 21 9a17.3 17.3 0 0 1-3.7 3.7M6.3 5.3C2.9 6.7 1 9 1 9s3.7 5.7 10 5.7c.7 0 1.4-.1 2-.3" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/><path d="M8.7 7.2a3.3 3.3 0 0 0 4.1 4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/></svg>; }
