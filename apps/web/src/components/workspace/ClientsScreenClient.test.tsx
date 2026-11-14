@@ -171,8 +171,8 @@ describe("ClientsScreenClient", () => {
     await screen.findByText("Select a client to view their details.");
   });
 
-  it("creates phone-only and VIP clients with the API contract", async () => {
-    const created = client({ id: "created", first_name: "Nia", last_name: "Jones", phone: "555-0111", email: null, is_vip: true });
+  it("creates phone-only clients without the removed optional fields", async () => {
+    const created = client({ id: "created", first_name: "Nia", last_name: "Jones", phone: "555-0111", email: null });
     api.createClient.mockResolvedValueOnce(created);
     render(<ClientsScreenClient />);
     await screen.findByRole("button", { name: /Ava Martinez/ });
@@ -180,10 +180,13 @@ describe("ClientsScreenClient", () => {
     fireEvent.change(screen.getByLabelText("First name"), { target: { value: " Nia " } });
     fireEvent.change(screen.getByLabelText("Last name"), { target: { value: " Jones " } });
     fireEvent.change(screen.getByLabelText("Phone"), { target: { value: "555-0111" } });
-    fireEvent.click(screen.getByLabelText("Mark as VIP"));
+    expect(screen.queryByLabelText("Preferred contact method")).toBeNull();
+    expect(screen.queryByLabelText("Source")).toBeNull();
+    expect(screen.queryByLabelText("Mark as VIP")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Add Client" }));
 
-    await waitFor(() => expect(api.createClient).toHaveBeenCalledWith("token-1", expect.objectContaining({ first_name: "Nia", last_name: "Jones", phone: "555-0111", is_vip: true })));
+    await waitFor(() => expect(api.createClient).toHaveBeenCalledWith("token-1", expect.objectContaining({ first_name: "Nia", last_name: "Jones", phone: "555-0111" })));
+    expect(api.createClient).toHaveBeenCalledWith("token-1", expect.not.objectContaining({ preferred_contact_method: expect.anything(), source: expect.anything(), is_vip: expect.anything() }));
   });
 
   it("creates an email-only client without adding a phone field", async () => {

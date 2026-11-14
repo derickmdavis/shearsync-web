@@ -60,7 +60,7 @@ export function LoginScreen({ initialMode, nextPath, passwordResetSuccess = fals
 
   return <main className={styles.shell}>
     <div className={styles.content}>
-      <Image className={styles.brand} src="/branding/root-and-foil-logo.png" alt="Root & Foil" width={1137} height={1132} priority />
+      <Image className={styles.brand} src="/branding/root-and-foil-logo.svg" alt="Root & Foil" width={857} height={911} priority />
       <h1 className={styles.heading}>{title}</h1>
       <p className={styles.subtitle}>{subtitle}</p>
       <form onSubmit={handleSubmit} className={styles.form}>

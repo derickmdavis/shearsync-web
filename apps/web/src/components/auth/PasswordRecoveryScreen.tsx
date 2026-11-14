@@ -57,7 +57,7 @@ export function PasswordRecoveryScreen({ mode = "reset" }: PasswordRecoveryScree
   const title = view === "update" ? "Choose a new password" : view === "complete" ? "Password updated" : view === "invalid" ? "Reset link expired" : "Reset your password";
 
   return <main className={styles.shell}><div className={styles.content}>
-    <Image className={styles.brand} src="/branding/root-and-foil-logo.png" alt="Root & Foil" width={1137} height={1132} priority />
+    <Image className={styles.brand} src="/branding/root-and-foil-logo.svg" alt="Root & Foil" width={857} height={911} priority />
     <h1 className={styles.heading}>{title}</h1>
     <p className={styles.subtitle}>{view === "update" ? "Choose a new password for your account." : view === "complete" ? "You can now sign in. Redirecting you to sign in…" : view === "invalid" ? "Request a new link to continue." : "Enter your email and we’ll send you a secure link."}</p>
     {view === "loading" ? <p className={styles.helper}>Verifying your reset link…</p> : null}
