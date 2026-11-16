@@ -4,9 +4,14 @@ import { ClientsScreenClient } from "@/src/components/workspace/ClientsScreenCli
 
 const api = vi.hoisted(() => ({
   createClient: vi.fn(),
+  createClientNote: vi.fn(),
+  decideAppointment: vi.fn(),
   getAccountProfile: vi.fn(),
   getClientDetail: vi.fn(),
+  getClientNotesPage: vi.fn(),
+  getClientReturnTiming: vi.fn(),
   getClients: vi.fn(),
+  updateClientNote: vi.fn(),
 }));
 const auth = vi.hoisted(() => ({ withActiveAccount: vi.fn() }));
 
@@ -21,9 +26,14 @@ vi.mock("@/src/lib/api", () => ({
     }
   },
   createClient: api.createClient,
+  createClientNote: api.createClientNote,
+  decideAppointment: api.decideAppointment,
   getAccountProfile: api.getAccountProfile,
   getClientDetail: api.getClientDetail,
+  getClientNotesPage: api.getClientNotesPage,
+  getClientReturnTiming: api.getClientReturnTiming,
   getClients: api.getClients,
+  updateClientNote: api.updateClientNote,
 }));
 
 vi.mock("@/src/lib/auth/active-account", () => ({
@@ -89,6 +99,8 @@ describe("ClientsScreenClient", () => {
     accountId = `account-${crypto.randomUUID()}`;
     api.getAccountProfile.mockResolvedValue({ timezone: "America/Denver" });
     api.getClients.mockResolvedValue(page());
+    api.getClientNotesPage.mockResolvedValue({ data: [], next_cursor: null });
+    api.getClientReturnTiming.mockResolvedValue({});
     api.getClientDetail.mockResolvedValue({
       client: client(),
       identity: { display_name: "Ava Martinez", avatar_initials: "AM", avatar_url: null, avatar_image_id: null, is_vip: false },

@@ -479,7 +479,11 @@ export type CreateClientBody = {
   last_visit_at?: string | null;
 };
 
-export type UpdateClientBody = Partial<CreateClientBody>;
+export type UpdateClientBody = Partial<Omit<CreateClientBody, "phone" | "email" | "birthday">> & {
+  phone?: string | null;
+  email?: string | null;
+  birthday?: string | null;
+};
 
 export type ClientDetail = {
   client: ClientRow;
@@ -518,7 +522,9 @@ export type ClientDetail = {
     trend_label: string;
     trend_detail: string;
   };
+  rebooking_preference?: Record<string, unknown>;
   recent_history: { data: Record<string, unknown>[]; next_cursor: string | null };
+  referral_history?: Array<{ client_id: string; client_name: string; first_appointment_at: string | null }>;
   visual_history: {
     data: Array<{
       id: string;
@@ -2574,7 +2580,7 @@ function normalizeCursorPage(value: unknown): CursorPage {
   return { data: data.filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === "object"), nextCursor: typeof (body.next_cursor ?? body.nextCursor) === "string" ? String(body.next_cursor ?? body.nextCursor) : null };
 }
 export async function getClientAppointmentsPage(clientId: string, accessToken: string, cursor?: string | null) {
-  const params = new URLSearchParams({ limit: "25" }); if (cursor) params.set("cursor", cursor);
+  const params = new URLSearchParams({ status: "past", limit: "20" }); if (cursor) params.set("cursor", cursor);
   return normalizeCursorPage(await requestAuthenticatedApi<unknown>(`/api/clients/${encodeURIComponent(clientId)}/appointments?${params}`, accessToken, { preferProxy: true, unwrap: false }));
 }
 export async function getClientMessageHistoryPage(clientId: string, accessToken: string, cursor?: string | null) {
@@ -2587,6 +2593,13 @@ export async function getClientFormulasPage(clientId: string, accessToken: strin
 }
 export async function getClientFormula(clientId: string, formulaId: string, accessToken: string) { return requestAuthenticatedApi<unknown>(`/api/clients/${encodeURIComponent(clientId)}/formulas/${encodeURIComponent(formulaId)}`, accessToken, { preferProxy: true, unwrap: false }); }
 export async function createClientFormula(clientId: string, accessToken: string, body: { service_id: string; notes?: string }) { return requestAuthenticatedApi<unknown>(`/api/clients/${encodeURIComponent(clientId)}/formulas`, accessToken, { preferProxy: true, unwrap: false, init: { method: "POST", body: JSON.stringify(body) } }); }
+
+export type ClientNote = { id: string; client_id: string; appointment_id: string | null; content: string; source: string; author_type: string; author_display_name: string | null; created_at: string; updated_at: string; version: number; appointment: Record<string, unknown> | null; permissions: { can_edit: boolean; can_delete: boolean } };
+export async function getClientNotesPage(clientId: string, accessToken: string, cursor?: string | null) { const params = new URLSearchParams({ limit: "20" }); if (cursor) params.set("cursor", cursor); return requestAuthenticatedApi<{ data: ClientNote[]; next_cursor: string | null }>(`/api/clients/${encodeURIComponent(clientId)}/notes?${params}`, accessToken, { preferProxy: true, unwrap: false }); }
+export async function createClientNote(clientId: string, accessToken: string, content: string, idempotencyKey: string) { return requestAuthenticatedApi<ClientNote>(`/api/clients/${encodeURIComponent(clientId)}/notes`, accessToken, { preferProxy: true, init: { method: "POST", headers: { "Idempotency-Key": idempotencyKey }, body: JSON.stringify({ content }) } }); }
+export async function updateClientNote(clientId: string, noteId: string, accessToken: string, content: string, version: number) { return requestAuthenticatedApi<ClientNote>(`/api/clients/${encodeURIComponent(clientId)}/notes/${encodeURIComponent(noteId)}`, accessToken, { preferProxy: true, init: { method: "PATCH", body: JSON.stringify({ content, version }) } }); }
+export async function getClientReturnTiming(clientId: string, accessToken: string) { return requestAuthenticatedApi<Record<string, unknown>>(`/api/v2/clients/${encodeURIComponent(clientId)}/return-timing`, accessToken, { preferProxy: true, unwrap: false }); }
+export async function decideAppointment(appointmentId: string, accessToken: string, decision: "accept" | "reject") { return requestAuthenticatedApi<unknown>(`/api/appointments/${encodeURIComponent(appointmentId)}/decision`, accessToken, { preferProxy: true, init: { method: "PATCH", body: JSON.stringify({ decision }) } }); }
 
 export async function getClientReferralLink(
   clientId: string,
