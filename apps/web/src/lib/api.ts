@@ -1995,7 +1995,7 @@ export type InsightsSelection = { startDate: string; endDate: string; preset: "l
 export async function getInsights(selection: InsightsSelection, accessToken: string, trends = false) {
   const params = new URLSearchParams({ start_date: selection.startDate, end_date: selection.endDate, preset: selection.preset, comparison_mode: selection.comparisonMode });
   if (selection.comparisonMode === "custom" && selection.comparisonStartDate) params.set("comparison_start_date", selection.comparisonStartDate);
-  return requestAuthenticatedApi<unknown>(`/api/insights${trends ? "/trends" : ""}?${params.toString()}`, accessToken, { preferProxy: true, unwrap: false, init: { headers: { "X-Insights-Contract-Version": trends ? "insights.v6.trends.2" : "insights.v7" } } });
+  return requestAuthenticatedApi<unknown>(`/api/insights${trends ? "/trends" : ""}?${params.toString()}`, accessToken, { preferProxy: true, unwrap: false, init: { headers: { "X-Insights-Contract-Version": trends ? "insights.v6.trends.2" : "insights.v8" } } });
 }
 
 const insightDetailContracts = {
@@ -2024,8 +2024,160 @@ export async function getBookingInquiries(accessToken: string) {
   return requestAuthenticatedApi<unknown>("/api/booking-inquiries?status=actionable&limit=25", accessToken, { preferProxy: true, unwrap: false });
 }
 
-export async function getSentOutreach(accessToken: string) {
-  return requestAuthenticatedApi<unknown>("/api/outreach/sent?limit=25", accessToken, { preferProxy: true, unwrap: false });
+export type MessagingAllowedActions = ReadonlyArray<string> | Record<string, boolean | string | null | undefined>;
+export type MessagingRecord = Record<string, unknown> & { id: string; status: string | null; allowed_actions: MessagingAllowedActions };
+export type MessagingPage<T extends MessagingRecord = MessagingRecord> = { data: T[]; next_cursor: string | null; total: number | null; available: boolean | null; raw: Record<string, unknown> };
+
+function messagingRoot(value: unknown) {
+  const root = value && typeof value === "object" ? value as Record<string, unknown> : {};
+  return root.data && typeof root.data === "object" && !Array.isArray(root.data) ? root.data as Record<string, unknown> : root;
+}
+
+function normalizeMessagingRecord<T extends MessagingRecord = MessagingRecord>(value: Record<string, unknown>) {
+  return {
+    ...value,
+    id: typeof value.id === "string" ? value.id : "",
+    status: typeof value.status === "string" ? value.status : null,
+    allowed_actions: value.allowed_actions && typeof value.allowed_actions === "object" ? value.allowed_actions as MessagingAllowedActions : {},
+  } as T;
+}
+
+export function normalizeMessagingPage<T extends MessagingRecord = MessagingRecord>(value: unknown): MessagingPage<T> {
+  const root = messagingRoot(value);
+  const rows = Array.isArray(root.data) ? root.data : Array.isArray(root.items) ? root.items : Array.isArray(root.results) ? root.results : Array.isArray(value) ? value : [];
+  const data = rows.filter((row): row is Record<string, unknown> => Boolean(row) && typeof row === "object").map((row) => normalizeMessagingRecord<T>(row));
+  return { data, next_cursor: typeof root.next_cursor === "string" ? root.next_cursor : typeof root.nextCursor === "string" ? root.nextCursor : null, total: typeof root.total === "number" ? root.total : null, available: typeof root.available === "boolean" ? root.available : typeof root.feature_available === "boolean" ? root.feature_available : null, raw: root };
+}
+
+export function normalizeMessagingRecordResponse<T extends MessagingRecord = MessagingRecord>(value: unknown) {
+  return normalizeMessagingRecord<T>(messagingRoot(value));
+}
+
+export type ActivityApproval = MessagingRecord & { appointment_id?: string | null; event_type?: string | null; metadata?: Record<string, unknown> | null };
+export type WaitlistEntry = MessagingRecord & { client_id?: string | null; client_name?: string | null; requested_dates?: string[] | null };
+export type ScheduledOutreach = MessagingRecord & { scheduled_at?: string | null; client_id?: string | null; appointment_id?: string | null; campaign_id?: string | null; message_type?: string | null };
+export type Campaign = MessagingRecord & { name?: string | null; scheduled_at?: string | null; sent_at?: string | null; lifecycle_status?: string | null };
+export type CampaignDraft = MessagingRecord & {
+  revision?: number | null; campaign_name?: string | null; name?: string | null;
+  send_mode?: "now" | "scheduled" | null; send_at?: string | null; timezone?: string | null;
+  template_id?: string | null; template_version?: number | null; link_type?: "booking_link" | "referral_link" | null;
+  link_buttons?: Array<"booking_link" | "referral_link"> | null; hero_image_id?: string | null;
+  audience?: { mode?: "everyone" | "specific"; client_ids?: string[] } | null;
+  content?: { subject?: string | null; message?: string | null; additional_message?: string | null } | null;
+};
+export type CampaignTemplate = MessagingRecord & { name?: string | null; description?: string | null; subject?: string | null; message?: string | null; image_url?: string | null; link_type?: "booking_link" | "referral_link" | null; version?: number | null };
+export type CampaignConfig = Record<string, unknown> & { timezone: string | null; raw: Record<string, unknown> };
+
+export async function getActivityApprovals(accessToken: string, limit = 50) {
+  const response = await requestAuthenticatedApi<unknown>(`/api/activity?category=approvals&limit=${limit}`, accessToken, { preferProxy: true, unwrap: false });
+  return normalizeMessagingPage<ActivityApproval>(response);
+}
+
+export async function getWaitlistEntries(accessToken: string, limit = 100) {
+  const response = await requestAuthenticatedApi<unknown>(`/api/waitlist?status=active&limit=${limit}`, accessToken, { preferProxy: true, unwrap: false });
+  return normalizeMessagingPage<WaitlistEntry>(response);
+}
+
+export async function getScheduledOutreach(accessToken: string, limit = 50) {
+  const response = await requestAuthenticatedApi<unknown>(`/api/outreach/scheduled-sends?status=queued&limit=${limit}`, accessToken, { preferProxy: true, unwrap: false });
+  return normalizeMessagingPage<ScheduledOutreach>(response);
+}
+
+export async function cancelScheduledOutreach(accessToken: string, scheduledSendId: string, reason?: string) {
+  return requestAuthenticatedApi<unknown>(`/api/outreach/scheduled-sends/${encodeURIComponent(scheduledSendId)}/cancel`, accessToken, {
+    preferProxy: true,
+    unwrap: false,
+    init: { method: "POST", body: JSON.stringify(reason ? { reason } : {}) },
+  });
+}
+
+export async function getPendingOutreachApprovals(accessToken: string, limit = 50) {
+  const response = await requestAuthenticatedApi<unknown>(`/api/outreach/pending-approvals?limit=${limit}`, accessToken, { preferProxy: true, unwrap: false });
+  return normalizeMessagingPage<ScheduledOutreach>(response);
+}
+
+export async function getCampaigns(accessToken: string, limit = 50) {
+  const response = await requestAuthenticatedApi<unknown>(`/api/campaigns?limit=${limit}`, accessToken, { preferProxy: true, unwrap: false });
+  return normalizeMessagingPage<Campaign>(response);
+}
+
+export async function getCampaign(accessToken: string, campaignId: string) {
+  const response = await requestAuthenticatedApi<unknown>(`/api/campaigns/${encodeURIComponent(campaignId)}`, accessToken, { preferProxy: true, unwrap: false });
+  return normalizeMessagingRecordResponse<Campaign>(response);
+}
+
+export async function cancelCampaign(accessToken: string, campaignId: string, reason?: string | null) {
+  const response = await requestAuthenticatedApi<unknown>(`/api/campaigns/${encodeURIComponent(campaignId)}/cancel`, accessToken, {
+    preferProxy: true, unwrap: false, init: { method: "POST", body: JSON.stringify(reason ? { reason } : {}) },
+  });
+  return normalizeMessagingRecordResponse<Campaign>(response);
+}
+
+export type CampaignDraftWrite = Record<string, unknown>;
+
+export async function createCampaignDraft(accessToken: string, body: CampaignDraftWrite = {}) {
+  const response = await requestAuthenticatedApi<unknown>("/api/campaign-drafts", accessToken, { preferProxy: true, unwrap: false, init: { method: "POST", body: JSON.stringify(body) } });
+  return normalizeMessagingRecordResponse<CampaignDraft>(response);
+}
+
+export async function getCampaignDraft(accessToken: string, draftId: string) {
+  const response = await requestAuthenticatedApi<unknown>(`/api/campaign-drafts/${encodeURIComponent(draftId)}`, accessToken, { preferProxy: true, unwrap: false });
+  return normalizeMessagingRecordResponse<CampaignDraft>(response);
+}
+
+export async function updateCampaignDraft(accessToken: string, draftId: string, body: CampaignDraftWrite) {
+  const response = await requestAuthenticatedApi<unknown>(`/api/campaign-drafts/${encodeURIComponent(draftId)}`, accessToken, { preferProxy: true, unwrap: false, init: { method: "PATCH", body: JSON.stringify(body) } });
+  return normalizeMessagingRecordResponse<CampaignDraft>(response);
+}
+
+export async function deleteCampaignDraft(accessToken: string, draftId: string) {
+  return requestAuthenticatedApi<void>(`/api/campaign-drafts/${encodeURIComponent(draftId)}`, accessToken, { preferProxy: true, init: { method: "DELETE" } });
+}
+
+export async function previewCampaignDraft(accessToken: string, draftId: string, firstName?: string | null) {
+  return requestAuthenticatedApi<unknown>(`/api/campaign-drafts/${encodeURIComponent(draftId)}/preview`, accessToken, { preferProxy: true, unwrap: false, init: { method: "POST", body: JSON.stringify(firstName ? { first_name: firstName } : {}) } });
+}
+
+export type CampaignDraftValidation = { validation_token: string; raw: Record<string, unknown> };
+
+export async function validateCampaignDraft(accessToken: string, draftId: string, revision: number) {
+  const response = await requestAuthenticatedApi<unknown>(`/api/campaign-drafts/${encodeURIComponent(draftId)}/validate`, accessToken, { preferProxy: true, unwrap: false, init: { method: "POST", body: JSON.stringify({ revision }) } });
+  const root = messagingRoot(response);
+  return { validation_token: typeof root.validation_token === "string" ? root.validation_token : "", raw: root } satisfies CampaignDraftValidation;
+}
+
+export async function submitCampaignDraft(accessToken: string, draftId: string, action: "send" | "schedule", body: { revision: number; validation_token: string }, idempotencyKey: string) {
+  const response = await requestAuthenticatedApi<unknown>(`/api/campaign-drafts/${encodeURIComponent(draftId)}/${action}`, accessToken, { preferProxy: true, unwrap: false, init: { method: "POST", headers: { "Idempotency-Key": idempotencyKey }, body: JSON.stringify(body) } });
+  return normalizeMessagingRecordResponse<Campaign>(response);
+}
+
+export async function getCampaignTemplates(accessToken: string, cursor?: string | null) {
+  const params = new URLSearchParams({ limit: "100" });
+  if (cursor) params.set("cursor", cursor);
+  const response = await requestAuthenticatedApi<unknown>(`/api/campaign-templates?${params.toString()}`, accessToken, { preferProxy: true, unwrap: false });
+  return normalizeMessagingPage<CampaignTemplate>(response);
+}
+
+export async function getCampaignEmailHeroImages(accessToken: string) {
+  const response = await requestAuthenticatedApi<unknown>("/api/campaign-email-hero-images", accessToken, { preferProxy: true, unwrap: false });
+  return normalizeMessagingPage(response);
+}
+
+export async function getCampaignConfiguration(accessToken: string) {
+  const response = await requestAuthenticatedApi<unknown>("/api/outreach/config", accessToken, { preferProxy: true, unwrap: false });
+  const root = messagingRoot(response);
+  return { ...root, timezone: typeof root.timezone === "string" ? root.timezone : null, raw: root } as CampaignConfig;
+}
+
+export async function estimateCampaignAudience(accessToken: string, body: Record<string, unknown>) {
+  return requestAuthenticatedApi<unknown>("/api/campaigns/audience/estimate", accessToken, { preferProxy: true, unwrap: false, init: { method: "POST", body: JSON.stringify(body) } });
+}
+
+export async function getSentOutreach(accessToken: string, cursor?: string | null) {
+  const params = new URLSearchParams({ limit: "25" });
+  if (cursor) params.set("cursor", cursor);
+  const response = await requestAuthenticatedApi<unknown>(`/api/outreach/sent?${params.toString()}`, accessToken, { preferProxy: true, unwrap: false });
+  return normalizeMessagingPage<ScheduledOutreach>(response);
 }
 
 export async function setAutomationEnabled(

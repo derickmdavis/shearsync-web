@@ -51,3 +51,14 @@ export async function PATCH(request: Request, context: RouteContext) {
     );
   }
 }
+
+export async function POST(request: Request, context: RouteContext) {
+  try {
+    return await forwardOutreachRequest(request, context);
+  } catch {
+    return Response.json(
+      { error: { message: "Unable to reach the messaging service." } },
+      { status: 502 },
+    );
+  }
+}

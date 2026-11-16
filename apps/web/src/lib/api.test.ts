@@ -1,6 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   captureBookingAttributionContext,
+  cancelScheduledOutreach,
+  cancelCampaign,
   cancelManagedAppointment,
   createAppointment,
   createBookingPreviewSession,
@@ -13,6 +15,14 @@ import {
   type ClientRow,
   getAccountAccess,
   getCalendarDay,
+  getActivityApprovals,
+  getCampaignConfiguration,
+  getCampaigns,
+  previewCampaignDraft,
+  submitCampaignDraft,
+  validateCampaignDraft,
+  getWaitlistEntries,
+  getInsights,
   getBookingRules,
   getClientAppointmentHistory,
   getClientReferralLink,
@@ -57,6 +67,7 @@ import {
   updateReferralProgramSettings,
   updateSimpleEmailTemplate,
   updateThankYouEmailSettings,
+  normalizeMessagingPage,
 } from "@/src/lib/api";
 
 describe("authenticated appointments and services api helpers", () => {
@@ -66,6 +77,86 @@ describe("authenticated appointments and services api helpers", () => {
 
   afterEach(() => {
     vi.unstubAllGlobals();
+  });
+
+  it("requests the V8 landing contract for canonical insight headline components", async () => {
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(JSON.stringify({ metrics: [], headline_components: {} }), {
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    await getInsights({
+      startDate: "2026-10-15",
+      endDate: "2026-11-13",
+      preset: "last30",
+      comparisonMode: "none",
+    }, "token-1");
+
+    const [url, init] = vi.mocked(fetch).mock.calls[0] ?? [];
+    expect(url).toBe("/api/insights?start_date=2026-10-15&end_date=2026-11-13&preset=last30&comparison_mode=none");
+    expect(new Headers(init?.headers).get("X-Insights-Contract-Version")).toBe("insights.v8");
+  });
+
+  it("normalizes messaging pages without discarding lifecycle capabilities", () => {
+    expect(normalizeMessagingPage({ data: { items: [{ id: "outreach-1", status: "scheduled", allowed_actions: ["cancel", "view_client"] }], next_cursor: "cursor-2", available: true } })).toMatchObject({
+      data: [{ id: "outreach-1", status: "scheduled", allowed_actions: ["cancel", "view_client"] }],
+      next_cursor: "cursor-2",
+      available: true,
+    });
+  });
+
+  it("uses typed, same-origin messaging collection endpoints", async () => {
+    vi.mocked(fetch).mockImplementation(() => Promise.resolve(new Response(JSON.stringify({ data: { items: [] } }), { headers: { "Content-Type": "application/json" } })));
+
+    await Promise.all([
+      getActivityApprovals("token-1"),
+      getWaitlistEntries("token-1"),
+      getCampaigns("token-1"),
+      getCampaignConfiguration("token-1"),
+    ]);
+
+    expect(vi.mocked(fetch).mock.calls.map(([url]) => url)).toEqual([
+      "/api/activity?category=approvals&limit=50",
+      "/api/waitlist?status=active&limit=100",
+      "/api/campaigns?limit=50",
+      "/api/outreach/config",
+    ]);
+  });
+
+  it("cancels an individual scheduled send through the protected outreach route", async () => {
+    vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify({ data: { id: "send-1", status: "cancelled" } }), { headers: { "Content-Type": "application/json" } }));
+
+    await cancelScheduledOutreach("token-1", "send-1");
+
+    const [url, init] = vi.mocked(fetch).mock.calls[0] ?? [];
+    expect(url).toBe("/api/outreach/scheduled-sends/send-1/cancel");
+    expect(init).toMatchObject({ method: "POST", body: "{}" });
+  });
+
+  it("cancels a scheduled campaign through its server-authorized route", async () => {
+    vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify({ data: { id: "campaign-1", status: "cancelled", allowed_actions: ["view"] } }), { headers: { "Content-Type": "application/json" } }));
+    await cancelCampaign("token-1", "campaign-1");
+    const [url, init] = vi.mocked(fetch).mock.calls[0] ?? [];
+    expect(url).toBe("/api/campaigns/campaign-1/cancel");
+    expect(init).toMatchObject({ method: "POST", body: "{}" });
+  });
+
+  it("sends revision-checked campaign validation and idempotent submission payloads", async () => {
+    vi.mocked(fetch).mockImplementation((input) => Promise.resolve(new Response(JSON.stringify(String(input).includes("validate") ? { data: { validation_token: "a-valid-token-with-enough-length" } } : { data: { id: "campaign-1", status: "sending" } }), { headers: { "Content-Type": "application/json" } })));
+
+    const validation = await validateCampaignDraft("token-1", "draft-1", 7);
+    await previewCampaignDraft("token-1", "draft-1", "Sara");
+    await submitCampaignDraft("token-1", "draft-1", "send", { revision: 7, validation_token: validation.validation_token }, "request-key-1");
+
+    const [, validateInit] = vi.mocked(fetch).mock.calls[0] ?? [];
+    const [, previewInit] = vi.mocked(fetch).mock.calls[1] ?? [];
+    const [submitUrl, submitInit] = vi.mocked(fetch).mock.calls[2] ?? [];
+    expect(validateInit).toMatchObject({ method: "POST", body: JSON.stringify({ revision: 7 }) });
+    expect(previewInit).toMatchObject({ method: "POST", body: JSON.stringify({ first_name: "Sara" }) });
+    expect(submitUrl).toBe("/api/campaign-drafts/draft-1/send");
+    expect(submitInit).toMatchObject({ method: "POST", body: JSON.stringify({ revision: 7, validation_token: "a-valid-token-with-enough-length" }) });
+    expect(new Headers(submitInit?.headers).get("Idempotency-Key")).toBe("request-key-1");
   });
 
   it("loads the authenticated catalog through the same-origin proxy", async () => {
