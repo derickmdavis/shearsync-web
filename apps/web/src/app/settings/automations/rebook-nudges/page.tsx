@@ -1,5 +1,5 @@
-import { EmailAutomationSettingsScreen } from "@/src/components/settings/AutomationSpecificSettingsScreen";
+import { RebookNudgesDetailScreen } from "@/src/components/settings/RebookNudgesDetailScreen";
 
 export default function RebookNudgesPage() {
-  return <EmailAutomationSettingsScreen kind="rebook" />;
+  return <RebookNudgesDetailScreen />;
 }

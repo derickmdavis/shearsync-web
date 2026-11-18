@@ -28,14 +28,13 @@ import {
   getSentOutreach,
   getWaitlistEntries,
   getAutomationBootstrap,
-  setAutomationEnabled,
-  updateAutomationChannels,
   type AccountAccess,
   type AutomationChannelCapability,
   type AutomationControl,
   type CampaignDraft,
   type CampaignTemplate,
   type ClientRow,
+  getAutomationTemplateKey,
 } from "@/src/lib/api";
 import { AccountLifecycleError, withActiveAccount } from "@/src/lib/auth/active-account";
 import { PageHeading, WorkspaceShell, workspaceStyles as styles } from "./WorkspaceShell";
@@ -99,8 +98,8 @@ function detailFor(kind: "inquiries" | "approvals" | "waitlist", record: Message
   return [dates.join(", "), text(record.note) ?? text(metadata.note)].filter(Boolean).join(" · ") || "Waitlist request";
 }
 
-function NeedsAttention({ snapshot }: { snapshot: TabSnapshot }) {
-  const [expanded, setExpanded] = useState<"inquiries" | "approvals" | "waitlist" | null>(null);
+function NeedsAttention({ snapshot, initialExpanded = null }: { snapshot: TabSnapshot; initialExpanded?: "inquiries" | "approvals" | "waitlist" | null }) {
+  const [expanded, setExpanded] = useState<"inquiries" | "approvals" | "waitlist" | null>(initialExpanded);
   const inquirySource = sourceByKey(snapshot, "inquiries");
   const approvalSource = sourceByKey(snapshot, "approvals");
   const waitlistSource = sourceByKey(snapshot, "waitlist");
@@ -123,6 +122,8 @@ function NeedsAttention({ snapshot }: { snapshot: TabSnapshot }) {
 }
 
 function editorHref(key: string) {
+  if (key === "waitlist_match") return "/settings/automations/waitlist";
+  const templateKey = getAutomationTemplateKey(key);
   const paths: Record<string, string> = {
     booking_confirmations: "/settings/email-templates/booking_confirmation",
     appointment_reminders: "/settings/email-templates/appointment_reminder",
@@ -131,51 +132,45 @@ function editorHref(key: string) {
     thank_you_emails: "/settings/automations/thank-you-emails",
     birthday_reminders: "/settings/automations/birthday-reminders",
   };
-  return paths[key] ?? "/settings/email-templates";
+  return templateKey ? paths[key] : "/messages#automations";
 }
 
-function channelLabel(name: string, channel: AutomationChannelCapability) {
-  if (!channel.available) return channel.unavailable_reason || `${name} unavailable`;
-  return channel.enabled ? `${name} on` : `${name} off`;
+function channelStatus(channel: AutomationChannelCapability) {
+  if (!channel.available) return "Unavailable";
+  return channel.enabled ? "On" : "Off";
 }
 
-function canEditChannels(control: AutomationControl) {
-  return control.key === "booking_confirmations" || control.key === "appointment_reminders";
+function isAutomationActive(control: AutomationControl) {
+  return control.feature_available && [control.channels.email, control.channels.sms].some((channel) => channel.available && channel.enabled);
 }
 
-function AlwaysOnAutomations({ source, readOnly, onChanged }: { source: SourceState | undefined; readOnly: boolean; onChanged: () => void }) {
-  const [changing, setChanging] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+function automationMetrics(control: AutomationControl) {
+  return [
+    ["Queued", control.queued_count],
+    ["Scheduled", control.scheduled_count],
+    ["Pending approval", control.pending_approval_count],
+  ].filter((metric): metric is [string, number] => typeof metric[1] === "number");
+}
+
+function AlwaysOnAutomations({ source }: { source: SourceState | undefined }) {
   const controls = (source?.records ?? []) as AutomationControl[];
-
-  async function updateEnabled(control: AutomationControl, enabled: boolean) {
-    setChanging(control.key); setError(null);
-    try { await withActiveAccount((token) => setAutomationEnabled(token, control.key, enabled)); onChanged(); }
-    catch (cause) { setError(errorText(cause)); }
-    finally { setChanging(null); }
-  }
-
-  async function updateChannels(control: AutomationControl, email: boolean, sms: boolean) {
-    if (!canEditChannels(control)) return;
-    setChanging(control.key); setError(null);
-    try { await withActiveAccount((token) => updateAutomationChannels(token, control.key as "booking_confirmations" | "appointment_reminders", { settings_version: control.settings_version, email, sms })); onChanged(); }
-    catch (cause) { setError(errorText(cause)); }
-    finally { setChanging(null); }
-  }
 
   return <section className={styles.alwaysOnSection} aria-labelledby="always-on-heading">
     <header className={styles.messagesSectionHeading}><h2 id="always-on-heading">Always on</h2><p>Automated touchpoints that keep clients engaged.</p></header>
     {source?.error ? <p className={styles.servicesWarning}>Automation status could not be loaded. Refresh to try again.</p> : null}
-    {error ? <p className={styles.servicesMessage} role="alert">{error}</p> : null}
     {!source?.error && !controls.length ? <p className={styles.servicesEmpty}>No message automations are configured.</p> : null}
     <div className={styles.automationGrid}>{controls.map((control) => {
-      const changingThis = changing === control.key;
+      const active = isAutomationActive(control);
       const channels: ReadonlyArray<readonly [string, AutomationChannelCapability]> = [["Email", control.channels.email], ["Text", control.channels.sms]];
+      const metrics = automationMetrics(control);
+      const waitlist = control.key === "waitlist_match";
       return <article className={styles.automationCard} key={control.key}>
-        <header className={styles.automationCardHeader}><div><h3>{control.label}</h3><p>{control.mode === "approval_required" ? "Review before sending" : control.mode === "automatic" ? "Sends automatically" : "Automation status"}</p></div><span className={`${styles.automationStatus} ${control.enabled && control.feature_available ? styles.automationStatusOn : ""}`}>{control.status_label}</span></header>
+        <header className={styles.automationCardHeader}><div><h3>{control.label}</h3><p>{control.mode === "approval_required" ? "Review before sending" : control.mode === "automatic" ? "Sends automatically" : waitlist ? "Matches clients with open appointments" : "Automation status"}</p></div><span className={`${styles.automationStatus} ${active ? styles.automationStatusOn : ""}`}>{control.feature_available ? active ? "Active" : "Inactive" : "Unavailable"}</span></header>
         {!control.feature_available ? <p className={styles.automationNotice}>{control.unavailable_reason || "This automation is unavailable for this account."}</p> : null}
-        <div className={styles.automationChannelList}>{channels.map(([name, channel]) => <div key={name}><span>{channelLabel(name, channel)}</span>{canEditChannels(control) && channel.available ? <label className={styles.automationToggle}><span className="sr-only">Enable {name} for {control.label}</span><input type="checkbox" checked={channel.enabled} disabled={readOnly || changingThis} onChange={(event) => void updateChannels(control, name === "Email" ? event.target.checked : control.channels.email.enabled, name === "Text" ? event.target.checked : control.channels.sms.enabled)} /><i aria-hidden="true" /></label> : null}</div>)}</div>
-        <footer className={styles.automationFooter}><label className={styles.automationToggle}><span>Enabled</span><input type="checkbox" checked={control.enabled} disabled={readOnly || !control.feature_available || changingThis} onChange={(event) => void updateEnabled(control, event.target.checked)} /><i aria-hidden="true" /></label><Link className={styles.secondaryButton} href={editorHref(control.key)}>Edit</Link></footer>
+        <p className={styles.automationServerStatus}>Server status: {control.status_label}</p>
+        <div className={styles.automationChannelList}>{channels.map(([name, channel]) => <div key={name}><span>{name}</span><span className={channel.available && channel.enabled ? styles.automationChannelOn : ""}>{channelStatus(channel)}</span>{!channel.available && channel.unavailable_reason ? <small>{channel.unavailable_reason}</small> : null}</div>)}</div>
+        {metrics.length ? <dl className={styles.automationMetrics}>{metrics.map(([label, count]) => <div key={label}><dt>{label}</dt><dd>{count}</dd></div>)}</dl> : null}
+        <footer className={styles.automationFooter}><Link className={styles.secondaryButton} href={editorHref(control.key)} aria-label={waitlist ? "View waitlist" : `Configure ${control.label}`}>{waitlist ? "View waitlist" : "Configure"}</Link></footer>
       </article>;
     })}</div>
   </section>;
@@ -552,8 +547,8 @@ async function loadTab(accessToken: string, tab: MessageTab) {
   return { sources, access: await accessPromise, timezone: await timezonePromise };
 }
 
-export function MessagesScreen() {
-  const [tab, setTab] = useState<MessageTab>("scheduled");
+export function MessagesScreen({ initialTab = "scheduled", focusWaitlist = false }: { initialTab?: MessageTab; focusWaitlist?: boolean }) {
+  const [tab, setTab] = useState<MessageTab>(initialTab);
   const [snapshots, setSnapshots] = useState<Partial<Record<MessageTab, TabSnapshot>>>({});
   const [loadError, setLoadError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
@@ -611,9 +606,9 @@ export function MessagesScreen() {
     {!current && !loadError ? <section className={styles.messagesStatus} aria-busy="true"><p>Loading messages…</p></section> : null}
     {current && !unavailable ? <section className={styles.servicesPanel} aria-live="polite">
       {failures.length ? <p className={styles.servicesWarning}>Some message data could not be loaded: {failures.map((source) => source.label).join(", ")}. <button className={styles.secondaryButton} type="button" onClick={refresh} disabled={refreshing}>Retry</button></p> : null}
-      {tab === "manage" ? <NeedsAttention snapshot={current} /> : tab === "scheduled" ? <ScheduledCommunications snapshot={current} readOnly={Boolean(readOnly)} onChanged={refresh} /> : <SentHistory key={current.loadedAt} snapshot={current} readOnly={Boolean(readOnly)} onChanged={refresh} />}
+      {tab === "manage" ? <NeedsAttention key={focusWaitlist ? "waitlist" : "default"} snapshot={current} initialExpanded={focusWaitlist ? "waitlist" : null} /> : tab === "scheduled" ? <ScheduledCommunications snapshot={current} readOnly={Boolean(readOnly)} onChanged={refresh} /> : <SentHistory key={current.loadedAt} snapshot={current} readOnly={Boolean(readOnly)} onChanged={refresh} />}
     </section> : null}
-    {current && !unavailable && tab === "manage" ? <AlwaysOnAutomations source={sourceByKey(current, "automations")} readOnly={Boolean(readOnly)} onChanged={refresh} /> : null}
+    {current && !unavailable && tab === "manage" ? <AlwaysOnAutomations source={sourceByKey(current, "automations")} /> : null}
     {current && !unavailable && tab === "manage" ? <CampaignList source={sourceByKey(current, "campaigns")} readOnly={Boolean(readOnly)} onChanged={refresh} onEditDraft={setActiveDraftId} /> : null}
     {activeDraftId && current && !unavailable ? <CampaignComposer draftId={activeDraftId} readOnly={Boolean(readOnly)} onClose={() => setActiveDraftId(null)} onChanged={refresh} /> : null}
   </section></WorkspaceShell>;

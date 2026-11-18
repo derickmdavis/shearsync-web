@@ -1,5 +1,5 @@
-import { EmailAutomationSettingsScreen } from "@/src/components/settings/AutomationSpecificSettingsScreen";
+import { LifecycleAutomationDetailScreen } from "@/src/components/settings/LifecycleAutomationDetailScreen";
 
 export default function ThankYouEmailsPage() {
-  return <EmailAutomationSettingsScreen kind="thank-you" />;
+  return <LifecycleAutomationDetailScreen kind="thank-you" />;
 }

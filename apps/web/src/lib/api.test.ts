@@ -68,6 +68,12 @@ import {
   updateSimpleEmailTemplate,
   updateThankYouEmailSettings,
   normalizeMessagingPage,
+  ApiError,
+  canUpdateAutomationChannel,
+  getAutomationMutationFailure,
+  getAutomationMutationOutcome,
+  getAutomationTemplateKey,
+  isStaleAutomationSettingsVersion,
 } from "@/src/lib/api";
 
 describe("authenticated appointments and services api helpers", () => {
@@ -1087,6 +1093,50 @@ describe("settings parity api helpers", () => {
     ]);
   });
 
+  it("permits the documented partial channel payload", async () => {
+    vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify({ data: {} }), { headers: { "Content-Type": "application/json" } }));
+    await updateAutomationChannels("token-1", "birthday_reminders", { settings_version: 7, email: true });
+    expect(vi.mocked(fetch).mock.calls[0]).toEqual([
+      "/api/outreach/automations/birthday_reminders/channels",
+      expect.objectContaining({ method: "PATCH", body: JSON.stringify({ settings_version: 7, email: true }) }),
+    ]);
+  });
+
+  it("uses the canonical control-to-template mapping and never assigns waitlist a template", () => {
+    expect(getAutomationTemplateKey("booking_confirmations")).toBe("booking_confirmation");
+    expect(getAutomationTemplateKey("appointment_reminders")).toBe("appointment_reminder");
+    expect(getAutomationTemplateKey("rebook_nudges")).toBe("rebook_nudge");
+    expect(getAutomationTemplateKey("thank_you_emails")).toBe("thank_you");
+    expect(getAutomationTemplateKey("birthday_reminders")).toBe("birthday");
+    expect(getAutomationTemplateKey("waitlist_match")).toBeNull();
+    expect(getAutomationTemplateKey("unknown")).toBeNull();
+  });
+
+  it("guards unavailable or versionless channel mutations and classifies expected mutation failures", () => {
+    const control = {
+      key: "booking_confirmations", label: "Booking confirmations", feature_available: true,
+      unavailable_reason: null, mode: "automatic" as const, pending_approval_count: null,
+      queued_count: null, scheduled_count: null, status_label: "Active", settings_version: 4,
+      channels: {
+        email: { available: true, enabled: true, unavailable_reason_code: null, unavailable_reason: null },
+        sms: { available: false, enabled: false, unavailable_reason_code: "unavailable", unavailable_reason: "Texts unavailable" },
+      }, timing: null, settings: null, content_rules: null, templates: [],
+    };
+    expect(canUpdateAutomationChannel(control, "email")).toBe(true);
+    expect(canUpdateAutomationChannel(control, "sms")).toBe(false);
+    expect(canUpdateAutomationChannel({ ...control, settings_version: null }, "email")).toBe(false);
+    expect(getAutomationMutationFailure(new ApiError("Forbidden", 403))).toBe("forbidden");
+    expect(getAutomationMutationFailure(new ApiError("Conflict", 409))).toBe("conflict");
+    expect(getAutomationMutationFailure(new ApiError("Stale", 400, undefined, "stale_settings"))).toBe("stale");
+    expect(getAutomationMutationFailure(new Error("offline"))).toBe("unknown");
+    expect(getAutomationMutationOutcome({ succeeded: ["timing"], failed: ["template"] })).toBe("partial_success");
+    expect(getAutomationMutationOutcome({ succeeded: ["channels"], failed: [] })).toBe("success");
+    expect(getAutomationMutationOutcome({ succeeded: [], failed: ["review"] })).toBe("failure");
+    expect(isStaleAutomationSettingsVersion(4, 5)).toBe(true);
+    expect(isStaleAutomationSettingsVersion(5, 5)).toBe(false);
+    expect(isStaleAutomationSettingsVersion(null, 5)).toBe(false);
+  });
+
   it("unwraps a bare settings response as well as the usual data envelope", async () => {
     const bare = { offset_days: -7, revision: 4, timezone: "America/Denver", local_send_time: "10:00" };
     vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify(bare), { headers: { "Content-Type": "application/json" } }));
@@ -1127,6 +1177,10 @@ describe("settings parity api helpers", () => {
     ["simple preview", () => previewSimpleEmailTemplate("token-1", "booking_confirmation", { notes: "Bring parking details." }), "/api/email-templates/booking_confirmation/simple/preview", "POST", { notes: "Bring parking details." }],
     ["advanced save", () => updateAdvancedEmailTemplate("token-1", "booking_confirmation", { subject: "Confirmed", body: "See you" }), "/api/email-templates/booking_confirmation/advanced", "PUT", { subject: "Confirmed", body: "See you" }],
     ["advanced preview", () => previewAdvancedEmailTemplate("token-1", "booking_confirmation", { subject: "Confirmed", body: "See you" }), "/api/email-templates/booking_confirmation/advanced/preview", "POST", { subject: "Confirmed", body: "See you" }],
+    ["rebook simple save", () => updateSimpleEmailTemplate("token-1", "rebook_nudge", { notes: "A personal note" }), "/api/email-templates/rebook_nudge/simple", "PUT", { notes: "A personal note" }],
+    ["thank-you simple preview", () => previewSimpleEmailTemplate("token-1", "thank_you", { notes: null }), "/api/email-templates/thank_you/simple/preview", "POST", { notes: null }],
+    ["birthday advanced save", () => updateAdvancedEmailTemplate("token-1", "birthday", { subject: "Happy birthday", body: "Enjoy your day" }), "/api/email-templates/birthday/advanced", "PUT", { subject: "Happy birthday", body: "Enjoy your day" }],
+    ["rebook mode", () => updateEmailTemplateMode("token-1", "rebook_nudge", "simple"), "/api/email-templates/rebook_nudge/mode", "PATCH", { mode: "simple" }],
   ] as const)("uses the email-template %s route and body", async (_name, request, path, method, body) => {
     vi.mocked(fetch).mockResolvedValue(new Response(JSON.stringify({ data: { subject: "Preview", text: "Preview", html: "<p>Preview</p>" } }), { headers: { "Content-Type": "application/json" } }));
     await request();

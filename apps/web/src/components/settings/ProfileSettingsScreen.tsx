@@ -141,7 +141,7 @@ export function ProfileSettingsScreen() {
         <label>Country code<input value={location.country_code ?? ""} maxLength={2} onChange={(event) => setLocation((value) => ({ ...value, country_code: event.target.value }))} /></label>
         {draft.location ? !confirmClear ? <button className={styles.secondaryButton} type="button" onClick={() => setConfirmClear(true)}>Clear business location</button> : <span><p>Clear this full address on save?</p><button className={styles.secondaryButton} type="button" onClick={() => { setLocation(emptyLocation); setConfirmClear(false); }}>Confirm clear location</button><button className={styles.secondaryButton} type="button" onClick={() => setConfirmClear(false)}>Keep location</button></span> : null}
       </fieldset>
-      <label className={styles.serviceToggle}><input type="checkbox" checked={draft.waitlist_enabled} onChange={(event) => resource.updateDraft((value) => ({ ...value, waitlist_enabled: event.target.checked }))} /> Enable waitlist</label>
+      <label className={styles.serviceToggle} id="waitlist"><input type="checkbox" checked={draft.waitlist_enabled} onChange={(event) => resource.updateDraft((value) => ({ ...value, waitlist_enabled: event.target.checked }))} /> Enable waitlist</label>
       <label className={styles.serviceToggle}><input type="checkbox" checked={draft.client_formulas_tab_enabled} onChange={(event) => resource.updateDraft((value) => ({ ...value, client_formulas_tab_enabled: event.target.checked }))} /> Show Formulas tab in client details</label>
       <button className={styles.primaryButton} disabled={resource.saving}>{resource.saving ? "Saving…" : "Save profile"}</button>
     </form> : null}

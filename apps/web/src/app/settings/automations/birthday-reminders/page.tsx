@@ -1,5 +1,5 @@
-import { BirthdayReminderSettingsScreen } from "@/src/components/settings/AutomationSpecificSettingsScreen";
+import { LifecycleAutomationDetailScreen } from "@/src/components/settings/LifecycleAutomationDetailScreen";
 
 export default function BirthdayRemindersPage() {
-  return <BirthdayReminderSettingsScreen />;
+  return <LifecycleAutomationDetailScreen kind="birthday" />;
 }

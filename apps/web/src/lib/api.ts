@@ -196,39 +196,105 @@ export type AutomationChannelCapability = {
   unavailable_reason: string | null;
 };
 
+export type AutomationControlKey =
+  | "booking_confirmations"
+  | "appointment_reminders"
+  | "rebook_nudges"
+  | "thank_you_emails"
+  | "birthday_reminders"
+  | "waitlist_match";
+
+export type EmailTemplateKey = "booking_confirmation" | "appointment_reminder" | "rebook_nudge" | "thank_you" | "birthday";
+export type EmailTemplateMode = "simple" | "advanced";
+
+/** The only supported control-to-template mapping. Waitlist has no template. */
+export const automationTemplateKeyByControl = {
+  booking_confirmations: "booking_confirmation",
+  appointment_reminders: "appointment_reminder",
+  rebook_nudges: "rebook_nudge",
+  thank_you_emails: "thank_you",
+  birthday_reminders: "birthday",
+} as const satisfies Partial<Record<AutomationControlKey, EmailTemplateKey>>;
+
+export function getAutomationTemplateKey(controlKey: string): EmailTemplateKey | null {
+  return Object.prototype.hasOwnProperty.call(automationTemplateKeyByControl, controlKey)
+    ? automationTemplateKeyByControl[controlKey as keyof typeof automationTemplateKeyByControl]
+    : null;
+}
+
 export type AutomationTemplate = {
   automationKey: string;
   effectiveSubject: string;
   effectiveBody: string;
   source: "default" | "custom";
-  allowedVariables: string[];
+  allowedVariables: AutomationTemplateVariable[];
+};
+
+export type AutomationTemplateVariable = {
+  key: string;
+  token: string;
+  label: string;
+};
+
+export type AutomationContentRules = {
+  subject_max_length?: number | null;
+  message_max_length?: number | null;
+  available_tokens?: string[];
 };
 
 export type AutomationControl = {
   key: string;
   label: string;
-  enabled: boolean;
+  /** Compatibility projection only; channel state is the authoritative active status. */
+  enabled?: boolean | null;
   feature_available: boolean;
   unavailable_reason: string | null;
   mode: "automatic" | "approval_required" | null;
-  pending_approval_count: number;
-  queued_count: number;
-  scheduled_count: number;
+  pending_approval_count: number | null;
+  queued_count: number | null;
+  scheduled_count: number | null;
   status_label: string;
-  settings_version: number;
+  settings_version: number | null;
   channels: {
     email: AutomationChannelCapability;
     sms: AutomationChannelCapability;
   };
-  timing: Record<string, number | boolean | null>;
-  settings: Record<string, unknown>;
-  content_rules: {
-    subject_max_length: number;
-    message_max_length: number;
-    available_tokens: string[];
-  } | null;
+  timing: Record<string, unknown> | null;
+  settings: Record<string, unknown> | null;
+  content_rules: AutomationContentRules | null;
   templates: AutomationTemplate[];
 };
+
+export function canUpdateAutomationChannel(control: AutomationControl, channel: "email" | "sms") {
+  return control.feature_available
+    && Number.isInteger(control.settings_version)
+    && control.channels[channel].available;
+}
+
+export type AutomationMutationFailure = "forbidden" | "conflict" | "stale" | "unknown";
+export type AutomationMutationStep = "channels" | "timing" | "review" | "template" | "mode";
+export type AutomationMutationOutcome = "success" | "partial_success" | "failure";
+
+export function getAutomationMutationOutcome(result: { succeeded: readonly AutomationMutationStep[]; failed: readonly AutomationMutationStep[] }): AutomationMutationOutcome {
+  if (result.failed.length === 0) return "success";
+  return result.succeeded.length > 0 ? "partial_success" : "failure";
+}
+
+export function getAutomationMutationFailure(error: unknown): AutomationMutationFailure {
+  if (!(error instanceof ApiError)) return "unknown";
+  if (error.status === 403) return "forbidden";
+  if (error.status === 409) return "conflict";
+  return error.code?.toLowerCase().includes("stale") ? "stale" : "unknown";
+}
+
+/** Returns true when a late mutation response must not replace newer local state. */
+export function isStaleAutomationSettingsVersion(responseVersion: number | null | undefined, expectedVersion: number | null | undefined) {
+  return typeof responseVersion === "number"
+    && Number.isInteger(responseVersion)
+    && typeof expectedVersion === "number"
+    && Number.isInteger(expectedVersion)
+    && responseVersion < expectedVersion;
+}
 
 export type AutomationBootstrap = {
   account_timezone: string;
@@ -2203,20 +2269,24 @@ export async function setAutomationEnabled(
 
 export type AutomationChannelUpdate = {
   settings_version: number;
-  email: boolean;
-  sms: boolean;
+  email?: boolean;
+  sms?: boolean;
 };
 
-export type AutomationChannelUpdateResult = AutomationChannelUpdate & {
+export type AutomationChannelUpdateResult = {
+  enabled?: boolean | null;
+  channels?: AutomationControl["channels"];
+  settings_version?: number | null;
   queue_reconciliation?: {
     cancelled_count?: number;
+    created_count?: number;
     [key: string]: unknown;
   };
 };
 
 export async function updateAutomationChannels(
   accessToken: string,
-  automationKey: "booking_confirmations" | "appointment_reminders",
+  automationKey: AutomationControlKey,
   body: AutomationChannelUpdate,
 ) {
   return requestAuthenticatedApi<AutomationChannelUpdateResult>(
@@ -2285,15 +2355,25 @@ export async function updateBirthdayReminderSettings(accessToken: string, body: 
   return requestAuthenticatedApi<BirthdayReminderSettings>("/api/settings/birthday-reminders", accessToken, { preferProxy: true, init: { method: "PATCH", body: JSON.stringify(body) } });
 }
 
-export type EmailTemplateKey = "booking_confirmation" | "appointment_reminder" | "rebook_nudge" | "thank_you" | "birthday";
 export type EmailTemplate = {
-  subject: string;
-  body: string;
-  allowedVariables: string[];
-  source?: "default" | "custom";
+  automationKey?: string;
   defaultVersion?: string;
+  defaultSubject?: string;
+  defaultBody?: string;
+  effectiveSubject?: string;
+  effectiveBody?: string;
+  subject?: string;
+  body?: string;
+  allowedVariables: AutomationTemplateVariable[];
+  source?: "default" | "custom";
   updatedAt?: string | null;
-  configuration?: { mode: "simple" | "advanced"; layoutVersion?: string };
+  updatedByUserId?: string | null;
+  mode?: EmailTemplateMode;
+  simple?: { notes: string | null; layoutVersion?: string; previewSampleData?: Record<string, unknown> };
+  advanced?: { subject: string; body: string; source?: "default" | "custom"; previewSampleData?: Record<string, unknown> };
+  preview?: { mode: EmailTemplateMode; sampleData?: Record<string, unknown> };
+  /** @deprecated Compatibility with the pre-handoff response shape. */
+  configuration?: { mode: EmailTemplateMode; layoutVersion?: string };
   [key: string]: unknown;
 };
 export type EmailTemplateContent = { subject: string; body: string };
@@ -2304,11 +2384,11 @@ export async function getEmailTemplate(accessToken: string, key: EmailTemplateKe
 export async function updateEmailTemplate(accessToken: string, key: EmailTemplateKey, body: EmailTemplateContent) { return requestAuthenticatedApi<EmailTemplate>(emailTemplatePath(key), accessToken, { preferProxy: true, init: { method: "PUT", body: JSON.stringify(body) } }); }
 export async function previewEmailTemplate(accessToken: string, key: EmailTemplateKey, body: EmailTemplateContent) { return requestAuthenticatedApi<EmailCopyPreview>(`${emailTemplatePath(key)}/preview`, accessToken, { preferProxy: true, init: { method: "POST", body: JSON.stringify(body) } }); }
 export async function resetEmailTemplate(accessToken: string, key: EmailTemplateKey) { return requestAuthenticatedApi<EmailTemplate>(`${emailTemplatePath(key)}/reset`, accessToken, { preferProxy: true, init: { method: "POST" } }); }
-export async function updateEmailTemplateMode(accessToken: string, key: "booking_confirmation" | "appointment_reminder", mode: "simple" | "advanced") { return requestAuthenticatedApi<EmailTemplate>(`${emailTemplatePath(key)}/mode`, accessToken, { preferProxy: true, init: { method: "PATCH", body: JSON.stringify({ mode }) } }); }
-export async function updateSimpleEmailTemplate(accessToken: string, key: "booking_confirmation" | "appointment_reminder", body: SimpleEmailTemplateContent) { return requestAuthenticatedApi<EmailTemplate>(`${emailTemplatePath(key)}/simple`, accessToken, { preferProxy: true, init: { method: "PUT", body: JSON.stringify(body) } }); }
-export async function previewSimpleEmailTemplate(accessToken: string, key: "booking_confirmation" | "appointment_reminder", body: SimpleEmailTemplateContent) { return requestAuthenticatedApi<EmailCopyPreview>(`${emailTemplatePath(key)}/simple/preview`, accessToken, { preferProxy: true, init: { method: "POST", body: JSON.stringify(body) } }); }
-export async function updateAdvancedEmailTemplate(accessToken: string, key: "booking_confirmation" | "appointment_reminder", body: EmailTemplateContent) { return requestAuthenticatedApi<EmailTemplate>(`${emailTemplatePath(key)}/advanced`, accessToken, { preferProxy: true, init: { method: "PUT", body: JSON.stringify(body) } }); }
-export async function previewAdvancedEmailTemplate(accessToken: string, key: "booking_confirmation" | "appointment_reminder", body: EmailTemplateContent) { return requestAuthenticatedApi<EmailCopyPreview>(`${emailTemplatePath(key)}/advanced/preview`, accessToken, { preferProxy: true, init: { method: "POST", body: JSON.stringify(body) } }); }
+export async function updateEmailTemplateMode(accessToken: string, key: EmailTemplateKey, mode: EmailTemplateMode) { return requestAuthenticatedApi<EmailTemplate>(`${emailTemplatePath(key)}/mode`, accessToken, { preferProxy: true, init: { method: "PATCH", body: JSON.stringify({ mode }) } }); }
+export async function updateSimpleEmailTemplate(accessToken: string, key: EmailTemplateKey, body: SimpleEmailTemplateContent) { return requestAuthenticatedApi<EmailTemplate>(`${emailTemplatePath(key)}/simple`, accessToken, { preferProxy: true, init: { method: "PUT", body: JSON.stringify(body) } }); }
+export async function previewSimpleEmailTemplate(accessToken: string, key: EmailTemplateKey, body: SimpleEmailTemplateContent) { return requestAuthenticatedApi<EmailCopyPreview>(`${emailTemplatePath(key)}/simple/preview`, accessToken, { preferProxy: true, init: { method: "POST", body: JSON.stringify(body) } }); }
+export async function updateAdvancedEmailTemplate(accessToken: string, key: EmailTemplateKey, body: EmailTemplateContent) { return requestAuthenticatedApi<EmailTemplate>(`${emailTemplatePath(key)}/advanced`, accessToken, { preferProxy: true, init: { method: "PUT", body: JSON.stringify(body) } }); }
+export async function previewAdvancedEmailTemplate(accessToken: string, key: EmailTemplateKey, body: EmailTemplateContent) { return requestAuthenticatedApi<EmailCopyPreview>(`${emailTemplatePath(key)}/advanced/preview`, accessToken, { preferProxy: true, init: { method: "POST", body: JSON.stringify(body) } }); }
 
 export type ReferralProgramSettings = {
   enabled: boolean;

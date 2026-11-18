@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const api = vi.hoisted(() => ({ cancelCampaign: vi.fn(), cancelScheduledOutreach: vi.fn(), createCampaignDraft: vi.fn(), getAccountAccess: vi.fn(), getActivityApprovals: vi.fn(), getAutomationBootstrap: vi.fn(), getBookingInquiries: vi.fn(), getCampaign: vi.fn(), getCampaigns: vi.fn(), getPendingOutreachApprovals: vi.fn(), getScheduledOutreach: vi.fn(), getSentOutreach: vi.fn(), getWaitlistEntries: vi.fn(), setAutomationEnabled: vi.fn(), updateAutomationChannels: vi.fn() }));
+const api = vi.hoisted(() => ({ cancelCampaign: vi.fn(), cancelScheduledOutreach: vi.fn(), createCampaignDraft: vi.fn(), getAccountAccess: vi.fn(), getActivityApprovals: vi.fn(), getAutomationBootstrap: vi.fn(), getAutomationTemplateKey: vi.fn((key: string) => ({ booking_confirmations: "booking_confirmation", appointment_reminders: "appointment_reminder", rebook_nudges: "rebook_nudge", thank_you_emails: "thank_you", birthday_reminders: "birthday" } as Record<string, string>)[key] ?? null), getBookingInquiries: vi.fn(), getCampaign: vi.fn(), getCampaigns: vi.fn(), getPendingOutreachApprovals: vi.fn(), getScheduledOutreach: vi.fn(), getSentOutreach: vi.fn(), getWaitlistEntries: vi.fn() }));
 const auth = vi.hoisted(() => ({ withActiveAccount: vi.fn() }));
 
 vi.mock("@/src/lib/api", () => ({ ...api, ApiError: class ApiError extends Error { constructor(message: string, readonly status: number) { super(message); } } }));
@@ -12,8 +12,9 @@ import { MessagesScreen } from "./MessagesScreen";
 
 const fullAccess = { status: "active", isActive: true, mode: "full", activatedAt: null, currentPeriodEndsAt: null, deactivatedAt: null };
 const automations = { controls: [
-  { key: "booking_confirmations", label: "Booking confirmations", enabled: true, feature_available: true, unavailable_reason: null, mode: "automatic", status_label: "Active", settings_version: 7, channels: { email: { available: true, enabled: true, unavailable_reason: null, unavailable_reason_code: null }, sms: { available: true, enabled: false, unavailable_reason: null, unavailable_reason_code: null } } },
-  { key: "rebook_nudges", label: "Rebook nudges", enabled: false, feature_available: false, unavailable_reason: "Complete setup first.", mode: "approval_required", status_label: "Unavailable", settings_version: 3, channels: { email: { available: false, enabled: false, unavailable_reason: "Complete setup first.", unavailable_reason_code: "setup_required" }, sms: { available: false, enabled: false, unavailable_reason: "Text is unavailable", unavailable_reason_code: "unavailable" } } },
+  { key: "booking_confirmations", label: "Booking confirmations", enabled: false, feature_available: true, unavailable_reason: null, mode: "automatic", status_label: "Delivered automatically", settings_version: 7, pending_approval_count: 0, queued_count: 4, scheduled_count: 6, channels: { email: { available: true, enabled: true, unavailable_reason: null, unavailable_reason_code: null }, sms: { available: true, enabled: false, unavailable_reason: null, unavailable_reason_code: null } } },
+  { key: "rebook_nudges", label: "Rebook nudges", enabled: true, feature_available: false, unavailable_reason: "Complete setup first.", mode: "approval_required", status_label: "Unavailable", settings_version: null, pending_approval_count: 2, queued_count: 1, scheduled_count: 0, channels: { email: { available: false, enabled: false, unavailable_reason: "Complete setup first.", unavailable_reason_code: "setup_required" }, sms: { available: false, enabled: false, unavailable_reason: "Text is unavailable", unavailable_reason_code: "unavailable" } } },
+  { key: "waitlist_match", label: "Waitlist", enabled: false, feature_available: true, unavailable_reason: null, mode: null, status_label: "Watching for matches", settings_version: null, pending_approval_count: null, queued_count: 3, scheduled_count: null, channels: { email: { available: true, enabled: false, unavailable_reason: null, unavailable_reason_code: null }, sms: { available: false, enabled: false, unavailable_reason: "Text notifications are unavailable", unavailable_reason_code: "unavailable" } } },
 ] };
 
 describe("MessagesScreen shell", () => {
@@ -29,8 +30,6 @@ describe("MessagesScreen shell", () => {
     api.getSentOutreach.mockResolvedValue({ data: [], next_cursor: null });
     api.getCampaigns.mockResolvedValue({ data: [] });
     api.getAutomationBootstrap.mockResolvedValue(automations);
-    api.setAutomationEnabled.mockResolvedValue({});
-    api.updateAutomationChannels.mockResolvedValue({});
     api.createCampaignDraft.mockResolvedValue({ id: "draft-new" });
     api.getCampaign.mockResolvedValue({ id: "campaign-1", status: "scheduled", allowed_actions: ["view", "cancel"], metrics: { recipients: { total: 3, eligible: 3, queued: 3, sending: 0, sent: 0, delivered: 0, failed: 0, skipped: 0, cancelled: 0 }, attribution: { booked_count: 0, booked_revenue_cents: 0, currency: "USD" }, delivery_analytics: { opens: { available: false }, clicks: { available: false } }, link_visits_approximate: 0 }, attributed_appointments: [], delivery_issues: [] });
     api.cancelCampaign.mockResolvedValue({ id: "campaign-1", status: "cancelled" });
@@ -143,6 +142,14 @@ describe("MessagesScreen shell", () => {
     expect(api.getWaitlistEntries).toHaveBeenCalledWith("token-1");
   });
 
+  it("opens the requested waitlist queue in Manage", async () => {
+    api.getWaitlistEntries.mockResolvedValue({ available: true, data: [{ id: "waitlist-1", client_name: "Ava", requested_dates: ["2026-12-01"] }] });
+    render(<MessagesScreen initialTab="manage" focusWaitlist />);
+    expect(await screen.findByRole("heading", { name: "Manage" })).not.toBeNull();
+    expect(screen.getByRole("button", { name: /Waitlist/ }).getAttribute("aria-expanded")).toBe("true");
+    expect(screen.getByText("Ava")).not.toBeNull();
+  });
+
   it("filters Needs Attention rows and permits only one expanded category", async () => {
     api.getBookingInquiries.mockResolvedValue([
       { id: "inquiry-open", status: "new", preferred_name: "Ava", desired_outcome: "Warm dimensional color" },
@@ -158,7 +165,7 @@ describe("MessagesScreen shell", () => {
 
     const inquiries = await screen.findByRole("button", { name: /Booking Inquiries/ });
     expect(screen.getByText("Pending Approvals")).not.toBeNull();
-    expect(screen.queryByText("Waitlist")).toBeNull();
+    expect(screen.queryByRole("button", { name: /Waitlist/ })).toBeNull();
     fireEvent.click(inquiries);
     expect(await screen.findByText("Warm dimensional color")).not.toBeNull();
     expect(screen.queryByText("Hidden")).toBeNull();
@@ -168,7 +175,7 @@ describe("MessagesScreen shell", () => {
     expect(screen.queryByText("Warm dimensional color")).toBeNull();
   });
 
-  it("renders capability-aware Always On automations and uses the existing editor routes", async () => {
+  it("renders capability-driven automation summaries without legacy mutation controls", async () => {
     render(<MessagesScreen />);
     fireEvent.click(await screen.findByRole("button", { name: "Manage" }));
 
@@ -176,10 +183,15 @@ describe("MessagesScreen shell", () => {
     expect(screen.getByText("Sends automatically")).not.toBeNull();
     expect(screen.getByText("Review before sending")).not.toBeNull();
     expect(screen.getAllByText("Complete setup first.")).not.toHaveLength(0);
-    expect(screen.getAllByRole("link", { name: "Edit" })[0]?.getAttribute("href")).toBe("/settings/email-templates/booking_confirmation");
-
-    fireEvent.click(screen.getByRole("checkbox", { name: "Enable Email for Booking confirmations" }));
-    await waitFor(() => expect(api.updateAutomationChannels).toHaveBeenCalledWith("token-1", "booking_confirmations", { settings_version: 7, email: false, sms: false }));
+    expect(screen.getByText("Server status: Delivered automatically")).not.toBeNull();
+    expect(screen.getAllByText("Queued").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Scheduled").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Pending approval").length).toBeGreaterThan(0);
+    expect(screen.getByText("Text notifications are unavailable")).not.toBeNull();
+    expect(screen.getByRole("link", { name: "Configure Booking confirmations" }).getAttribute("href")).toBe("/settings/email-templates/booking_confirmation");
+    expect(screen.getByRole("link", { name: "Configure Rebook nudges" }).getAttribute("href")).toBe("/settings/automations/rebook-nudges");
+    expect(screen.getByRole("link", { name: "View waitlist" }).getAttribute("href")).toBe("/settings/automations/waitlist");
+    expect(screen.queryByRole("checkbox")).toBeNull();
   });
 
   it("lists only draft, scheduled, and sending campaigns without inventing audience metrics", async () => {
