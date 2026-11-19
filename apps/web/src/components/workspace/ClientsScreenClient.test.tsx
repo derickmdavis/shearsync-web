@@ -215,6 +215,28 @@ describe("ClientsScreenClient", () => {
     expect(api.createClient).toHaveBeenCalledWith("token-1", expect.objectContaining({ email: "eli@example.com" }));
   });
 
+  it("presents native-screen controls and protects an entered draft when going back", async () => {
+    const confirm = vi.spyOn(globalThis, "confirm").mockReturnValueOnce(false).mockReturnValueOnce(true);
+    render(<ClientsScreenClient />);
+    await screen.findByRole("button", { name: /Ava Martinez/ });
+    fireEvent.click(screen.getByRole("button", { name: /Add Client/ }));
+
+    expect(screen.getByRole("dialog", { name: "Add Client" })).toBeTruthy();
+    expect(document.body.style.overflow).toBe("hidden");
+    expect(screen.getByLabelText("Birthday DD/MM").getAttribute("inputmode")).toBe("numeric");
+    expect(screen.getByLabelText("Phone").getAttribute("type")).toBe("tel");
+    expect(screen.getByLabelText("Email").getAttribute("autocapitalize")).toBe("none");
+
+    fireEvent.change(screen.getByLabelText("First name"), { target: { value: "Nia" } });
+    fireEvent.click(screen.getByRole("button", { name: "Back to clients" }));
+    expect(confirm).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole("dialog", { name: "Add Client" })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "Back to clients" }));
+    expect(screen.queryByRole("dialog", { name: "Add Client" })).toBeNull();
+    expect(document.body.style.overflow).toBe("");
+  });
+
   it("rejects invalid birthdays and verifies before another ambiguous create attempt", async () => {
     const { ApiError } = await import("@/src/lib/api");
     api.createClient.mockRejectedValueOnce(new ApiError("dropped", 0));
