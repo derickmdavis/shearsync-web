@@ -89,6 +89,14 @@ export function getWebAppUrl(path = "/") {
   return joinOriginAndPath(getWebAppOrigin(), path);
 }
 
-export function getAuthRecoveryUrl() {
-  return getWebAppUrl("/reset-password");
+export function getAuthRecoveryUrl(browserOrigin?: string) {
+  const currentOrigin =
+    browserOrigin ??
+    (typeof window === "undefined" ? getWebAppOrigin() : window.location.origin);
+  const canonicalOrigin =
+    currentOrigin === "https://rootfoil.app"
+      ? PRODUCTION_WEB_APP_ORIGIN
+      : currentOrigin;
+
+  return joinOriginAndPath(canonicalOrigin, "/reset-password");
 }
