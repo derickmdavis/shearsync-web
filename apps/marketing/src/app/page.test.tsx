@@ -34,33 +34,15 @@ vi.mock("next/link", () => ({
   ),
 }));
 
-describe("HomePage waitlist modal", () => {
-  it("opens with the refined waitlist copy and closes from the dialog control", () => {
+describe("HomePage", () => {
+  it("links waitlist calls to the dedicated waitlist page", () => {
     render(<HomePage />);
 
-    fireEvent.click(screen.getAllByRole("button", { name: "Join Waitlist" })[0]);
-
-    expect(screen.getByRole("dialog")).toBeTruthy();
-    expect(
-      screen.getByText(
-        "Root & Foil is opening first to a small group of independent stylists and barbers.",
-      ),
-    ).toBeTruthy();
-    expect(
-      screen.getByText(
-        "Be among the first to experience a simpler way to book, manage, and grow your business.",
-      ),
-    ).toBeTruthy();
-    expect(screen.getByRole("button", { name: "GET EARLY ACCESS" })).toBeTruthy();
-    expect(
-      screen.getByText("We'll be in touch when early access opens."),
-    ).toBeTruthy();
-    expect(screen.queryByText("Private beta")).toBeNull();
-    expect(screen.queryByText(/No account is created/i)).toBeNull();
-
-    fireEvent.click(screen.getByRole("button", { name: "Close waitlist form" }));
-
-    expect(screen.queryByRole("dialog")).toBeNull();
+    const callsToAction = screen.getAllByRole("link", { name: /Join (the )?waitlist/i });
+    expect(callsToAction).toHaveLength(2);
+    callsToAction.forEach((callToAction) => {
+      expect(callToAction.getAttribute("href")).toBe("/waitlist");
+    });
   });
 
   it("switches the mobile philosophy message from the accessible selector", () => {

@@ -143,38 +143,6 @@ function MarketingLink({
   );
 }
 
-function MarketingButton({
-  children,
-  onClick,
-  variant = "primary",
-  className = "",
-}: {
-  children: ReactNode;
-  onClick: () => void;
-  variant?: "primary" | "nav";
-  className?: string;
-}) {
-  const styles = {
-    primary:
-      "border border-[rgba(138,85,40,0.65)] bg-gradient-to-b from-[#C98A44] via-[#B07A3E] to-[#A96A32] text-white shadow-[0_18px_38px_rgba(176,122,62,0.20)] hover:border-brand-dark hover:from-[#B97939] hover:to-[#996534]",
-    nav: "border border-[rgba(138,85,40,0.55)] bg-gradient-to-b from-[#C98A44] to-[#B07A3E] text-white shadow-[0_12px_28px_rgba(176,122,62,0.20)] hover:border-brand-dark hover:from-[#996534] hover:to-[#996534]",
-  };
-
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={[
-        "inline-flex h-11 items-center justify-center rounded-[8px] px-6 font-display text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-brand/35 focus:ring-offset-2 focus:ring-offset-[#F6F1E8]",
-        styles[variant],
-        className,
-      ].join(" ")}
-    >
-      {children}
-    </button>
-  );
-}
-
 function BrandLogo({ className = "" }: { className?: string }) {
   return (
     <Link
@@ -334,7 +302,7 @@ function HeroCarousel() {
   );
 }
 
-function HomeHero({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
+function HomeHero() {
   return (
     <section
       id="top"
@@ -371,12 +339,12 @@ function HomeHero({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
           </p>
 
           <div className="mt-6 flex gap-2 sm:justify-center sm:gap-3 lg:justify-start lg:mt-7">
-            <MarketingButton
-              onClick={onJoinWaitlist}
+            <MarketingLink
+              href="/waitlist"
               className="h-11 flex-1 border-[#E3B166] !bg-[#D6A85A] px-3 !font-sans !text-[13px] !font-semibold !text-[#17120C] !shadow-[0_10px_24px_rgba(214,168,90,0.18)] hover:!bg-[#E3B166] sm:flex-none sm:px-6"
             >
               Join Waitlist
-            </MarketingButton>
+            </MarketingLink>
             <MarketingLink
               href="#product"
               variant="secondary"
@@ -539,7 +507,7 @@ function PhilosophyMessage({ index }: { index: number }) {
   );
 }
 
-function HomePricing({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
+function HomePricing() {
   const [activePhilosophy, setActivePhilosophy] = useState(0);
 
   return (
@@ -641,9 +609,9 @@ function HomePricing({ onJoinWaitlist }: { onJoinWaitlist: () => void }) {
           </div>
 
           <div className="px-6 pb-8 sm:px-10 sm:pb-10 lg:pb-12">
-            <MarketingButton onClick={onJoinWaitlist} className="h-14 w-full !border-[#111111] !bg-[#111111] !px-8 !font-sans !text-base !text-white !shadow-none hover:!bg-[#2A2522] sm:mx-auto sm:w-[352px]">
+            <MarketingLink href="/waitlist" className="h-14 w-full !border-[#111111] !bg-[#111111] !px-8 !font-sans !text-base !text-white !shadow-none hover:!bg-[#2A2522] sm:mx-auto sm:w-[352px]">
               Join the waitlist
-            </MarketingButton>
+            </MarketingLink>
           </div>
         </div>
       </div>
@@ -1031,17 +999,12 @@ function HomeFooter() {
 }
 
 export default function HomePage() {
-  const [waitlistOpen, setWaitlistOpen] = useState(false);
-  const openWaitlist = () => setWaitlistOpen(true);
-  const closeWaitlist = () => setWaitlistOpen(false);
-
   return (
     <main className="min-h-screen bg-[#F6F1E8] text-[#111111]">
-      <HomeHero onJoinWaitlist={openWaitlist} />
+      <HomeHero />
       <HomeProductPillars />
-      <HomePricing onJoinWaitlist={openWaitlist} />
+      <HomePricing />
       <HomeFooter />
-      <WaitlistModal open={waitlistOpen} onClose={closeWaitlist} />
     </main>
   );
 }
