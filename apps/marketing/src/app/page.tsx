@@ -162,24 +162,6 @@ function BrandLogo({ className = "" }: { className?: string }) {
   );
 }
 
-function HomeNav() {
-  return (
-    <nav
-      className="relative z-20 mx-auto flex h-[72px] max-w-[1280px] items-center justify-between px-5 sm:px-8 lg:h-[84px] lg:px-12"
-      aria-label="Primary"
-    >
-      <div className="ml-auto flex items-center">
-        <Link
-          href={loginHref}
-          className="inline-flex h-9 items-center justify-center rounded-[8px] border border-[#D6A85A]/70 bg-transparent px-3 text-xs font-semibold text-[#FAF7F2] transition-colors hover:border-[#F0CD8A] hover:bg-[#D6A85A]/10 focus:outline-none focus:ring-2 focus:ring-[#D6A85A]/70 sm:px-4 lg:h-10 lg:px-5 lg:text-sm"
-        >
-          Sign in
-        </Link>
-      </div>
-    </nav>
-  );
-}
-
 const heroSlides = [
   {
     src: "/assets/hero/hero-stay-booked.png",
@@ -308,8 +290,6 @@ function HomeHero() {
       id="top"
       className="relative isolate overflow-hidden bg-[#080807] text-[#FAF7F2]"
     >
-      <HomeNav />
-
       <div className="relative z-10 mx-auto grid max-w-[1280px] gap-8 px-5 pb-10 pt-2 sm:px-8 sm:pb-14 lg:min-h-[620px] lg:grid-cols-[0.8fr_1.2fr] lg:items-center lg:gap-3 lg:px-12 lg:pb-10 lg:pt-0">
         <div className="mx-auto max-w-[560px] text-center lg:mx-0 lg:text-left">
           <Image
@@ -324,13 +304,9 @@ function HomeHero() {
             Designed for independent stylists and barbers
           </p>
 
-          <h1 className="mt-5 whitespace-nowrap font-display text-[clamp(23px,7.4vw,38px)] font-semibold leading-[0.91] tracking-[-0.05em] text-[#FAF7F2] sm:text-[52px] lg:mt-6 lg:text-[68px] lg:tracking-[-0.025em] xl:text-[76px]">
+          <h1 className="mt-5 text-balance font-display text-[clamp(23px,7.4vw,38px)] font-semibold leading-[0.91] tracking-[-0.05em] text-[#FAF7F2] sm:text-[52px] lg:mt-6 lg:text-[68px] lg:tracking-[-0.025em] xl:text-[76px]">
             Growth starts at the roots.
           </h1>
-
-          <h2 className="mt-4 font-display text-[clamp(20px,5.7vw,27px)] font-semibold leading-tight tracking-[-0.01em] text-[#D6A85A] lg:mt-5 lg:text-[27px]">
-            You built the roots – we add the lift.
-          </h2>
 
           <p className="mx-auto mt-4 max-w-[500px] text-[15px] leading-6 text-[#E5DED4] sm:text-[16px] sm:leading-7 lg:mx-0 lg:mt-6">
             Root &amp; Foil helps you stay booked, remember every client, and

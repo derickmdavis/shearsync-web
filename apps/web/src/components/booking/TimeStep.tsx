@@ -11,6 +11,9 @@ import {
 type AvailabilityDayPreview = {
   date: string;
   slots: PublicSlot[];
+  recommendedSlots?: PublicSlot[];
+  moreSlots?: PublicSlot[];
+  hasMore?: boolean;
 };
 
 type TimeStepProps = {
@@ -54,7 +57,26 @@ export function TimeStep({
   const selectedDay = selectedDate
     ? upcomingDays.find((day) => day.date === selectedDate) ?? null
     : null;
+  const [timeListExpansion, setTimeListExpansion] = useState({
+    date: "",
+    expanded: false,
+  });
   const showEmptyState = !loading && !error && upcomingDays.length === 0;
+  const showAllTimes =
+    timeListExpansion.date === selectedDate && timeListExpansion.expanded;
+
+  const recommendedSlots = selectedDay?.recommendedSlots ?? selectedDay?.slots ?? [];
+  const moreSlots = selectedDay?.moreSlots ?? [];
+  const selectedSlotIsRecommended = recommendedSlots.some(
+    (slot) => slot.start === selectedSlot?.start,
+  );
+  // A visitor can select an expanded-only time, then collapse the list. Keep
+  // that choice in view so its selected state is never lost.
+  const visibleSlots = showAllTimes || !selectedDay
+    ? [...recommendedSlots, ...moreSlots]
+    : selectedSlot && !selectedSlotIsRecommended
+      ? [...recommendedSlots, selectedSlot]
+      : recommendedSlots;
 
   function handleSlotSelection(slot: PublicSlot) {
     if (!selectedDate) return;
@@ -166,8 +188,9 @@ export function TimeStep({
               {selectedDate ? formatSelectedDate(selectedDate, timezone) : "Choose a date"}
             </h3>
             {selectedDay ? (
-              <div className="mt-6 grid grid-cols-3 gap-3">
-                {selectedDay.slots.map((slot) => (
+              <>
+                <div className="mt-6 grid grid-cols-3 gap-3">
+                {visibleSlots.map((slot) => (
                   <TimeSlotPill
                     key={slot.start}
                     slot={slot}
@@ -176,7 +199,21 @@ export function TimeStep({
                     onSelect={() => handleSlotSelection(slot)}
                   />
                 ))}
-              </div>
+                </div>
+                {selectedDay.hasMore ? (
+                  <button
+                    type="button"
+                    aria-expanded={showAllTimes}
+                    onClick={() => setTimeListExpansion({
+                      date: selectedDate ?? "",
+                      expanded: !showAllTimes,
+                    })}
+                    className="mt-5 w-full rounded-xl border border-border/70 bg-white/65 px-4 py-3 text-sm font-semibold text-brand transition-colors hover:border-brand hover:bg-brand-soft"
+                  >
+                    {showAllTimes ? "Show fewer times" : "View all available times"}
+                  </button>
+                ) : null}
+              </>
             ) : (
               <p className="mt-4 text-sm leading-6 text-muted">
                 No appointment times are available for this date.

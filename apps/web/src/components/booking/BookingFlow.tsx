@@ -80,6 +80,15 @@ type BookingInquiryHandoffState =
 type AvailabilityDayPreview = {
   date: string;
   slots: PublicSlot[];
+  recommendedSlots?: PublicSlot[];
+  moreSlots?: PublicSlot[];
+  hasMore?: boolean;
+};
+
+type SlotDisplayGroup = {
+  recommendedSlots: PublicSlot[];
+  moreSlots: PublicSlot[];
+  hasMore: boolean;
 };
 
 function filterRejectedSlots(slots: PublicSlot[], rejectedStarts: string[]) {
@@ -99,6 +108,14 @@ function getBookableSlots(response: PublicSlotsResponse) {
   });
 
   return Array.from(slotMap.values());
+}
+
+function getSlotDisplayGroup(response: PublicSlotsResponse): SlotDisplayGroup {
+  return {
+    recommendedSlots: response.slots ?? [],
+    moreSlots: response.moreSlots ?? [],
+    hasMore: response.hasMore === true,
+  };
 }
 
 function normalizeReferralCode(value?: string | null) {
@@ -278,6 +295,9 @@ export function BookingFlow({
   const [slotPreviews, setSlotPreviews] = useState<
     Record<string, PublicSlot[]>
   >({});
+  const [slotDisplayGroups, setSlotDisplayGroups] = useState<
+    Record<string, SlotDisplayGroup>
+  >({});
   const [selectedSlot, setSelectedSlot] = useState<PublicSlot | null>(null);
   const [rejectedSlotStarts, setRejectedSlotStarts] = useState<string[]>([]);
   const [availabilityLoading, setAvailabilityLoading] = useState(false);
@@ -351,6 +371,20 @@ export function BookingFlow({
               : []),
           rejectedSlotStarts,
         ),
+        recommendedSlots: filterRejectedSlots(
+          slotDisplayGroups[date]?.recommendedSlots ?? [],
+          rejectedSlotStarts,
+        ),
+        moreSlots: filterRejectedSlots(
+          slotDisplayGroups[date]?.moreSlots ?? [],
+          rejectedSlotStarts,
+        ),
+        hasMore:
+          slotDisplayGroups[date]?.hasMore === true &&
+          filterRejectedSlots(
+            slotDisplayGroups[date]?.moreSlots ?? [],
+            rejectedSlotStarts,
+          ).length > 0,
       }))
       .filter((day) => day.slots.length > 0);
   }, [
@@ -358,6 +392,7 @@ export function BookingFlow({
     loadedSlotsDate,
     rejectedSlotStarts,
     selectedDate,
+    slotDisplayGroups,
     slotPreviews,
     slots,
   ]);
@@ -443,6 +478,7 @@ export function BookingFlow({
     setSlots([]);
     setLoadedSlotsDate("");
     setSlotPreviews({});
+    setSlotDisplayGroups({});
     setSelectedSlot(null);
     setRejectedSlotStarts([]);
     setSlotsError(null);
@@ -1114,6 +1150,7 @@ export function BookingFlow({
           extractAvailabilityTimezone(availability) ?? stylist.timezone ?? null;
         let nextSelectedDate = candidateDates[0] ?? "";
         let nextSlots: PublicSlot[] = [];
+        let nextSlotDisplayGroup: SlotDisplayGroup | null = null;
 
         for (const date of candidateDates) {
           const response = await getSlotsForDate(date, {
@@ -1134,6 +1171,7 @@ export function BookingFlow({
           if (responseSlots.length > 0) {
             nextSelectedDate = date;
             nextSlots = responseSlots;
+            nextSlotDisplayGroup = getSlotDisplayGroup(response);
             break;
           }
         }
@@ -1142,6 +1180,11 @@ export function BookingFlow({
         setDateOptions(candidateDates);
         setSelectedDate(nextSelectedDate);
         setSlotPreviews(nextSlots.length ? { [nextSelectedDate]: nextSlots } : {});
+        setSlotDisplayGroups(
+          nextSlots.length && nextSlotDisplayGroup
+            ? { [nextSelectedDate]: nextSlotDisplayGroup }
+            : {},
+        );
         setSlots(nextSlots);
         setLoadedSlotsDate(nextSelectedDate);
       } catch (error) {
@@ -1153,6 +1196,7 @@ export function BookingFlow({
         setDateOptions(fallbackDates);
         setSelectedDate((currentDate) => currentDate || fallbackDates[0] || "");
         setSlotPreviews({});
+        setSlotDisplayGroups({});
         setSlots([]);
         setLoadedSlotsDate("");
         setSelectedSlot(null);
@@ -1225,6 +1269,10 @@ export function BookingFlow({
           ...currentPreviews,
           [selectedDate]: nextSlots,
         }));
+        setSlotDisplayGroups((currentGroups) => ({
+          ...currentGroups,
+          [selectedDate]: getSlotDisplayGroup(response),
+        }));
         setSelectedSlot((currentSlot) =>
           nextSlots.find((slot) => slot.start === currentSlot?.start) ?? null,
         );
@@ -1235,6 +1283,11 @@ export function BookingFlow({
 
         setSlots([]);
         setLoadedSlotsDate("");
+        setSlotDisplayGroups((currentGroups) => {
+          const remainingGroups = { ...currentGroups };
+          delete remainingGroups[selectedDate];
+          return remainingGroups;
+        });
         setSelectedSlot(null);
         setSlotsError(
           error instanceof Error
@@ -1431,6 +1484,10 @@ export function BookingFlow({
         ...currentPreviews,
         [selectedDate]: nextSlots,
       }));
+      setSlotDisplayGroups((currentGroups) => ({
+        ...currentGroups,
+        [selectedDate]: getSlotDisplayGroup(response),
+      }));
       if (clearSelection) {
         setSelectedSlot(null);
       }
@@ -1442,6 +1499,11 @@ export function BookingFlow({
     } catch {
       setSlots([]);
       setLoadedSlotsDate("");
+      setSlotDisplayGroups((currentGroups) => {
+        const remainingGroups = { ...currentGroups };
+        delete remainingGroups[selectedDate];
+        return remainingGroups;
+      });
       if (clearSelection) {
         setSelectedSlot(null);
       }
