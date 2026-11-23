@@ -28,8 +28,8 @@ type ProductPillar = {
 const productPillars: ProductPillar[] = [
   {
     icon: "/assets/icons/icon-calendar-bronze.svg",
-    title: "Stay booked.",
-    body: "Professional booking page, Automated waitlists and Unlimited campaigns",
+    title: "Stay booked",
+    body: "Professional booking page, automated waitlists and unlimited campaigns.",
     screenshot: "/assets/home/stay-booked-calendar.png",
     screenshotWidth: 941,
     screenshotHeight: 1672,
@@ -38,7 +38,7 @@ const productPillars: ProductPillar[] = [
   {
     icon: "/assets/icons/icon-client-bronze.svg",
     title: "Keep clients coming back",
-    body: "Client notes, Formulas, and Rebooking reminders",
+    body: "Client notes, Formulas, and rebooking reminders",
     screenshot: "/assets/home/client-details.png",
     screenshotWidth: 1086,
     screenshotHeight: 1448,
@@ -47,7 +47,7 @@ const productPillars: ProductPillar[] = [
   {
     icon: "/assets/icons/icon-analytics-bronze.svg",
     title: "Know what’s working",
-    body: "Revenue, Capacity and At-risk clients at a glance",
+    body: "Revenue, Capacity and at-risk clients at a glance",
     screenshot: "/assets/home/root-foil-insights.png",
     screenshotWidth: 887,
     screenshotHeight: 1774,
@@ -329,7 +329,7 @@ function HomeHero() {
           <p className="mx-auto mt-4 max-w-[500px] text-[15px] leading-6 text-[#E5DED4] sm:text-[16px] sm:leading-7 lg:mx-0 lg:mt-6">
             Root &amp; Foil helps you stay booked, remember every client, and
             understand your business. You get the tools you need without the
-            complexity you don&apos;t, at a price that makes sense.
+            complexity you don&apos;t.
           </p>
 
           <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center lg:mt-7 lg:justify-start">
@@ -434,7 +434,7 @@ function HomeProductPillars() {
 }
 
 function PhilosophyIcon({ type }: { type: (typeof philosophyItems)[number]["icon"] }) {
-  const className = "h-11 w-11";
+  const className = "h-8 w-8";
 
   if (type === "target") {
     return (
@@ -472,7 +472,7 @@ function PricingFeatureIcon({ type }: { type: (typeof pricingFeatureGroups)[numb
 }
 
 function PricingCheckIcon() {
-  return <span className="mt-0.5 grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 border-[#D9892B] text-xl font-medium leading-none text-[#D9892B]" aria-hidden="true">✓</span>;
+  return <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full border border-[#D9892B] text-[11px] font-semibold leading-none text-[#D9892B]" aria-hidden="true">✓</span>;
 }
 
 function HomePricing() {
@@ -496,7 +496,7 @@ function HomePricing() {
                 <PhilosophyIcon type={item.icon} />
               </div>
               <div className="ml-6 lg:ml-0 lg:mt-7 lg:text-center">
-                <h3 className="font-display text-[30px] font-bold leading-[1.02] tracking-normal text-[#111111]">{item.label}</h3>
+                <h3 className="font-display text-[25px] font-bold leading-[1.02] tracking-normal text-[#111111]">{item.label}</h3>
                 <p className="mt-4 max-w-[510px] text-sm leading-7 text-[#4F4A45] lg:mx-auto">{item.body}</p>
               </div>
             </article>
@@ -518,7 +518,7 @@ function HomePricing() {
                 </header>
                 <ul className="mt-6 grid gap-3.5 sm:mt-7 sm:gap-4">
                   {group.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-4 text-sm leading-6 text-[#17120C] sm:text-base sm:leading-7">
+                    <li key={feature} className="flex items-center gap-4 text-sm leading-6 text-[#17120C] sm:text-base sm:leading-7">
                       <PricingCheckIcon />
                       <span>{feature}</span>
                     </li>
