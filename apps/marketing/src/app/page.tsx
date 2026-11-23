@@ -316,7 +316,7 @@ function HomeHero() {
             className="mx-auto mb-4 w-[151px] object-contain sm:w-[172px] lg:mx-0 lg:mb-5 lg:w-[205px]"
           />
           <h1 className="mt-5 text-balance font-display text-[clamp(23px,7.4vw,38px)] font-semibold leading-[0.91] tracking-[-0.05em] text-[#FAF7F2] sm:text-[52px] lg:mt-6 lg:text-[68px] lg:tracking-[-0.025em] xl:text-[76px]">
-            For independent hair pros
+            Built for independent beauty pros
           </h1>
 
           <p className="mx-auto mt-4 max-w-[500px] text-[15px] leading-6 text-[#E5DED4] sm:text-[16px] sm:leading-7 lg:mx-0 lg:mt-6">
