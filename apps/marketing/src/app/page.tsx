@@ -14,36 +14,43 @@ import {
 const MONTHLY_PRICE = "$25";
 const loginHref = getWebAppUrl("/login");
 
-const productPillars = [
+type ProductPillar = {
+  icon: string;
+  title: string;
+  body: string;
+  bullets?: string[];
+  screenshot: string;
+  screenshotWidth?: number;
+  screenshotHeight?: number;
+  alt: string;
+};
+
+const productPillars: ProductPillar[] = [
   {
     icon: "/assets/icons/icon-calendar-bronze.svg",
     title: "Stay booked.",
     body: "Professional booking page, Automated waitlists and Unlimited campaigns",
-    screenshot: "/assets/home/root-foil-calendar-iphone-refined.png",
+    screenshot: "/assets/home/stay-booked-calendar.png",
+    screenshotWidth: 941,
+    screenshotHeight: 1672,
     alt: "Root & Foil calendar screen showing appointments, open time, and booking controls",
   },
   {
     icon: "/assets/icons/icon-client-bronze.svg",
     title: "Keep clients coming back",
     body: "Client notes, Formulas, and Rebooking reminders",
-    bullets: [
-      "Notes, preferences, photos + complete service history",
-      "Color formulas saved to each client profile",
-      "Appointment history and rebooking patterns at a glance",
-    ],
-    screenshot: "/assets/home/root-foil-clients-iphone-refined.png",
+    screenshot: "/assets/home/client-details.png",
+    screenshotWidth: 1086,
+    screenshotHeight: 1448,
     alt: "Root & Foil clients screen showing client list, notes, and client history",
   },
   {
     icon: "/assets/icons/icon-analytics-bronze.svg",
     title: "Know what’s working",
     body: "Revenue, Capacity and At-risk clients at a glance",
-    bullets: [
-      "Client insights — retention, rebooking, and visit patterns",
-      "Revenue insights — average ticket, top services, and trends",
-      "Scheduling insights — booking patterns, gaps, and opportunities",
-    ],
-    screenshot: "/assets/home/root-foil-insights-iphone-refined.png",
+    screenshot: "/assets/home/root-foil-insights.png",
+    screenshotWidth: 887,
+    screenshotHeight: 1774,
     alt: "Root & Foil dashboard screen showing business snapshot and revenue insights",
   },
 ];
@@ -411,8 +418,8 @@ function HomeProductPillars() {
                   <Image
                     src={card.screenshot}
                     alt={card.alt}
-                    width={1122}
-                    height={1402}
+                    width={card.screenshotWidth ?? 1122}
+                    height={card.screenshotHeight ?? 1402}
                     sizes="(min-width: 1024px) 300px, (min-width: 768px) 34vw, 78vw"
                     className="h-auto max-h-[360px] w-auto object-contain sm:max-h-[380px] lg:max-h-[410px]"
                   />
@@ -473,10 +480,10 @@ function HomePricing() {
     <section id="pricing" className="border-t border-[rgba(200,164,107,0.30)] bg-transparent px-5 py-20 text-[#111111] sm:px-8 sm:py-24 lg:py-28">
       <div className="mx-auto max-w-[980px]">
         <div className="mx-auto max-w-[760px] text-center">
-          <h2 className="font-display text-[42px] font-semibold leading-[1.02] tracking-[-0.03em] sm:text-[52px] lg:text-[64px]">
+          <h2 className="font-display text-[38px] font-bold leading-[1.02] tracking-[-0.01em] sm:text-[48px] lg:text-[56px]">
             Why Root &amp; <span className="text-brand">Foil</span>
           </h2>
-          <p className="mx-auto mt-7 max-w-[700px] text-[22px] leading-[1.35] tracking-[0.01em] text-[#4F4A45] sm:text-[25px] lg:text-[28px]">
+          <p className="mx-auto mt-5 max-w-[720px] text-[15px] leading-7 text-[#4F4A45] sm:text-base">
             Premium tools. A focused experience.<br />
             One straightforward price.
           </p>
@@ -489,8 +496,8 @@ function HomePricing() {
                 <PhilosophyIcon type={item.icon} />
               </div>
               <div className="ml-6 lg:ml-0 lg:mt-7 lg:text-center">
-                <h3 className="font-display text-[36px] font-semibold leading-none tracking-[-0.025em] sm:text-[40px] lg:text-[36px]">{item.label}</h3>
-                <p className="mt-4 max-w-[510px] text-[19px] leading-[1.38] text-[#4F4A45] sm:text-[21px] lg:mx-auto lg:text-base">{item.body}</p>
+                <h3 className="font-display text-[30px] font-bold leading-[1.02] tracking-normal text-[#111111]">{item.label}</h3>
+                <p className="mt-4 max-w-[510px] text-sm leading-7 text-[#4F4A45] lg:mx-auto">{item.body}</p>
               </div>
             </article>
           ))}
@@ -498,8 +505,8 @@ function HomePricing() {
 
         <div className="mt-20 sm:mt-24">
           <header className="max-w-[760px]">
-            <h2 className="font-display text-[43px] font-semibold leading-[1.02] tracking-[-0.035em] sm:text-[54px]">One price. The tools you&apos;ll actually use.</h2>
-            <p className="mt-5 text-[20px] leading-7 text-[#70819F] sm:text-[25px]">Everything below is included for {MONTHLY_PRICE}/month.</p>
+            <h2 className="font-display text-[38px] font-bold leading-[1.02] tracking-[-0.01em] sm:text-[48px] lg:text-[56px]">One price. The tools you&apos;ll actually use.</h2>
+            <p className="mt-5 text-[15px] leading-7 text-[#70819F] sm:text-base">Everything below is included for {MONTHLY_PRICE}/month.</p>
           </header>
 
           <div className="mt-9 grid gap-5 sm:mt-12 sm:gap-6">
@@ -507,11 +514,11 @@ function HomePricing() {
               <article key={group.title} className="rounded-[26px] border border-[#E7A165] bg-[#FFFDF8]/45 px-6 py-6 sm:px-9 sm:py-8">
                 <header className="flex items-center gap-5 text-[#D9892B]">
                   <PricingFeatureIcon type={group.icon} />
-                  <h3 className="font-display text-[35px] font-semibold leading-none tracking-[-0.025em] text-[#111111] sm:text-[43px]">{group.title}</h3>
+                  <h3 className="font-display text-[30px] font-bold leading-[1.02] tracking-normal text-[#111111]">{group.title}</h3>
                 </header>
                 <ul className="mt-6 grid gap-3.5 sm:mt-7 sm:gap-4">
                   {group.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-4 text-[18px] leading-[1.35] text-[#17120C] sm:text-[21px]">
+                    <li key={feature} className="flex items-start gap-4 text-sm leading-6 text-[#17120C] sm:text-base sm:leading-7">
                       <PricingCheckIcon />
                       <span>{feature}</span>
                     </li>
