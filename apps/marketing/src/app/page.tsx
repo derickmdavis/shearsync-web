@@ -18,19 +18,14 @@ const productPillars = [
   {
     icon: "/assets/icons/icon-calendar-bronze.svg",
     title: "Stay booked.",
-    body: "Make it effortless for clients to book and keep coming back",
-    bullets: [
-      "24/7 online booking that works around your schedule.",
-      "Automated reminders to reduce no-shows",
-      "Smart outreach nudges + waitlists to keep your chair full",
-    ],
+    body: "Professional booking page, Automated waitlists and Unlimited campaigns",
     screenshot: "/assets/home/root-foil-calendar-iphone-refined.png",
     alt: "Root & Foil calendar screen showing appointments, open time, and booking controls",
   },
   {
     icon: "/assets/icons/icon-client-bronze.svg",
-    title: "Remember every client.",
-    body: "Give every client a personal, consistent experience",
+    title: "Keep clients coming back",
+    body: "Client notes, Formulas, and Rebooking reminders",
     bullets: [
       "Notes, preferences, photos + complete service history",
       "Color formulas saved to each client profile",
@@ -41,8 +36,8 @@ const productPillars = [
   },
   {
     icon: "/assets/icons/icon-analytics-bronze.svg",
-    title: "Grow with clarity.",
-    body: "Understand your client behavior and trends so you can grow with confidence.",
+    title: "Know what’s working",
+    body: "Revenue, Capacity and At-risk clients at a glance",
     bullets: [
       "Client insights — retention, rebooking, and visit patterns",
       "Revenue insights — average ticket, top services, and trends",
@@ -54,35 +49,51 @@ const productPillars = [
 ];
 
 const philosophyItems = [
-  { label: "Simple", icon: "user" },
-  { label: "Tailored", icon: "sparkle" },
-  { label: "All-Access", icon: "heart" },
+  { label: "Premium", body: "A polished experience for you and your clients.", icon: "sparkle" },
+  { label: "Focused", body: "The tools you’ll use, without the clutter.", icon: "target" },
+  { label: "All-Access", body: "Every feature for $25/month.", icon: "heart" },
 ] as const;
 
-const corePricingItems = [
-  "Every feature included",
-  "No tiers, no add-ons",
-  "Cancel anytime",
-];
-
-const includedFeatureColumns = [
-  [
-    "Online booking & custom rules",
-    "Waitlist",
-    "Client profiles & history",
-    "Formula notes & photos",
-    "Automated follow-ups",
-    "SMS Appt. reminders",
-  ],
-  [
-    "Business insights & reporting",
-    "Rebooking nudges",
-    "Referral tracking",
-    "Calendar sync",
-    "Custom email campaigns",
-    "And more",
-  ],
-];
+const pricingFeatureGroups = [
+  {
+    title: "Booking & calendar",
+    icon: "calendar",
+    features: [
+      "Custom booking page, link & settings",
+      "Your calendar and capacity, beautifully organized",
+      "Guide new clients to the right service with a booking inquiry form",
+      "Automated waitlist handling",
+    ],
+  },
+  {
+    title: "Client care",
+    icon: "clients",
+    features: [
+      "Client profiles & visit history",
+      "Notes, photos & formulas",
+      "Client spending trends & lifetime value",
+    ],
+  },
+  {
+    title: "Messages & marketing",
+    icon: "message",
+    features: [
+      "Ready-to-send messages from day one",
+      "Texts for the timely essentials: confirmations & reminders",
+      "Email for the thoughtful extras: follow-ups & rebooking nudges",
+      "Custom email campaigns for whatever’s next",
+    ],
+  },
+  {
+    title: "Insights",
+    icon: "insights",
+    features: [
+      "Business, schedule & client health at a glance",
+      "Understand what’s driving the trends in detailed cards",
+      "No fluff—just actionable insights to address at-risk clients and drive growth",
+    ],
+  },
+] as const;
 
 const footerGroups = [
   {
@@ -314,20 +325,19 @@ function HomeHero() {
             complexity you don&apos;t, at a price that makes sense.
           </p>
 
-          <div className="mt-6 flex gap-2 sm:justify-center sm:gap-3 lg:justify-start lg:mt-7">
+          <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center lg:mt-7 lg:justify-start">
             <MarketingLink
               href="/waitlist"
-              className="h-11 flex-1 border-[#E3B166] !bg-[#D6A85A] px-3 !font-sans !text-[13px] !font-semibold !text-[#17120C] !shadow-[0_10px_24px_rgba(214,168,90,0.18)] hover:!bg-[#E3B166] sm:flex-none sm:px-6"
+              className="h-11 w-full border-[#E3B166] !bg-[#D6A85A] px-3 !font-sans !text-[13px] !font-semibold !text-[#17120C] !shadow-[0_10px_24px_rgba(214,168,90,0.18)] hover:!bg-[#E3B166] sm:w-auto sm:px-6"
             >
               Join Waitlist
             </MarketingLink>
-            <MarketingLink
+            <Link
               href="#product"
-              variant="secondary"
-              className="h-11 flex-1 border-[#D6A85A] !bg-transparent px-3 !font-sans !text-[13px] !font-semibold !text-[#FAF7F2] hover:!bg-[#D6A85A]/10 hover:!text-white sm:flex-none sm:px-6"
+              className="inline-flex min-h-11 items-center justify-center px-2 font-sans text-[13px] font-semibold text-[#FAF7F2] underline decoration-[#D6A85A]/80 decoration-1 underline-offset-4 transition-colors hover:text-[#E3B166] hover:decoration-[#E3B166] focus:outline-none focus:ring-2 focus:ring-[#D6A85A] focus:ring-offset-2 focus:ring-offset-[#080807]"
             >
               See What&apos;s Included
-            </MarketingLink>
+            </Link>
           </div>
 
         </div>
@@ -378,23 +388,25 @@ function HomeProductPillars() {
                 <p className="mt-4 text-sm leading-7 text-[#4F4A45]">
                   {card.body}
                 </p>
-                <div className="mt-6 h-px w-12 bg-[#B07A3E]" />
-                <ul className="mt-6 grid gap-3">
-                  {card.bullets.map((bullet) => (
-                    <li
-                      key={bullet}
-                      className="flex gap-3 text-[13px] font-bold leading-5 text-[#4F4A45]"
-                    >
-                      <span
-                        className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-brand text-[11px] font-extrabold leading-none text-white"
-                        aria-hidden="true"
+                {card.bullets?.length ? <>
+                  <div className="mt-6 h-px w-12 bg-[#B07A3E]" />
+                  <ul className="mt-6 grid gap-3">
+                    {card.bullets.map((bullet) => (
+                      <li
+                        key={bullet}
+                        className="flex gap-3 text-[13px] font-bold leading-5 text-[#4F4A45]"
                       >
-                        ✓
-                      </span>
-                      <span>{bullet}</span>
-                    </li>
-                  ))}
-                </ul>
+                        <span
+                          className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-brand text-[11px] font-extrabold leading-none text-white"
+                          aria-hidden="true"
+                        >
+                          ✓
+                        </span>
+                        <span>{bullet}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </> : null}
                 <div className="mt-auto flex justify-center pt-8">
                   <Image
                     src={card.screenshot}
@@ -415,22 +427,23 @@ function HomeProductPillars() {
 }
 
 function PhilosophyIcon({ type }: { type: (typeof philosophyItems)[number]["icon"] }) {
-  const className = "h-6 w-6";
+  const className = "h-11 w-11";
 
-  if (type === "user") {
+  if (type === "target") {
     return (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className={className} aria-hidden="true">
-        <circle cx="12" cy="8" r="4" />
-        <path d="M4.5 20c.8-4.1 3.3-6.2 7.5-6.2s6.7 2.1 7.5 6.2" />
+      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2.8" className={className} aria-hidden="true">
+        <path d="M15 7h-4a4 4 0 0 0-4 4v5M33 7h4a4 4 0 0 1 4 4v5M15 41h-4a4 4 0 0 1-4-4v-5M33 41h4a4 4 0 0 0 4-4v-5" strokeLinecap="round" />
+        <circle cx="24" cy="24" r="8" />
+        <circle cx="24" cy="24" r="2.5" fill="currentColor" stroke="none" />
       </svg>
     );
   }
 
   if (type === "sparkle") {
     return (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className={className} aria-hidden="true">
-        <path d="m12 2 1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8L12 2Z" />
-        <path d="m19 3 .6 2.1L22 6l-2.4.9L19 9l-.6-2.1L16 6l2.4-.9L19 3Z" />
+      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2.5" className={className} aria-hidden="true">
+        <path d="m24 4 3.6 13.1L41 21l-13.4 3.9L24 38l-3.6-13.1L7 21l13.4-3.9L24 4Z" strokeLinejoin="round" />
+        <path d="m39 5 1.3 4.7L45 11l-4.7 1.3L39 17l-1.3-4.7L33 11l4.7-1.3L39 5Z" strokeLinejoin="round" />
       </svg>
     );
   }
@@ -442,152 +455,77 @@ function PhilosophyIcon({ type }: { type: (typeof philosophyItems)[number]["icon
   );
 }
 
-function CheckIcon() {
-  return (
-    <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full border border-brand text-[11px] font-bold leading-none text-brand" aria-hidden="true">
-      ✓
-    </span>
-  );
+function PricingFeatureIcon({ type }: { type: (typeof pricingFeatureGroups)[number]["icon"] }) {
+  const className = "h-12 w-12 shrink-0";
+
+  if (type === "calendar") return <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2.8" className={className} aria-hidden="true"><rect x="8" y="10" width="32" height="31" rx="4" /><path d="M8 20h32M16 5v10M32 5v10M16 28h.01M24 28h.01M32 28h.01M16 35h.01M24 35h.01M32 35h.01" strokeLinecap="round" /></svg>;
+  if (type === "clients") return <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2.8" className={className} aria-hidden="true"><circle cx="19" cy="16" r="7" /><path d="M6 39v-2a13 13 0 0 1 26 0v2M31 10a7 7 0 0 1 0 13M36 39v-2a11 11 0 0 0-5.5-9.5" strokeLinecap="round" /></svg>;
+  if (type === "message") return <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2.8" className={className} aria-hidden="true"><rect x="6" y="11" width="36" height="27" rx="3" /><path d="m7 14 17 13 17-13" strokeLinecap="round" strokeLinejoin="round" /></svg>;
+  return <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2.8" className={className} aria-hidden="true"><rect x="7" y="28" width="8" height="13" rx="1" /><rect x="20" y="20" width="8" height="21" rx="1" /><rect x="33" y="9" width="8" height="32" rx="1" /></svg>;
 }
 
-function PhilosophyMessage({ index }: { index: number }) {
-  if (index === 0) {
-    return (
-      <>
-        <h3 className="font-display text-[27px] font-bold leading-[1.05] text-[#111111] sm:text-[30px]">The simpler way to run your business.</h3>
-        <p className="mt-4 text-sm leading-7 text-[#4F4A45]">
-          An intuitive experience that makes running your business and booking with you feel effortless.
-        </p>
-      </>
-    );
-  }
-
-  if (index === 1) {
-    return (
-      <>
-        <h3 className="font-display text-[27px] font-bold leading-[1.05] text-[#111111] sm:text-[30px]">Every decision starts with you.</h3>
-        <p className="mt-4 text-sm leading-7 text-[#4F4A45]">
-          Built specifically for independent hair professionals with the tools, workflows, and insights that actually matter. Nothing generic. Nothing you don&apos;t need.
-        </p>
-      </>
-    );
-  }
-
-  return (
-    <>
-      <h3 className="font-display text-[27px] font-bold leading-[1.05] text-[#111111] sm:text-[30px]">Our best ideas aren&apos;t upgrades.</h3>
-      <p className="mt-4 text-sm leading-7 text-[#4F4A45]">
-        One experience. One price. Every feature. No locked tools or complicated tiers; you always get the full power of Root &amp; Foil.
-      </p>
-    </>
-  );
+function PricingCheckIcon() {
+  return <span className="mt-0.5 grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 border-[#D9892B] text-xl font-medium leading-none text-[#D9892B]" aria-hidden="true">✓</span>;
 }
 
 function HomePricing() {
-  const [activePhilosophy, setActivePhilosophy] = useState(0);
-
   return (
     <section id="pricing" className="border-t border-[rgba(200,164,107,0.30)] bg-transparent px-5 py-20 text-[#111111] sm:px-8 sm:py-24 lg:py-28">
-      <div className="mx-auto max-w-[1180px]">
-        <div className="mx-auto max-w-[860px] text-center">
-          <h2 className="font-display text-[38px] font-bold leading-[1.02] tracking-normal sm:text-[48px] lg:text-[56px]">
+      <div className="mx-auto max-w-[980px]">
+        <div className="mx-auto max-w-[760px] text-center">
+          <h2 className="font-display text-[42px] font-semibold leading-[1.02] tracking-[-0.03em] sm:text-[52px] lg:text-[64px]">
             Why Root &amp; <span className="text-brand">Foil</span>
           </h2>
-          <p className="mx-auto mt-5 max-w-[780px] text-[15px] leading-7 text-[#4F4A45] sm:text-base">
-            All the power. None of the bloat.
+          <p className="mx-auto mt-7 max-w-[700px] text-[22px] leading-[1.35] tracking-[0.01em] text-[#4F4A45] sm:text-[25px] lg:text-[28px]">
+            Premium tools. A focused experience.<br />
+            One straightforward price.
           </p>
         </div>
 
-        <div className="mt-12 hidden lg:grid lg:grid-cols-3 lg:divide-x lg:divide-[rgba(200,164,107,0.38)]">
-          {philosophyItems.map((item, index) => (
-            <article key={item.label} className="px-10 text-center first:pl-0 last:pr-0">
-              <div className="mx-auto grid h-[82px] w-[82px] place-items-center rounded-full border border-[rgba(176,122,62,0.12)] bg-[rgba(214,168,90,0.12)] text-brand">
+        <div className="mt-14 grid gap-5 lg:grid-cols-3 lg:gap-6">
+          {philosophyItems.map((item) => (
+            <article key={item.label} className="flex min-h-[144px] items-center rounded-[28px] border border-[rgba(190,137,70,0.48)] bg-[#FFFDF8]/40 px-6 py-6 sm:min-h-[164px] sm:px-9 lg:block lg:min-h-[300px] lg:px-8 lg:py-10">
+              <div className="shrink-0 text-brand lg:mx-auto lg:grid lg:h-20 lg:w-20 lg:place-items-center lg:rounded-full lg:bg-[rgba(214,168,90,0.1)]">
                 <PhilosophyIcon type={item.icon} />
               </div>
-              <div className="mx-auto mt-6 max-w-[270px]">
-                <PhilosophyMessage index={index} />
+              <div className="ml-6 lg:ml-0 lg:mt-7 lg:text-center">
+                <h3 className="font-display text-[36px] font-semibold leading-none tracking-[-0.025em] sm:text-[40px] lg:text-[36px]">{item.label}</h3>
+                <p className="mt-4 max-w-[510px] text-[19px] leading-[1.38] text-[#4F4A45] sm:text-[21px] lg:mx-auto lg:text-base">{item.body}</p>
               </div>
             </article>
           ))}
         </div>
 
-        <div className="mt-9 lg:hidden">
-          <div className="grid grid-cols-3 overflow-hidden rounded-full border border-[rgba(176,122,62,0.38)] p-1" role="tablist" aria-label="Why Root & Foil feels different">
-            {philosophyItems.map((item, index) => {
-              const selected = activePhilosophy === index;
-              return (
-                <button
-                  key={item.label}
-                  type="button"
-                  role="tab"
-                  id={`philosophy-tab-${index}`}
-                  aria-selected={selected}
-                  aria-controls="philosophy-panel"
-                  onClick={() => setActivePhilosophy(index)}
-                  className={`flex min-h-12 items-center justify-center gap-0.5 rounded-full px-0.5 text-[10px] font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-brand/35 sm:gap-1 sm:px-1 sm:text-[11px] ${selected ? "border border-[rgba(176,122,62,0.32)] bg-[#FFFDF8] text-brand" : "text-[#4F4A45]"}`}
-                >
-                  <span className="shrink-0"><PhilosophyIcon type={item.icon} /></span>
-                  <span className="whitespace-nowrap leading-tight">{item.label}</span>
-                </button>
-              );
-            })}
+        <div className="mt-20 sm:mt-24">
+          <header className="max-w-[760px]">
+            <h2 className="font-display text-[43px] font-semibold leading-[1.02] tracking-[-0.035em] sm:text-[54px]">One price. The tools you&apos;ll actually use.</h2>
+            <p className="mt-5 text-[20px] leading-7 text-[#70819F] sm:text-[25px]">Everything below is included for {MONTHLY_PRICE}/month.</p>
+          </header>
+
+          <div className="mt-9 grid gap-5 sm:mt-12 sm:gap-6">
+            {pricingFeatureGroups.map((group) => (
+              <article key={group.title} className="rounded-[26px] border border-[#E7A165] bg-[#FFFDF8]/45 px-6 py-6 sm:px-9 sm:py-8">
+                <header className="flex items-center gap-5 text-[#D9892B]">
+                  <PricingFeatureIcon type={group.icon} />
+                  <h3 className="font-display text-[35px] font-semibold leading-none tracking-[-0.025em] text-[#111111] sm:text-[43px]">{group.title}</h3>
+                </header>
+                <ul className="mt-6 grid gap-3.5 sm:mt-7 sm:gap-4">
+                  {group.features.map((feature) => (
+                    <li key={feature} className="flex items-start gap-4 text-[18px] leading-[1.35] text-[#17120C] sm:text-[21px]">
+                      <PricingCheckIcon />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </article>
+            ))}
           </div>
 
-          <article id="philosophy-panel" role="tabpanel" aria-labelledby={`philosophy-tab-${activePhilosophy}`} className="mt-5 rounded-[20px] border border-[rgba(200,164,107,0.32)] bg-[#FFFDF8]/50 px-6 py-8 text-center sm:px-10">
-            <div className="mx-auto grid h-16 w-16 place-items-center rounded-full border border-[rgba(176,122,62,0.12)] bg-[rgba(214,168,90,0.12)] text-brand">
-              <PhilosophyIcon type={philosophyItems[activePhilosophy].icon} />
-            </div>
-            <div className="mx-auto mt-5 max-w-[360px]">
-              <PhilosophyMessage index={activePhilosophy} />
-            </div>
-            <div className="mt-6 flex justify-center gap-3" aria-label={`Showing ${philosophyItems[activePhilosophy].label}`}>
-              {philosophyItems.map((item, index) => (
-                <span key={item.label} className={`h-2 w-2 rounded-full ${index === activePhilosophy ? "bg-brand" : "bg-[#DDD6CF]"}`} aria-hidden="true" />
-              ))}
-            </div>
-          </article>
-        </div>
-
-        <div className="mt-12 overflow-hidden rounded-[18px] border border-[rgba(200,164,107,0.48)] bg-[#FFFDF8]/75 sm:mt-16">
-          <div className="grid lg:grid-cols-[0.86fr_1.14fr]">
-            <div className="px-6 py-8 sm:px-10 sm:py-10 lg:px-12 lg:py-12">
-              <h2 className="whitespace-nowrap font-display text-[clamp(26px,7.5vw,34px)] font-bold leading-[1.02] tracking-[-0.01em] text-[#111111] sm:text-[42px]">One straightforward price.</h2>
-              <div className="mt-6 flex items-end gap-2">
-                <span className="font-display text-[68px] font-bold leading-none text-brand sm:text-[82px]">{MONTHLY_PRICE}</span>
-                <span className="pb-2 text-base font-bold text-[#1F1A17]">/month</span>
-              </div>
-              <div className="mt-6 h-px w-36 bg-[rgba(200,164,107,0.62)]" />
-              <ul className="mt-7 grid gap-4">
-                {corePricingItems.map((item) => (
-                  <li key={item} className="flex items-center gap-3 text-sm font-medium text-[#4F4A45]">
-                    <CheckIcon />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="border-t border-[rgba(200,164,107,0.38)] px-6 py-8 sm:px-10 sm:py-10 lg:border-l lg:border-t-0 lg:px-12 lg:py-12">
-              <h3 className="max-w-[390px] font-display text-[28px] font-bold leading-[1.08] text-[#111111] sm:text-[34px]">The tools that help your business grow.</h3>
-              <div className="mt-7 grid grid-cols-2 gap-x-4 gap-y-4 sm:gap-x-8">
-                {includedFeatureColumns.map((column, columnIndex) => (
-                  <ul key={columnIndex} className="grid content-start gap-4">
-                    {column.map((feature) => (
-                      <li key={feature} className="flex items-start gap-2 text-[11px] font-medium leading-5 text-[#4F4A45] sm:gap-3 sm:text-sm">
-                        <CheckIcon />
-                        <span>{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="px-6 pb-8 sm:px-10 sm:pb-10 lg:pb-12">
-            <MarketingLink href="/waitlist" className="h-14 w-full !border-[#111111] !bg-[#111111] !px-8 !font-sans !text-base !text-white !shadow-none hover:!bg-[#2A2522] sm:mx-auto sm:w-[352px]">
+          <div className="mt-5 px-1 text-center sm:mt-7">
+            <MarketingLink href="/waitlist" className="h-16 w-full rounded-[14px] !border-[#17120C] !bg-[#C98239] !px-8 !font-sans !text-[22px] !font-semibold !text-white !shadow-none hover:!bg-[#B9722D] sm:mx-auto sm:w-[352px]">
               Join the waitlist
             </MarketingLink>
+            <p className="mt-4 text-[18px] text-[#6D7481]">One plan · Cancel anytime</p>
           </div>
         </div>
       </div>

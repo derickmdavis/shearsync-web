@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import HomePage from "@/src/app/page";
 
@@ -45,20 +45,13 @@ describe("HomePage", () => {
     });
   });
 
-  it("switches the mobile philosophy message from the accessible selector", () => {
+  it("shows the Why Root & Foil benefits as static cards", () => {
     render(<HomePage />);
 
-    const focusedTab = screen.getByRole("tab", { name: "Simple" });
-    const tailoredTab = screen.getByRole("tab", { name: "Tailored" });
-    const includedTab = screen.getByRole("tab", { name: "All-Access" });
-
-    expect(focusedTab.getAttribute("aria-selected")).toBe("true");
-    expect(tailoredTab.getAttribute("aria-selected")).toBe("false");
-    expect(includedTab.getAttribute("aria-selected")).toBe("false");
-
-    fireEvent.click(includedTab);
-
-    expect(includedTab.getAttribute("aria-selected")).toBe("true");
-    expect(screen.getAllByText("Our best ideas aren't upgrades.").length).toBeGreaterThan(0);
+    expect(screen.getByRole("heading", { name: "Premium" })).not.toBeNull();
+    expect(screen.getByRole("heading", { name: "Focused" })).not.toBeNull();
+    expect(screen.getByRole("heading", { name: "All-Access" })).not.toBeNull();
+    expect(screen.getByText("Every feature for $25/month.")).not.toBeNull();
+    expect(screen.queryByRole("tab", { name: "Simple" })).toBeNull();
   });
 });
