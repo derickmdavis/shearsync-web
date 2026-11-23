@@ -25,9 +25,9 @@ async function responseMessage(response: Response) {
 }
 
 const valueProps = [
-  { label: "Simpler Booking", icon: CalendarIcon },
-  { label: "Client Management", icon: ClientsIcon },
-  { label: "Easy Rebooking", icon: RebookIcon },
+  { label: "Stay booked", icon: CalendarIcon },
+  { label: "Keep clients", icon: ClientsIcon },
+  { label: "Earn more", icon: RebookIcon },
 ];
 
 export function WaitlistPage() {
