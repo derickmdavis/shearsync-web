@@ -38,7 +38,7 @@ const productPillars: ProductPillar[] = [
   {
     icon: "/assets/icons/icon-client-bronze.svg",
     title: "Keep clients coming back",
-    body: "Client notes, Formulas, and rebooking reminders",
+    body: "Client notes, formulas, and rebooking reminders",
     screenshot: "/assets/home/client-details.png",
     screenshotWidth: 1086,
     screenshotHeight: 1448,
@@ -47,7 +47,7 @@ const productPillars: ProductPillar[] = [
   {
     icon: "/assets/icons/icon-analytics-bronze.svg",
     title: "Know what’s working",
-    body: "Revenue, Capacity and at-risk clients at a glance",
+    body: "Revenue, capacity and at-risk clients at a glance",
     screenshot: "/assets/home/root-foil-insights.png",
     screenshotWidth: 887,
     screenshotHeight: 1774,
@@ -106,18 +106,15 @@ const footerGroups = [
   {
     title: "Product",
     links: [
-      { label: "Product", href: "#product" },
-      { label: "What’s Included", href: "#product" },
-      { label: "Pricing", href: "#pricing" },
+      { label: "What do you get?", href: "#product" },
+      { label: "Why Root & Foil", href: "#pricing" },
+      { label: "One price", href: "#one-price" },
       { label: "Login", href: loginHref },
     ],
   },
   {
     title: "Company",
-    links: [
-      { label: "About", href: "/about" },
-      { label: "Contact", href: "#" },
-    ],
+    links: [{ label: "About", href: "/about" }],
   },
   {
     title: "Legal",
@@ -319,7 +316,7 @@ function HomeHero() {
             className="mx-auto mb-4 w-[151px] object-contain sm:w-[172px] lg:mx-0 lg:mb-5 lg:w-[205px]"
           />
           <h1 className="mt-5 text-balance font-display text-[clamp(23px,7.4vw,38px)] font-semibold leading-[0.91] tracking-[-0.05em] text-[#FAF7F2] sm:text-[52px] lg:mt-6 lg:text-[68px] lg:tracking-[-0.025em] xl:text-[76px]">
-            Growth starts at the roots.
+            For independent hair pros
           </h1>
 
           <p className="mx-auto mt-4 max-w-[500px] text-[15px] leading-6 text-[#E5DED4] sm:text-[16px] sm:leading-7 lg:mx-0 lg:mt-6">
@@ -493,7 +490,7 @@ function HomePricing() {
           ))}
         </div>
 
-        <div className="mt-20 sm:mt-24">
+        <div id="one-price" className="mt-20 scroll-mt-6 sm:mt-24">
           <header className="max-w-[760px]">
             <h2 className="font-display text-[38px] font-bold leading-[1.02] tracking-[-0.01em] sm:text-[48px] lg:text-[56px]">One price. The tools you&apos;ll actually use.</h2>
             <p className="mt-5 text-[15px] leading-7 text-[#70819F] sm:text-base">Everything below is included for {MONTHLY_PRICE}/month.</p>
