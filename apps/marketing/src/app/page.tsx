@@ -316,12 +316,8 @@ function HomeHero() {
             width={1169}
             height={1157}
             priority
-            className="mx-auto mb-4 w-[116px] object-contain sm:w-[132px] lg:mx-0 lg:mb-5 lg:w-[158px]"
+            className="mx-auto mb-4 w-[151px] object-contain sm:w-[172px] lg:mx-0 lg:mb-5 lg:w-[205px]"
           />
-          <p className="inline-flex items-center rounded-[5px] border border-[#D6A85A]/85 bg-black/20 px-3 py-1.5 text-[8px] font-extrabold uppercase tracking-[0.15em] text-[#E9BB6C] sm:text-[9px] sm:whitespace-nowrap">
-            Designed for independent stylists and barbers
-          </p>
-
           <h1 className="mt-5 text-balance font-display text-[clamp(23px,7.4vw,38px)] font-semibold leading-[0.91] tracking-[-0.05em] text-[#FAF7F2] sm:text-[52px] lg:mt-6 lg:text-[68px] lg:tracking-[-0.025em] xl:text-[76px]">
             Growth starts at the roots.
           </h1>
@@ -339,12 +335,6 @@ function HomeHero() {
             >
               Join Waitlist
             </MarketingLink>
-            <Link
-              href="#product"
-              className="inline-flex min-h-11 items-center justify-center px-2 font-sans text-[13px] font-semibold text-[#FAF7F2] underline decoration-[#D6A85A]/80 decoration-1 underline-offset-4 transition-colors hover:text-[#E3B166] hover:decoration-[#E3B166] focus:outline-none focus:ring-2 focus:ring-[#D6A85A] focus:ring-offset-2 focus:ring-offset-[#080807]"
-            >
-              See What&apos;s Included
-            </Link>
           </div>
 
         </div>
