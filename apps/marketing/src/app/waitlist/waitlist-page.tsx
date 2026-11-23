@@ -12,6 +12,18 @@ type FormErrors = {
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+async function responseMessage(response: Response) {
+  try {
+    const body = await response.json() as { message?: unknown; error?: { message?: unknown } };
+    if (typeof body.message === "string") return body.message;
+    if (typeof body.error?.message === "string") return body.error.message;
+  } catch {
+    // Use the standard retry message when the response is not JSON.
+  }
+
+  return "We couldn't join the waitlist right now. Please try again.";
+}
+
 const valueProps = [
   { label: "Simpler Booking", icon: CalendarIcon },
   { label: "Client Management", icon: ClientsIcon },
@@ -52,7 +64,10 @@ export function WaitlistPage() {
           source: "homepage_waitlist",
         }),
       });
-      if (!response.ok) throw new Error("Unable to submit waitlist request.");
+      if (!response.ok) {
+        setErrors({ form: await responseMessage(response) });
+        return;
+      }
       setSubmitted(true);
     } catch {
       setErrors({ form: "We couldn't join the waitlist right now. Please try again." });

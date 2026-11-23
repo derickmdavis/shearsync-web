@@ -1,13 +1,21 @@
 import { fetchWithTimeout, getBackendApiOrigin } from "@/src/lib/server-config";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const DUPLICATE_STATUSES = new Set([200, 201, 204, 409]);
+const FORWARDED_STATUSES = new Set([201, 400, 429]);
 
 type WaitlistPayload = {
   full_name?: unknown;
   email?: unknown;
   source?: unknown;
 };
+
+async function safeJson(response: Response) {
+  try {
+    return await response.json();
+  } catch {
+    return null;
+  }
+}
 
 export async function POST(request: Request) {
   let payload: WaitlistPayload;
@@ -39,7 +47,7 @@ export async function POST(request: Request) {
 
   try {
     const target = new URL(
-      "/api/public/early-access-requests",
+      "/api/public/early-access",
       getBackendApiOrigin(),
     );
     const response = await fetchWithTimeout(target, {
@@ -48,15 +56,17 @@ export async function POST(request: Request) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        full_name: fullName,
+        fullName,
         email,
         source,
       }),
       cache: "no-store",
     });
 
-    if (DUPLICATE_STATUSES.has(response.status)) {
-      return Response.json({ ok: true }, { status: 200 });
+    const body = await safeJson(response);
+
+    if (FORWARDED_STATUSES.has(response.status) && body !== null) {
+      return Response.json(body, { status: response.status });
     }
 
     return Response.json(

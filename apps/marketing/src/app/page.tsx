@@ -601,6 +601,18 @@ type WaitlistErrors = {
   form?: string;
 };
 
+async function waitlistResponseMessage(response: Response) {
+  try {
+    const body = await response.json() as { message?: unknown; error?: { message?: unknown } };
+    if (typeof body.message === "string") return body.message;
+    if (typeof body.error?.message === "string") return body.error.message;
+  } catch {
+    // Use the standard retry message when the response is not JSON.
+  }
+
+  return "We couldn't join the waitlist right now. Please try again.";
+}
+
 export function WaitlistModal({
   open,
   onClose,
@@ -721,7 +733,8 @@ export function WaitlistModal({
       });
 
       if (!response.ok) {
-        throw new Error("Unable to submit waitlist request.");
+        setErrors({ form: await waitlistResponseMessage(response) });
+        return;
       }
 
       setSubmitted(true);
